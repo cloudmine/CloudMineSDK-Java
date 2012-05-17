@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
  */
 public class CloudMineStoreIntegrationTest {
 
+    public static final String TEST_JSON = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
     private CloudMineStore store;
 
     @Before
@@ -27,10 +28,9 @@ public class CloudMineStoreIntegrationTest {
     }
 
     @Test
-    public void testBasicPut() {
-        CloudMineResponse response = createTestValue();
-        assertNotNull(response);
-        assertFalse(response.hasError());
+    public void testBasicSet() {
+        CloudMineResponse response = store.set(TEST_JSON);
+        assertWasSuccess(response);
 
         assertTrue(response.successHasKey("TESTING4703"));
 
@@ -38,26 +38,32 @@ public class CloudMineStoreIntegrationTest {
 
     @Test
     public void testDeleteAll() {
-        createTestValue();
+        store.set(TEST_JSON);
         CloudMineResponse response = store.deleteAll();
-        assertNotNull(response);
-        assertFalse(response.hasError());
-        assertTrue(response.hasSuccess());
+        assertWasSuccess(response);
     }
 
-    private CloudMineResponse createTestValue() {
-        String json = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
-        return store.put(json);
+    @Test
+    public void testBasicUpdate() {
+        CloudMineResponse response = store.update(TEST_JSON);
+        assertWasSuccess(response);
+
+        assertTrue(response.successHasKey("TESTING4703"));
     }
 
     @Test
     public void testBasicGet() {
-        createTestValue();
+        store.set(TEST_JSON);
         CloudMineResponse response = store.get();
+        assertWasSuccess(response);
+        assertTrue(response.successHasKey("TESTING4703"));
+    }
 
+    private void assertWasSuccess(CloudMineResponse response) {
         assertNotNull(response);
         assertFalse(response.hasError());
-        assertTrue(response.successHasKey("TESTING4703"));
+        assertTrue(response.hasSuccess());
+
     }
 
     private CloudMineStore getStore() {

@@ -40,9 +40,14 @@ public class CloudMineStore {
         return executeCommand(createGet());
     }
 
-    public CloudMineResponse put(String json) {
+    public CloudMineResponse set(String json) {
         HttpPut put = createPut(json);
         return executeCommand(put);
+    }
+
+    public CloudMineResponse update(String json) {
+        HttpPost post = createPost(json);
+        return executeCommand(post);
     }
 
     private CloudMineResponse executeCommand(HttpUriRequest message) {
@@ -95,6 +100,13 @@ public class CloudMineStore {
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
+    }
+
+    private HttpPost createPost(String json) {
+        HttpPost post = new HttpPost(baseUrl.text().url());
+        addCloudMineHeader(post);
+        addJson(post, json);
+        return post;
     }
 
     private HttpGet createGet() {
