@@ -1,11 +1,11 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Copyright CloudMine LLC
@@ -14,30 +14,55 @@ import static org.junit.Assert.assertTrue;
  */
 public class CloudMineStoreIntegrationTest {
 
+    private CloudMineStore store;
+
+    @Before
+    public void setUp() {
+        store = getStore();
+    }
+
+    @After
+    public void cleanUp() {
+        getStore().deleteAll();
+    }
+
     @Test
     public void testBasicPut() {
-        CloudMineStore store = getStore();
-        String json = "{\"key\": [\"value1\", \"value2\"]}";
-        CloudMineResponse response = store.put(json);
+        System.out.println("T");
+        CloudMineResponse response = createTestValue();
         assertNotNull(response);
         assertFalse(response.hasError());
 
-        assertTrue(response.successHasKey("key"));
+        assertTrue(response.successHasKey("TESTING4703"));
 
+    }
+
+    @Test
+    public void testDeleteAll() {
+        createTestValue();
+        CloudMineResponse response = store.deleteAll();
+        assertNotNull(response);
+        assertFalse(response.hasError());
+        assertTrue(response.hasSuccess());
+    }
+
+    private CloudMineResponse createTestValue() {
+        String json = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
+        return store.put(json);
     }
 
     @Test
     public void testBasicGet() {
-        CloudMineStore store = getStore();
-        //TODO Integration tests might need some setting up so they always run on a clean database - VM or something that can be spun up in a specific state?
+        createTestValue();
         CloudMineResponse response = store.get();
 
         assertNotNull(response);
         assertFalse(response.hasError());
+        assertTrue(response.successHasKey("TESTING4703"));
     }
 
     private CloudMineStore getStore() {
-        return new CloudMineStore(new CloudMineURLBuilder("http://localhost:3001", ApiCredentials.applicationIdentifier()));
+        return new CloudMineStore(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
     }
 
 }

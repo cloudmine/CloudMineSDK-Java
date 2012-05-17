@@ -3,6 +3,7 @@ package com.cloudmine.api.rest;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
 
 /**
  * Copyright CloudMine LLC
@@ -20,7 +21,16 @@ public class CloudMineURLBuilderTest {
         assertEquals(expectedUrl, builder.url());
 
         expectedUrl += "/text";
-        assertEquals(expectedUrl, builder.text());
+        assertEquals(expectedUrl, builder.text().url());
+    }
+
+    @Test
+    public void testImmutable() {
+        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
+
+        CloudMineURLBuilder modifiedBuilder = builder.addQuery("all", "true");
+        assertNotSame(builder, modifiedBuilder);
+
     }
 
     private String expectedBaseUrl() {

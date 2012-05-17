@@ -22,12 +22,12 @@ public class URLBuilderTest {
         //Test that trailing "/" are removed
         assertEquals(BASE_URL, new URLBuilder(BASE_URL + "/").url());
 
-        builder.addAction("statuses")
-                .addAction("home_timeline");
+        builder = builder.addAction("statuses")
+                    .addAction("home_timeline");
         expectedUrl += "/statuses/home_timeline";
         assertEquals(expectedUrl, builder.url());
 
-        builder.addQuery("user", "john");
+        builder = builder.addQuery("user", "john");
         expectedUrl += "?user=john";
         assertEquals(expectedUrl, builder.url());
     }

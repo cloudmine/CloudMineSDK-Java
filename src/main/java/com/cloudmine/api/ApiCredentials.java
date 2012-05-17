@@ -11,7 +11,7 @@ import org.apache.http.message.BasicHeader;
 public class ApiCredentials {
     private static final String HEADER_KEY = "X-CloudMine-ApiKey";
 
-    private static final ApiCredentials credentials = new ApiCredentials("d63ed38a3ed340008aaee1514d2433ca", "1b4bfebca7694495975cd96da6c49642"); //TODO obv this can't stay like this
+    private static final ApiCredentials credentials = new ApiCredentials("c1a562ee1e6f4a478803e7b51babe287", "3fc494b36d6d432d9afb051d819bdd72"); //TODO obv this can't stay like this
 
     private final String applicationIdentifier;
     private final String applicationApiKey;

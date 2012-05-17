@@ -3,6 +3,8 @@ package com.cloudmine.api.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -12,6 +14,7 @@ import java.io.IOException;
  * Date: 5/16/12, 3:26 PM
  */
 public class CloudMineResponse {
+    private static final Logger LOG = LoggerFactory.getLogger(CloudMineResponse.class);
     private static final String SUCCESS = "success";
     private static final String ERRORS = "errors";
 
@@ -20,18 +23,28 @@ public class CloudMineResponse {
     private final JsonNode errorResponse;
 
     public CloudMineResponse(HttpResponse response) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode responseNode = null;
-        try {
-            responseNode = mapper.readValue(response.getEntity().getContent(), JsonNode.class); //TODO error handling
-        } catch (IOException e) {
-            e.printStackTrace();;
-            //TODO
-        }
+        JsonNode responseNode = extractResponseNode(response);
         baseNode = responseNode;
         successResponse = responseNode.get(SUCCESS);
-        errorResponse = responseNode.get(ERRORS);
+        errorResponse = responseNode.get(ERRORS); //TODO If we receive a null response is that an error?
+    }
 
+    private JsonNode extractResponseNode(HttpResponse response) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode responseNode = null;
+        if(response == null ||
+                response.getStatusLine().getStatusCode() > 202 ||
+                !response.getEntity().getContentType().getValue().contains("json")) {
+            LOG.info("Received null, error, or none json response");
+            responseNode = mapper.getNodeFactory().nullNode();
+        }else {
+            try {
+                responseNode = mapper.readValue(response.getEntity().getContent(), JsonNode.class);
+            } catch (IOException e) {
+                LOG.error("Failed parsing response entity content: ", e);
+            }
+        }
+        return responseNode;
     }
 
     public boolean successHasKey(String key) {
@@ -39,8 +52,16 @@ public class CloudMineResponse {
                     successResponse.has(key);
     }
 
+    public boolean hasSuccess() {
+        return jsonNodeHasContents(successResponse);
+    }
+
     public boolean hasError() {
-        return errorResponse != null && errorResponse.iterator().hasNext();
+        return jsonNodeHasContents(errorResponse);
+    }
+
+    private boolean jsonNodeHasContents(JsonNode node) {
+        return node != null && node.iterator().hasNext();
     }
 
     public String toString() {

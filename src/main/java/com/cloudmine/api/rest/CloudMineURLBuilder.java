@@ -1,11 +1,13 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.ApiCredentials;
+
 /**
  * Copyright CloudMine LLC
  * User: johnmccarthy
  * Date: 5/16/12, 11:21 AM
  */
-public class CloudMineURLBuilder extends URLBuilder {
+public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
     enum VERSION implements URL {
         V1("/v1");
         private final String urlRepresentation;
@@ -27,24 +29,38 @@ public class CloudMineURLBuilder extends URLBuilder {
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
     public static final String APP = "/app";
 
-    private final String appId;
+
+    public CloudMineURLBuilder() {
+        this(ApiCredentials.applicationIdentifier());
+    }
 
     public CloudMineURLBuilder(String appId) {
-        super(CLOUD_MINE_URL + DEFAULT_VERSION.url());
-        this.appId = formatUrlPart(appId);
+        this(CLOUD_MINE_URL, appId);
     }
 
     protected CloudMineURLBuilder(String cloudMineUrl, String appId) {
-        super(cloudMineUrl + DEFAULT_VERSION.url());
-        this.appId = formatUrlPart(appId);
+        this(cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId), "", "");
     }
 
-    public String text() {
-        return url() + "/text";
+    protected CloudMineURLBuilder(String baseUrl, String actions, String queryParams) {
+        super(baseUrl, actions, queryParams);
+
     }
 
-    @Override
-    public String baseUrl() {
-        return super.baseUrl() + APP + appId;
+    protected CloudMineURLBuilder newBuilder(String baseUrl, String actions, String queryParams) {
+        return new CloudMineURLBuilder(baseUrl, actions, queryParams);
+    }
+
+
+    public CloudMineURLBuilder data() {
+        return addAction("data");
+    }
+
+    public CloudMineURLBuilder deleteAll() {
+        return data().addQuery("all", "true");
+    }
+
+    public CloudMineURLBuilder text() {
+        return this.addAction("text");
     }
 }
