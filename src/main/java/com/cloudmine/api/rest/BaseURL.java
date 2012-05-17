@@ -6,8 +6,8 @@ package com.cloudmine.api.rest;
  * User: johnmccarthy
  * Date: 5/16/12, 11:32 AM
  */
-public interface URL {
+public interface BaseURL {
     String SEPARATOR = "/";
 
-    public String url();
+    public String urlString();
 }

@@ -1,6 +1,11 @@
 package com.cloudmine.api.rest;
 
 import org.apache.http.NameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * This class only exists to make Java be cool about types. Should never be directly instantiated
@@ -8,7 +13,8 @@ import org.apache.http.NameValuePair;
  * User: johnmccarthy
  * Date: 5/17/12, 10:48 AM
  */
-public abstract class BaseURLBuilder<T> implements URL{
+public abstract class BaseURLBuilder<T> implements BaseURL {
+    private static final Logger LOG = LoggerFactory.getLogger(BaseURLBuilder.class);
     protected final String baseUrl;
     protected final String actions;
     protected final String queryParams;
@@ -70,20 +76,31 @@ public abstract class BaseURLBuilder<T> implements URL{
         return baseUrl;
     }
 
+    public URL url() {
+        try {
+            URL url = new URL(urlString());
+            return url;
+        } catch (MalformedURLException e) {
+            LOG.error("URL was malformed", e);
+        }
+        return null;
+    }
+
     @Override
-    public String url() {
-        return baseUrl() + actions + queryParams;
+    public String urlString() {
+        String url = baseUrl() + actions + queryParams;
+        return url;
     }
 
     @Override
     public String toString() {
-        return url();
+        return urlString();
     }
 
     @Override
     public boolean equals(Object other) {
         if(other != null && other instanceof BaseURLBuilder) { //This will allow this to equal subclasses of the URL builder
-            return ((BaseURLBuilder)other).url().equals(this.url());
+            return ((BaseURLBuilder)other).urlString().equals(this.urlString());
         } else {
             return false;
         }
@@ -91,6 +108,6 @@ public abstract class BaseURLBuilder<T> implements URL{
 
     @Override
     public int hashCode() {
-        return url().hashCode();
+        return urlString().hashCode();
     }
 }

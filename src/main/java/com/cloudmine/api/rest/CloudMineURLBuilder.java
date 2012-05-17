@@ -1,6 +1,11 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Copyright CloudMine LLC
@@ -8,7 +13,7 @@ import com.cloudmine.api.ApiCredentials;
  * Date: 5/16/12, 11:21 AM
  */
 public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
-    enum VERSION implements URL {
+    enum VERSION implements BaseURL {
         V1("/v1");
         private final String urlRepresentation;
         private VERSION(String urlRepresentation) {
@@ -16,15 +21,16 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         }
 
         @Override
-        public String url() {
+        public String urlString() {
             return urlRepresentation;
         }
 
         @Override
         public String toString() {
-            return url();
+            return urlString();
         }
     }
+    private static final Logger LOG = LoggerFactory.getLogger(CloudMineURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
     public static final String APP = "/app";
@@ -51,6 +57,16 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return new CloudMineURLBuilder(baseUrl, actions, queryParams);
     }
 
+    public CloudMineURLBuilder search(String search) {
+        String encodedSearch;
+        try {
+            encodedSearch = URLEncoder.encode(search, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            encodedSearch = search;
+            LOG.error("Error encoding search string: " + search, e);
+        }
+        return addAction("search").addQuery("q", encodedSearch);
+    }
 
     public CloudMineURLBuilder data() {
         return addAction("data");

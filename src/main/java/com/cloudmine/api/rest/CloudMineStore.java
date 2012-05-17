@@ -40,6 +40,11 @@ public class CloudMineStore {
         return executeCommand(createGet());
     }
 
+    public CloudMineResponse search(String searchString) {
+        HttpGet get = createSearch(searchString);
+        return executeCommand(get);
+    }
+
     public CloudMineResponse set(String json) {
         HttpPut put = createPut(json);
         return executeCommand(put);
@@ -88,29 +93,35 @@ public class CloudMineStore {
 //            }
 //        }
 //    }
+    private HttpGet createSearch(String search) {
+        HttpGet get = new HttpGet(baseUrl.search(search).urlString());
+        addCloudMineHeader(get);
+        return get;
+    }
 
     private HttpDelete createDeleteAll() {
-        HttpDelete delete = new HttpDelete(baseUrl.deleteAll().url());
+        java.net.URL uri = baseUrl.deleteAll().url();
+        HttpDelete delete = new HttpDelete(uri.toString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpPut createPut(String json) {
-        HttpPut put = new HttpPut(baseUrl.text().url());
+        HttpPut put = new HttpPut(baseUrl.text().url().toString());
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
     }
 
     private HttpPost createPost(String json) {
-        HttpPost post = new HttpPost(baseUrl.text().url());
+        HttpPost post = new HttpPost(baseUrl.text().url().toString());
         addCloudMineHeader(post);
         addJson(post, json);
         return post;
     }
 
     private HttpGet createGet() {
-        HttpGet get = new HttpGet(baseUrl.text().url());
+        HttpGet get = new HttpGet(baseUrl.text().url().toString());
         addCloudMineHeader(get);
         return get;
     }

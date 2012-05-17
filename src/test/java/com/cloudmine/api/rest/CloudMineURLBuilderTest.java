@@ -18,10 +18,24 @@ public class CloudMineURLBuilderTest {
     public void testGet() {
         CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
         String expectedUrl = expectedBaseUrl();
-        assertEquals(expectedUrl, builder.url());
+        assertEquals(expectedUrl, builder.urlString());
 
         expectedUrl += "/text";
-        assertEquals(expectedUrl, builder.text().url());
+        assertEquals(expectedUrl, builder.text().urlString());
+    }
+
+    @Test
+    public void testSearch() {
+        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).search("[ingredients=\"chicken\"]");
+        assertEquals(expectedBaseUrl() + "/search?q=%5Bingredients%3D%22chicken%22%5D", builder.urlString());
+    }
+
+    @Test
+    public void testDelete() {
+        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).deleteAll();
+        String expectedUrl = expectedBaseUrl() + "/data?all=true";
+        assertEquals(expectedUrl, builder.urlString());
+        assertEquals(expectedUrl, builder.url().toString());
     }
 
     @Test
@@ -34,7 +48,7 @@ public class CloudMineURLBuilderTest {
     }
 
     private String expectedBaseUrl() {
-        return CloudMineURLBuilder.CLOUD_MINE_URL + CloudMineURLBuilder.DEFAULT_VERSION + CloudMineURLBuilder.APP + URL.SEPARATOR + APP_ID;
+        return CloudMineURLBuilder.CLOUD_MINE_URL + CloudMineURLBuilder.DEFAULT_VERSION + CloudMineURLBuilder.APP + BaseURL.SEPARATOR + APP_ID;
     }
 
 }
