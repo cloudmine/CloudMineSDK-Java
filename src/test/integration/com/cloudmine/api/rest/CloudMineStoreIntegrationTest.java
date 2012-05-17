@@ -28,7 +28,6 @@ public class CloudMineStoreIntegrationTest {
 
     @Test
     public void testBasicPut() {
-        System.out.println("T");
         CloudMineResponse response = createTestValue();
         assertNotNull(response);
         assertFalse(response.hasError());
