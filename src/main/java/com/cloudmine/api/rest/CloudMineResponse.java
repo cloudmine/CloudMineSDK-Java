@@ -60,6 +60,16 @@ public class CloudMineResponse {
         return jsonNodeHasContents(errorResponse);
     }
 
+    public boolean hasNode(String key) {
+        return baseNode != null && baseNode.has(key);
+    }
+
+    public JsonNode getNode(String key) {
+        return baseNode == null ?
+                    null :
+                        baseNode.get(key);
+    }
+
     private boolean jsonNodeHasContents(JsonNode node) {
         return node != null && node.iterator().hasNext();
     }

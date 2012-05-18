@@ -76,7 +76,47 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return data().addQuery("all", "true");
     }
 
+    public CloudMineURLBuilder delete(String... keys) {
+        return data().keys(keys);
+    }
+
+    public CloudMineURLBuilder keys(String... keys) {
+        if(keys.length == 0)
+            return this;
+        return addQuery("keys", keysToString(keys));
+    }
+
+    private String keysToString(String... keys) {
+        String keyString = "";
+        String comma = "";
+        for(String key : keys) {
+            keyString += comma + key;
+            comma = ",";
+        }
+        return keyString;
+    }
+
     public CloudMineURLBuilder text() {
         return this.addAction("text");
+    }
+
+    public CloudMineURLBuilder binary() {
+        return this.addAction("binary");
+    }
+
+    public CloudMineURLBuilder binary(String key) {
+        return this.binary().addKey(key);
+    }
+
+    /**
+     * Adds the key as an action if it exists
+     * @param key
+     * @return
+     */
+    public CloudMineURLBuilder addKey(String key) {
+        if(key != null) {
+            return this.addAction(key);
+        }
+        return this;
     }
 }

@@ -1,9 +1,12 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
+import com.cloudmine.api.CloudMineFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.*;
 
 import static org.junit.Assert.*;
 
@@ -29,11 +32,11 @@ public class CloudMineStoreIntegrationTest {
     private CloudMineStore store;
     @Before
     public void setUp() {
-        store = getStore();
+        store = new CloudMineStore(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
     }
     @After
     public void cleanUp() {
-        getStore().deleteAll();
+//        store.deleteAll();
     }
 
     @Test
@@ -75,15 +78,62 @@ public class CloudMineStoreIntegrationTest {
         assertTrue(response.successHasKey("TESTING4703"));
     }
 
+    @Test
+    public void testFileStorageSet() throws Exception {
+        InputStream input = getObjectInputStream();
+        CloudMineResponse response = store.set(new CloudMineFile(input));
+        assertNotNull(response);
+        assertFalse(response.hasError());
+        assertTrue(response.hasNode("key"));
+    }
+
+    @Test
+    public void testFileStorageGet() throws Exception {
+        CloudMineFile insertedFile = new CloudMineFile(getObjectInputStream(), CloudMineFile.DEFAULT_CONTENT_TYPE, "theFileKey");
+        CloudMineResponse response = store.set(
+                insertedFile);
+
+        CloudMineFile loadedFile = store.getObject("theFileKey");
+        assertArrayEquals(insertedFile.getFileContents(), loadedFile.getFileContents());
+    }
+
+    @Test
+    public void testKeyedDelete() {
+        store.set(COMPLEX_JSON);
+
+        CloudMineResponse response = store.delete("deepKeyed");
+
+        assertWasSuccess(response);
+
+        response = store.get();
+        assertWasSuccess(response);
+        assertTrue(response.successHasKey("oneKey"));
+        assertFalse(response.successHasKey("deepKeyed"));
+
+        store.set(COMPLEX_JSON);
+
+        store.delete("deepKeyed", "oneKey");
+        response = store.get();
+        assertFalse(response.successHasKey("oneKey"));
+        assertFalse(response.successHasKey("deepKeyed"));
+    }
+
+    private InputStream getObjectInputStream() throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+        objectOutput.write(55);
+        objectOutput.writeObject("Some String is Written");
+        objectOutput.flush();
+        objectOutput.close();
+
+        return new ByteArrayInputStream(output.toByteArray());
+    }
+
     private void assertWasSuccess(CloudMineResponse response) {
         assertNotNull(response);
         assertFalse(response.hasError());
         assertTrue(response.hasSuccess());
 
-    }
-
-    private CloudMineStore getStore() {
-        return new CloudMineStore(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
     }
 
 }

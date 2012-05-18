@@ -1,9 +1,11 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
+import com.cloudmine.api.CloudMineFile;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -36,8 +38,22 @@ public class CloudMineStore {
         return executeCommand(createDeleteAll());
     }
 
+    public CloudMineResponse delete(String... keys) {
+        return executeCommand(createDelete(keys));
+    }
+
     public CloudMineResponse get() {
         return executeCommand(createGet());
+    }
+
+    public CloudMineFile getObject(String key) {
+        try {
+            HttpResponse response = httpClient.execute(createGetObject(key));
+            return new CloudMineFile(response);
+        } catch (IOException e) {
+            //TODO handle this
+        }
+        return null;
     }
 
     public CloudMineResponse search(String searchString) {
@@ -53,6 +69,10 @@ public class CloudMineStore {
     public CloudMineResponse update(String json) {
         HttpPost post = createPost(json);
         return executeCommand(post);
+    }
+
+    public CloudMineResponse set(CloudMineFile file) {
+        return executeCommand(createPut(file));
     }
 
     private CloudMineResponse executeCommand(HttpUriRequest message) {
@@ -100,28 +120,47 @@ public class CloudMineStore {
     }
 
     private HttpDelete createDeleteAll() {
-        java.net.URL uri = baseUrl.deleteAll().url();
-        HttpDelete delete = new HttpDelete(uri.toString());
+        HttpDelete delete = new HttpDelete(baseUrl.deleteAll().urlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
+    private HttpDelete createDelete(String... keys) {
+        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).urlString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpPut createPut(String json) {
-        HttpPut put = new HttpPut(baseUrl.text().url().toString());
+        HttpPut put = new HttpPut(baseUrl.text().urlString());
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
     }
 
+    private HttpPut createPut(CloudMineFile file) {
+        HttpPut put = new HttpPut(baseUrl.binary(file.getKey()).urlString());
+        addCloudMineHeader(put);
+        put.setEntity(new ByteArrayEntity(file.getFileContents()));
+        put.addHeader("Content-Type", file.getContentType());
+        return put;
+    }
+
     private HttpPost createPost(String json) {
-        HttpPost post = new HttpPost(baseUrl.text().url().toString());
+        HttpPost post = new HttpPost(baseUrl.text().urlString());
         addCloudMineHeader(post);
         addJson(post, json);
         return post;
     }
 
     private HttpGet createGet() {
-        HttpGet get = new HttpGet(baseUrl.text().url().toString());
+        HttpGet get = new HttpGet(baseUrl.text().urlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private HttpGet createGetObject(String key) {
+        HttpGet get = new HttpGet(baseUrl.binary(key).urlString());
         addCloudMineHeader(get);
         return get;
     }
