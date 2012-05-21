@@ -2,6 +2,8 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
 import com.cloudmine.api.CloudMineFile;
+import com.cloudmine.api.User;
+import com.cloudmine.api.UserToken;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -49,7 +51,7 @@ public class CloudMineStore {
     public CloudMineFile getObject(String key) {
         try {
             HttpResponse response = httpClient.execute(createGetObject(key));
-            return new CloudMineFile(response);
+            return new CloudMineFile(response, key);
         } catch (IOException e) {
             //TODO handle this
         }
@@ -67,7 +69,7 @@ public class CloudMineStore {
     }
 
     public CloudMineResponse update(String json) {
-        HttpPost post = createPost(json);
+        HttpPost post = createJsonPost(json);
         return executeCommand(post);
     }
 
@@ -75,11 +77,27 @@ public class CloudMineStore {
         return executeCommand(createPut(file));
     }
 
+    public CloudMineResponse set(User user) {
+        return executeCommand(createPut(user));
+    }
+
+    public LoginResponse login(User user) {
+        return executeCommand(createLoginPost(user), LoginResponse.CONSTRUCTOR);
+    }
+
+    public CloudMineResponse logout(UserToken sessionToken) {
+        return executeCommand(createLogoutPost(sessionToken));
+    }
+
     private CloudMineResponse executeCommand(HttpUriRequest message) {
+        return executeCommand(message, CloudMineResponse.CONSTRUCTOR);
+    }
+
+    private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, CloudMineResponse.ResponseConstructor<T> constructor) {
         HttpResponse response = null;
         try {
             response = httpClient.execute(message);
-            return new CloudMineResponse(response);
+            return constructor.construct(response);
         }
         catch (IOException e) {
             LOG.error("Error executing command: " + message.getURI(), e);
@@ -87,7 +105,7 @@ public class CloudMineStore {
         finally {
             consumeEntityResponse(response);
         }
-        return new CloudMineResponse(null);
+        return constructor.construct(null);
     }
 
     /**
@@ -138,6 +156,13 @@ public class CloudMineStore {
         return put;
     }
 
+    private HttpPut createPut(User user) {
+        HttpPut put = new HttpPut(baseUrl.account().create().urlString());
+        addCloudMineHeader(put);
+        addJson(put, user.asJson());
+        return put;
+    }
+
     private HttpPut createPut(CloudMineFile file) {
         HttpPut put = new HttpPut(baseUrl.binary(file.getKey()).urlString());
         addCloudMineHeader(put);
@@ -146,10 +171,27 @@ public class CloudMineStore {
         return put;
     }
 
-    private HttpPost createPost(String json) {
-        HttpPost post = new HttpPost(baseUrl.text().urlString());
-        addCloudMineHeader(post);
+    private HttpPost createJsonPost(String json) {
+        HttpPost post = createPost(baseUrl.text().urlString());
         addJson(post, json);
+        return post;
+    }
+
+    private HttpPost createLoginPost(User user) {
+        HttpPost post = createPost(baseUrl.account().login().urlString());
+        post.addHeader("Authorization", "Basic " + user.encode());
+        return post;
+    }
+
+    private HttpPost createLogoutPost(UserToken sessionToken) {
+        HttpPost post = createPost(baseUrl.account().logout().urlString());
+        post.addHeader("X-CloudMine-SessionToken", sessionToken.sessionToken());
+        return post;
+    }
+
+    private HttpPost createPost(String url){
+        HttpPost post = new HttpPost(url);
+        addCloudMineHeader(post);
         return post;
     }
 

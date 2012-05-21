@@ -96,6 +96,22 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return keyString;
     }
 
+    public CloudMineURLBuilder account() {
+        return this.addAction("account");
+    }
+
+    public CloudMineURLBuilder login() {
+        return this.addAction("login");
+    }
+
+    public CloudMineURLBuilder logout() {
+        return this.addAction("logout");
+    }
+
+    public CloudMineURLBuilder create() {
+        return this.addAction("create");
+    }
+
     public CloudMineURLBuilder text() {
         return this.addAction("text");
     }

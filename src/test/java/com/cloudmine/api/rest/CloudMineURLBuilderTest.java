@@ -31,6 +31,14 @@ public class CloudMineURLBuilderTest {
     }
 
     @Test
+    public void testAccount() {
+        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).account();
+        assertEquals(expectedBaseUrl() + "/account", builder.urlString());
+
+        assertEquals(expectedBaseUrl() + "/account/create", builder.create().urlString());
+    }
+
+    @Test
     public void testDelete() {
         CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).deleteAll();
         String expectedUrl = expectedBaseUrl() + "/data?all=true";

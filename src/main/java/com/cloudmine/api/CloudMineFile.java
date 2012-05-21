@@ -31,8 +31,8 @@ public class CloudMineFile {
         this(contents, contentType, null);
     }
 
-    public CloudMineFile(HttpResponse response) {
-        this(extractInputStream(response), extractContentType(response));
+    public CloudMineFile(HttpResponse response, String key) {
+        this(extractInputStream(response), extractContentType(response), key);
     }
 
     public CloudMineFile(InputStream contents, String contentType, String key) {
@@ -46,6 +46,7 @@ public class CloudMineFile {
         try {
             fileContents = IOUtils.toByteArray(contents);
         } catch (IOException e) {
+            LOG.error("IOException converting file contents to byte array", e);
             throw new CreationException(e);
         }
     }
@@ -79,6 +80,7 @@ public class CloudMineFile {
         try {
             return response.getEntity().getContent();
         } catch (IOException e) {
+            LOG.error("IOException getting response entity contents", e);
             throw new CreationException(e);
         }
     }

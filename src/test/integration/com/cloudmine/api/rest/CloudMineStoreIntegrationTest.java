@@ -2,11 +2,15 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.ApiCredentials;
 import com.cloudmine.api.CloudMineFile;
+import com.cloudmine.api.User;
+import com.cloudmine.api.UserToken;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +33,7 @@ public class CloudMineStoreIntegrationTest {
             "        }\n" +
             "    }\n" +
             "}";
+    public static final User USER = new User("francis@gmail.com", "GOD");
     private CloudMineStore store;
     @Before
     public void setUp() {
@@ -116,6 +121,37 @@ public class CloudMineStoreIntegrationTest {
         response = store.get();
         assertFalse(response.successHasKey("oneKey"));
         assertFalse(response.successHasKey("deepKeyed"));
+    }
+
+    @Test
+    @Ignore // until we can delete users this test will fail every time but the first time its run
+    public void testCreateUser() {
+        CloudMineResponse response = store.set(USER);
+        assertTrue(response.was(201));
+    }
+
+    @Test
+    public void testUserLogin() {
+        User nonExistentUser = new User("some@dude.com", "123");
+        LoginResponse response = store.login(nonExistentUser);
+        assertTrue(response.was(401));
+        store.set(USER);
+
+        response = store.login(USER);
+        assertTrue(response.was(200));
+    }
+
+    @Test
+    public void testUserLogout() {
+        CloudMineResponse response = store.logout(new UserToken("this token doesn't exist", new Date()));
+        assertEquals(401, response.getStatusCode());
+
+        store.set(USER);
+        LoginResponse loginResponse = store.login(USER);
+        assertTrue(loginResponse.was(200));
+
+        response = store.logout(loginResponse.userToken());
+        assertTrue(response.was(200));
     }
 
     private InputStream getObjectInputStream() throws IOException {

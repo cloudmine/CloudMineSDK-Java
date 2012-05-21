@@ -6,9 +6,10 @@ JACKSON = 'com.fasterxml.jackson.core:jackson-databind:jar:2.0.0'
 JACKSON_CORE = 'com.fasterxml.jackson.core:jackson-core:jar:2.0.0'
 LOGGING_BASE = 'org.slf4j:slf4j-api:jar:1.6.4'
 LOGGING_TYPE = 'org.slf4j:slf4j-simple:jar:1.6.4'
+JODA = 'joda-time:joda-time:jar:2.1'
 COMMONS = 'org.apache.commons:commons-io:jar:1.3.2'
 define 'cloudmine-javasdk' do
   project.version = '0.1'
-  compile.with HTTP_CORE, HTTP_CLIENT, JACKSON, JACKSON_CORE, LOGGING_BASE, LOGGING_TYPE, COMMONS
+  compile.with HTTP_CORE, HTTP_CLIENT, JACKSON, JACKSON_CORE, LOGGING_BASE, LOGGING_TYPE, COMMONS, JODA
   package :jar
 end
