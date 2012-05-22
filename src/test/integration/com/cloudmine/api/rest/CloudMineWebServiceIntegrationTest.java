@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  * User: johnmccarthy
  * Date: 5/16/12, 2:40 PM
  */
-public class CloudMineStoreIntegrationTest {
+public class CloudMineWebServiceIntegrationTest {
 
     private static final String TEST_JSON = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
 
@@ -34,10 +34,10 @@ public class CloudMineStoreIntegrationTest {
             "    }\n" +
             "}";
     public static final User USER = new User("francis@gmail.com", "GOD");
-    private CloudMineStore store;
+    private CloudMineWebService store;
     @Before
     public void setUp() {
-        store = new CloudMineStore(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
+        store = new CloudMineWebService(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
     }
     @After
     public void cleanUp() {

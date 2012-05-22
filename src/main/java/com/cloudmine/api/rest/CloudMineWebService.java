@@ -24,17 +24,19 @@ import java.io.IOException;
  * User: johnmccarthy
  * Date: 5/16/12, 2:34 PM
  */
-public class CloudMineStore {
+public class CloudMineWebService {
     public static final BasicHeader JSON_HEADER = new BasicHeader("Content-Type", "application/json");
-    private static final Logger LOG = LoggerFactory.getLogger(CloudMineStore.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CloudMineWebService.class);
 
     private final CloudMineURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
 //    private final HttpAsyncClient asyncHttpClient = new DefaultHttpAsyncClient();
 
-    public CloudMineStore(CloudMineURLBuilder baseUrl) {
+    public CloudMineWebService(CloudMineURLBuilder baseUrl) {
         this.baseUrl = baseUrl;
     }
+
+
 
     public CloudMineResponse deleteAll() {
         return executeCommand(createDeleteAll());
