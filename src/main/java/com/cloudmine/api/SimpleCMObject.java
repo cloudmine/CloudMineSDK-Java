@@ -73,6 +73,25 @@ public class SimpleCMObject implements Json {
         }
     }
 
+    public Object get(String key) {
+        return contents.get(key);
+    }
+
+    public boolean getBoolean(String key) {
+        Boolean b = getValue(key, Boolean.class);
+        if(b != null)
+            return b.booleanValue();
+        return false;
+    }
+
+    private <T> T getValue(String key, Class<T> klass) {
+        Object value = contents.get(key);
+        if(value != null && klass.isAssignableFrom(value.getClass())) {
+            return (T)value;
+        }
+        return null;
+    }
+
     public void setClass(String className) {
         add(CLASS_KEY, className);
     }
