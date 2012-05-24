@@ -1,9 +1,9 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.ApiCredentials;
-import com.cloudmine.api.CloudMineFile;
-import com.cloudmine.api.User;
-import com.cloudmine.api.UserToken;
+import com.cloudmine.api.*;
+import com.cloudmine.api.rest.callbacks.CloudMineWebServiceCallback;
+import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import org.apache.http.HttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.io.*;
 import java.util.Date;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -37,11 +39,35 @@ public class CloudMineWebServiceIntegrationTest {
     private CloudMineWebService store;
     @Before
     public void setUp() {
-        store = new CloudMineWebService(new CloudMineURLBuilder(ApiCredentials.applicationIdentifier()));
+        store = new CloudMineWebService(
+                new CloudMineURLBuilder(
+                        ApiCredentials.applicationIdentifier()),
+                null);
     }
     @After
     public void cleanUp() {
-//        store.deleteAll();
+        store.deleteAll();
+    }
+
+    @Test
+    @Ignore
+    public void testAsyncCreateUser() throws Exception {
+        User newUser = new User("test2@test.com", "password");
+        Future<CloudMineResponse> futureResponse = store.asyncCreateUser(newUser, new CloudMineWebServiceCallback() {
+            @Override
+            public void onCompleted(CloudMineResponse response) {
+                assertTrue(response.was(201));
+            }
+
+            @Override
+            public void onFailure(Throwable ex, String content) {
+                ex.printStackTrace();
+                fail("Failed");
+            }
+        });
+        System.out.println(newUser.encode());
+        CloudMineResponse response = futureResponse.get(5, TimeUnit.SECONDS);
+        assertTrue(response.was(201));
     }
 
     @Test
@@ -100,6 +126,37 @@ public class CloudMineWebServiceIntegrationTest {
 
         CloudMineFile loadedFile = store.getObject("theFileKey");
         assertArrayEquals(insertedFile.getFileContents(), loadedFile.getFileContents());
+    }
+
+    @Test
+    public void testAsyncObjectLoad() throws Exception {
+        final SimpleCMObject task = new SimpleCMObject();
+        task.setClass("task");
+        task.add("name", "Do dishes");
+        task.add("isDone", false);
+
+        Future<CloudMineResponse> futureResponse =
+                store.create(task, new WebServiceCallback() {
+            @Override
+            public void onCompleted(HttpResponse response)  {
+                Future<SimpleObjectResponse> responseFuture = store.allObjectsOfClass("task");
+                try {
+                    SimpleObjectResponse objectResponse = responseFuture.get(5L, TimeUnit.SECONDS);
+                    assertEquals(1, objectResponse.objects().size());
+                    assertEquals(task, objectResponse.objects().get(0));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable error, String message) {
+                error.printStackTrace();
+                fail("failed! " + message);
+            }
+        });
+        assertWasSuccess(futureResponse.get(5L, TimeUnit.SECONDS));
     }
 
     @Test

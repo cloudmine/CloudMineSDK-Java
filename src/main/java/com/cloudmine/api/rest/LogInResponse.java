@@ -3,6 +3,8 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.UserToken;
 import org.apache.http.HttpResponse;
 
+import java.util.concurrent.Future;
+
 /**
  * Copyright CloudMine LLC
  * User: johnmccarthy
@@ -14,6 +16,11 @@ public class LoginResponse extends CloudMineResponse {
         @Override
         public LoginResponse construct(HttpResponse response) {
             return new LoginResponse(response);
+        }
+
+        @Override
+        public Future<LoginResponse> constructFuture(Future<HttpResponse> futureResponse) {
+            return createFutureResponse(futureResponse, CONSTRUCTOR);
         }
     };
 

@@ -1,42 +1,97 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.ApiCredentials;
-import com.cloudmine.api.CloudMineFile;
-import com.cloudmine.api.User;
-import com.cloudmine.api.UserToken;
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.cloudmine.api.*;
+import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.message.BasicHeaderElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
  * User: johnmccarthy
  * Date: 5/16/12, 2:34 PM
  */
-public class CloudMineWebService {
-    public static final BasicHeader JSON_HEADER = new BasicHeader("Content-Type", "application/json");
+public class CloudMineWebService implements Parcelable{
+    public static final Header JSON_HEADER = new Header() {
+        public String getName() {
+            return "Content-Type";
+        }
+
+        public String getValue() {
+            return "application/json";
+        }
+
+        public HeaderElement[] getElements() {
+            return new HeaderElement[] { new BasicHeaderElement(getName(), getValue()) };
+        }
+
+    };
+    public static final Creator<CloudMineWebService> CREATOR =
+            new Creator<CloudMineWebService>() {
+
+                @Override
+                public CloudMineWebService createFromParcel(Parcel parcel) {
+                    return new CloudMineWebService(parcel);
+                }
+
+                @Override
+                public CloudMineWebService[] newArray(int i) {
+                    return new CloudMineWebService[i];
+                }
+            };
     private static final Logger LOG = LoggerFactory.getLogger(CloudMineWebService.class);
 
     private final CloudMineURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
-//    private final HttpAsyncClient asyncHttpClient = new DefaultHttpAsyncClient();
+    private final AsynchronousHttpClient asyncHttpClient;
 
-    public CloudMineWebService(CloudMineURLBuilder baseUrl) {
-        this.baseUrl = baseUrl;
+    public CloudMineWebService(String appId) {
+        this(new CloudMineURLBuilder(appId), new AndroidAsynchronousHttpClient());
     }
 
+    public CloudMineWebService(CloudMineURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
+        this.baseUrl = baseUrl;
+        asyncHttpClient = asyncClient;
+    }
 
+    public CloudMineWebService(Parcel in) {
+        this(in.readString());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(baseUrl.urlString());
+    }
+
+    public UserCloudMineWebService userWebService(UserToken token) {
+        return new UserCloudMineWebService(baseUrl.user(), token, asyncHttpClient);
+    }
+
+    public UserCloudMineWebService userWebService(CloudMineResponse response) {
+        return userWebService(new UserToken(response.asJson()));
+    }
 
     public CloudMineResponse deleteAll() {
         return executeCommand(createDeleteAll());
@@ -44,6 +99,27 @@ public class CloudMineWebService {
 
     public CloudMineResponse delete(String... keys) {
         return executeCommand(createDelete(keys));
+    }
+
+    public Future<SimpleObjectResponse> allObjectsOfClass(String klass) {
+        return allObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
+        HttpGet search = createSearch("[" + SimpleCMObject.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
+        return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
+    }
+
+    public Future<CloudMineResponse> create(SimpleCMObject object, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(object.asKeyedObject()), callback);
+    }
+
+    public Future<CloudMineResponse> createAll(WebServiceCallback callback, SimpleCMObject... toCreate) {
+        List<Json> jsonStrings = new ArrayList<Json>(toCreate.length);
+        for(SimpleCMObject object : toCreate) {
+            jsonStrings.add(new JsonString(object.asKeyedObject()));
+        }
+        return executeAsyncCommand(createPut(JsonUtilities.jsonCollection(toCreate)));
     }
 
     public CloudMineResponse get() {
@@ -79,6 +155,22 @@ public class CloudMineWebService {
         return executeCommand(createPut(file));
     }
 
+    public Future<CloudMineResponse> asyncCreateUser(User user) {
+        return executeAsyncCommand(createPut(user));
+    }
+
+    public Future<CloudMineResponse> asyncCreateUser(User user, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(user), callback, CloudMineResponse.CONSTRUCTOR);
+    }
+
+    public Future<LoginResponse> asyncLogin(User user) {
+        return asyncLogin(user, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<LoginResponse> asyncLogin(User user, WebServiceCallback callback) {
+        return executeAsyncCommand(createLoginPost(user), callback, LoginResponse.CONSTRUCTOR);
+    }
+
     public CloudMineResponse set(User user) {
         return executeCommand(createPut(user));
     }
@@ -93,6 +185,18 @@ public class CloudMineWebService {
 
     private CloudMineResponse executeCommand(HttpUriRequest message) {
         return executeCommand(message, CloudMineResponse.CONSTRUCTOR);
+    }
+
+    private Future<CloudMineResponse> executeAsyncCommand(HttpUriRequest message) {
+        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, CloudMineResponse.CONSTRUCTOR);
+    }
+
+    private Future<CloudMineResponse> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback) {
+        return executeAsyncCommand(message, callback, CloudMineResponse.CONSTRUCTOR);
+    }
+
+    private <T extends CloudMineResponse> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, CloudMineResponse.ResponseConstructor<T> constructor) {
+        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback));
     }
 
     private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, CloudMineResponse.ResponseConstructor<T> constructor) {
@@ -116,23 +220,10 @@ public class CloudMineWebService {
      */
     private void consumeEntityResponse(HttpResponse response) {
         if(response != null && response.getEntity() != null) {
-            EntityUtils.consumeQuietly(response.getEntity());
+//            EntityUtils.consumeQuietly(response.getEntity());  TODO provide an implementation of this since android doesn't have it
         }
     }
 
-//
-//    public void get(ResponseCallback callback) {
-//        asyncHttpClient.start();
-//        try {
-//        asyncHttpClient.execute(createGet(), callback);
-//        } finally {
-//            try {
-//                asyncHttpClient.shutdown();
-//            } catch (InterruptedException e) {
-//                //NO GIVES NO FUCKS
-//            }
-//        }
-//    }
     private HttpGet createSearch(String search) {
         HttpGet get = new HttpGet(baseUrl.search(search).urlString());
         addCloudMineHeader(get);
@@ -213,10 +304,14 @@ public class CloudMineWebService {
         if(!message.containsHeader(JSON_HEADER.getName())) {
             message.addHeader(JSON_HEADER);
         }
-        message.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+        try {
+            message.setEntity(new StringEntity(json, "application/json"));
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("Error encoding json", e);
+        }
     }
 
-    private void addCloudMineHeader(AbstractHttpMessage message) {
+    protected void addCloudMineHeader(AbstractHttpMessage message) {
         message.addHeader(ApiCredentials.cloudMineHeader());
     }
 }

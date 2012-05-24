@@ -7,6 +7,14 @@ package com.cloudmine.api.exceptions;
  */
 public class CreationException extends RuntimeException {
 
+    public CreationException(String message) {
+        super(message);
+    }
+
+    public CreationException(String message, Throwable parent) {
+        super(message, parent);
+    }
+
     public CreationException(Throwable parent) {
         super(parent);
     }

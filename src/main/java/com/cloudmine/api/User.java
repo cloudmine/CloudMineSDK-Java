@@ -1,5 +1,6 @@
 package com.cloudmine.api;
 
+import android.util.Base64;
 import com.cloudmine.api.rest.JsonUtilities;
 
 import java.util.HashMap;
@@ -31,12 +32,11 @@ public class User {
 
     public String encode() {
         String userString = email + ":" + password;
-        return javax.xml.bind.DatatypeConverter.printBase64Binary(userString.getBytes());
+        return Base64.encodeToString(userString.getBytes(), Base64.DEFAULT);
     }
 
     public String toString() {
         return email + ":" + password;
     }
-
 
 }

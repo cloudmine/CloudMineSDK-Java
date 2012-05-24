@@ -108,6 +108,10 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return this.addAction("logout");
     }
 
+    public CloudMineURLBuilder user() {
+        return this.addAction("user");
+    }
+
     public CloudMineURLBuilder create() {
         return this.addAction("create");
     }

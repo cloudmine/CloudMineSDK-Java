@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Copyright CloudMine LLC
@@ -20,6 +24,10 @@ public class CloudMineResponse implements Json {
         public CloudMineResponse construct(HttpResponse response) {
             return new CloudMineResponse(response);
         }
+
+        public Future<CloudMineResponse> constructFuture(Future<HttpResponse> response) {
+            return createFutureResponse(response);
+        }
     };
 
     private static final int NO_RESPONSE_CODE = 204;
@@ -32,11 +40,50 @@ public class CloudMineResponse implements Json {
     private final JsonNode errorResponse;
     private final int statusCode;
 
-    protected static abstract class ResponseConstructor<T extends CloudMineResponse> {
-        public abstract T construct(HttpResponse response);
+    protected static interface ResponseConstructor<T extends CloudMineResponse> {
+        public T construct(HttpResponse response);
+        public Future<T> constructFuture(Future<HttpResponse> futureResponse);
     }
 
+    public static Future<CloudMineResponse> createFutureResponse(Future<HttpResponse> response) {
+        return createFutureResponse(response, CONSTRUCTOR);
+    }
 
+    public static <T extends CloudMineResponse> Future<T> createFutureResponse(final Future<HttpResponse> response, final ResponseConstructor<T> constructor) {
+        return new Future<T>() {
+            T cachedResponse;
+            @Override
+            public boolean cancel(boolean b) {
+                return response.cancel(b);
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return response.isCancelled();
+            }
+
+            @Override
+            public boolean isDone() {
+                return response.isDone();
+            }
+
+            @Override
+            public T get() throws InterruptedException, ExecutionException {
+                if(cachedResponse == null) {
+                    cachedResponse = constructor.construct(response.get());
+                }
+                return cachedResponse;
+            }
+
+            @Override
+            public T get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+                if(cachedResponse == null) {
+                    cachedResponse = constructor.construct(response.get(l, timeUnit));
+                }
+                return cachedResponse;
+            }
+        };
+    }
 
     public CloudMineResponse(HttpResponse response)  {
         if(response != null &&
@@ -50,6 +97,20 @@ public class CloudMineResponse implements Json {
         baseNode = responseNode;
         successResponse = responseNode.get(SUCCESS);
         errorResponse = responseNode.get(ERRORS); //TODO If we receive a null response is that an error?
+    }
+
+    public CloudMineResponse(String messageBody, int statusCode) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode tempNode;
+        try {
+            tempNode = objectMapper.readValue(messageBody, JsonNode.class);
+        } catch (IOException e) {
+            tempNode = objectMapper.getNodeFactory().nullNode();
+        }
+        baseNode = tempNode;
+        successResponse = baseNode.get(SUCCESS);
+        errorResponse = baseNode.get(ERRORS);
+        this.statusCode = statusCode;
     }
 
     private JsonNode extractResponseNode(HttpResponse response) {
@@ -72,6 +133,10 @@ public class CloudMineResponse implements Json {
 
     public int getStatusCode() {
         return statusCode;
+    }
+
+    protected JsonNode getSuccessNode() {
+        return successResponse;
     }
 
     public boolean successHasKey(String key) {
