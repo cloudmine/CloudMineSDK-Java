@@ -34,6 +34,6 @@ public class SimpleCMObjectTest {
                 "        \"friends\":{\"fred\", \"ted\", \"ben\"}\n" +
                 "    }\n" +
                 "}";
-        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
+        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, object.asKeyedObject()));
     }
 }

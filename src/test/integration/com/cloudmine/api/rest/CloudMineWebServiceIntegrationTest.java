@@ -1,7 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
-import com.cloudmine.api.rest.callbacks.CloudMineWebServiceCallback;
+import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import org.apache.http.HttpResponse;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class CloudMineWebServiceIntegrationTest {
     @Ignore
     public void testAsyncCreateUser() throws Exception {
         User newUser = new User("test2@test.com", "password");
-        Future<CloudMineResponse> futureResponse = store.asyncCreateUser(newUser, new CloudMineWebServiceCallback() {
+        Future<CloudMineResponse> futureResponse = store.asyncCreateUser(newUser, new CloudMineResponseCallback() {
             @Override
             public void onCompleted(CloudMineResponse response) {
                 assertTrue(response.was(201));

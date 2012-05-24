@@ -40,7 +40,7 @@ public class CloudMineResponse implements Json {
     private final JsonNode errorResponse;
     private final int statusCode;
 
-    protected static interface ResponseConstructor<T extends CloudMineResponse> {
+    public static interface ResponseConstructor<T extends CloudMineResponse> {
         public T construct(HttpResponse response);
         public Future<T> constructFuture(Future<HttpResponse> futureResponse);
     }
