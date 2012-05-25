@@ -112,8 +112,12 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
+    public Future<CloudMineResponse> create(SimpleCMObject object) {
+        return create(object, WebServiceCallback.DO_NOTHING);
+    }
+
     public Future<CloudMineResponse> create(SimpleCMObject object, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(object.asKeyedObject()), callback);
+        return executeAsyncCommand(createPut(object.asJson()), callback);
     }
 
     public Future<CloudMineResponse> createAll(WebServiceCallback callback, SimpleCMObject... toCreate) {

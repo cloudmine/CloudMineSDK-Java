@@ -35,19 +35,12 @@ public class SimpleCMObject implements Json {
     }
 
     public SimpleCMObject(JsonNode node) {
-        this(node.asText());
+        this(node.toString());
     }
 
     public SimpleCMObject(String json) {
         this(JsonUtilities.jsonToMap(json));
     }
-
-//    public SimpleCMObject(String topLevelKey) {
-//        contents = new HashMap<String, Object>();
-//        topLevelMap = new HashMap<String, Object>();
-//        this.topLevelKey = topLevelKey;
-//        topLevelMap.put(topLevelKey, contents);
-//    }
 
     public SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
         this(new HashMap<String, Object>() {
@@ -115,7 +108,7 @@ public class SimpleCMObject implements Json {
     }
 
     public String asJson() {
-        return JsonUtilities.mapToJson(contents);
+        return JsonUtilities.mapToJson(topLevelMap);
     }
 
     public String toString() {

@@ -63,7 +63,7 @@ public class JsonUtilities {
             return jsonMapper.readValue(json, Map.class);
         } catch (IOException e) {
             LOG.error("Trouble reading json", e);
-            throw new JsonConversionException(e);
+            throw new JsonConversionException("JSON: " + json, e);
         }
     }
 

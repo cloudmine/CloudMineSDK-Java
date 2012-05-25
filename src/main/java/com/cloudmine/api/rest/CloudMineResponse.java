@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.SimpleCMObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -105,6 +107,7 @@ public class CloudMineResponse implements Json {
         try {
             tempNode = objectMapper.readValue(messageBody, JsonNode.class);
         } catch (IOException e) {
+            LOG.error("Exception parsing message body: " + messageBody, e);
             tempNode = objectMapper.getNodeFactory().nullNode();
         }
         baseNode = tempNode;
@@ -137,6 +140,24 @@ public class CloudMineResponse implements Json {
 
     protected JsonNode getSuccessNode() {
         return successResponse;
+    }
+
+    public List<SimpleCMObject> getSuccessObjects() {
+        if(successResponse == null ||
+                !(successResponse.isObject() || successResponse.isArray())) {
+            LOG.error("Null or non empty successResponse, empty list returned for getSuccessObjects");
+            return Collections.emptyList();
+        }
+        List<SimpleCMObject> successObjects = new ArrayList<SimpleCMObject>();
+        Iterator<Map.Entry<String, JsonNode>> successFields = successResponse.fields();
+
+        while(successFields.hasNext()) {
+            Map.Entry<String, JsonNode> nodeEntry = successFields.next();
+            Map<String, Object> contents = JsonUtilities.jsonToMap(nodeEntry.getValue().toString());
+            String topLevelKey = nodeEntry.getKey();
+            successObjects.add(new SimpleCMObject(topLevelKey, contents));
+        }
+        return successObjects;
     }
 
     public boolean successHasKey(String key) {

@@ -1,7 +1,6 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.SimpleCMObject;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpResponse;
 
 import java.util.ArrayList;
@@ -36,10 +35,7 @@ public class SimpleObjectResponse extends CloudMineResponse {
         super(response);
         if(hasSuccess()) {
             List<SimpleCMObject> tempList = new ArrayList<SimpleCMObject>();
-            for(JsonNode node : getSuccessNode()) {
-                tempList.add(new SimpleCMObject(node));
-            }
-            objects = Collections.unmodifiableList(tempList);
+            objects = Collections.unmodifiableList(getSuccessObjects());
         } else {
             objects = Collections.emptyList();
         }
