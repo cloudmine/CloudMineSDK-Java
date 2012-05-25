@@ -52,7 +52,19 @@ public class CloudMineURLBuilderTest {
 
         CloudMineURLBuilder modifiedBuilder = builder.addQuery("all", "true");
         assertNotSame(builder, modifiedBuilder);
+    }
 
+    @Test
+    public void testUser() {
+        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
+
+        assertEquals("/" + APP_ID + "/user", builder.user().appPath());
+    }
+
+    @Test
+    public void testExtractAppId() {
+        assertEquals("/" + APP_ID, CloudMineURLBuilder.extractAppId(expectedBaseUrl()));
+        assertEquals("/" + APP_ID + "/user", CloudMineURLBuilder.extractAppId(new CloudMineURLBuilder(APP_ID).user().urlString()));
     }
 
     private String expectedBaseUrl() {

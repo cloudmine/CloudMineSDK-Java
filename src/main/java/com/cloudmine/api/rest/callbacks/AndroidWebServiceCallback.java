@@ -20,8 +20,8 @@ public class AndroidWebServiceCallback extends AsyncHttpResponseHandler implemen
         this.callback = callback;
     }
     @Override
-    public void onCompleted(HttpResponse response) {
-        callback.onCompleted(response);
+    public void onCompletion(HttpResponse response) {
+        callback.onCompletion(response);
     }
 
     @Override

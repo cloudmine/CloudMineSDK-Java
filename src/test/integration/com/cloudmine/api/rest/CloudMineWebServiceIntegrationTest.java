@@ -55,7 +55,7 @@ public class CloudMineWebServiceIntegrationTest {
         User newUser = new User("test2@test.com", "password");
         Future<CloudMineResponse> futureResponse = store.asyncCreateUser(newUser, new CloudMineResponseCallback() {
             @Override
-            public void onCompleted(CloudMineResponse response) {
+            public void onCompletion(CloudMineResponse response) {
                 assertTrue(response.was(201));
             }
 
@@ -65,7 +65,6 @@ public class CloudMineWebServiceIntegrationTest {
                 fail("Failed");
             }
         });
-        System.out.println(newUser.encode());
         CloudMineResponse response = futureResponse.get(5, TimeUnit.SECONDS);
         assertTrue(response.was(201));
     }
@@ -138,7 +137,7 @@ public class CloudMineWebServiceIntegrationTest {
         Future<CloudMineResponse> futureResponse =
                 store.create(task, new WebServiceCallback() {
             @Override
-            public void onCompleted(HttpResponse response)  {
+            public void onCompletion(HttpResponse response)  {
                 Future<SimpleObjectResponse> responseFuture = store.allObjectsOfClass("task");
                 try {
                     SimpleObjectResponse objectResponse = responseFuture.get(5L, TimeUnit.SECONDS);

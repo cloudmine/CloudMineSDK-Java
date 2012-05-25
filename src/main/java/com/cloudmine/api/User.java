@@ -3,6 +3,7 @@ package com.cloudmine.api;
 import android.util.Base64;
 import com.cloudmine.api.rest.JsonUtilities;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,11 +33,16 @@ public class User {
 
     public String encode() {
         String userString = email + ":" + password;
-        return Base64.encodeToString(userString.getBytes(), Base64.DEFAULT);
+        String encodedString = Base64.encodeToString(userString.getBytes(), Base64.URL_SAFE|Base64.NO_WRAP);
+        return encodedString;
     }
 
     public String toString() {
         return email + ":" + password;
+    }
+
+    public static void main(String... args) {
+        System.out.println(DatatypeConverter.printBase64Binary("q@q.com:q".getBytes()));
     }
 
 }

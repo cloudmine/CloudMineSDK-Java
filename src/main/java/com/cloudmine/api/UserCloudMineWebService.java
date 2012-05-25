@@ -45,7 +45,7 @@ public class UserCloudMineWebService extends CloudMineWebService implements Parc
     }
 
     public UserCloudMineWebService(Parcel in) {
-        this(in.readString(), new UserToken(in.readString()));
+        this(new CloudMineURLBuilder(in.readString()), new UserToken(in.readString()), new AndroidAsynchronousHttpClient());
     }
 
     @Override

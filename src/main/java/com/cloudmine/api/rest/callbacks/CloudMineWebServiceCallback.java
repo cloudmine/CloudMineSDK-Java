@@ -17,18 +17,18 @@ public abstract class CloudMineWebServiceCallback<T extends CloudMineResponse> i
     }
 
     /**
-     * Only one of the onCompleted methods should be overridden
+     * Only one of the onCompletion methods should be overridden
      * @param response
      */
-    public void onCompleted(HttpResponse response) {
-        onCompleted(constructor.construct(response));
+    public void onCompletion(HttpResponse response) {
+        onCompletion(constructor.construct(response));
     }
 
     /**
-     * Only one the onCompleted methods should be overridden
+     * Only one the onCompletion methods should be overridden
      * @param response
      */
-    public void onCompleted(T response) {
+    public void onCompletion(T response) {
 
     }
 

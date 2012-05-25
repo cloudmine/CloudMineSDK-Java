@@ -48,7 +48,7 @@ public class UserToken implements Json {
     public String asJson() {
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         jsonMap.put(SESSION_KEY, sessionToken);
-        jsonMap.put(EXPIRES_KEY, expires);
+        jsonMap.put(EXPIRES_KEY, expires.toDate());
         return JsonUtilities.mapToJson(jsonMap);
     }
 

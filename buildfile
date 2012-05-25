@@ -1,5 +1,6 @@
 repositories.remote << 'http://repo.maven.apache.org/maven2/'
 
+ANDROID = 'com.google.android:android:jar:2.3.3'
 HTTP_CORE = 'org.apache.httpcomponents:httpcore:jar:4.2' 
 HTTP_CLIENT = 'org.apache.httpcomponents:httpclient:jar:4.2'
 HTTP_NIO = 'org.apache.httpcomponents:httpcore-nio:jar:4.2'
@@ -13,6 +14,6 @@ JODA = 'joda-time:joda-time:jar:2.1'
 COMMONS = 'org.apache.commons:commons-io:jar:1.3.2'
 define 'cloudmine-javasdk' do
   project.version = '0.1'
-  compile.with HTTP_CORE, HTTP_CLIENT, HTTP_NIO, HTTP_ASYNC, JACKSON, JACKSON_CORE, JACKSON_ANNOTATIONS, LOGGING_BASE, LOGGING_TYPE, COMMONS, JODA
+  compile.with ANDROID, HTTP_CORE, HTTP_CLIENT, HTTP_NIO, HTTP_ASYNC, JACKSON, JACKSON_CORE, JACKSON_ANNOTATIONS, LOGGING_BASE, LOGGING_TYPE, COMMONS, JODA
   package :jar
 end

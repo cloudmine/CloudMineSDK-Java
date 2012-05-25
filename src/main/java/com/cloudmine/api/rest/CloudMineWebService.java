@@ -6,6 +6,7 @@ import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +84,7 @@ public class CloudMineWebService implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(baseUrl.urlString());
+        parcel.writeString(baseUrl.appPath());
     }
 
     public UserCloudMineWebService userWebService(UserToken token) {
@@ -220,7 +222,17 @@ public class CloudMineWebService implements Parcelable{
      */
     private void consumeEntityResponse(HttpResponse response) {
         if(response != null && response.getEntity() != null) {
-//            EntityUtils.consumeQuietly(response.getEntity());  TODO provide an implementation of this since android doesn't have it
+            HttpEntity body = response.getEntity();
+            if(body.isStreaming()) {
+                try {
+                    InputStream instream = body.getContent();
+                    if(instream != null) {
+                            instream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
         }
     }
 
@@ -305,7 +317,7 @@ public class CloudMineWebService implements Parcelable{
             message.addHeader(JSON_HEADER);
         }
         try {
-            message.setEntity(new StringEntity(json, "application/json"));
+            message.setEntity(new StringEntity(json, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error encoding json", e);
         }

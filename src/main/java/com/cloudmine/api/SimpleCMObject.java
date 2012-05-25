@@ -77,11 +77,17 @@ public class SimpleCMObject implements Json {
         return contents.get(key);
     }
 
-    public boolean getBoolean(String key) {
-        Boolean b = getValue(key, Boolean.class);
-        if(b != null)
-            return b.booleanValue();
-        return false;
+    /**
+     * Returns Boolean.TRUE, Boolean.FALSE, or null if the key does not exist
+     * @param key
+     * @return
+     */
+    public Boolean getBoolean(String key) {
+        return getValue(key, Boolean.class);
+    }
+
+    public String getString(String key) {
+        return getValue(key, String.class);
     }
 
     private <T> T getValue(String key, Class<T> klass) {

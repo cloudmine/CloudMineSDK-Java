@@ -57,6 +57,24 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return new CloudMineURLBuilder(baseUrl, actions, queryParams);
     }
 
+    protected static String extractAppId(String url) {
+        if(url == null)
+            return url;
+        String[] urlParts = url.split(APP, 2);
+        if(urlParts.length != 2) {
+            return null;
+        }
+        return urlParts[1];
+    }
+
+    public String appPath() {
+        return extractAppId(urlString());
+    }
+
+    public String queries() {
+        return queryParams;
+    }
+
     public CloudMineURLBuilder search(String search) {
         String encodedSearch;
         try {

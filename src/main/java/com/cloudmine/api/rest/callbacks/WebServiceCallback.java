@@ -10,7 +10,7 @@ import org.apache.http.HttpResponse;
 public interface WebServiceCallback {
     public static final WebServiceCallback DO_NOTHING = new WebServiceCallback() {
         @Override
-        public void onCompleted(HttpResponse response) {
+        public void onCompletion(HttpResponse response) {
 
         }
 
@@ -19,6 +19,6 @@ public interface WebServiceCallback {
 
         }
     };
-    public void onCompleted(HttpResponse response);
+    public void onCompletion(HttpResponse response);
     public void onFailure(Throwable error, String message);
 }
