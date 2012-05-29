@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Copyright CloudMine LLC
@@ -15,7 +16,6 @@ import java.util.Set;
  * Date: 5/24/12, 1:29 PM
  */
 public class SimpleCMObject implements Json {
-    public static final String TOP_LEVEL_KEY_PLACEHOLDER = "xxThisWillNeedToBeGeneratedxx";
     public static final String CLASS_KEY = "__class__";
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
@@ -27,7 +27,7 @@ public class SimpleCMObject implements Json {
 
     public SimpleCMObject(String topLevelKey, Map<String, Object> contents, Map<String, Object> topLevelMap) {
         if(topLevelKey == null)
-            topLevelKey = TOP_LEVEL_KEY_PLACEHOLDER;
+            topLevelKey = UUID.randomUUID().toString();
         this.topLevelKey = topLevelKey;
         this.contents = contents;
         this.topLevelMap = topLevelMap;
