@@ -2,13 +2,13 @@ package com.cloudmine.api;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.cloudmine.api.rest.AndroidAsynchronousHttpClient;
-import com.cloudmine.api.rest.AsynchronousHttpClient;
-import com.cloudmine.api.rest.CloudMineURLBuilder;
-import com.cloudmine.api.rest.CloudMineWebService;
+import com.cloudmine.api.rest.*;
+import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import org.apache.http.Header;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
+
+import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
@@ -58,5 +58,13 @@ public class UserCloudMineWebService extends CloudMineWebService implements Parc
     public void addCloudMineHeader(AbstractHttpMessage message) {
         super.addCloudMineHeader(message);
         message.addHeader(userHeader);
+    }
+
+    public Future<CloudMineResponse> asyncLogout() {
+        return asyncLogout(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CloudMineResponse> asyncLogout(WebServiceCallback callback) {
+        return asyncLogout(userToken, callback);
     }
 }

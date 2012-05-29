@@ -62,7 +62,7 @@ public class CloudMineWebService implements Parcelable{
 
     private final CloudMineURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
-    private final AsynchronousHttpClient asyncHttpClient;
+    private final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one
 
     public CloudMineWebService(String appId) {
         this(new CloudMineURLBuilder(appId), new AndroidAsynchronousHttpClient());
@@ -175,6 +175,14 @@ public class CloudMineWebService implements Parcelable{
 
     public Future<LoginResponse> asyncLogin(User user, WebServiceCallback callback) {
         return executeAsyncCommand(createLoginPost(user), callback, LoginResponse.CONSTRUCTOR);
+    }
+
+    public Future<CloudMineResponse> asyncLogout(UserToken token) {
+        return asyncLogout(token, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CloudMineResponse> asyncLogout(UserToken token, WebServiceCallback callback) {
+        return executeAsyncCommand(createLogoutPost(token), callback, CloudMineResponse.CONSTRUCTOR);
     }
 
     public CloudMineResponse set(User user) {
