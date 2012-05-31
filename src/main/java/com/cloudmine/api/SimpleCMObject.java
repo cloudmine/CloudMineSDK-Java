@@ -1,22 +1,33 @@
 package com.cloudmine.api;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Copyright CloudMine LLC
  * User: johnmccarthy
  * Date: 5/24/12, 1:29 PM
  */
-public class SimpleCMObject implements Json {
-    public static final String CLASS_KEY = "__class__";
+public class SimpleCMObject implements Json, Parcelable {
+    public static final Creator<SimpleCMObject> CREATOR =
+            new Creator<SimpleCMObject>() {
+                @Override
+                public SimpleCMObject createFromParcel(Parcel parcel) {
+                    return new SimpleCMObject(parcel);
+                }
+
+                @Override
+                public SimpleCMObject[] newArray(int i) {
+                    return new SimpleCMObject[i];
+                }
+            };
+
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
     private final String topLevelKey;
@@ -50,6 +61,10 @@ public class SimpleCMObject implements Json {
         });
     }
 
+    public SimpleCMObject(Parcel in) {
+        this(in.readString());
+    }
+
     public SimpleCMObject(Map<String, Object> topLevelMap) {
         this.topLevelMap = topLevelMap;
         Set<Map.Entry<String, Object>> contentSet = topLevelMap.entrySet();
@@ -70,6 +85,24 @@ public class SimpleCMObject implements Json {
         return contents.get(key);
     }
 
+    public Integer getInteger(String key, Integer alternative) {
+        Integer value = getInteger(key);
+        return value == null ?
+                alternative :
+                    value;
+    }
+
+    public Integer getInteger(String key) {
+        return getValue(key, Integer.class);
+    }
+
+    public Boolean getBoolean(String key, Boolean alternative) {
+        Boolean value = getBoolean(key);
+        return value == null ?
+                alternative :
+                    value;
+    }
+
     /**
      * Returns Boolean.TRUE, Boolean.FALSE, or null if the key does not exist
      * @param key
@@ -79,8 +112,26 @@ public class SimpleCMObject implements Json {
         return getValue(key, Boolean.class);
     }
 
+    public String getString(String key, String alternative) {
+        String string = getString(key);
+        return string == null ?
+                alternative :
+                    string;
+    }
+
     public String getString(String key) {
         return getValue(key, String.class);
+    }
+
+    public Date getDate(String key, Date alternative) {
+        Date date = getDate(key);
+        return date == null ?
+                alternative :
+                    date;
+    }
+
+    public Date getDate(String key) {
+        return getValue(key, Date.class);
     }
 
     private <T> T getValue(String key, Class<T> klass) {
@@ -92,10 +143,10 @@ public class SimpleCMObject implements Json {
     }
 
     public void setClass(String className) {
-        add(CLASS_KEY, className);
+        add(JsonUtilities.CLASS_KEY, className);
     }
 
-    public void add(String key, Object value) {
+    public final void add(String key, Object value) {
         if(value instanceof SimpleCMObject) {
             contents.put(key, ((SimpleCMObject)value).asJson());
         }else {
@@ -115,4 +166,13 @@ public class SimpleCMObject implements Json {
         return asJson();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(asJson());
+    }
 }

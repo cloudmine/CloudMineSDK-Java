@@ -1,8 +1,8 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,13 +102,12 @@ public class CloudMineResponse implements Json {
     }
 
     public CloudMineResponse(String messageBody, int statusCode) {
-        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode tempNode;
         try {
-            tempNode = objectMapper.readValue(messageBody, JsonNode.class);
-        } catch (IOException e) {
+            tempNode = JsonUtilities.getNode(messageBody);
+        } catch (JsonConversionException e) {
             LOG.error("Exception parsing message body: " + messageBody, e);
-            tempNode = objectMapper.getNodeFactory().nullNode();
+            tempNode = JsonUtilities.getNodeFactory().nullNode();
         }
         baseNode = tempNode;
         successResponse = baseNode.get(SUCCESS);
@@ -117,16 +116,15 @@ public class CloudMineResponse implements Json {
     }
 
     private JsonNode extractResponseNode(HttpResponse response) {
-        ObjectMapper mapper = new ObjectMapper();
         JsonNode responseNode = null;
         if(response == null ||
                 statusCode > 202 ||
                 !response.getEntity().getContentType().getValue().contains("json")) {
             LOG.info("Received null, error, or none json response");
-            responseNode = mapper.getNodeFactory().nullNode();
+            responseNode = JsonUtilities.getNodeFactory().nullNode();
         }else {
             try {
-                responseNode = mapper.readValue(response.getEntity().getContent(), JsonNode.class);
+                responseNode = JsonUtilities.getNode(response.getEntity().getContent());
             } catch (IOException e) {
                 LOG.error("Failed parsing response entity content: ", e);
             }

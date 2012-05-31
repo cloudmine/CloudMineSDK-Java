@@ -108,7 +108,7 @@ public class CloudMineWebService implements Parcelable{
     }
 
     public Future<SimpleObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
-        HttpGet search = createSearch("[" + SimpleCMObject.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
+        HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
         return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 

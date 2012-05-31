@@ -3,6 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -10,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 /**
  * Copyright CloudMine LLC
@@ -19,11 +24,59 @@ import java.util.Map;
 public class JsonUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtilities.class);
     private static final ObjectMapper jsonMapper = new ObjectMapper();
+    public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CloudMineDateFormat();
+    static {
+        jsonMapper.setDateFormat(CLOUDMINE_DATE_FORMATTER);
+    }
     public static final String NULL_STRING = "\"\"";
+
+
     public static final String RFC1123_PATTERN =
             "EEE, dd MMM yyyyy HH:mm:ss ";
     public static final String TAB = "  ";
     public static final DateTimeFormatter RFC1123_FORMATTER = DateTimeFormat.forPattern(RFC1123_PATTERN);
+    public static final String CLASS_KEY = "__class__";
+    public static final String DATE_CLASS = "datetime";
+    public static final String DATE_TIME_CLASS = "jodadatetime";
+    public static final String TIME_KEY = "timestamp";
+
+    public static String dateToJsonClass(Date date) {
+        if(date == null) {
+            return NULL_STRING;
+        }
+        long secondsTime = date.getTime() / 1000;
+        return createJsonClass(DATE_CLASS, createJsonProperty(TIME_KEY, secondsTime));
+    }
+
+    public static String createJsonClass(String className, String... properties) {
+        StringBuilder classBuilder =
+                new StringBuilder("{\n")
+                .append(createJsonProperty(CLASS_KEY, className)).append(",\n");
+        String comma = "";
+        for(String property : properties) {
+            classBuilder.append(comma).append(property);
+            comma = ",\n";
+        }
+        classBuilder.append("\n}");
+        return classBuilder.toString();
+    }
+
+    public static Date jsonClassToDate(String json) throws JsonConversionException {
+        try {
+            return CLOUDMINE_DATE_FORMATTER.parse(json);
+        } catch (ParseException e) {
+            throw new JsonConversionException("Couldn't parse: " + json, e);
+        }
+    }
+
+
+    public static String createJsonProperty(String key, String value) {
+        return new StringBuilder(addQuotes(key)).append(":").append(addQuotes(value)).toString();
+    }
+
+    public static String createJsonProperty(String key, Number value) {
+        return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
+    }
 
     public static DateTime toDate(String dateString) {
         return RFC1123_FORMATTER.parseDateTime(dateString);
@@ -58,6 +111,14 @@ public class JsonUtilities {
         }
     }
 
+    public static JsonNode mapToJsonNode(Map<String, Object> map) throws JsonConversionException {
+        try {
+            return jsonMapper.readTree(mapToJson(map));
+        } catch (IOException e) {
+            throw new JsonConversionException("Trouble converting map to JsonNode", e);
+        }
+    }
+
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
         try {
             return jsonMapper.readValue(json, Map.class);
@@ -65,6 +126,42 @@ public class JsonUtilities {
             LOG.error("Trouble reading json", e);
             throw new JsonConversionException("JSON: " + json, e);
         }
+    }
+
+    public static Map<String, Object> jsonNodeToMap(JsonNode node) throws JsonConversionException {
+        if(node == null) {
+            return jsonToMap(null);
+        }
+        try {
+            return jsonMapper.readValue(node.toString(), Map.class);
+        } catch (IOException e) {
+            throw new JsonConversionException("Couldn't convert node: " + node, e);
+        }
+    }
+
+    /**
+     * Converts the given json to a JsonNode
+     * @param json
+     * @return
+     */
+    public static JsonNode getNode(String json) throws JsonConversionException {
+        try {
+            return jsonMapper.readValue(json, JsonNode.class);
+        } catch (IOException e) {
+            throw new JsonConversionException("JSON: " + json, e);
+        }
+    }
+
+    public static JsonNode getNode(InputStream inputJson) throws JsonConversionException {
+        try {
+            return jsonMapper.readValue(inputJson, JsonNode.class);
+        } catch (IOException e) {
+            throw new JsonConversionException("Couldn't parse stream", e);
+        }
+    }
+
+    public static JsonNodeFactory getNodeFactory() {
+        return jsonMapper.getNodeFactory();
     }
 
     /**
@@ -77,9 +174,9 @@ public class JsonUtilities {
      */
     public static boolean isJsonEquivalent(String first, String second) throws JsonConversionException {
         try {
-            JsonNode node = jsonMapper.readValue(first, JsonNode.class);
-            JsonNode secondNode = jsonMapper.readValue(second, JsonNode.class);
-            return node.equals(secondNode);
+            JsonNode firstNode = jsonMapper.readTree(first);
+            JsonNode secondNode = jsonMapper.readTree(second);
+            return firstNode.equals(secondNode);
         } catch (IOException e) {
             throw new JsonConversionException("Couldn't convert string to json: " + first, e);
         }
