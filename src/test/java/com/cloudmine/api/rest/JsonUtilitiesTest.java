@@ -44,7 +44,7 @@ public class JsonUtilitiesTest {
         objectMap.put("deadline", date);
         String json = JsonUtilities.mapToJson(objectMap);
         Map<String, Object> convertedMap = JsonUtilities.jsonToMap(json);
-        Date parsedDate = JsonUtilities.jsonClassToDate(convertedMap.get("deadline").toString());
+        Date parsedDate = (Date)convertedMap.get("deadline");
         long dateTimeDifference = parsedDate.getTime() - date.getTime();
         assertTrue(-1000 < dateTimeDifference && dateTimeDifference < 1000);
     }

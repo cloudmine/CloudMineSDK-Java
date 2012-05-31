@@ -13,6 +13,9 @@ import java.util.Map;
  */
 public class CloudMineDateFormat extends DateFormat {
 
+    public static Date fromNumber(Number toConvertInSeconds) {
+        return new Date(toConvertInSeconds.longValue() * 1000);
+    }
 
     @Override
     public StringBuffer format(Date date, StringBuffer stringBuffer, FieldPosition fieldPosition) {
@@ -36,11 +39,10 @@ public class CloudMineDateFormat extends DateFormat {
         }
         try {
             Long timeInSeconds = Long.parseLong(time.toString());
-            long timeInMillis = timeInSeconds * 1000;
 
             int newPosition = parsePosition.getIndex() + dateString.length();
             parsePosition.setIndex(newPosition);
-            return new Date(timeInMillis);
+            return fromNumber(timeInSeconds);
         }catch(NumberFormatException e) {
             return null;
         }

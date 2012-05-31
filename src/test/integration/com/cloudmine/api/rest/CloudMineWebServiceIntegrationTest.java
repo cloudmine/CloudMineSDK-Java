@@ -74,7 +74,7 @@ public class CloudMineWebServiceIntegrationTest {
         CloudMineResponse response = store.set(TEST_JSON);
         assertWasSuccess(response);
 
-        assertTrue(response.successHasKey("TESTING4703"));
+        assertTrue(response.hasSuccessKey("TESTING4703"));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class CloudMineWebServiceIntegrationTest {
         CloudMineResponse response = store.update(TEST_JSON);
         assertWasSuccess(response);
 
-        assertTrue(response.successHasKey("TESTING4703"));
+        assertTrue(response.hasSuccessKey("TESTING4703"));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class CloudMineWebServiceIntegrationTest {
         store.set(TEST_JSON);
         CloudMineResponse response = store.get();
         assertWasSuccess(response);
-        assertTrue(response.successHasKey("TESTING4703"));
+        assertTrue(response.hasSuccessKey("TESTING4703"));
     }
 
     @Test
@@ -168,15 +168,15 @@ public class CloudMineWebServiceIntegrationTest {
 
         response = store.get();
         assertWasSuccess(response);
-        assertTrue(response.successHasKey("oneKey"));
-        assertFalse(response.successHasKey("deepKeyed"));
+        assertTrue(response.hasSuccessKey("oneKey"));
+        assertFalse(response.hasSuccessKey("deepKeyed"));
 
         store.set(COMPLEX_JSON);
 
         store.delete("deepKeyed", "oneKey");
         response = store.get();
-        assertFalse(response.successHasKey("oneKey"));
-        assertFalse(response.successHasKey("deepKeyed"));
+        assertFalse(response.hasSuccessKey("oneKey"));
+        assertFalse(response.hasSuccessKey("deepKeyed"));
     }
 
     @Test

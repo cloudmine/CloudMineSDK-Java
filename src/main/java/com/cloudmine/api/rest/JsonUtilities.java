@@ -9,15 +9,17 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 /**
  * Copyright CloudMine LLC
@@ -54,6 +56,7 @@ public class JsonUtilities {
     public static final String CLASS_KEY = "__class__";
     public static final String DATE_CLASS = "datetime";
     public static final String TIME_KEY = "timestamp";
+    public static final String ENCODING = "UTF-8";
 
     public static String dateToJsonClass(Date date) {
         if(date == null) {
@@ -82,6 +85,21 @@ public class JsonUtilities {
         } catch (ParseException e) {
             throw new JsonConversionException("Couldn't parse: " + json, e);
         }
+    }
+
+    public static Date jsonClassToDate(Map<String, Object> jsonMap) throws JsonConversionException {
+        if(jsonMap == null ||
+                DATE_CLASS.equals(jsonMap.get(CLASS_KEY))) {
+            Object timeStamp = jsonMap.get(TIME_KEY);
+            if(timeStamp != null) {
+                try {
+                    return CloudMineDateFormat.fromNumber(Long.parseLong(timeStamp.toString()));
+                } catch(NumberFormatException e) {
+                    throw new JsonConversionException("Couldn't parse date", e);
+                }
+            }
+        }
+        throw new JsonConversionException("Given improper arguments to construct a date");
     }
 
 
@@ -124,7 +142,9 @@ public class JsonUtilities {
 
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
         try {
-            return jsonMapper.readValue(json, Map.class);
+            Map<String, Object> jsonMap = jsonMapper.readValue(json, Map.class);
+            convertDateClassesToDates(jsonMap);
+            return jsonMap;
         } catch (IOException e) {
             LOG.error("Trouble reading json", e);
             throw new JsonConversionException("JSON: " + json, e);
@@ -132,28 +152,42 @@ public class JsonUtilities {
     }
 
     /**
-     * Converts the given json to a JsonNode
-     * @param json
+     * Replaces any json datetime objects with dates. Modifies the passed in map
+     * @param jsonMap
      * @return
+     * @throws JsonConversionException
      */
-    public static JsonNode getNode(String json) throws JsonConversionException {
-        try {
-            return jsonMapper.readValue(json, JsonNode.class);
-        } catch (IOException e) {
-            throw new JsonConversionException("JSON: " + json, e);
+    private static Object convertDateClassesToDates(Map<String, Object> jsonMap) throws JsonConversionException {
+        if(jsonMap == null)
+            return null;
+        boolean isDateClass = jsonMap.containsKey(CLASS_KEY) &&
+                DATE_CLASS.equals(jsonMap.get(CLASS_KEY));
+        if(isDateClass) {
+            Object time = jsonMap.get(TIME_KEY);
+            if(time instanceof Number) {
+                return CloudMineDateFormat.fromNumber((Number) time); //replace Number with Date
+            } else {
+                throw new JsonConversionException("Received non number time");
+            }
         }
+
+        for(Map.Entry<String, Object> jsonEntry : new HashMap<String, Object>(jsonMap).entrySet()) {
+            if(jsonEntry.getValue() instanceof Map) {
+                jsonMap.put(jsonEntry.getKey(),
+                        convertDateClassesToDates((Map<String, Object>)jsonEntry.getValue()));
+            }
+        }
+        return jsonMap;
     }
 
-    public static JsonNode getNode(InputStream inputJson) throws JsonConversionException {
+    public static Map<String, Object> jsonToMap(InputStream inputJson) {
+        StringWriter writer = new StringWriter();
         try {
-            return jsonMapper.readValue(inputJson, JsonNode.class);
+            IOUtils.copy(inputJson, writer, ENCODING);
+            return jsonToMap(writer.toString());
         } catch (IOException e) {
-            throw new JsonConversionException("Couldn't parse stream", e);
+            throw new JsonConversionException("Couldn't read inputJson", e);
         }
-    }
-
-    public static JsonNodeFactory getNodeFactory() {
-        return jsonMapper.getNodeFactory();
     }
 
     /**

@@ -2,7 +2,6 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +36,9 @@ public class CloudMineResponse implements Json {
     private static final String ERRORS = "errors";
     public static final String EMPTY_JSON = "{ }";
 
-    private final JsonNode baseNode;
-    private final JsonNode successResponse;
-    private final JsonNode errorResponse;
+    private final Map<String, Object> baseNode;
+    private final Map<String, Object> successResponse;
+    private final Map<String, Object> errorResponse;
     private final int statusCode;
 
     public static interface ResponseConstructor<T extends CloudMineResponse> {
@@ -95,98 +94,92 @@ public class CloudMineResponse implements Json {
             statusCode = NO_RESPONSE_CODE;
         }
         response.getStatusLine().getStatusCode();
-        JsonNode responseNode = extractResponseNode(response);
-        baseNode = responseNode;
-        successResponse = responseNode.get(SUCCESS);
-        errorResponse = responseNode.get(ERRORS); //TODO If we receive a null response is that an error?
+        baseNode = extractResponseNode(response);
+        successResponse = convertToMap(baseNode.get(SUCCESS));
+        errorResponse = convertToMap(baseNode.get(ERRORS));
     }
 
     public CloudMineResponse(String messageBody, int statusCode) {
-        JsonNode tempNode;
+        Map<String, Object> tempNode;
         try {
-            tempNode = JsonUtilities.getNode(messageBody);
+            tempNode = JsonUtilities.jsonToMap(messageBody);
         } catch (JsonConversionException e) {
             LOG.error("Exception parsing message body: " + messageBody, e);
-            tempNode = JsonUtilities.getNodeFactory().nullNode();
+            tempNode = new HashMap<String, Object>();
         }
         baseNode = tempNode;
-        successResponse = baseNode.get(SUCCESS);
-        errorResponse = baseNode.get(ERRORS);
+        successResponse = convertToMap(baseNode.get(SUCCESS));
+        errorResponse = convertToMap(baseNode.get(ERRORS));
         this.statusCode = statusCode;
     }
 
-    private JsonNode extractResponseNode(HttpResponse response) {
-        JsonNode responseNode = null;
+    private Map<String, Object> convertToMap(Object object) {
+        if(object instanceof Map) {
+            return (Map<String, Object>)object;
+        } else {
+            return new HashMap<String, Object>();
+        }
+    }
+
+    private Map<String, Object> extractResponseNode(HttpResponse response) {
+        Map<String, Object> responseMap = null;
         if(response == null ||
                 statusCode > 202 ||
                 !response.getEntity().getContentType().getValue().contains("json")) {
             LOG.info("Received null, error, or none json response");
-            responseNode = JsonUtilities.getNodeFactory().nullNode();
         }else {
             try {
-                responseNode = JsonUtilities.getNode(response.getEntity().getContent());
+                responseMap = JsonUtilities.jsonToMap(response.getEntity().getContent());
             } catch (IOException e) {
                 LOG.error("Failed parsing response entity content: ", e);
             }
         }
-        return responseNode;
+        return responseMap;
     }
 
     public int getStatusCode() {
         return statusCode;
     }
 
-    protected JsonNode getSuccessNode() {
-        return successResponse;
-    }
-
     public List<SimpleCMObject> getSuccessObjects() {
-        if(successResponse == null ||
-                !(successResponse.isObject() || successResponse.isArray())) {
+        if(successResponse == null || successResponse.isEmpty()) {
             LOG.error("Null or non empty successResponse, empty list returned for getSuccessObjects");
             return Collections.emptyList();
         }
         List<SimpleCMObject> successObjects = new ArrayList<SimpleCMObject>();
-        Iterator<Map.Entry<String, JsonNode>> successFields = successResponse.fields();
 
-        while(successFields.hasNext()) {
-            Map.Entry<String, JsonNode> nodeEntry = successFields.next();
-            Map<String, Object> contents = JsonUtilities.jsonToMap(nodeEntry.getValue().toString());
-            String topLevelKey = nodeEntry.getKey();
-            successObjects.add(new SimpleCMObject(topLevelKey, contents));
+
+        for(Map.Entry<String, Object> successEntry : successResponse.entrySet()) {
+            String successName = successEntry.getKey();
+            Map<String, Object> successMap = convertToMap(successEntry.getValue());
+            successObjects.add(new SimpleCMObject(successName, successMap));
         }
         return successObjects;
     }
 
-    public boolean successHasKey(String key) {
+    public boolean hasSuccessKey(String key) {
         return successResponse != null &&
-                    successResponse.has(key);
+                    successResponse.containsKey(key);
     }
 
     public boolean hasSuccess() {
-        return jsonNodeHasContents(successResponse);
+        return mapHasContents(successResponse);
     }
 
     public boolean hasError() {
-        return jsonNodeHasContents(errorResponse);
+        return mapHasContents(errorResponse);
     }
 
     public boolean hasNode(String key) {
-        return baseNode != null && baseNode.has(key);
-    }
-
-    public JsonNode getNode(String key) {
-        return baseNode == null ?
-                    null :
-                        baseNode.get(key);
+        return baseNode != null && baseNode.containsKey(key);
     }
 
     public boolean was(int statusCode) {
         return this.statusCode == statusCode;
     }
 
-    private boolean jsonNodeHasContents(JsonNode node) {
-        return node != null && node.iterator().hasNext();
+    private boolean mapHasContents(Map<String, Object> map) {
+        return map != null && !map.isEmpty();
     }
 
     public String toString() {

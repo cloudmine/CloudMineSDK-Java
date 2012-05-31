@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Copyright CloudMine LLC
@@ -35,5 +37,14 @@ public class CloudMineResponseTest {
         Collection<SimpleCMObject> successObjects = response.getSuccessObjects();
 
         assertEquals(2, successObjects.size());
+    }
+
+    @Test
+    public void successHasKey() {
+        CloudMineResponse response = new CloudMineResponse(jsonResponse, 200);
+
+        assertTrue(response.hasSuccess());
+        assertTrue(response.hasSuccessKey("someOtherKey"));
+        assertFalse(response.hasSuccessKey("taskName"));
     }
 }
