@@ -122,31 +122,12 @@ public class JsonUtilities {
         }
     }
 
-    public static JsonNode mapToJsonNode(Map<String, Object> map) throws JsonConversionException {
-        try {
-            return jsonMapper.readTree(mapToJson(map));
-        } catch (IOException e) {
-            throw new JsonConversionException("Trouble converting map to JsonNode", e);
-        }
-    }
-
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
         try {
             return jsonMapper.readValue(json, Map.class);
         } catch (IOException e) {
             LOG.error("Trouble reading json", e);
             throw new JsonConversionException("JSON: " + json, e);
-        }
-    }
-
-    public static Map<String, Object> jsonNodeToMap(JsonNode node) throws JsonConversionException {
-        if(node == null) {
-            return jsonToMap(null);
-        }
-        try {
-            return jsonMapper.readValue(node.toString(), Map.class);
-        } catch (IOException e) {
-            throw new JsonConversionException("Couldn't convert node: " + node, e);
         }
     }
 

@@ -14,19 +14,30 @@ public class UserTokenTest {
 
     @Test
     public void testFromJson() {
-        String json = "{\n" +
-                "    \"session_token\": \"44c31131ecac41cf92f49b28b84ebac4\",\n" +
-                "    \"expires\": \"Tue, 13 Mar 2012 20:03:45 GMT\"\n" +
-                "}";
+        String json = userTokenJson();
 
         UserToken token = new UserToken(json);
 
         assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.sessionToken());
     }
 
+    private String userTokenJson() {
+        return "{\n" +
+                    "    \"session_token\": \"44c31131ecac41cf92f49b28b84ebac4\",\n" +
+                    "    \"expires\": \"Tue, 13 Mar 2012 20:03:45 GMT\"\n" +
+                    "}";
+    }
+
     @Test
     public void testIsValid() {
         UserToken token = new UserToken("null");
         assertFalse(token.isValid());
+    }
+
+    @Test
+    public void testToJson() {
+        UserToken token = new UserToken(userTokenJson());
+
+        assertEquals(userTokenJson(), token.asJson());
     }
 }

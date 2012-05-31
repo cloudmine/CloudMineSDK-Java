@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.*;
 
@@ -43,10 +42,6 @@ public class SimpleCMObject implements Json, Parcelable {
         this.contents = contents;
         this.topLevelMap = topLevelMap;
         topLevelMap.put(topLevelKey, contents);
-    }
-
-    public SimpleCMObject(JsonNode node) {
-        this(node.toString());
     }
 
     public SimpleCMObject(String json) {
