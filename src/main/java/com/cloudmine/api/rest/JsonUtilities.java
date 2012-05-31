@@ -37,7 +37,9 @@ public class JsonUtilities {
 
             @Override
             public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-                jgen.writeRaw(":" + dateToJsonClass(value));
+                jgen.writeStartObject();
+                jgen.writeRaw(dateToUnwrappedJsonClass(value));
+                jgen.writeEndObject();
             }
 
             @Override
@@ -58,12 +60,22 @@ public class JsonUtilities {
     public static final String TIME_KEY = "timestamp";
     public static final String ENCODING = "UTF-8";
 
-    public static String dateToJsonClass(Date date) {
+    public static String dateToUnwrappedJsonClass(Date date ){
         if(date == null) {
             return NULL_STRING;
         }
         long secondsTime = date.getTime() / 1000;
-        return createJsonClass(DATE_CLASS, createJsonProperty(TIME_KEY, secondsTime));
+
+        return new StringBuilder(createJsonProperty(CLASS_KEY, DATE_CLASS)).append(",\n")
+                .append(createJsonProperty(TIME_KEY, secondsTime)).toString();
+
+    }
+
+    public static String dateToJsonClass(Date date) {
+        if(date == null) {
+            return NULL_STRING;
+        }
+        return "{\n" + dateToUnwrappedJsonClass(date) + "\n}";
     }
 
     public static String createJsonClass(String className, String... properties) {

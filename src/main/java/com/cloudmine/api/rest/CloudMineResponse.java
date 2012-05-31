@@ -134,7 +134,9 @@ public class CloudMineResponse implements Json {
                 LOG.error("Failed parsing response entity content: ", e);
             }
         }
-        return responseMap;
+        return responseMap == null ?
+                new HashMap<String, Object>() :
+                        responseMap;
     }
 
     public int getStatusCode() {

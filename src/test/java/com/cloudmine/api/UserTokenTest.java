@@ -33,11 +33,4 @@ public class UserTokenTest {
         UserToken token = new UserToken("null");
         assertFalse(token.isValid());
     }
-
-    @Test
-    public void testToJson() {
-        UserToken token = new UserToken(userTokenJson());
-
-        assertEquals(userTokenJson(), token.asJson());
-    }
 }
