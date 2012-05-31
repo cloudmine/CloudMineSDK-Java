@@ -1,12 +1,15 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,18 +29,30 @@ public class JsonUtilities {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
     public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CloudMineDateFormat();
     static {
-        jsonMapper.setDateFormat(CLOUDMINE_DATE_FORMATTER);
+        //Using a serializer instead of setting the DateFormat to get around string escape issues
+        SimpleModule dateModule = new SimpleModule("DateModule", new Version(1, 0, 0, null));
+        dateModule.addSerializer(new JsonSerializer<Date>() {
+
+            @Override
+            public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+                jgen.writeRaw(":" + dateToJsonClass(value));
+            }
+
+            @Override
+            public Class<Date> handledType() {
+                return Date.class;
+            }
+        });
+
+        jsonMapper.registerModule(dateModule);
+
+
     }
     public static final String NULL_STRING = "\"\"";
 
-
-    public static final String RFC1123_PATTERN =
-            "EEE, dd MMM yyyyy HH:mm:ss ";
     public static final String TAB = "  ";
-    public static final DateTimeFormatter RFC1123_FORMATTER = DateTimeFormat.forPattern(RFC1123_PATTERN);
     public static final String CLASS_KEY = "__class__";
     public static final String DATE_CLASS = "datetime";
-    public static final String DATE_TIME_CLASS = "jodadatetime";
     public static final String TIME_KEY = "timestamp";
 
     public static String dateToJsonClass(Date date) {
@@ -76,10 +91,6 @@ public class JsonUtilities {
 
     public static String createJsonProperty(String key, Number value) {
         return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
-    }
-
-    public static DateTime toDate(String dateString) {
-        return RFC1123_FORMATTER.parseDateTime(dateString);
     }
 
     public static String addQuotes(String toQuote) {
@@ -175,10 +186,14 @@ public class JsonUtilities {
     public static boolean isJsonEquivalent(String first, String second) throws JsonConversionException {
         try {
             JsonNode firstNode = jsonMapper.readTree(first);
-            JsonNode secondNode = jsonMapper.readTree(second);
-            return firstNode.equals(secondNode);
+            try {
+                JsonNode secondNode = jsonMapper.readTree(second);
+                return firstNode.equals(secondNode);
+            } catch (IOException e) {
+                throw new JsonConversionException("Couldn't convert second string to json: " + second, e);
+            }
         } catch (IOException e) {
-            throw new JsonConversionException("Couldn't convert string to json: " + first, e);
+            throw new JsonConversionException("Couldn't convert first string to json: " + first, e);
         }
     }
 }

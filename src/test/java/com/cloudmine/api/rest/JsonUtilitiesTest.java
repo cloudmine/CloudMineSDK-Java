@@ -28,7 +28,6 @@ public class JsonUtilitiesTest {
 
         Map<String, Object> objectMap = new HashMap<String, Object>();
         objectMap.put("deadline", date);
-        JsonNode dateJson = JsonUtilities.mapToJsonNode(objectMap);
         String json = JsonUtilities.mapToJson(objectMap);
         Map<String, Object> convertedMap = JsonUtilities.jsonToMap(json);
         Date parsedDate = JsonUtilities.jsonClassToDate(convertedMap.get("deadline").toString());

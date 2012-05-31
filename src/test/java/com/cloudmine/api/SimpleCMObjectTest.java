@@ -24,7 +24,10 @@ public class SimpleCMObjectTest {
         String expectedJson = "{\"topLevelKey\":{\n" +
                 "    \"name\":\"john\",\n" +
                 "    \"numbers\":[1, 2, 3, 4, 5],\n" +
-                "    \"date\":439574359743594795,\n" +
+                "    \"date\":{\n" +
+                "    " + JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, JsonUtilities.DATE_CLASS) + ",\n" +
+                "    " + JsonUtilities.createJsonProperty(JsonUtilities.TIME_KEY, (dateValue.getTime() / 1000)) + "\n" +
+                "},\n" +
                 "    \"boolean\":true,\n" +
                 "    \"child\":{\n" +
                 "        \"friends\":[\"fred\", \"ted\", \"ben\"]\n" +
