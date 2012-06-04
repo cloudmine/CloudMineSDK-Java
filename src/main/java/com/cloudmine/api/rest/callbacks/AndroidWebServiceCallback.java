@@ -1,6 +1,8 @@
 package com.cloudmine.api.rest.callbacks;
 
+import com.cloudmine.api.rest.CloudMineResponse;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.HttpResponseConsumerConstructor;
 import org.apache.http.HttpResponse;
 
 /**
@@ -13,12 +15,14 @@ public class AndroidWebServiceCallback extends AsyncHttpResponseHandler implemen
     private final WebServiceCallback callback;
 
     public AndroidWebServiceCallback() {
-        this(WebServiceCallback.DO_NOTHING);
+        this(WebServiceCallback.DO_NOTHING, CloudMineResponse.CONSTRUCTOR);
     }
 
-    public AndroidWebServiceCallback(WebServiceCallback callback) {
+    public AndroidWebServiceCallback(WebServiceCallback callback, HttpResponseConsumerConstructor responseConsumerConstructor) {
+        super(responseConsumerConstructor);
         this.callback = callback;
     }
+
     @Override
     public void onCompletion(HttpResponse response) {
         callback.onCompletion(response);
