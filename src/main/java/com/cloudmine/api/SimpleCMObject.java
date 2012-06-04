@@ -149,6 +149,10 @@ public class SimpleCMObject implements Json, Parcelable {
         }
     }
 
+    public String key() {
+        return topLevelKey;
+    }
+
     public String asKeyedObject() {
         return JsonUtilities.addQuotes(topLevelKey) + ":" + JsonUtilities.mapToJson(contents);
     }

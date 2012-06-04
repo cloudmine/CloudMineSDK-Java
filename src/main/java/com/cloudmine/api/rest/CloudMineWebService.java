@@ -4,9 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.loopj.android.http.AsyncHttpClient;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -31,6 +31,16 @@ import java.util.concurrent.Future;
  * Date: 5/16/12, 2:34 PM
  */
 public class CloudMineWebService implements Parcelable{
+    private static CloudMineWebService lastInstantiatedInstance;
+
+    /**
+     * Returns the last instantiated instance of CloudMineWebService.
+     * @return
+     */
+    public static CloudMineWebService defaultService() {
+        return lastInstantiatedInstance;
+    }
+
     public static final Header JSON_HEADER = new Header() {
         public String getName() {
             return "Content-Type";
@@ -71,6 +81,7 @@ public class CloudMineWebService implements Parcelable{
     public CloudMineWebService(CloudMineURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
         asyncHttpClient = asyncClient;
+        lastInstantiatedInstance = this;
     }
 
     public CloudMineWebService(Parcel in) {
@@ -110,6 +121,34 @@ public class CloudMineWebService implements Parcelable{
     public Future<SimpleObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
         return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
+    }
+
+    public Future<CloudMineResponse> asyncDelete(Collection<SimpleCMObject> objects) {
+        return asyncDelete(objects.toArray(new SimpleCMObject[objects.size()]));
+    }
+
+    public Future<CloudMineResponse> asyncDelete(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+        return asyncDelete(callback, objects.toArray(new SimpleCMObject[objects.size()]));
+    }
+
+    public Future<CloudMineResponse> asyncDelete(SimpleCMObject... objects) {
+        return asyncDelete(WebServiceCallback.DO_NOTHING, objects);
+    }
+
+    public Future<CloudMineResponse> asyncDelete(WebServiceCallback callback, SimpleCMObject... objects) {
+        String[] keys = new String[objects.length];
+        for(int i = 0; i < objects.length; i++) {
+            keys[i] = objects[i].key();
+        }
+        return asyncDelete(callback, keys);
+    }
+
+    public Future<CloudMineResponse> asyncDelete(String... keys) {
+        return asyncDelete(WebServiceCallback.DO_NOTHING, keys);
+    }
+
+    public Future<CloudMineResponse> asyncDelete(WebServiceCallback callback, String... keys) {
+        return executeAsyncCommand(createDelete(keys), callback);
     }
 
     public Future<CloudMineResponse> create(SimpleCMObject object) {
@@ -185,6 +224,14 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createLogoutPost(token), callback, CloudMineResponse.CONSTRUCTOR);
     }
 
+    public Future<CloudMineResponse> asyncUpdate(SimpleCMObject toUpdate) {
+        return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CloudMineResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
+        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback);
+    }
+
     public CloudMineResponse set(User user) {
         return executeCommand(createPut(user));
     }
@@ -210,7 +257,7 @@ public class CloudMineWebService implements Parcelable{
     }
 
     private <T extends CloudMineResponse> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, CloudMineResponse.ResponseConstructor<T> constructor) {
-        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback));
+        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback, constructor));
     }
 
     private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, CloudMineResponse.ResponseConstructor<T> constructor) {
@@ -223,29 +270,9 @@ public class CloudMineWebService implements Parcelable{
             LOG.error("Error executing command: " + message.getURI(), e);
         }
         finally {
-            consumeEntityResponse(response);
+            AsyncHttpClient.consumeEntityResponse(response);
         }
         return constructor.construct(null);
-    }
-
-    /**
-     * If the entity response is not fully consumed, the connection will not be released
-     * @param response
-     */
-    private void consumeEntityResponse(HttpResponse response) {
-        if(response != null && response.getEntity() != null) {
-            HttpEntity body = response.getEntity();
-            if(body.isStreaming()) {
-                try {
-                    InputStream instream = body.getContent();
-                    if(instream != null) {
-                            instream.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-        }
     }
 
     private HttpGet createSearch(String search) {

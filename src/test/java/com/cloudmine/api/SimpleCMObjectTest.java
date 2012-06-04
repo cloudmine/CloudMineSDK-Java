@@ -37,7 +37,8 @@ public class SimpleCMObjectTest {
 
     @Test
     public void testDateGet() {
-
+        SimpleCMObject object = createComplexObject();
+        assertEquals(JsonUtilitiesTest.dateValue, object.getDate("date"));
     }
 
     @Test
