@@ -1,27 +1,70 @@
 package com.cloudmine.api;
 
+import android.graphics.Bitmap;
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.CloudMineResponse;
+import com.cloudmine.api.rest.Json;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Future;
 
 /**
+ * The JSON representation of a CloudMineFile consists of the
  * Copyright CloudMine LLC
  * User: johnmccarthy
  * Date: 5/18/12, 3:29 PM
  */
-public class CloudMineFile {
+public class CloudMineFile implements Json {
+
+
+    public static class Constructor implements CloudMineResponse.ResponseConstructor<CloudMineFile>{
+        private final String key;
+        public Constructor(String key) {
+            super();
+            this.key = key;
+        }
+
+        @Override
+        public CloudMineFile construct(HttpResponse response) {
+            return new CloudMineFile(response, key);
+        }
+
+        @Override
+        public Future<CloudMineFile> constructFuture(Future<HttpResponse> futureResponse) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    };
+
+    public static CloudMineResponse.ResponseConstructor<CloudMineFile> constructor(String key) {
+        return new Constructor(key);
+    }
+
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+    public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CloudMineFile.class);
 
     private final String key;
     private final String contentType;
     private final byte[] fileContents;
+
+    public CloudMineFile(Bitmap picture) {
+        this(picture, null);
+    }
+
+    public CloudMineFile(Bitmap picture, String key) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        picture.compress(Bitmap.CompressFormat.PNG, 100, output);
+        fileContents = output.toByteArray();
+        this.key = key;
+        contentType = IMAGE_PNG_CONTENT_TYPE;
+    }
 
     public CloudMineFile(InputStream contents) {
         this(contents, null, null);
@@ -94,4 +137,8 @@ public class CloudMineFile {
         return string.toString();
     }
 
+    @Override
+    public String asJson() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

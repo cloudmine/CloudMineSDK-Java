@@ -56,10 +56,6 @@ public class SimpleCMObject implements Json, Parcelable {
         });
     }
 
-    public SimpleCMObject(Parcel in) {
-        this(in.readString());
-    }
-
     public SimpleCMObject(Map<String, Object> topLevelMap) {
         this.topLevelMap = topLevelMap;
         Set<Map.Entry<String, Object>> contentSet = topLevelMap.entrySet();
@@ -76,6 +72,10 @@ public class SimpleCMObject implements Json, Parcelable {
         }
     }
 
+    public SimpleCMObject(Parcel in) {
+        this(in.readString());
+    }
+
     public Object get(String key) {
         return contents.get(key);
     }
@@ -89,6 +89,27 @@ public class SimpleCMObject implements Json, Parcelable {
 
     public Integer getInteger(String key) {
         return getValue(key, Integer.class);
+    }
+
+    public Double getDouble(String key) {
+        return getValue(key, Double.class);
+    }
+
+    public Double getDouble(String... keys) {
+        for(String key : keys) {
+            Double val = getDouble(key);
+            if(val != null) {
+                return val;
+            }
+        }
+        return null;
+    }
+
+    public Double getDouble(String key, Double alternative) {
+        Double value = getDouble(key);
+        return value == null ?
+                alternative :
+                    value;
     }
 
     public Boolean getBoolean(String key, Boolean alternative) {
@@ -129,16 +150,74 @@ public class SimpleCMObject implements Json, Parcelable {
         return getValue(key, Date.class);
     }
 
+    public GeoPoint getGeoPoint(String key) {
+        return getValue(key, GeoPoint.class);
+    }
+
+    public GeoPoint getGeoPoint(String key, GeoPoint alternative) {
+        GeoPoint point = getGeoPoint(key);
+        return point == null ?
+                alternative :
+                    point;
+    }
+
+    /**
+     * Returns null if the key or klass are null, if the value linked to the specified key is not convertable to
+     * the given klass,
+     * @param key
+     * @param klass
+     * @param <T>
+     * @return
+     */
     private <T> T getValue(String key, Class<T> klass) {
+        if(key == null || klass == null) {
+            return null;
+        }
         Object value = contents.get(key);
+        if(value != null &&
+                SimpleCMObject.class.isAssignableFrom(klass)) {
+            return newFromJson(value.toString(), klass);
+        }
         if(value != null && klass.isAssignableFrom(value.getClass())) {
             return (T)value;
         }
         return null;
     }
 
+    /**
+     * Returns null if json is null, klass is null, or klass isn't assignable from SimpleCMObject
+     * @param json
+     * @param klass
+     * @param <T>
+     * @return
+     */
+    private <T> T newFromJson(String json, Class<T> klass) {
+        if(json == null || klass == null)
+            return null;
+        //Need to start at the bottom of the inheritance chain and work up
+        if(klass.isAssignableFrom(GeoPoint.class)) {
+            return (T)new GeoPoint(json);
+        } else if(klass.isAssignableFrom(SimpleCMObject.class)) {
+            return (T)new SimpleCMObject(json);
+        }
+        return null;
+    }
+
     public void setClass(String className) {
         add(JsonUtilities.CLASS_KEY, className);
+    }
+
+    public void setType(CloudMineType type) {
+        add(JsonUtilities.TYPE_KEY, type.typeId());
+    }
+
+    public CloudMineType getType() {
+        Object type = get(JsonUtilities.TYPE_KEY);
+        return CloudMineType.getTypeById((String)type);
+    }
+
+    public boolean isType(CloudMineType type) {
+        return getType().equals(type);
     }
 
     public final void add(String key, Object value) {
@@ -163,6 +242,25 @@ public class SimpleCMObject implements Json, Parcelable {
 
     public String toString() {
         return asJson();
+    }
+
+    public boolean isSameMap(Map<String, Object> topLevelMap) {
+        return this.topLevelMap.equals(topLevelMap);
+    }
+
+    @Override
+    public final boolean equals(Object another) {
+        //This will make it work with subclasses of SimpleCMObject, but must make equals final so child classes
+        //can't provide an implementation that would mean a.equals(b) != b.equals(a)
+        if(another instanceof SimpleCMObject) {
+            return ((SimpleCMObject) another).isSameMap(topLevelMap);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return topLevelMap.hashCode();
     }
 
     @Override

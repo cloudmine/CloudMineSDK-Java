@@ -36,12 +36,12 @@ public class CloudMineResponse implements Json {
     private static final String ERRORS = "errors";
     public static final String EMPTY_JSON = "{ }";
 
-    private final Map<String, Object> baseNode;
+    private final Map<String, Object> baseMap;
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
     private final int statusCode;
 
-    public static interface ResponseConstructor<T extends CloudMineResponse> {
+    public static interface ResponseConstructor<T> {
         public T construct(HttpResponse response);
         public Future<T> constructFuture(Future<HttpResponse> futureResponse);
     }
@@ -94,9 +94,9 @@ public class CloudMineResponse implements Json {
             statusCode = NO_RESPONSE_CODE;
         }
         response.getStatusLine().getStatusCode();
-        baseNode = extractResponseNode(response);
-        successResponse = convertToMap(baseNode.get(SUCCESS));
-        errorResponse = convertToMap(baseNode.get(ERRORS));
+        baseMap = extractResponseNode(response);
+        successResponse = convertToMap(baseMap.get(SUCCESS));
+        errorResponse = convertToMap(baseMap.get(ERRORS));
     }
 
     public CloudMineResponse(String messageBody, int statusCode) {
@@ -107,9 +107,9 @@ public class CloudMineResponse implements Json {
             LOG.error("Exception parsing message body: " + messageBody, e);
             tempNode = new HashMap<String, Object>();
         }
-        baseNode = tempNode;
-        successResponse = convertToMap(baseNode.get(SUCCESS));
-        errorResponse = convertToMap(baseNode.get(ERRORS));
+        baseMap = tempNode;
+        successResponse = convertToMap(baseMap.get(SUCCESS));
+        errorResponse = convertToMap(baseMap.get(ERRORS));
         this.statusCode = statusCode;
     }
 
@@ -159,6 +159,18 @@ public class CloudMineResponse implements Json {
         return successObjects;
     }
 
+    /**
+     * Retrieves objects from the top level node. Will return null if the key does not exist
+     * @param key
+     * @return
+     */
+    public Object getObject(String key) {
+        if(baseMap == null) {
+            return null;
+        }
+        return baseMap.get(key);
+    }
+
     public boolean hasSuccessKey(String key) {
         return successResponse != null &&
                     successResponse.containsKey(key);
@@ -173,11 +185,15 @@ public class CloudMineResponse implements Json {
     }
 
     public boolean hasNode(String key) {
-        return baseNode != null && baseNode.containsKey(key);
+        return baseMap != null && baseMap.containsKey(key);
     }
 
-    public boolean was(int statusCode) {
-        return this.statusCode == statusCode;
+    public boolean was(int... statusCodes) {
+        for(int statusCode : statusCodes){
+            if(this.statusCode == statusCode)
+                return true;
+        }
+        return false;
     }
 
     private boolean mapHasContents(Map<String, Object> map) {
@@ -185,15 +201,18 @@ public class CloudMineResponse implements Json {
     }
 
     public String toString() {
-        return baseNode == null ?
-                super.toString() :
-                    baseNode.toString();
+        return asJson();
     }
+
+    private String asJsonString;
 
     @Override
     public String asJson() {
-        return baseNode == null ?
-                EMPTY_JSON :
-                    baseNode.toString();
+        if(asJsonString == null) {
+            asJsonString = baseMap == null ?
+                    EMPTY_JSON :
+                    JsonUtilities.mapToJson(baseMap);
+        }
+        return asJsonString;
     }
 }

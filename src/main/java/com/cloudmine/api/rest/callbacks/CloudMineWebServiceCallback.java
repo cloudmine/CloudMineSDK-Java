@@ -8,7 +8,7 @@ import org.apache.http.HttpResponse;
  * User: johnmccarthy
  * Date: 5/22/12, 6:12 PM
  */
-public abstract class CloudMineWebServiceCallback<T extends CloudMineResponse> implements WebServiceCallback {
+public abstract class CloudMineWebServiceCallback<T> implements WebServiceCallback {
 
     private final CloudMineResponse.ResponseConstructor<T> constructor;
 

@@ -50,5 +50,9 @@ public class SimpleCMObjectTest {
         assertFalse(object.getBoolean("non existent boolean", Boolean.FALSE));
         assertTrue(object.getBoolean("boolean"));
 
+        GeoPoint geoPoint = new GeoPoint(3.3, 4);
+        object.add("location", geoPoint);
+        assertEquals(geoPoint, object.getGeoPoint("location"));
+
     }
 }

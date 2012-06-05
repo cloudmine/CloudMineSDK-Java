@@ -151,6 +151,22 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createDelete(keys), callback);
     }
 
+    public Future<FileCreationResponse> asyncUpload(CloudMineFile file) {
+        return asyncUpload(file, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<FileCreationResponse> asyncUpload(CloudMineFile file, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(file), callback, FileCreationResponse.CONSTRUCTOR);
+    }
+
+    public Future<CloudMineFile> asyncLoad(String key) {
+        return asyncLoad(key, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CloudMineFile> asyncLoad(String key, WebServiceCallback callback) {
+        return executeAsyncCommand(createGetObject(key), callback, CloudMineFile.constructor(key));
+    }
+
     public Future<CloudMineResponse> create(SimpleCMObject object) {
         return create(object, WebServiceCallback.DO_NOTHING);
     }
@@ -196,8 +212,8 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(post);
     }
 
-    public CloudMineResponse set(CloudMineFile file) {
-        return executeCommand(createPut(file));
+    public FileCreationResponse set(CloudMineFile file) {
+        return executeCommand(createPut(file), FileCreationResponse.CONSTRUCTOR);
     }
 
     public Future<CloudMineResponse> asyncCreateUser(User user) {
@@ -256,8 +272,8 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(message, callback, CloudMineResponse.CONSTRUCTOR);
     }
 
-    private <T extends CloudMineResponse> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, CloudMineResponse.ResponseConstructor<T> constructor) {
-        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback, constructor));
+    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, CloudMineResponse.ResponseConstructor<T> constructor) {
+        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback));
     }
 
     private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, CloudMineResponse.ResponseConstructor<T> constructor) {
