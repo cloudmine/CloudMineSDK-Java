@@ -38,7 +38,7 @@ public class CloudMineFile implements Json {
 
         @Override
         public Future<CloudMineFile> constructFuture(Future<HttpResponse> futureResponse) {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return CloudMineResponse.createFutureResponse(futureResponse, this);
         }
     };
 

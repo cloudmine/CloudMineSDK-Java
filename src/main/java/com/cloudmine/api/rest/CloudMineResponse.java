@@ -50,7 +50,7 @@ public class CloudMineResponse implements Json {
         return createFutureResponse(response, CONSTRUCTOR);
     }
 
-    public static <T extends CloudMineResponse> Future<T> createFutureResponse(final Future<HttpResponse> response, final ResponseConstructor<T> constructor) {
+    public static <T> Future<T> createFutureResponse(final Future<HttpResponse> response, final ResponseConstructor<T> constructor) {
         return new Future<T>() {
             T cachedResponse;
             @Override
