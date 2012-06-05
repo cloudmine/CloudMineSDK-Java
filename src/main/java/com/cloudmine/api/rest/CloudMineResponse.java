@@ -2,6 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +41,6 @@ public class CloudMineResponse implements Json {
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
     private final int statusCode;
-
-    public static interface ResponseConstructor<T> {
-        public T construct(HttpResponse response);
-        public Future<T> constructFuture(Future<HttpResponse> futureResponse);
-    }
 
     public static Future<CloudMineResponse> createFutureResponse(Future<HttpResponse> response) {
         return createFutureResponse(response, CONSTRUCTOR);

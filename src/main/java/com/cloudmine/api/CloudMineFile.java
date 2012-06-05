@@ -4,8 +4,10 @@ import android.graphics.Bitmap;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.CloudMineResponse;
 import com.cloudmine.api.rest.Json;
+import com.loopj.android.http.ResponseConstructor;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,7 @@ import java.util.concurrent.Future;
 public class CloudMineFile implements Json {
 
 
-    public static class Constructor implements CloudMineResponse.ResponseConstructor<CloudMineFile>{
+    public static class Constructor implements ResponseConstructor<CloudMineFile>{
         private final String key;
         public Constructor(String key) {
             super();
@@ -42,7 +44,7 @@ public class CloudMineFile implements Json {
         }
     };
 
-    public static CloudMineResponse.ResponseConstructor<CloudMineFile> constructor(String key) {
+    public static ResponseConstructor<CloudMineFile> constructor(String key) {
         return new Constructor(key);
     }
 
@@ -60,7 +62,8 @@ public class CloudMineFile implements Json {
 
     public CloudMineFile(Bitmap picture, String key) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        picture.compress(Bitmap.CompressFormat.PNG, 100, output);
+        picture.compress(Bitmap.CompressFormat.JPEG, 100, output);
+
         fileContents = output.toByteArray();
         this.key = key;
         contentType = IMAGE_PNG_CONTENT_TYPE;
@@ -121,7 +124,7 @@ public class CloudMineFile implements Json {
         if(response == null || response.getEntity() == null)
             return null;
         try {
-            return response.getEntity().getContent();
+            return new BufferedHttpEntity(response.getEntity()).getContent();
         } catch (IOException e) {
             LOG.error("IOException getting response entity contents", e);
             throw new CreationException(e);

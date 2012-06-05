@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
@@ -272,11 +273,11 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(message, callback, CloudMineResponse.CONSTRUCTOR);
     }
 
-    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, CloudMineResponse.ResponseConstructor<T> constructor) {
-        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback));
+    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
+        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback, constructor));
     }
 
-    private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, CloudMineResponse.ResponseConstructor<T> constructor) {
+    private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) {
         HttpResponse response = null;
         try {
             response = httpClient.execute(message);

@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 
 import java.util.concurrent.Future;

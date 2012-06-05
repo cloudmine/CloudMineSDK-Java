@@ -2,8 +2,6 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
-import com.cloudmine.api.rest.callbacks.WebServiceCallback;
-import org.apache.http.HttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -136,9 +134,9 @@ public class CloudMineWebServiceIntegrationTest {
         task.add("isDone", false);
 
         Future<CloudMineResponse> futureResponse =
-                store.create(task, new WebServiceCallback() {
+                store.create(task, new CloudMineResponseCallback() {
             @Override
-            public void onCompletion(HttpResponse response)  {
+            public void onCompletion(CloudMineResponse response)  {
                 Future<SimpleObjectResponse> responseFuture = store.allObjectsOfClass("task");
                 try {
                     SimpleObjectResponse objectResponse = responseFuture.get(5L, TimeUnit.SECONDS);
