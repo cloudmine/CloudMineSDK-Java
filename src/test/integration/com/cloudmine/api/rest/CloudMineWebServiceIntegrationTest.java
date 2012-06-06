@@ -2,6 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +41,7 @@ public class CloudMineWebServiceIntegrationTest {
     private CloudMineWebService store;
     @Before
     public void setUp() {
+        Robolectric.getFakeHttpLayer().interceptHttpRequests(false);
         store = new CloudMineWebService(
                 new CloudMineURLBuilder(
                         ApiCredentials.applicationIdentifier()),
