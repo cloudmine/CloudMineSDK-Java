@@ -11,7 +11,10 @@ public class TestServiceCallback<T> extends CloudMineWebServiceCallback<T> {
 
     private CloudMineWebServiceCallback<T> callback;
 
-    public static <T> TestServiceCallback<T> test(CloudMineWebServiceCallback<T> callback) {
+    public static <T> TestServiceCallback<T> testCallback(CloudMineWebServiceCallback<T> callback) {
+        return new TestServiceCallback<T>(callback);
+    }
+    public static <T> TestServiceCallback<T> testCallback(int numberOfCallbacks, CloudMineWebServiceCallback<T> callback) {
         return new TestServiceCallback<T>(callback);
     }
 
@@ -25,9 +28,9 @@ public class TestServiceCallback<T> extends CloudMineWebServiceCallback<T> {
         try {
             callback.onCompletion(response);
         } catch(AssertionError t) {
-            AsyncTestCase.add(t);
+            AsyncTestResultsCoordinator.add(t);
         } finally {
-            AsyncTestCase.done();
+            AsyncTestResultsCoordinator.done();
         }
     }
 
@@ -36,9 +39,9 @@ public class TestServiceCallback<T> extends CloudMineWebServiceCallback<T> {
         try {
             callback.onFailure(thrown, message);
         } catch(AssertionError t) {
-            AsyncTestCase.add(t);
+            AsyncTestResultsCoordinator.add(t);
         } finally {
-            AsyncTestCase.done();
+            AsyncTestResultsCoordinator.done();
         }
     }
 }

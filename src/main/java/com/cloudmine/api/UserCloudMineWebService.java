@@ -67,4 +67,9 @@ public class UserCloudMineWebService extends CloudMineWebService implements Parc
     public Future<CloudMineResponse> asyncLogout(WebServiceCallback callback) {
         return asyncLogout(userToken, callback);
     }
+
+    @Override
+    public UserCloudMineWebService userWebService(UserToken token) {
+        return this;
+    }
 }

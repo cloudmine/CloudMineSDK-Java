@@ -2,8 +2,9 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
+import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.callbacks.SimpleObjectResponseCallback;
-import com.cloudmine.test.AsyncTestCase;
+import com.cloudmine.test.AsyncTestResultsCoordinator;
 import com.cloudmine.test.CloudMineTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -16,8 +17,8 @@ import java.io.*;
 import java.util.Date;
 import java.util.concurrent.Future;
 
-import static com.cloudmine.test.AsyncTestCase.*;
-import static com.cloudmine.test.TestServiceCallback.test;
+import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
+import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static org.junit.Assert.*;
 
 /**
@@ -44,7 +45,7 @@ public class CloudMineWebServiceIntegrationTest {
     private CloudMineWebService store;
     @Before
     public void setUp() {
-        AsyncTestCase.reset();
+        AsyncTestResultsCoordinator.reset();
         Robolectric.getFakeHttpLayer().interceptHttpRequests(false);
         store = new CloudMineWebService(
                 new CloudMineURLBuilder(
@@ -60,7 +61,7 @@ public class CloudMineWebServiceIntegrationTest {
     @Ignore //Only works when we can delete users
     public void testAsyncCreateUser() throws Exception {
         User newUser = new User("test2@test.com", "password");
-        store.asyncCreateUser(newUser, test(new CloudMineResponseCallback() {
+        store.asyncCreateUser(newUser, testCallback(new CloudMineResponseCallback() {
             @Override
             public void onCompletion(CloudMineResponse response) {
                 assertTrue(response.was(201));
@@ -141,7 +142,7 @@ public class CloudMineWebServiceIntegrationTest {
         task.add("isDone", false);
 
         Future<CloudMineResponse> futureResponse =
-                store.create(task, test(new CloudMineResponseCallback() {
+                store.create(task, testCallback(new CloudMineResponseCallback() {
                     @Override
                     public void onCompletion(CloudMineResponse response) {
                         store.allObjectsOfClass("task", new SimpleObjectResponseCallback() {
@@ -194,7 +195,7 @@ public class CloudMineWebServiceIntegrationTest {
     @Test
     public void testUserLogin() {
         User nonExistentUser = new User("some@dude.com", "123");
-        LoginResponse response = store.login(nonExistentUser);
+        LogInResponse response = store.login(nonExistentUser);
         assertTrue(response.was(401));
         store.set(USER);
 
@@ -208,11 +209,47 @@ public class CloudMineWebServiceIntegrationTest {
         assertEquals(401, response.getStatusCode());
 
         store.set(USER);
-        LoginResponse loginResponse = store.login(USER);
+        LogInResponse loginResponse = store.login(USER);
         assertTrue(loginResponse.was(200));
 
         response = store.logout(loginResponse.userToken());
         assertTrue(response.was(200));
+    }
+
+    @Test
+    public void testAsyncLogin() {
+        store.asyncLogin(new User("thisdoesntexist@dddd.com", "somepass"), testCallback(new LoginResponseCallback() {
+            public void onCompletion(LogInResponse response) {
+                assertEquals(UserToken.FAILED, response.userToken());
+            }
+        }));
+        waitThenAssertTestResults();
+        store.set(USER);
+        store.asyncLogin(USER, testCallback(new LoginResponseCallback() {
+            @Override
+            public void onCompletion(LogInResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testAsyncLogout() {
+        store.set(USER);
+        AsyncTestResultsCoordinator.reset(2);
+        store.asyncLogin(USER, testCallback(new LoginResponseCallback(){
+            public void onCompletion(LogInResponse response) {
+                assertTrue(response.wasSuccess());
+
+                store.asyncLogout(response.userToken(), testCallback(new CloudMineResponseCallback() {
+                    public void onCompletion(CloudMineResponse response) {
+                        assertTrue(response.wasSuccess());
+                    }
+                }));
+            }
+        }));
+        waitThenAssertTestResults();
     }
 
     private InputStream getObjectInputStream() throws IOException {

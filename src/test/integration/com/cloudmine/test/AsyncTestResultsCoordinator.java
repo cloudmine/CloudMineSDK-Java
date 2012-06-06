@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * User: johnmccarthy
  * Date: 6/6/12, 3:25 PM
  */
-public class AsyncTestCase {
+public class AsyncTestResultsCoordinator {
     private static final List<AssertionError> errors = new ArrayList<AssertionError>();
     private static CountDownLatch latch;
     public static final int TIMEOUT = 5;
@@ -20,7 +20,11 @@ public class AsyncTestCase {
     }
 
     public static void reset() {
-        latch = new CountDownLatch(1);
+        reset(1);
+    }
+
+    public static void reset(int numberOfCallbacks) {
+        latch = new CountDownLatch(numberOfCallbacks);
         errors.clear();
     }
 

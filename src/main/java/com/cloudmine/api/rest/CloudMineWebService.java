@@ -225,12 +225,12 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createPut(user), callback, CloudMineResponse.CONSTRUCTOR);
     }
 
-    public Future<LoginResponse> asyncLogin(User user) {
+    public Future<LogInResponse> asyncLogin(User user) {
         return asyncLogin(user, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<LoginResponse> asyncLogin(User user, WebServiceCallback callback) {
-        return executeAsyncCommand(createLoginPost(user), callback, LoginResponse.CONSTRUCTOR);
+    public Future<LogInResponse> asyncLogin(User user, WebServiceCallback callback) {
+        return executeAsyncCommand(createLoginPost(user), callback, LogInResponse.CONSTRUCTOR);
     }
 
     public Future<CloudMineResponse> asyncLogout(UserToken token) {
@@ -253,8 +253,8 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(createPut(user));
     }
 
-    public LoginResponse login(User user) {
-        return executeCommand(createLoginPost(user), LoginResponse.CONSTRUCTOR);
+    public LogInResponse login(User user) {
+        return executeCommand(createLoginPost(user), LogInResponse.CONSTRUCTOR);
     }
 
     public CloudMineResponse logout(UserToken sessionToken) {

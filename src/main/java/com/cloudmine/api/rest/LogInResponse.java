@@ -11,23 +11,23 @@ import java.util.concurrent.Future;
  * User: johnmccarthy
  * Date: 5/21/12, 5:38 PM
  */
-public class LoginResponse extends CloudMineResponse {
+public class LogInResponse extends CloudMineResponse {
 
-    public static final ResponseConstructor<LoginResponse> CONSTRUCTOR = new ResponseConstructor<LoginResponse>() {
+    public static final ResponseConstructor<LogInResponse> CONSTRUCTOR = new ResponseConstructor<LogInResponse>() {
         @Override
-        public LoginResponse construct(HttpResponse response) {
-            return new LoginResponse(response);
+        public LogInResponse construct(HttpResponse response) {
+            return new LogInResponse(response);
         }
 
         @Override
-        public Future<LoginResponse> constructFuture(Future<HttpResponse> futureResponse) {
+        public Future<LogInResponse> constructFuture(Future<HttpResponse> futureResponse) {
             return createFutureResponse(futureResponse, CONSTRUCTOR);
         }
     };
 
     private final UserToken userToken;
 
-    public LoginResponse(HttpResponse response) {
+    public LogInResponse(HttpResponse response) {
         super(response);
         if(wasSuccess()) {
             userToken = new UserToken(asJson());

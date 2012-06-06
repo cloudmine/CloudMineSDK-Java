@@ -1,5 +1,7 @@
-repositories.remote << 'http://repo.maven.apache.org/maven2/'
+THIS_VERSION = "0.0.1-BETA"
 
+repositories.remote << 'http://repo.maven.apache.org/maven2/'
+repositories.remote << 'https://oss.sonatype.org/content/repositories/snapshots/'
 ANDROID = 'com.google.android:android:jar:2.3.3'
 HTTP_CORE = 'org.apache.httpcomponents:httpcore:jar:4.2' 
 HTTP_CLIENT = 'org.apache.httpcomponents:httpclient:jar:4.2'
