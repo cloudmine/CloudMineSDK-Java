@@ -28,4 +28,8 @@ public abstract class CloudMineWebServiceCallback<T> implements WebServiceCallba
     public void onFailure(Throwable thrown, String message) {
 
     }
+
+    public ResponseConstructor<T> constructor() {
+        return constructor;
+    }
 }

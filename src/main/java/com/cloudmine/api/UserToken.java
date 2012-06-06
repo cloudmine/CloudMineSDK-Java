@@ -15,6 +15,8 @@ import java.util.Map;
  * Date: 5/21/12, 3:40 PM
  */
 public class UserToken implements Json {
+    private static final Date EXPIRED_DATE = new Date(0);
+    public static final UserToken FAILED = new UserToken("invalidToken", EXPIRED_DATE);
 
     public static final String SESSION_KEY = "session_token";
     public static final String EXPIRES_KEY = "expires";

@@ -192,6 +192,10 @@ public class CloudMineResponse implements Json {
         return false;
     }
 
+    public boolean wasSuccess() {
+        return 199 < statusCode && statusCode < 300;
+    }
+
     private boolean mapHasContents(Map<String, Object> map) {
         return map != null && !map.isEmpty();
     }

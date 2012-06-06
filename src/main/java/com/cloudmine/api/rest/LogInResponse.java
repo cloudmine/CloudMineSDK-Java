@@ -29,7 +29,11 @@ public class LoginResponse extends CloudMineResponse {
 
     public LoginResponse(HttpResponse response) {
         super(response);
-        userToken = new UserToken(asJson());
+        if(wasSuccess()) {
+            userToken = new UserToken(asJson());
+        } else {
+            userToken = UserToken.FAILED;
+        }
     }
 
     public UserToken userToken() {

@@ -2,8 +2,10 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
+import com.cloudmine.api.rest.callbacks.SimpleObjectResponseCallback;
+import com.cloudmine.test.AsyncTestCase;
+import com.cloudmine.test.CloudMineTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -13,8 +15,9 @@ import org.junit.runner.RunWith;
 import java.io.*;
 import java.util.Date;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
+import static com.cloudmine.test.AsyncTestCase.*;
+import static com.cloudmine.test.TestServiceCallback.test;
 import static org.junit.Assert.*;
 
 /**
@@ -22,7 +25,7 @@ import static org.junit.Assert.*;
  * User: johnmccarthy
  * Date: 5/16/12, 2:40 PM
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(CloudMineTestRunner.class)
 public class CloudMineWebServiceIntegrationTest {
 
     private static final String TEST_JSON = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
@@ -41,6 +44,7 @@ public class CloudMineWebServiceIntegrationTest {
     private CloudMineWebService store;
     @Before
     public void setUp() {
+        AsyncTestCase.reset();
         Robolectric.getFakeHttpLayer().interceptHttpRequests(false);
         store = new CloudMineWebService(
                 new CloudMineURLBuilder(
@@ -53,10 +57,10 @@ public class CloudMineWebServiceIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Ignore //Only works when we can delete users
     public void testAsyncCreateUser() throws Exception {
         User newUser = new User("test2@test.com", "password");
-        Future<CloudMineResponse> futureResponse = store.asyncCreateUser(newUser, new CloudMineResponseCallback() {
+        store.asyncCreateUser(newUser, test(new CloudMineResponseCallback() {
             @Override
             public void onCompletion(CloudMineResponse response) {
                 assertTrue(response.was(201));
@@ -67,9 +71,8 @@ public class CloudMineWebServiceIntegrationTest {
                 ex.printStackTrace();
                 fail("Failed");
             }
-        });
-        CloudMineResponse response = futureResponse.get(5, TimeUnit.SECONDS);
-        assertTrue(response.was(201));
+        }));
+        waitThenAssertTestResults();
     }
 
     @Test
@@ -131,35 +134,33 @@ public class CloudMineWebServiceIntegrationTest {
     }
 
     @Test
-    @Ignore //till stub issue
-    public void testAsyncObjectLoad() throws Exception {
+    public void testAsyncObjectLoad() throws Throwable {
         final SimpleCMObject task = new SimpleCMObject();
         task.setClass("task");
         task.add("name", "Do dishes");
         task.add("isDone", false);
 
         Future<CloudMineResponse> futureResponse =
-                store.create(task, new CloudMineResponseCallback() {
-            @Override
-            public void onCompletion(CloudMineResponse response)  {
-                Future<SimpleObjectResponse> responseFuture = store.allObjectsOfClass("task");
-                try {
-                    SimpleObjectResponse objectResponse = responseFuture.get(5L, TimeUnit.SECONDS);
-                    assertEquals(1, objectResponse.objects().size());
-                    assertEquals(task, objectResponse.objects().get(0));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail();
-                }
-            }
+                store.create(task, test(new CloudMineResponseCallback() {
+                    @Override
+                    public void onCompletion(CloudMineResponse response) {
+                        store.allObjectsOfClass("task", new SimpleObjectResponseCallback() {
+                            public void onCompletion(SimpleObjectResponse objectResponse) {
+                                assertEquals(1, objectResponse.objects().size());
+                                assertEquals(task, objectResponse.objects().get(0));
+                            }
+                        });
+                        assertWasSuccess(response);
+                    }
 
-            @Override
-            public void onFailure(Throwable error, String message) {
-                error.printStackTrace();
-                fail("failed! " + message);
-            }
-        });
-        assertWasSuccess(futureResponse.get(5L, TimeUnit.SECONDS));
+                    @Override
+                    public void onFailure(Throwable error, String message) {
+                        error.printStackTrace();
+                        fail("failed! " + message);
+                    }
+                }));
+        waitForTestResults();
+        assertAsyncTaskResult();
     }
 
     @Test
@@ -191,7 +192,6 @@ public class CloudMineWebServiceIntegrationTest {
     }
 
     @Test
-    @Ignore //till stub issue is fixed
     public void testUserLogin() {
         User nonExistentUser = new User("some@dude.com", "123");
         LoginResponse response = store.login(nonExistentUser);
@@ -203,7 +203,6 @@ public class CloudMineWebServiceIntegrationTest {
     }
 
     @Test
-    @Ignore //till stub issue is fixed
     public void testUserLogout() {
         CloudMineResponse response = store.logout(new UserToken("this token doesn't exist", new Date()));
         assertEquals(401, response.getStatusCode());
