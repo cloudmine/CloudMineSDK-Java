@@ -2,10 +2,12 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.util.Date;
@@ -19,6 +21,7 @@ import static org.junit.Assert.*;
  * User: johnmccarthy
  * Date: 5/16/12, 2:40 PM
  */
+@RunWith(RobolectricTestRunner.class)
 public class CloudMineWebServiceIntegrationTest {
 
     private static final String TEST_JSON = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
