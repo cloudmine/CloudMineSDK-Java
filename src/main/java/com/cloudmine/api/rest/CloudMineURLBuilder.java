@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collection;
 
 /**
  * Copyright CloudMine LLC
@@ -94,17 +95,27 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return data().addQuery("all", "true");
     }
 
-    public CloudMineURLBuilder delete(String... keys) {
+    public CloudMineURLBuilder delete(Collection<String> keys) {
         return data().keys(keys);
     }
 
-    public CloudMineURLBuilder keys(String... keys) {
-        if(keys.length == 0)
+    public CloudMineURLBuilder delete(String key) {
+        return data().key(key);
+    }
+
+    public CloudMineURLBuilder key(String key) {
+        if(key == null)
+            return this;
+        return addQuery("keys", key);
+    }
+
+    public CloudMineURLBuilder keys(Collection<String> keys) {
+        if(keys == null || keys.size() == 0)
             return this;
         return addQuery("keys", keysToString(keys));
     }
 
-    private String keysToString(String... keys) {
+    private String keysToString(Collection<String> keys) {
         String keyString = "";
         String comma = "";
         for(String key : keys) {

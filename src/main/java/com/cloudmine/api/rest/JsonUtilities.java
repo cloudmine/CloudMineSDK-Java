@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,6 +127,14 @@ public class JsonUtilities {
             return NULL_STRING;
         }
         return "\"" + toQuote + "\"";
+    }
+
+    public static String jsonCollection(Collection<? extends Json> jsonEntities) {
+        return jsonCollection(jsonEntities.toArray(new Json[jsonEntities.size()]));
+    }
+
+    public static String jsonStringsCollection(Collection<String> jsonEntities) {
+        return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
     }
 
     public static String jsonCollection(Json... jsonEntities) {

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -112,8 +113,12 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(createDeleteAll(), ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public ObjectModificationResponse delete(String... keys) {
+    public ObjectModificationResponse delete(Collection<String> keys) {
         return executeCommand(createDelete(keys), ObjectModificationResponse.CONSTRUCTOR);
+    }
+
+    public ObjectModificationResponse delete(String key) {
+        return executeCommand(createDelete(key), ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public Future<SimpleObjectResponse> allObjectsOfClass(String klass) {
@@ -125,31 +130,24 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<SimpleCMObject> objects) {
-        return asyncDelete(objects.toArray(new SimpleCMObject[objects.size()]));
+    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
+        return asyncDeleteObjects(objects, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
-        return asyncDelete(callback, objects.toArray(new SimpleCMObject[objects.size()]));
-    }
-
-    public Future<ObjectModificationResponse> asyncDelete(SimpleCMObject... objects) {
-        return asyncDelete(WebServiceCallback.DO_NOTHING, objects);
-    }
-
-    public Future<ObjectModificationResponse> asyncDelete(WebServiceCallback callback, SimpleCMObject... objects) {
-        String[] keys = new String[objects.length];
-        for(int i = 0; i < objects.length; i++) {
-            keys[i] = objects[i].key();
+    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+        int size = objects.size();
+        Collection<String> keys = new ArrayList<String>(size);
+        for(SimpleCMObject object : objects) {
+            keys.add(object.key());
         }
-        return asyncDelete(callback, keys);
+        return asyncDelete(keys, callback);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String... keys) {
-        return asyncDelete(WebServiceCallback.DO_NOTHING, keys);
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys) {
+        return asyncDelete(keys, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(WebServiceCallback callback, String... keys) {
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback) {
         return executeAsyncCommand(createDelete(keys), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
@@ -169,28 +167,44 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createGetFile(key), callback, CloudMineFile.constructor(key));
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects(String... keys) {
-        return asyncLoadObjects(WebServiceCallback.DO_NOTHING, keys);
+    public Future<SimpleObjectResponse> asyncLoadObjects() {
+        return asyncLoadObjects(WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects(WebServiceCallback callback, String... keys) {
+    public Future<SimpleObjectResponse> asyncLoadObjects(WebServiceCallback callback) {
+        return asyncLoadObjects(Collections.<String>emptyList(), callback);
+    }
+
+    public Future<SimpleObjectResponse> asyncLoadObject(String key) {
+        return asyncLoadObject(key, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleObjectResponse> asyncLoadObject(String key, WebServiceCallback callback) {
+        return asyncLoadObjects(Collections.<String>singleton(key), callback);
+    }
+
+    public Future<SimpleObjectResponse> asyncLoadObjects(Collection<String> keys) {
+        return asyncLoadObjects(keys, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
         return executeAsyncCommand(createGetObjects(keys), callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject object) {
-        return asyncInsert(object, WebServiceCallback.DO_NOTHING);
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
+        return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject object, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(object.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(toCreate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public Future<ObjectModificationResponse> asyncInsertAll(SimpleCMObject... objects) {
-        return asyncInsertAll(WebServiceCallback.DO_NOTHING, objects);
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) {
+        return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsertAll(WebServiceCallback callback, SimpleCMObject... toCreate) {
-        List<Json> jsons = new ArrayList<Json>(toCreate.length);
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback) {
+        List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(SimpleCMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
         }
@@ -198,6 +212,29 @@ public class CloudMineWebService implements Parcelable{
                 jsons.toArray(new Json[jsons.size()])
         );
         return executeAsyncCommand(createPut(jsonStringsCollection), callback, ObjectModificationResponse.CONSTRUCTOR);
+    }
+
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
+        return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
+        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
+    }
+
+    public Future<ObjectModificationResponse> asyncUpdateAll(Collection<SimpleCMObject> objects) {
+        return asyncUpdate(objects, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+        String[] jsonStrings = new String[objects.size()];
+        int i = 0;
+        for(SimpleCMObject cmObject : objects) {
+            jsonStrings[i] = cmObject.asKeyedObject();
+            i++;
+        }
+        String json = JsonUtilities.jsonCollection(jsonStrings);
+        return executeAsyncCommand(createJsonPost(json), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public SimpleObjectResponse get() {
@@ -257,13 +294,6 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createLogoutPost(token), callback, CloudMineResponse.CONSTRUCTOR);
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
-        return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
-    }
-
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
-        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
-    }
 
     public CloudMineResponse set(User user) {
         return executeCommand(createPut(user));
@@ -320,7 +350,13 @@ public class CloudMineWebService implements Parcelable{
         return delete;
     }
 
-    private HttpDelete createDelete(String... keys) {
+    private HttpDelete createDelete(String key) {
+        HttpDelete delete = new HttpDelete(baseUrl.delete(key).urlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
+    private HttpDelete createDelete(Collection<String> keys) {
         HttpDelete delete = new HttpDelete(baseUrl.delete(keys).urlString());
         addCloudMineHeader(delete);
         return delete;
@@ -384,13 +420,15 @@ public class CloudMineWebService implements Parcelable{
         return get;
     }
 
-    private HttpGet createGetObjects(String... keys) {
+    private HttpGet createGetObjects(Collection<String> keys) {
         HttpGet get = new HttpGet(baseUrl.text().keys(keys).urlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private void addJson(HttpEntityEnclosingRequestBase message, String json) {
+        if(json == null)
+            json = "";
         if(!message.containsHeader(JSON_HEADER.getName())) {
             message.addHeader(JSON_HEADER);
         }

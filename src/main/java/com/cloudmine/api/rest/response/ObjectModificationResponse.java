@@ -44,6 +44,10 @@ public class ObjectModificationResponse extends CloudMineResponse{
         return ResponseValue.DELETED.equals(keyResponse(key));
     }
 
+    public boolean wasModified(String key) {
+        return !ResponseValue.MISSING.equals(keyResponse(key));
+    }
+
     public ResponseValue keyResponse(String key) {
         Object keyedValue = successMap().get(key);
         if(keyedValue == null)

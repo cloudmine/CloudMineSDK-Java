@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
@@ -183,7 +184,7 @@ public class CloudMineWebServiceIntegrationTest {
 
         store.set(COMPLEX_JSON);
 
-        store.delete("deepKeyed", "oneKey");
+        store.delete(Arrays.asList("deepKeyed", "oneKey"));
         response = store.get();
         assertFalse(response.hasSuccessKey("oneKey"));
         assertFalse(response.hasSuccessKey("deepKeyed"));
@@ -268,12 +269,12 @@ public class CloudMineWebServiceIntegrationTest {
         }));
         waitThenAssertTestResults();
 
-        store.asyncLoadObjects(testCallback(new SimpleObjectResponseCallback() {
+        store.asyncLoadObject("oneKey", testCallback(new SimpleObjectResponseCallback() {
             public void onCompletion(SimpleObjectResponse response) {//TODO WHY AREN'T WE IN HERE
                 assertTrue(response.wasSuccess());
                 assertEquals(1, response.objects().size());
             }
-        }), "oneKey");
+        }));
         waitThenAssertTestResults();
     }
 
@@ -281,18 +282,18 @@ public class CloudMineWebServiceIntegrationTest {
     public void testAsyncInsert() {
         SimpleCMObject deepObject = new SimpleCMObject(JsonUtilities.jsonCollection(DEEP_KEYED_JSON));
         SimpleCMObject simpleObject = new SimpleCMObject(JsonUtilities.jsonCollection(SIMPLE_JSON));
-        store.asyncInsertAll(testCallback(new ObjectModificationResponseCallback() {
+        store.asyncInsert(Arrays.asList(deepObject, simpleObject),testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
                 assertTrue(response.wasCreated("deepKeyed"));
                 assertTrue(response.wasCreated("oneKey"));
             }
-        }), deepObject, simpleObject);
+        }));
         waitThenAssertTestResults();
 
         deepObject.remove("innerKey");
 
-        store.asyncInsertAll(testCallback(new ObjectModificationResponseCallback() {
+        store.asyncInsert(Arrays.asList(deepObject, simpleObject), testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
                 assertTrue(response.wasUpdated("deepKeyed"));
@@ -303,7 +304,43 @@ public class CloudMineWebServiceIntegrationTest {
                 SimpleCMObject deepObject = loadObjectResponse.object("deepKeyed");
                 assertNull(deepObject.get("innerKey"));
             }
-        }), deepObject, simpleObject);
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testAsyncUpdate() {
+        //These tests are the same as above EXCEPT when innerKey is deleted and then inserted, the value
+        //should still exist on the returned object. copy/paste code D:
+        SimpleCMObject deepObject = new SimpleCMObject(JsonUtilities.jsonCollection(DEEP_KEYED_JSON));
+        SimpleCMObject simpleObject = new SimpleCMObject(JsonUtilities.jsonCollection(SIMPLE_JSON));
+        store.asyncUpdate(Arrays.asList(deepObject, simpleObject),
+                testCallback(new ObjectModificationResponseCallback() {
+                    public void onCompletion(ObjectModificationResponse response) {
+                        assertTrue(response.wasSuccess());
+                        assertTrue(response.wasModified("deepKeyed"));
+                        assertTrue(response.wasModified("oneKey")); //if these pass and below fail then delete between runs didn't happen
+                        assertTrue(response.wasCreated("deepKeyed"));
+                        assertTrue(response.wasCreated("oneKey"));
+                    }
+                }));
+        waitThenAssertTestResults();
+
+        deepObject.remove("innerKey");
+
+        store.asyncUpdate(Arrays.asList(deepObject, simpleObject),
+                testCallback(new ObjectModificationResponseCallback() {
+                    public void onCompletion(ObjectModificationResponse response) {
+                        assertTrue(response.wasSuccess());
+                        assertTrue(response.wasUpdated("deepKeyed"));
+                        assertTrue(response.wasUpdated("oneKey"));
+                        SimpleObjectResponse loadObjectResponse = store.get();
+                        assertEquals(2, loadObjectResponse.objects().size());
+
+                        SimpleCMObject deepObject = loadObjectResponse.object("deepKeyed");
+                        assertNotNull(deepObject.get("innerKey")); //This is where this test differs from above
+                    }
+                }));
         waitThenAssertTestResults();
     }
 
