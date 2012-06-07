@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.response.*;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.Header;
@@ -107,12 +108,12 @@ public class CloudMineWebService implements Parcelable{
         return userWebService(new UserToken(response.asJson()));
     }
 
-    public CloudMineResponse deleteAll() {
-        return executeCommand(createDeleteAll());
+    public ObjectModificationResponse deleteAll() {
+        return executeCommand(createDeleteAll(), ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public CloudMineResponse delete(String... keys) {
-        return executeCommand(createDelete(keys));
+    public ObjectModificationResponse delete(String... keys) {
+        return executeCommand(createDelete(keys), ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public Future<SimpleObjectResponse> allObjectsOfClass(String klass) {
@@ -124,19 +125,19 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineResponse> asyncDelete(Collection<SimpleCMObject> objects) {
+    public Future<ObjectModificationResponse> asyncDelete(Collection<SimpleCMObject> objects) {
         return asyncDelete(objects.toArray(new SimpleCMObject[objects.size()]));
     }
 
-    public Future<CloudMineResponse> asyncDelete(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDelete(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
         return asyncDelete(callback, objects.toArray(new SimpleCMObject[objects.size()]));
     }
 
-    public Future<CloudMineResponse> asyncDelete(SimpleCMObject... objects) {
+    public Future<ObjectModificationResponse> asyncDelete(SimpleCMObject... objects) {
         return asyncDelete(WebServiceCallback.DO_NOTHING, objects);
     }
 
-    public Future<CloudMineResponse> asyncDelete(WebServiceCallback callback, SimpleCMObject... objects) {
+    public Future<ObjectModificationResponse> asyncDelete(WebServiceCallback callback, SimpleCMObject... objects) {
         String[] keys = new String[objects.length];
         for(int i = 0; i < objects.length; i++) {
             keys[i] = objects[i].key();
@@ -144,12 +145,12 @@ public class CloudMineWebService implements Parcelable{
         return asyncDelete(callback, keys);
     }
 
-    public Future<CloudMineResponse> asyncDelete(String... keys) {
+    public Future<ObjectModificationResponse> asyncDelete(String... keys) {
         return asyncDelete(WebServiceCallback.DO_NOTHING, keys);
     }
 
-    public Future<CloudMineResponse> asyncDelete(WebServiceCallback callback, String... keys) {
-        return executeAsyncCommand(createDelete(keys), callback);
+    public Future<ObjectModificationResponse> asyncDelete(WebServiceCallback callback, String... keys) {
+        return executeAsyncCommand(createDelete(keys), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public Future<FileCreationResponse> asyncUpload(CloudMineFile file) {
@@ -160,37 +161,52 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createPut(file), callback, FileCreationResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineFile> asyncLoad(String key) {
-        return asyncLoad(key, WebServiceCallback.DO_NOTHING);
+    public Future<CloudMineFile> asyncLoadFile(String key) {
+        return asyncLoadFile(key, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<CloudMineFile> asyncLoad(String key, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetObject(key), callback, CloudMineFile.constructor(key));
+    public Future<CloudMineFile> asyncLoadFile(String key, WebServiceCallback callback) {
+        return executeAsyncCommand(createGetFile(key), callback, CloudMineFile.constructor(key));
     }
 
-    public Future<CloudMineResponse> create(SimpleCMObject object) {
-        return create(object, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleObjectResponse> asyncLoadObjects(String... keys) {
+        return asyncLoadObjects(WebServiceCallback.DO_NOTHING, keys);
     }
 
-    public Future<CloudMineResponse> create(SimpleCMObject object, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(object.asJson()), callback);
+    public Future<SimpleObjectResponse> asyncLoadObjects(WebServiceCallback callback, String... keys) {
+        return executeAsyncCommand(createGetObjects(keys), callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineResponse> createAll(WebServiceCallback callback, SimpleCMObject... toCreate) {
-        List<Json> jsonStrings = new ArrayList<Json>(toCreate.length);
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject object) {
+        return asyncInsert(object, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject object, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(object.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
+    }
+
+    public Future<ObjectModificationResponse> asyncInsertAll(SimpleCMObject... objects) {
+        return asyncInsertAll(WebServiceCallback.DO_NOTHING, objects);
+    }
+
+    public Future<ObjectModificationResponse> asyncInsertAll(WebServiceCallback callback, SimpleCMObject... toCreate) {
+        List<Json> jsons = new ArrayList<Json>(toCreate.length);
         for(SimpleCMObject object : toCreate) {
-            jsonStrings.add(new JsonString(object.asKeyedObject()));
+            jsons.add(new JsonString(object.asKeyedObject()));
         }
-        return executeAsyncCommand(createPut(JsonUtilities.jsonCollection(toCreate)));
+        String jsonStringsCollection = JsonUtilities.jsonCollection(
+                jsons.toArray(new Json[jsons.size()])
+        );
+        return executeAsyncCommand(createPut(jsonStringsCollection), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public CloudMineResponse get() {
-        return executeCommand(createGet());
+    public SimpleObjectResponse get() {
+        return executeCommand(createGet(), SimpleObjectResponse.CONSTRUCTOR);
     }
 
-    public CloudMineFile getObject(String key) {
+    public CloudMineFile getFile(String key) {
         try {
-            HttpResponse response = httpClient.execute(createGetObject(key));
+            HttpResponse response = httpClient.execute(createGetFile(key));
             return new CloudMineFile(response, key);
         } catch (IOException e) {
             //TODO handle this
@@ -203,14 +219,14 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(get);
     }
 
-    public CloudMineResponse set(String json) {
+    public ObjectModificationResponse set(String json) {
         HttpPut put = createPut(json);
-        return executeCommand(put);
+        return executeCommand(put, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public CloudMineResponse update(String json) {
+    public ObjectModificationResponse update(String json) {
         HttpPost post = createJsonPost(json);
-        return executeCommand(post);
+        return executeCommand(post, ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public FileCreationResponse set(CloudMineFile file) {
@@ -241,12 +257,12 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createLogoutPost(token), callback, CloudMineResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineResponse> asyncUpdate(SimpleCMObject toUpdate) {
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
         return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<CloudMineResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
-        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback);
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
+        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
     public CloudMineResponse set(User user) {
@@ -362,8 +378,14 @@ public class CloudMineWebService implements Parcelable{
         return get;
     }
 
-    private HttpGet createGetObject(String key) {
+    private HttpGet createGetFile(String key) {
         HttpGet get = new HttpGet(baseUrl.binary(key).urlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private HttpGet createGetObjects(String... keys) {
+        HttpGet get = new HttpGet(baseUrl.text().keys(keys).urlString());
         addCloudMineHeader(get);
         return get;
     }

@@ -1,7 +1,9 @@
-package com.cloudmine.api.rest;
+package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
@@ -90,7 +92,7 @@ public class CloudMineResponse implements Json {
             statusCode = NO_RESPONSE_CODE;
         }
         response.getStatusLine().getStatusCode();
-        baseMap = extractResponseNode(response);
+        baseMap = extractResponseMap(response);
         successResponse = convertToMap(baseMap.get(SUCCESS));
         errorResponse = convertToMap(baseMap.get(ERRORS));
     }
@@ -117,7 +119,7 @@ public class CloudMineResponse implements Json {
         }
     }
 
-    private Map<String, Object> extractResponseNode(HttpResponse response) {
+    private Map<String, Object> extractResponseMap(HttpResponse response) {
         Map<String, Object> responseMap = null;
         if(response == null ||
                 statusCode > 202 ||
@@ -155,6 +157,10 @@ public class CloudMineResponse implements Json {
         return successObjects;
     }
 
+    public Map<String, Object> successMap() {
+        return new HashMap<String, Object>(successResponse);
+    }
+
     /**
      * Retrieves objects from the top level node. Will return null if the key does not exist
      * @param key
@@ -180,7 +186,7 @@ public class CloudMineResponse implements Json {
         return mapHasContents(errorResponse);
     }
 
-    public boolean hasNode(String key) {
+    public boolean hasObject(String key) {
         return baseMap != null && baseMap.containsKey(key);
     }
 
@@ -192,6 +198,10 @@ public class CloudMineResponse implements Json {
         return false;
     }
 
+    /**
+     * True if we got a success HTTP response code (2xx)
+     * @return
+     */
     public boolean wasSuccess() {
         return 199 < statusCode && statusCode < 300;
     }

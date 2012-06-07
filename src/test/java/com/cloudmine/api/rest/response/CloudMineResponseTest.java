@@ -1,6 +1,7 @@
-package com.cloudmine.api.rest;
+package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.rest.response.CloudMineResponse;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Date: 5/25/12, 6:41 PM
  */
 public class CloudMineResponseTest {
-    private static final String jsonResponse = "{\n" +
+    private static final String JSON_RESPONSE = "{\n" +
             "\"success\": {\n" +
             "\"xxThisWillNeedToBeGeneratedxx\": {\n" +
             "\"__class__\": \"task\",\n" +
@@ -30,9 +31,17 @@ public class CloudMineResponseTest {
             "},\n" +
             "\"errors\": {}\n" +
             "}";
+
+    private static final String SET_RESPONSE = "{\n" +
+            "    \"success\": {\n" +
+            "      \"key1\": \"updated\",\n" +
+            "      \"key2\": \"created\",\n" +
+            "      \"key3\": \"created\"\n" +
+            "    }\n" +
+            "}";
     @Test
     public void testGetSuccessObjects() {
-        CloudMineResponse response = new CloudMineResponse(jsonResponse, 200);
+        CloudMineResponse response = new CloudMineResponse(JSON_RESPONSE, 200);
 
         Collection<SimpleCMObject> successObjects = response.getSuccessObjects();
 
@@ -41,7 +50,7 @@ public class CloudMineResponseTest {
 
     @Test
     public void successHasKey() {
-        CloudMineResponse response = new CloudMineResponse(jsonResponse, 200);
+        CloudMineResponse response = new CloudMineResponse(JSON_RESPONSE, 200);
 
         assertTrue(response.hasSuccess());
         assertTrue(response.hasSuccessKey("someOtherKey"));

@@ -72,6 +72,15 @@ public class SimpleCMObject implements Json, Parcelable {
         }
     }
 
+    /**
+     * Returns the value associated with the top level key; This will probably be a Map of Strings to
+     * Objects, but may just be a single value
+     * @return
+     */
+    public Object value() {
+        return topLevelMap.get(topLevelKey);
+    }
+
     public SimpleCMObject(Parcel in) {
         this(in.readString());
     }
@@ -228,6 +237,15 @@ public class SimpleCMObject implements Json, Parcelable {
         }
     }
 
+    /**
+     * Removes the object with the given key.
+     * @param key of the object to remove
+     * @return the removed object if it exists
+     */
+    public final Object remove(String key) {
+        return contents.remove(key);
+    }
+
     public String key() {
         return topLevelKey;
     }
@@ -244,6 +262,12 @@ public class SimpleCMObject implements Json, Parcelable {
         return asJson();
     }
 
+    /**
+     * Checks whether the internal map that represents this SimpleCMObject is the same as the passed in Map.
+     * Uses this object's map.equals method
+     * @param topLevelMap
+     * @return true if the maps are equal, false otherwise
+     */
     public boolean isSameMap(Map<String, Object> topLevelMap) {
         return this.topLevelMap.equals(topLevelMap);
     }

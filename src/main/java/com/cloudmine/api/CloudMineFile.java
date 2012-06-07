@@ -2,7 +2,7 @@ package com.cloudmine.api;
 
 import android.graphics.Bitmap;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.rest.CloudMineResponse;
+import com.cloudmine.api.rest.response.CloudMineResponse;
 import com.cloudmine.api.rest.Json;
 import com.loopj.android.http.ResponseConstructor;
 import org.apache.commons.io.IOUtils;

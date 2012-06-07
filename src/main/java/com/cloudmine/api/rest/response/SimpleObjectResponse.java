@@ -1,12 +1,10 @@
-package com.cloudmine.api.rest;
+package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
 import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -25,24 +23,35 @@ public class SimpleObjectResponse extends CloudMineResponse {
 
                 @Override
                 public Future<SimpleObjectResponse> constructFuture(Future<HttpResponse> futureResponse) {
-                    return CloudMineResponse.createFutureResponse(futureResponse, this);
+                    return createFutureResponse(futureResponse, this);
                 }
             };
 
-
-    private final List<SimpleCMObject> objects;
+    private final Map<String, SimpleCMObject> objectMap;
 
     public SimpleObjectResponse(HttpResponse response) {
         super(response);
         if(hasSuccess()) {
-            List<SimpleCMObject> tempList = new ArrayList<SimpleCMObject>();
-            objects = Collections.unmodifiableList(getSuccessObjects());
+            Map<String, SimpleCMObject> tempMap = new HashMap<String, SimpleCMObject>();
+            for(SimpleCMObject object : getSuccessObjects()) {
+                tempMap.put(object.key(), object);
+            }
+            objectMap = Collections.unmodifiableMap(tempMap);
         } else {
-            objects = Collections.emptyList();
+            objectMap = Collections.emptyMap();
         }
     }
 
     public List<SimpleCMObject> objects() {
-        return objects;
+        return getSuccessObjects();
+    }
+
+    /**
+     * Returns the object with the given key, or null if it doesn't exist
+     * @param key
+     * @return
+     */
+    public SimpleCMObject object(String key) {
+        return objectMap.get(key);
     }
 }

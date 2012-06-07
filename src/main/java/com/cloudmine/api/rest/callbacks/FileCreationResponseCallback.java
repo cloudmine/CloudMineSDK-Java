@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.cloudmine.api.rest.FileCreationResponse;
+import com.cloudmine.api.rest.response.FileCreationResponse;
 
 /**
  * Copyright CloudMine LLC

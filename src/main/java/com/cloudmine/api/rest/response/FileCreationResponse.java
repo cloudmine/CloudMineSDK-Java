@@ -1,4 +1,4 @@
-package com.cloudmine.api.rest;
+package com.cloudmine.api.rest.response;
 
 import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;

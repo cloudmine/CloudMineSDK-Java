@@ -3,7 +3,12 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.SimpleObjectResponseCallback;
+import com.cloudmine.api.rest.response.CloudMineResponse;
+import com.cloudmine.api.rest.response.LogInResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.SimpleObjectResponse;
 import com.cloudmine.test.AsyncTestResultsCoordinator;
 import com.cloudmine.test.CloudMineTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,7 +20,6 @@ import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.util.Date;
-import java.util.concurrent.Future;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
@@ -30,16 +34,17 @@ import static org.junit.Assert.*;
 public class CloudMineWebServiceIntegrationTest {
 
     private static final String TEST_JSON = "{\"TESTING4703\": [\"value1\", \"value2\"]}";
-
-    private static final String COMPLEX_JSON = "{\n" +
-            "    \"oneKey\":42,\n" +
-            "    \"deepKeyed\": {\n" +
+    private static final String DEEP_KEYED_JSON =             "    \"deepKeyed\": {\n" +
             "        \"innerKey\":\"inner spaced String\",\n" +
             "        \"innerKeyToNumber\":45,\n" +
             "        \"anotherObject\": {\n" +
             "            \"innerObjectKey\":[1, 2, 3, 4, 5]\n" +
             "        }\n" +
-            "    }\n" +
+            "    }\n";
+    private static final String SIMPLE_JSON = " \"oneKey\":{ \"meaningOfLife\":42}";
+    private static final String COMPLEX_JSON = "{\n" +
+           SIMPLE_JSON + ",\n" +
+            DEEP_KEYED_JSON +
             "}";
     public static final User USER = new User("francis@gmail.com", "GOD");
     private CloudMineWebService store;
@@ -121,7 +126,7 @@ public class CloudMineWebServiceIntegrationTest {
         CloudMineResponse response = store.set(new CloudMineFile(input));
         assertNotNull(response);
         assertFalse(response.hasError());
-        assertTrue(response.hasNode("key"));
+        assertTrue(response.hasObject("key"));
     }
 
     @Test
@@ -130,7 +135,7 @@ public class CloudMineWebServiceIntegrationTest {
         CloudMineResponse response = store.set(
                 insertedFile);
 
-        CloudMineFile loadedFile = store.getObject("theFileKey");
+        CloudMineFile loadedFile = store.getFile("theFileKey");
         assertArrayEquals(insertedFile.getFileContents(), loadedFile.getFileContents());
     }
 
@@ -141,8 +146,7 @@ public class CloudMineWebServiceIntegrationTest {
         task.add("name", "Do dishes");
         task.add("isDone", false);
 
-        Future<CloudMineResponse> futureResponse =
-                store.create(task, testCallback(new CloudMineResponseCallback() {
+        store.asyncInsert(task, testCallback(new CloudMineResponseCallback() {
                     @Override
                     public void onCompletion(CloudMineResponse response) {
                         store.allObjectsOfClass("task", new SimpleObjectResponseCallback() {
@@ -251,6 +255,58 @@ public class CloudMineWebServiceIntegrationTest {
         }));
         waitThenAssertTestResults();
     }
+
+    @Test
+    public void testAsyncGet() {
+        store.set(COMPLEX_JSON);
+        store.asyncLoadObjects(testCallback(new SimpleObjectResponseCallback() {
+            public void onCompletion(SimpleObjectResponse response) {
+                assertEquals(2, response.objects().size());
+                SimpleCMObject object = response.object("deepKeyed");
+                assertEquals(Integer.valueOf(45), object.getInteger("innerKeyToNumber"));
+            }
+        }));
+        waitThenAssertTestResults();
+
+        store.asyncLoadObjects(testCallback(new SimpleObjectResponseCallback() {
+            public void onCompletion(SimpleObjectResponse response) {//TODO WHY AREN'T WE IN HERE
+                assertTrue(response.wasSuccess());
+                assertEquals(1, response.objects().size());
+            }
+        }), "oneKey");
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testAsyncInsert() {
+        SimpleCMObject deepObject = new SimpleCMObject(JsonUtilities.jsonCollection(DEEP_KEYED_JSON));
+        SimpleCMObject simpleObject = new SimpleCMObject(JsonUtilities.jsonCollection(SIMPLE_JSON));
+        store.asyncInsertAll(testCallback(new ObjectModificationResponseCallback() {
+            public void onCompletion(ObjectModificationResponse response) {
+                assertTrue(response.wasSuccess());
+                assertTrue(response.wasCreated("deepKeyed"));
+                assertTrue(response.wasCreated("oneKey"));
+            }
+        }), deepObject, simpleObject);
+        waitThenAssertTestResults();
+
+        deepObject.remove("innerKey");
+
+        store.asyncInsertAll(testCallback(new ObjectModificationResponseCallback() {
+            public void onCompletion(ObjectModificationResponse response) {
+                assertTrue(response.wasSuccess());
+                assertTrue(response.wasUpdated("deepKeyed"));
+                assertTrue(response.wasUpdated("oneKey"));
+                SimpleObjectResponse loadObjectResponse = store.get();
+                assertEquals(2, loadObjectResponse.objects().size());
+
+                SimpleCMObject deepObject = loadObjectResponse.object("deepKeyed");
+                assertNull(deepObject.get("innerKey"));
+            }
+        }), deepObject, simpleObject);
+        waitThenAssertTestResults();
+    }
+
 
     private InputStream getObjectInputStream() throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();

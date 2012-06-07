@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.cloudmine.api.rest.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.response.CloudMineResponse;
 import org.apache.http.Header;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;

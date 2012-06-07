@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
  */
 public class SimpleCMObjectTest {
 
+
     @Test
     public void testConstructor() {
         SimpleCMObject object = createComplexObject();
@@ -29,6 +30,8 @@ public class SimpleCMObjectTest {
                 "    }\n" +
                 "}}";
         assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
+
+
     }
 
     private SimpleCMObject createComplexObject() {

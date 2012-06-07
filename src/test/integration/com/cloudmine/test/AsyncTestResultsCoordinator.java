@@ -31,6 +31,7 @@ public class AsyncTestResultsCoordinator {
     public static void waitThenAssertTestResults() {
         waitForTestResults();
         assertAsyncTaskResult();
+        reset();
     }
 
     public static void waitForTestResults() {

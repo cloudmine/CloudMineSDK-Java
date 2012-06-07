@@ -17,7 +17,7 @@ import static junit.framework.Assert.*;
 public class JsonUtilitiesTest {
 
     public static final Date dateValue = new Date(439574359743594000L);
-    public static final String COMPLEX_OBJECT_JSON = "{\n" +
+    public static final String COMPLEX_UNWRAPPED_JSON_OBJECT =
             "\"name\":\"john\",\n" +
             "\"numbers\":[1, 2, 3, 4, 5],\n" +
             "\"boolean\":true,\n" +
@@ -27,8 +27,12 @@ public class JsonUtilitiesTest {
             "},\n" +
             "\"child\":{\n" +
             "\"friends\":[\"fred\", \"ted\", \"ben\"]\n" +
-            "}\n" +
+            "}\n";
+    public static final String COMPLEX_JSON_OBJECT = "{\n" +
+            COMPLEX_UNWRAPPED_JSON_OBJECT +
             "}";
+    public static final String COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT = "\"key\":" +
+            COMPLEX_JSON_OBJECT;
 
     @Test
     public void testQuote() {
@@ -102,16 +106,24 @@ public class JsonUtilitiesTest {
     }
 
     @Test
+    public void testJsonCollection() {
+        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT)));
+        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}");
+        Map<String, Object> jsonMap = JsonUtilities.jsonToMap(jsonCollectionString);
+        assertEquals(2, jsonMap.size());
+    }
+
+    @Test
     public void testMapToJson() {
         Map<String, Object> jsonMap = createComplexObjectMap();
         String json = JsonUtilities.mapToJson(jsonMap);
 
-        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_OBJECT_JSON, json));
+        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, json));
     }
 
     @Test
     public void testJsonToMap() {
-        Map<String, Object> jsonMap = JsonUtilities.jsonToMap(COMPLEX_OBJECT_JSON);
+        Map<String, Object> jsonMap = JsonUtilities.jsonToMap(COMPLEX_JSON_OBJECT);
 
         assertEquals(createComplexObjectMap(), jsonMap);
     }
@@ -129,5 +141,6 @@ public class JsonUtilitiesTest {
         contentsMap.put("child", childObject);
         return contentsMap;
     }
+
 
 }

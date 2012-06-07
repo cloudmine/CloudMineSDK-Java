@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.cloudmine.api.rest.SimpleObjectResponse;
+import com.cloudmine.api.rest.response.SimpleObjectResponse;
 
 /**
  * Copyright CloudMine LLC

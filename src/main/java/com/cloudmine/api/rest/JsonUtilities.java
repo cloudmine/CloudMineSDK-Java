@@ -4,10 +4,7 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -132,12 +129,20 @@ public class JsonUtilities {
     }
 
     public static String jsonCollection(Json... jsonEntities) {
+        String[] jsonStrings = new String[jsonEntities.length];
+        for(int i = 0; i < jsonEntities.length; i++) {
+            jsonStrings[i] = jsonEntities[i].asJson();
+        }
+        return jsonCollection(jsonStrings);
+    }
+
+    public static String jsonCollection(String... jsonEntities) {
         StringBuilder json = new StringBuilder("{\n");
         String comma = "";
-        for(Json jsonEntity : jsonEntities) {
+        for(String jsonEntity : jsonEntities) {
             json.append(comma)
                     .append(TAB)
-                    .append(jsonEntity.asJson());
+                    .append(jsonEntity);
             comma = ",\n";
         }
         json.append("\n}");

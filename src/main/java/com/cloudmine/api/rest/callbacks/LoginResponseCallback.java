@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.cloudmine.api.rest.LogInResponse;
+import com.cloudmine.api.rest.response.LogInResponse;
 
 /**
  * Copyright CloudMine LLC

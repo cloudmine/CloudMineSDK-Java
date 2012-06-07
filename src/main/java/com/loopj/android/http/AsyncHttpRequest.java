@@ -14,18 +14,19 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+    ****This file has been modified from its original version by CloudMine LLC*****
 */
 
 package com.loopj.android.http;
-
-import java.io.IOException;
-import java.net.ConnectException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.protocol.HttpContext;
+
+import java.io.IOException;
+import java.net.ConnectException;
 
 class AsyncHttpRequest implements Runnable {
     private final AbstractHttpClient client;
