@@ -5,10 +5,7 @@ import com.cloudmine.api.rest.callbacks.CloudMineResponseCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.SimpleObjectResponseCallback;
-import com.cloudmine.api.rest.response.CloudMineResponse;
-import com.cloudmine.api.rest.response.LogInResponse;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
-import com.cloudmine.api.rest.response.SimpleObjectResponse;
+import com.cloudmine.api.rest.response.*;
 import com.cloudmine.test.AsyncTestResultsCoordinator;
 import com.cloudmine.test.CloudMineTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -84,7 +81,7 @@ public class CloudMineWebServiceIntegrationTest {
 
     @Test
     public void testBasicSet() {
-        CloudMineResponse response = store.set(TEST_JSON);
+        ObjectModificationResponse response = store.set(TEST_JSON);
         assertWasSuccess(response);
 
         assertTrue(response.hasSuccessKey("TESTING4703"));
@@ -94,20 +91,20 @@ public class CloudMineWebServiceIntegrationTest {
     public void testStringSearch() {
         store.set(COMPLEX_JSON);
 
-        CloudMineResponse response = store.search("[innerKey=\"inner spaced String\"]");
+        SimpleObjectResponse response = store.search("[innerKey=\"inner spaced String\"]");
         assertWasSuccess(response);
     }
 
     @Test
     public void testDeleteAll() {
         store.set(TEST_JSON);
-        CloudMineResponse response = store.deleteAll();
+        ObjectModificationResponse response = store.deleteAll();
         assertWasSuccess(response);
     }
 
     @Test
     public void testBasicUpdate() {
-        CloudMineResponse response = store.update(TEST_JSON);
+        ObjectModificationResponse response = store.update(TEST_JSON);
         assertWasSuccess(response);
 
         assertTrue(response.hasSuccessKey("TESTING4703"));
@@ -116,7 +113,7 @@ public class CloudMineWebServiceIntegrationTest {
     @Test
     public void testBasicGet() {
         store.set(TEST_JSON);
-        CloudMineResponse response = store.get();
+        SimpleObjectResponse response = store.get();
         assertWasSuccess(response);
         assertTrue(response.hasSuccessKey("TESTING4703"));
     }
@@ -126,7 +123,6 @@ public class CloudMineWebServiceIntegrationTest {
         InputStream input = getObjectInputStream();
         CloudMineResponse response = store.set(new CloudMineFile(input));
         assertNotNull(response);
-        assertFalse(response.hasError());
         assertTrue(response.hasObject("key"));
     }
 
@@ -147,9 +143,9 @@ public class CloudMineWebServiceIntegrationTest {
         task.add("name", "Do dishes");
         task.add("isDone", false);
 
-        store.asyncInsert(task, testCallback(new CloudMineResponseCallback() {
+        store.asyncInsert(task, testCallback(new ObjectModificationResponseCallback() {
                     @Override
-                    public void onCompletion(CloudMineResponse response) {
+                    public void onCompletion(ObjectModificationResponse response) {
                         store.allObjectsOfClass("task", new SimpleObjectResponseCallback() {
                             public void onCompletion(SimpleObjectResponse objectResponse) {
                                 assertEquals(1, objectResponse.objects().size());
@@ -173,7 +169,7 @@ public class CloudMineWebServiceIntegrationTest {
     public void testKeyedDelete() {
         store.set(COMPLEX_JSON);
 
-        CloudMineResponse response = store.delete("deepKeyed");
+        SuccessErrorResponse response = store.delete("deepKeyed");
 
         assertWasSuccess(response);
 
@@ -356,7 +352,7 @@ public class CloudMineWebServiceIntegrationTest {
         return new ByteArrayInputStream(output.toByteArray());
     }
 
-    private void assertWasSuccess(CloudMineResponse response) {
+    private void assertWasSuccess(SuccessErrorResponse response) {
         assertNotNull(response);
         assertFalse(response.hasError());
         assertTrue(response.hasSuccess());

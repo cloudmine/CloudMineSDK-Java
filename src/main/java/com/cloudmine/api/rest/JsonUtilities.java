@@ -25,8 +25,11 @@ import java.util.Map;
  * Date: 5/21/12, 1:42 PM
  */
 public class JsonUtilities {
+
     private static final Logger LOG = LoggerFactory.getLogger(JsonUtilities.class);
     private static final ObjectMapper jsonMapper = new ObjectMapper();
+
+    public static final String EMPTY_JSON = "{ }";
     public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CloudMineDateFormat();
     static {
         //Using a serializer instead of setting the DateFormat to get around string escape issues
@@ -159,6 +162,9 @@ public class JsonUtilities {
     }
 
     public static String mapToJson(Map<String, Object> map) throws JsonConversionException {
+        if(map == null) {
+            return EMPTY_JSON;
+        }
         try {
             return jsonMapper.writeValueAsString(map);
         } catch (IOException e) {

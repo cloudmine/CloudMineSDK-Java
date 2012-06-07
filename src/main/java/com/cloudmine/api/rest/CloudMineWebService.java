@@ -251,9 +251,9 @@ public class CloudMineWebService implements Parcelable{
         return null;
     }
 
-    public CloudMineResponse search(String searchString) {
+    public SimpleObjectResponse search(String searchString) {
         HttpGet get = createSearch(searchString);
-        return executeCommand(get);
+        return executeCommand(get, SimpleObjectResponse.CONSTRUCTOR);
     }
 
     public ObjectModificationResponse set(String json) {

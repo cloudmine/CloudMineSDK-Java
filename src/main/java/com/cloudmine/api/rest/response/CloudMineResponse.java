@@ -1,6 +1,5 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -10,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -35,13 +35,8 @@ public class CloudMineResponse implements Json {
     };
 
     private static final int NO_RESPONSE_CODE = 204;
-    private static final String SUCCESS = "success";
-    private static final String ERRORS = "errors";
-    public static final String EMPTY_JSON = "{ }";
 
     private final Map<String, Object> baseMap;
-    private final Map<String, Object> successResponse;
-    private final Map<String, Object> errorResponse;
     private final int statusCode;
 
     public static Future<CloudMineResponse> createFutureResponse(Future<HttpResponse> response) {
@@ -93,8 +88,6 @@ public class CloudMineResponse implements Json {
         }
         response.getStatusLine().getStatusCode();
         baseMap = extractResponseMap(response);
-        successResponse = convertToMap(baseMap.get(SUCCESS));
-        errorResponse = convertToMap(baseMap.get(ERRORS));
     }
 
     public CloudMineResponse(String messageBody, int statusCode) {
@@ -106,18 +99,10 @@ public class CloudMineResponse implements Json {
             tempNode = new HashMap<String, Object>();
         }
         baseMap = tempNode;
-        successResponse = convertToMap(baseMap.get(SUCCESS));
-        errorResponse = convertToMap(baseMap.get(ERRORS));
         this.statusCode = statusCode;
     }
 
-    private Map<String, Object> convertToMap(Object object) {
-        if(object instanceof Map) {
-            return (Map<String, Object>)object;
-        } else {
-            return new HashMap<String, Object>();
-        }
-    }
+
 
     private Map<String, Object> extractResponseMap(HttpResponse response) {
         Map<String, Object> responseMap = null;
@@ -141,25 +126,8 @@ public class CloudMineResponse implements Json {
         return statusCode;
     }
 
-    public List<SimpleCMObject> getSuccessObjects() {
-        if(successResponse == null || successResponse.isEmpty()) {
-            LOG.error("Null or non empty successResponse, empty list returned for getSuccessObjects");
-            return Collections.emptyList();
-        }
-        List<SimpleCMObject> successObjects = new ArrayList<SimpleCMObject>();
 
 
-        for(Map.Entry<String, Object> successEntry : successResponse.entrySet()) {
-            String successName = successEntry.getKey();
-            Map<String, Object> successMap = convertToMap(successEntry.getValue());
-            successObjects.add(new SimpleCMObject(successName, successMap));
-        }
-        return successObjects;
-    }
-
-    public Map<String, Object> successMap() {
-        return new HashMap<String, Object>(successResponse);
-    }
 
     /**
      * Retrieves objects from the top level node. Will return null if the key does not exist
@@ -173,18 +141,7 @@ public class CloudMineResponse implements Json {
         return baseMap.get(key);
     }
 
-    public boolean hasSuccessKey(String key) {
-        return successResponse != null &&
-                    successResponse.containsKey(key);
-    }
 
-    public boolean hasSuccess() {
-        return mapHasContents(successResponse);
-    }
-
-    public boolean hasError() {
-        return mapHasContents(errorResponse);
-    }
 
     public boolean hasObject(String key) {
         return baseMap != null && baseMap.containsKey(key);
@@ -206,7 +163,7 @@ public class CloudMineResponse implements Json {
         return 199 < statusCode && statusCode < 300;
     }
 
-    private boolean mapHasContents(Map<String, Object> map) {
+    protected boolean isNotEmpty(Map<String, Object> map) {
         return map != null && !map.isEmpty();
     }
 
@@ -219,9 +176,7 @@ public class CloudMineResponse implements Json {
     @Override
     public String asJson() {
         if(asJsonString == null) {
-            asJsonString = baseMap == null ?
-                    EMPTY_JSON :
-                    JsonUtilities.mapToJson(baseMap);
+            asJsonString = JsonUtilities.mapToJson(baseMap);
         }
         return asJsonString;
     }

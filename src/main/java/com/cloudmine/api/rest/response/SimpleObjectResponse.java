@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
  * User: johnmccarthy
  * Date: 5/24/12, 2:03 PM
  */
-public class SimpleObjectResponse extends CloudMineResponse {
+public class SimpleObjectResponse extends SuccessErrorResponse {
     public static final ResponseConstructor<SimpleObjectResponse> CONSTRUCTOR =
             new ResponseConstructor<SimpleObjectResponse>() {
 

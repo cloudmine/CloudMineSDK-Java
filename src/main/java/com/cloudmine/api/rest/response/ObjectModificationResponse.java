@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
  * User: johnmccarthy
  * Date: 6/7/12, 3:20 PM
  */
-public class ObjectModificationResponse extends CloudMineResponse{
+public class ObjectModificationResponse extends SuccessErrorResponse{
 
     public static final ResponseConstructor<ObjectModificationResponse> CONSTRUCTOR = new ResponseConstructor<ObjectModificationResponse>() {
         @Override
