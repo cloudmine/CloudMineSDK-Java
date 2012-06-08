@@ -37,11 +37,15 @@ public class SimpleCMObject implements Json, Parcelable {
 
     public SimpleCMObject(String topLevelKey, Map<String, Object> contents, Map<String, Object> topLevelMap) {
         if(topLevelKey == null)
-            topLevelKey = UUID.randomUUID().toString();
+            topLevelKey = generateUniqueKey();
         this.topLevelKey = topLevelKey;
         this.contents = contents;
         this.topLevelMap = topLevelMap;
         topLevelMap.put(topLevelKey, contents);
+    }
+
+    private String generateUniqueKey() {
+        return UUID.randomUUID().toString();
     }
 
     public SimpleCMObject(String json) {
@@ -56,20 +60,47 @@ public class SimpleCMObject implements Json, Parcelable {
         });
     }
 
-    public SimpleCMObject(Map<String, Object> topLevelMap) {
-        this.topLevelMap = topLevelMap;
-        Set<Map.Entry<String, Object>> contentSet = topLevelMap.entrySet();
-        if(contentSet.size() != 1) {
-            throw new CreationException("Cannot create a CMObject from a map without exactly 1 key. Had: " + contentSet.size());
-        }
-        Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
-        topLevelKey = contentsEntry.getKey();
+    /**
+     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be a top
+     * level key mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
+     * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
+     * a top level key is generated and the objectMap is assumed to be the contents.
+     *
+     * @param objectMap
+     */
+    public SimpleCMObject(Map<String, Object> objectMap) {
 
-        try {
-            contents = (Map<String, Object>)contentsEntry.getValue();
-        } catch(ClassCastException e) {
-            throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
+        if(objectMap.size() != 1 ||
+                !isMappedToAnotherMap(objectMap)) {
+            topLevelKey = generateUniqueKey();
+            contents = objectMap;
+            topLevelMap = new HashMap<String, Object>();
+            topLevelMap.put(topLevelKey, contents);
+        } else {
+            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
+            this.topLevelMap = objectMap;
+            Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
+            topLevelKey = contentsEntry.getKey();
+
+            try {
+                contents = (Map<String, Object>)contentsEntry.getValue();
+            } catch(ClassCastException e) {
+                throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
+            }
         }
+    }
+
+    private boolean isMappedToAnotherMap(Map<String, Object> objectMap) {
+        if(objectMap.size() == 1) {
+            Object mapValue = objectMap.values().iterator().next();
+            if(mapValue instanceof Map) {
+                Set keys = ((Map) mapValue).keySet();
+                if(keys.isEmpty() == false) {
+                    return keys.iterator().next() instanceof String;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -87,6 +118,21 @@ public class SimpleCMObject implements Json, Parcelable {
 
     public Object get(String key) {
         return contents.get(key);
+    }
+
+    public SimpleCMObject getSimpleCMObject(String key) {
+        return getValue(key, SimpleCMObject.class);
+    }
+
+    public SimpleCMObject getSimpleCMObject(String key, SimpleCMObject alternative) {
+        SimpleCMObject value = getSimpleCMObject(key);
+        return value == null ?
+                alternative :
+                    value;
+    }
+
+    public <T> List<T> getList(String key) {
+        return getValue(key, List.class);
     }
 
     public Integer getInteger(String key, Integer alternative) {
@@ -179,15 +225,24 @@ public class SimpleCMObject implements Json, Parcelable {
      * @return
      */
     private <T> T getValue(String key, Class<T> klass) {
-        if(key == null || klass == null) {
+        Object value = contents.get(key);
+        if(key == null || klass == null || value == null) {
             return null;
         }
-        Object value = contents.get(key);
+        Class<? extends Object> valueClass = value.getClass();
         if(value != null &&
                 SimpleCMObject.class.isAssignableFrom(klass)) {
-            return newFromJson(value.toString(), klass);
+            boolean isMap = Map.class.isAssignableFrom(valueClass);
+            boolean isJson = Json.class.isAssignableFrom(valueClass);
+            String valueString = isMap ?
+                                    JsonUtilities.mapToJson((Map)value) :
+                                        isJson ?
+                                                ((Json)value).asJson() :
+                                                    value.toString();
+
+            return newFromJson(valueString, klass);
         }
-        if(value != null && klass.isAssignableFrom(value.getClass())) {
+        if(value != null && klass.isAssignableFrom(valueClass)) {
             return (T)value;
         }
         return null;
@@ -204,9 +259,9 @@ public class SimpleCMObject implements Json, Parcelable {
         if(json == null || klass == null)
             return null;
         //Need to start at the bottom of the inheritance chain and work up
-        if(klass.isAssignableFrom(GeoPoint.class)) {
+        if(GeoPoint.class.isAssignableFrom(klass)) {
             return (T)new GeoPoint(json);
-        } else if(klass.isAssignableFrom(SimpleCMObject.class)) {
+        } else if(SimpleCMObject.class.isAssignableFrom(klass)) {
             return (T)new SimpleCMObject(json);
         }
         return null;

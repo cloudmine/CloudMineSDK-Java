@@ -266,11 +266,30 @@ public class CloudMineWebServiceIntegrationTest {
         waitThenAssertTestResults();
 
         store.asyncLoadObject("oneKey", testCallback(new SimpleObjectResponseCallback() {
-            public void onCompletion(SimpleObjectResponse response) {//TODO WHY AREN'T WE IN HERE
+            public void onCompletion(SimpleObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(1, response.objects().size());
             }
         }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testAsyncSearch() {
+        store.set(COMPLEX_JSON);
+
+        store.asyncSearch("[innerKey=\"inner spaced String\"]", testCallback(new SimpleObjectResponseCallback() {
+            public void onCompletion(SimpleObjectResponse response) {
+                assertTrue(response.wasSuccess());
+                assertEquals(1, response.objects().size());
+                SimpleCMObject object = response.object("deepKeyed");
+
+                SimpleCMObject anotherObject = object.getSimpleCMObject("anotherObject");
+
+                assertEquals(Arrays.asList(1, 2, 3, 4, 5), anotherObject.getList("innerObjectKey"));
+            }
+        }));
+
         waitThenAssertTestResults();
     }
 

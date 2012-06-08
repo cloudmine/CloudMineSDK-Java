@@ -191,6 +191,14 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createGetObjects(keys), callback, SimpleObjectResponse.CONSTRUCTOR);
     }
 
+    public Future<SimpleObjectResponse> asyncSearch(String searchString) {
+        return asyncSearch(searchString, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
+        return executeAsyncCommand(createSearch(searchString), callback, SimpleObjectResponse.CONSTRUCTOR);
+    }
+
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
         return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
     }

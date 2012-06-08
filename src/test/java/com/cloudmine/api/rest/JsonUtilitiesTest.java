@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.SimpleCMObject;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -111,6 +112,12 @@ public class JsonUtilitiesTest {
         String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}");
         Map<String, Object> jsonMap = JsonUtilities.jsonToMap(jsonCollectionString);
         assertEquals(2, jsonMap.size());
+    }
+
+    @Test
+    public void testDateReplacement() {
+        SimpleCMObject object = new SimpleCMObject("someKey", createComplexObjectMap());
+        assertEquals(dateValue, object.getDate("date"));
     }
 
     @Test
