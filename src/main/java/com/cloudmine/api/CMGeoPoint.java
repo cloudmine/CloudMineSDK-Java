@@ -1,13 +1,14 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.Json;
 
 /**
  * Copyright CloudMine LLC
  * User: johnmccarthy
  * Date: 6/4/12, 11:57 AM
  */
-public class GeoPoint extends SimpleCMObject {
+public class CMGeoPoint extends SimpleCMObject {
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};
     private static final String[] LONGITUDE_KEYS = {"longitude", "lon", "x"};
     public static final String GEOPOINT_TYPE = "geopoint";
@@ -15,8 +16,12 @@ public class GeoPoint extends SimpleCMObject {
     public static final String LONGITUDE_KEY = "longitude";
     public static final String LATITUDE_KEY = "latitude";
 
-    public GeoPoint(double longitude, double latitude) {
-        super();
+    public CMGeoPoint(double longitude, double latitude) {
+        this(longitude, latitude, generateUniqueKey());
+    }
+
+    public CMGeoPoint(double longitude, double latitude, String key) {
+        super(key);
         setClass(GEOPOINT_CLASS);
         setType(CloudMineType.GEO_POINT);
         add(LONGITUDE_KEY, longitude);
@@ -28,7 +33,7 @@ public class GeoPoint extends SimpleCMObject {
      * @param json
      * @throws JsonConversionException
      */
-    public GeoPoint(String json) throws JsonConversionException {
+    public CMGeoPoint(Json json) throws JsonConversionException {
         super(json);
         boolean isMissingAnything = !(isType(CloudMineType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {

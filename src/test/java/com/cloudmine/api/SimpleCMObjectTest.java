@@ -60,6 +60,14 @@ public class SimpleCMObjectTest {
         assertEquals("aString", unkeyedSingle.getString("stringKey"));
     }
 
+    @Test
+    public void testKeyConstructor() {
+        SimpleCMObject object = new SimpleCMObject("topLevelKey");
+        object.add("string", "value");
+
+        assertEquals("topLevelKey", object.key());
+    }
+
     private SimpleCMObject createComplexObject() {
         return new SimpleCMObject("topLevelKey", JsonUtilitiesTest.createComplexObjectMap());
     }
@@ -109,9 +117,20 @@ public class SimpleCMObjectTest {
         assertFalse(object.getBoolean("non existent boolean", Boolean.FALSE));
         assertTrue(object.getBoolean("boolean"));
 
-        GeoPoint geoPoint = new GeoPoint(3.3, 4);
+        CMGeoPoint geoPoint = new CMGeoPoint(3.3, 4);
         object.add("location", geoPoint);
         assertEquals(geoPoint, object.getGeoPoint("location"));
+
+    }
+
+    @Test
+    public void testGeoAsJson() {
+        SimpleCMObject object = new SimpleCMObject("topLevelKey");
+        object.add("geo", new CMGeoPoint(50, 50, "geoObject"));
+        System.out.println(object.asJson());
+        String expectedJson = "{\"topLevelKey\":{\"geo\":{\"geoObject\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}}";
+        assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
+
 
     }
 }

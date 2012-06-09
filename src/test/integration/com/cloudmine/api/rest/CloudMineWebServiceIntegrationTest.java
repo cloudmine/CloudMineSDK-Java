@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
@@ -290,6 +291,27 @@ public class CloudMineWebServiceIntegrationTest {
             }
         }));
 
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testAsyncGeoSearch() {
+        SimpleCMObject geoObject = new SimpleCMObject();
+        geoObject.add("geoPoint", new CMGeoPoint(100, 100));
+
+        store.set(geoObject.asJson());
+
+        store.asyncSearch("[geoPoint near (90, 90)]", testCallback(new SimpleObjectResponseCallback() {
+           public void onCompletion(SimpleObjectResponse response) {
+               List<SimpleCMObject> objects = response.objects();
+               assertEquals(1, objects.size());
+
+               CMGeoPoint geoPoint = objects.get(0).getGeoPoint("geoPoint");
+               assertEquals(100, geoPoint.latitude());
+               assertEquals(100, geoPoint.longitude());
+
+           }
+        }));
         waitThenAssertTestResults();
     }
 

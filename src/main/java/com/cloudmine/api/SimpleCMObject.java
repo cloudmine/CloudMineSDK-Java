@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
 
 import java.util.*;
@@ -32,23 +33,14 @@ public class SimpleCMObject implements Json, Parcelable {
     private final String topLevelKey;
 
     public SimpleCMObject() {
-        this(null, new HashMap<String, Object>(), new HashMap<String, Object>());
+        this(generateUniqueKey());
     }
 
-    public SimpleCMObject(String topLevelKey, Map<String, Object> contents, Map<String, Object> topLevelMap) {
-        if(topLevelKey == null)
-            topLevelKey = generateUniqueKey();
-        this.topLevelKey = topLevelKey;
-        this.contents = contents;
-        this.topLevelMap = topLevelMap;
-        topLevelMap.put(topLevelKey, contents);
+    public SimpleCMObject(String topLevelKey) {
+        this(topLevelKey, new HashMap<String, Object>());
     }
 
-    private String generateUniqueKey() {
-        return UUID.randomUUID().toString();
-    }
-
-    public SimpleCMObject(String json) {
+    public SimpleCMObject(Json json) {
         this(JsonUtilities.jsonToMap(json));
     }
 
@@ -71,7 +63,7 @@ public class SimpleCMObject implements Json, Parcelable {
     public SimpleCMObject(Map<String, Object> objectMap) {
 
         if(objectMap.size() != 1 ||
-                !isMappedToAnotherMap(objectMap)) {
+                isMappedToAnotherMap(objectMap) == false) {
             topLevelKey = generateUniqueKey();
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
@@ -90,14 +82,16 @@ public class SimpleCMObject implements Json, Parcelable {
         }
     }
 
-    private boolean isMappedToAnotherMap(Map<String, Object> objectMap) {
+
+    protected static String generateUniqueKey() {
+        return UUID.randomUUID().toString();
+    }
+
+    private static boolean isMappedToAnotherMap(Map<String, Object> objectMap) {
         if(objectMap.size() == 1) {
             Object mapValue = objectMap.values().iterator().next();
             if(mapValue instanceof Map) {
-                Set keys = ((Map) mapValue).keySet();
-                if(keys.isEmpty() == false) {
-                    return keys.iterator().next() instanceof String;
-                }
+                return true;
             }
         }
         return false;
@@ -113,7 +107,7 @@ public class SimpleCMObject implements Json, Parcelable {
     }
 
     public SimpleCMObject(Parcel in) {
-        this(in.readString());
+        this(new JsonString(in.readString()));
     }
 
     public Object get(String key) {
@@ -205,12 +199,12 @@ public class SimpleCMObject implements Json, Parcelable {
         return getValue(key, Date.class);
     }
 
-    public GeoPoint getGeoPoint(String key) {
-        return getValue(key, GeoPoint.class);
+    public CMGeoPoint getGeoPoint(String key) {
+        return getValue(key, CMGeoPoint.class);
     }
 
-    public GeoPoint getGeoPoint(String key, GeoPoint alternative) {
-        GeoPoint point = getGeoPoint(key);
+    public CMGeoPoint getGeoPoint(String key, CMGeoPoint alternative) {
+        CMGeoPoint point = getGeoPoint(key);
         return point == null ?
                 alternative :
                     point;
@@ -259,10 +253,10 @@ public class SimpleCMObject implements Json, Parcelable {
         if(json == null || klass == null)
             return null;
         //Need to start at the bottom of the inheritance chain and work up
-        if(GeoPoint.class.isAssignableFrom(klass)) {
-            return (T)new GeoPoint(json);
+        if(CMGeoPoint.class.isAssignableFrom(klass)) {
+            return (T)new CMGeoPoint(new JsonString(json));
         } else if(SimpleCMObject.class.isAssignableFrom(klass)) {
-            return (T)new SimpleCMObject(json);
+            return (T)new SimpleCMObject(new JsonString(json));
         }
         return null;
     }
@@ -285,11 +279,12 @@ public class SimpleCMObject implements Json, Parcelable {
     }
 
     public final void add(String key, Object value) {
-        if(value instanceof SimpleCMObject) {
-            contents.put(key, ((SimpleCMObject)value).asJson());
-        }else {
-            contents.put(key, value);
-        }
+        contents.put(key, value);
+//        if(value instanceof SimpleCMObject) {
+//            contents.put(key, ((SimpleCMObject)value).asJson());
+//        }else {
+//
+//        }
     }
 
     /**

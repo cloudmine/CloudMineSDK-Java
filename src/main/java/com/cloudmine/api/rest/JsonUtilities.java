@@ -4,7 +4,10 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -46,6 +49,18 @@ public class JsonUtilities {
             @Override
             public Class<Date> handledType() {
                 return Date.class;
+            }
+        });
+
+        dateModule.addSerializer(new JsonSerializer<Json>() {
+            @Override
+            public void serialize(Json value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                jgen.writeRaw(":");
+                jgen.writeRaw(value.asJson());
+            }
+            @Override
+            public Class<Json> handledType() {
+                return Json.class;
             }
         });
 
@@ -165,12 +180,21 @@ public class JsonUtilities {
         if(map == null) {
             return EMPTY_JSON;
         }
-        try {
-            return jsonMapper.writeValueAsString(map);
+        try { //TODO this shit all brokes
+            StringWriter writer = new StringWriter();
+            JsonGenerator generator = jsonMapper.getJsonFactory().createJsonGenerator(writer);
+            jsonMapper.writeValue(writer, map);
+            return writer.toString();
         } catch (IOException e) {
             LOG.error("Trouble writing json", e);
             throw new JsonConversionException(e);
         }
+    }
+
+    public static Map<String, Object> jsonToMap(Json json) throws JsonConversionException {
+        if(json == null)
+            return new HashMap<String, Object>();
+        return jsonToMap(json.asJson());
     }
 
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
