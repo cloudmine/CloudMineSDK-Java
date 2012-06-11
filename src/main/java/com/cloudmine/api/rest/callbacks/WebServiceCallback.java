@@ -2,7 +2,7 @@ package com.cloudmine.api.rest.callbacks;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/22/12, 6:11 PM
  */
 public interface WebServiceCallback<T> {

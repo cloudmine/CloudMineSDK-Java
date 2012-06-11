@@ -1,16 +1,15 @@
 package com.cloudmine.api.rest.response;
 
-import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 
 import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/4/12, 5:28 PM
  */
-public class FileCreationResponse extends CloudMineResponse {
+public class FileCreationResponse extends CMResponse {
 
     public static final ResponseConstructor<FileCreationResponse> CONSTRUCTOR = new ResponseConstructor<FileCreationResponse>() {
         @Override
@@ -20,7 +19,7 @@ public class FileCreationResponse extends CloudMineResponse {
 
         @Override
         public Future<FileCreationResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return CloudMineResponse.createFutureResponse(futureResponse, this);
+            return createFutureResponse(futureResponse, this);
         }
     };
 

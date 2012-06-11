@@ -7,16 +7,16 @@ import static junit.framework.Assert.assertNotSame;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 11:57 AM
  */
-public class CloudMineURLBuilderTest {
+public class CMURLBuilderTest {
 
     public static final String APP_ID = "taskList";
 
     @Test
     public void testGet() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
+        CMURLBuilder builder = new CMURLBuilder(APP_ID);
         String expectedUrl = expectedBaseUrl();
         assertEquals(expectedUrl, builder.urlString());
 
@@ -26,13 +26,13 @@ public class CloudMineURLBuilderTest {
 
     @Test
     public void testSearch() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).search("[ingredients=\"chicken\"]");
+        CMURLBuilder builder = new CMURLBuilder(APP_ID).search("[ingredients=\"chicken\"]");
         assertEquals(expectedBaseUrl() + "/search?q=%5Bingredients%3D%22chicken%22%5D", builder.urlString());
     }
 
     @Test
     public void testAccount() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).account();
+        CMURLBuilder builder = new CMURLBuilder(APP_ID).account();
         assertEquals(expectedBaseUrl() + "/account", builder.urlString());
 
         assertEquals(expectedBaseUrl() + "/account/create", builder.create().urlString());
@@ -40,7 +40,7 @@ public class CloudMineURLBuilderTest {
 
     @Test
     public void testDelete() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID).deleteAll();
+        CMURLBuilder builder = new CMURLBuilder(APP_ID).deleteAll();
         String expectedUrl = expectedBaseUrl() + "/data?all=true";
         assertEquals(expectedUrl, builder.urlString());
         assertEquals(expectedUrl, builder.url().toString());
@@ -48,27 +48,27 @@ public class CloudMineURLBuilderTest {
 
     @Test
     public void testImmutable() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
+        CMURLBuilder builder = new CMURLBuilder(APP_ID);
 
-        CloudMineURLBuilder modifiedBuilder = builder.addQuery("all", "true");
+        CMURLBuilder modifiedBuilder = builder.addQuery("all", "true");
         assertNotSame(builder, modifiedBuilder);
     }
 
     @Test
     public void testUser() {
-        CloudMineURLBuilder builder = new CloudMineURLBuilder(APP_ID);
+        CMURLBuilder builder = new CMURLBuilder(APP_ID);
 
         assertEquals("/" + APP_ID + "/user", builder.user().appPath());
     }
 
     @Test
     public void testExtractAppId() {
-        assertEquals("/" + APP_ID, CloudMineURLBuilder.extractAppId(expectedBaseUrl()));
-        assertEquals("/" + APP_ID + "/user", CloudMineURLBuilder.extractAppId(new CloudMineURLBuilder(APP_ID).user().urlString()));
+        assertEquals("/" + APP_ID, CMURLBuilder.extractAppId(expectedBaseUrl()));
+        assertEquals("/" + APP_ID + "/user", CMURLBuilder.extractAppId(new CMURLBuilder(APP_ID).user().urlString()));
     }
 
     private String expectedBaseUrl() {
-        return CloudMineURLBuilder.CLOUD_MINE_URL + CloudMineURLBuilder.DEFAULT_VERSION + CloudMineURLBuilder.APP + BaseURL.SEPARATOR + APP_ID;
+        return CMURLBuilder.CLOUD_MINE_URL + CMURLBuilder.DEFAULT_VERSION + CMURLBuilder.APP + BaseURL.SEPARATOR + APP_ID;
     }
 
 }

@@ -5,7 +5,7 @@ import com.cloudmine.api.rest.Json;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/4/12, 11:57 AM
  */
 public class CMGeoPoint extends SimpleCMObject {
@@ -23,7 +23,7 @@ public class CMGeoPoint extends SimpleCMObject {
     public CMGeoPoint(double longitude, double latitude, String key) {
         super(key);
         setClass(GEOPOINT_CLASS);
-        setType(CloudMineType.GEO_POINT);
+        setType(CMType.GEO_POINT);
         add(LONGITUDE_KEY, longitude);
         add(LATITUDE_KEY, latitude);
     }
@@ -35,12 +35,12 @@ public class CMGeoPoint extends SimpleCMObject {
      */
     public CMGeoPoint(Json json) throws JsonConversionException {
         super(json);
-        boolean isMissingAnything = !(isType(CloudMineType.GEO_POINT) && hasLatitude() && hasLongitude());
+        boolean isMissingAnything = !(isType(CMType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {
             throw new JsonConversionException("Given non geopoint class to construct geopoint: " + json);
         }
         setClass(GEOPOINT_CLASS);
-        setType(CloudMineType.GEO_POINT);
+        setType(CMType.GEO_POINT);
     }
 
     private boolean hasLatitude() {

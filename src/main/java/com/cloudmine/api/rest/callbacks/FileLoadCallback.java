@@ -1,14 +1,14 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.cloudmine.api.CloudMineFile;
+import com.cloudmine.api.CMFile;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/4/12, 5:52 PM
  */
-public class FileLoadCallback  extends CloudMineWebServiceCallback<CloudMineFile>  {
+public class FileLoadCallback  extends CMWebServiceCallback<CMFile> {
     public FileLoadCallback(String key) {
-        super(CloudMineFile.constructor(key));
+        super(CMFile.constructor(key));
     }
 }

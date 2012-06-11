@@ -9,10 +9,10 @@ import java.util.*;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/7/12, 6:08 PM
  */
-public class SuccessErrorResponse extends CloudMineResponse {
+public class SuccessErrorResponse extends CMResponse {
     private static final Logger LOG = LoggerFactory.getLogger(SuccessErrorResponse.class);
     private static final String SUCCESS = "success";
     private static final String ERRORS = "errors";

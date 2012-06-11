@@ -1,6 +1,5 @@
 package com.cloudmine.api;
 
-import android.util.Base64;
 import com.cloudmine.api.rest.JsonUtilities;
 
 import java.util.HashMap;
@@ -8,17 +7,17 @@ import java.util.Map;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 11:40 AM
  */
-public class User {
+public class CMUser {
 
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
     private final String email;
     private final String password;
 
-    public User(String email, String password) {
+    public CMUser(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -30,10 +29,22 @@ public class User {
         return JsonUtilities.mapToJson(jsonMap);
     }
 
+    public String email() {
+        return email;
+    }
+
+    public String password() {
+        return password;
+    }
+
     public String encode() {
         String userString = email + ":" + password;
-        String encodedString = Base64.encodeToString(userString.getBytes(), Base64.URL_SAFE|Base64.NO_WRAP);
+        String encodedString = encodeString(userString);
         return encodedString;
+    }
+
+    protected String encodeString(String toEncode) {
+        return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
     }
 
     public String toString() {

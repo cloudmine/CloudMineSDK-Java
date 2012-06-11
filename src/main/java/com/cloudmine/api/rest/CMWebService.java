@@ -1,14 +1,11 @@
 package com.cloudmine.api.rest;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.*;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -21,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,17 +28,17 @@ import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 2:34 PM
  */
-public class CloudMineWebService implements Parcelable{
-    private static CloudMineWebService lastInstantiatedInstance;
+public class CMWebService {
+    private static CMWebService lastInstantiatedInstance;
 
     /**
-     * Returns the last instantiated instance of CloudMineWebService.
+     * Returns the last instantiated instance of CMWebService.
      * @return
      */
-    public static CloudMineWebService defaultService() {
+    public static CMWebService defaultService() {
         return lastInstantiatedInstance;
     }
 
@@ -58,55 +56,44 @@ public class CloudMineWebService implements Parcelable{
         }
 
     };
-    public static final Creator<CloudMineWebService> CREATOR =
-            new Creator<CloudMineWebService>() {
+    private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
 
-                @Override
-                public CloudMineWebService createFromParcel(Parcel parcel) {
-                    return new CloudMineWebService(parcel);
-                }
-
-                @Override
-                public CloudMineWebService[] newArray(int i) {
-                    return new CloudMineWebService[i];
-                }
-            };
-    private static final Logger LOG = LoggerFactory.getLogger(CloudMineWebService.class);
-
-    private final CloudMineURLBuilder baseUrl;
+    protected final CMURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
-    private final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one
+    private final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
 
-    public CloudMineWebService(String appId) {
-        this(new CloudMineURLBuilder(appId), new AndroidAsynchronousHttpClient());
-    }
-
-    public CloudMineWebService(CloudMineURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
+    public CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
         asyncHttpClient = asyncClient;
         lastInstantiatedInstance = this;
     }
 
-    public CloudMineWebService(Parcel in) {
-        this(in.readString());
+    /**
+     * If the entity response is not fully consumed, the connection will not be released
+     * @param response
+     */
+    public static void consumeEntityResponse(HttpResponse response) {
+        if(response != null && response.getEntity() != null) {
+            HttpEntity body = response.getEntity();
+            if(body.isStreaming()) {
+                try {
+                    InputStream instream = body.getContent();
+                    if(instream != null) {
+                        instream.close();
+                    }
+                } catch (IOException e) {
+                    //GNF
+                }
+            }
+        }
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public UserCMWebService userWebService(CMUserToken token) {
+        return new UserCMWebService(baseUrl.user(), token, asyncHttpClient);
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(baseUrl.appPath());
-    }
-
-    public UserCloudMineWebService userWebService(UserToken token) {
-        return new UserCloudMineWebService(baseUrl.user(), token, asyncHttpClient);
-    }
-
-    public UserCloudMineWebService userWebService(CloudMineResponse response) {
-        return userWebService(new UserToken(response.asJson()));
+    public UserCMWebService userWebService(CMResponse response) {
+        return userWebService(new CMUserToken(response.asJson()));
     }
 
     public ObjectModificationResponse deleteAll() {
@@ -121,13 +108,13 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(createDelete(key), ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public Future<SimpleObjectResponse> allObjectsOfClass(String klass) {
+    public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass) {
         return allObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
-        return executeAsyncCommand(search, callback, SimpleObjectResponse.CONSTRUCTOR);
+        return executeAsyncCommand(search, callback, SimpleCMObjectResponse.CONSTRUCTOR);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
@@ -151,52 +138,52 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createDelete(keys), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public Future<FileCreationResponse> asyncUpload(CloudMineFile file) {
+    public Future<FileCreationResponse> asyncUpload(CMFile file) {
         return asyncUpload(file, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<FileCreationResponse> asyncUpload(CloudMineFile file, WebServiceCallback callback) {
+    public Future<FileCreationResponse> asyncUpload(CMFile file, WebServiceCallback callback) {
         return executeAsyncCommand(createPut(file), callback, FileCreationResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineFile> asyncLoadFile(String key) {
+    public Future<CMFile> asyncLoadFile(String key) {
         return asyncLoadFile(key, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<CloudMineFile> asyncLoadFile(String key, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetFile(key), callback, CloudMineFile.constructor(key));
+    public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback) {
+        return executeAsyncCommand(createGetFile(key), callback, CMFile.constructor(key));
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects() {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects() {
         return asyncLoadObjects(WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects(WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(WebServiceCallback callback) {
         return asyncLoadObjects(Collections.<String>emptyList(), callback);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObject(String key) {
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String key) {
         return asyncLoadObject(key, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObject(String key, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String key, WebServiceCallback callback) {
         return asyncLoadObjects(Collections.<String>singleton(key), callback);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects(Collection<String> keys) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys) {
         return asyncLoadObjects(keys, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetObjects(keys), callback, SimpleObjectResponse.CONSTRUCTOR);
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
+        return executeAsyncCommand(createGetObjects(keys), callback, SimpleCMObjectResponse.CONSTRUCTOR);
     }
 
-    public Future<SimpleObjectResponse> asyncSearch(String searchString) {
+    public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
         return asyncSearch(searchString, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
-        return executeAsyncCommand(createSearch(searchString), callback, SimpleObjectResponse.CONSTRUCTOR);
+    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
+        return executeAsyncCommand(createSearch(searchString), callback, SimpleCMObjectResponse.CONSTRUCTOR);
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
@@ -245,23 +232,23 @@ public class CloudMineWebService implements Parcelable{
         return executeAsyncCommand(createJsonPost(json), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public SimpleObjectResponse get() {
-        return executeCommand(createGet(), SimpleObjectResponse.CONSTRUCTOR);
+    public SimpleCMObjectResponse get() {
+        return executeCommand(createGet(), SimpleCMObjectResponse.CONSTRUCTOR);
     }
 
-    public CloudMineFile getFile(String key) {
+    public CMFile getFile(String key) {
         try {
             HttpResponse response = httpClient.execute(createGetFile(key));
-            return new CloudMineFile(response, key);
+            return new CMFile(response, key);
         } catch (IOException e) {
             //TODO handle this
         }
         return null;
     }
 
-    public SimpleObjectResponse search(String searchString) {
+    public SimpleCMObjectResponse search(String searchString) {
         HttpGet get = createSearch(searchString);
-        return executeCommand(get, SimpleObjectResponse.CONSTRUCTOR);
+        return executeCommand(get, SimpleCMObjectResponse.CONSTRUCTOR);
     }
 
     public ObjectModificationResponse set(String json) {
@@ -274,64 +261,64 @@ public class CloudMineWebService implements Parcelable{
         return executeCommand(post, ObjectModificationResponse.CONSTRUCTOR);
     }
 
-    public FileCreationResponse set(CloudMineFile file) {
+    public FileCreationResponse set(CMFile file) {
         return executeCommand(createPut(file), FileCreationResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineResponse> asyncCreateUser(User user) {
+    public Future<CMResponse> asyncCreateUser(CMUser user) {
         return executeAsyncCommand(createPut(user));
     }
 
-    public Future<CloudMineResponse> asyncCreateUser(User user, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(user), callback, CloudMineResponse.CONSTRUCTOR);
+    public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) {
+        return executeAsyncCommand(createPut(user), callback, CMResponse.CONSTRUCTOR);
     }
 
-    public Future<LogInResponse> asyncLogin(User user) {
+    public Future<LogInResponse> asyncLogin(CMUser user) {
         return asyncLogin(user, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<LogInResponse> asyncLogin(User user, WebServiceCallback callback) {
+    public Future<LogInResponse> asyncLogin(CMUser user, WebServiceCallback callback) {
         return executeAsyncCommand(createLoginPost(user), callback, LogInResponse.CONSTRUCTOR);
     }
 
-    public Future<CloudMineResponse> asyncLogout(UserToken token) {
+    public Future<CMResponse> asyncLogout(CMUserToken token) {
         return asyncLogout(token, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<CloudMineResponse> asyncLogout(UserToken token, WebServiceCallback callback) {
-        return executeAsyncCommand(createLogoutPost(token), callback, CloudMineResponse.CONSTRUCTOR);
+    public Future<CMResponse> asyncLogout(CMUserToken token, WebServiceCallback callback) {
+        return executeAsyncCommand(createLogoutPost(token), callback, CMResponse.CONSTRUCTOR);
     }
 
 
-    public CloudMineResponse set(User user) {
+    public CMResponse set(CMUser user) {
         return executeCommand(createPut(user));
     }
 
-    public LogInResponse login(User user) {
+    public LogInResponse login(CMUser user) {
         return executeCommand(createLoginPost(user), LogInResponse.CONSTRUCTOR);
     }
 
-    public CloudMineResponse logout(UserToken sessionToken) {
+    public CMResponse logout(CMUserToken sessionToken) {
         return executeCommand(createLogoutPost(sessionToken));
     }
 
-    private CloudMineResponse executeCommand(HttpUriRequest message) {
-        return executeCommand(message, CloudMineResponse.CONSTRUCTOR);
+    private CMResponse executeCommand(HttpUriRequest message) {
+        return executeCommand(message, CMResponse.CONSTRUCTOR);
     }
 
-    private Future<CloudMineResponse> executeAsyncCommand(HttpUriRequest message) {
-        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, CloudMineResponse.CONSTRUCTOR);
+    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message) {
+        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, CMResponse.CONSTRUCTOR);
     }
 
-    private Future<CloudMineResponse> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback) {
-        return executeAsyncCommand(message, callback, CloudMineResponse.CONSTRUCTOR);
+    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback) {
+        return executeAsyncCommand(message, callback, CMResponse.CONSTRUCTOR);
     }
 
     private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
         return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback, constructor));
     }
 
-    private <T extends CloudMineResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) {
+    private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) {
         HttpResponse response = null;
         try {
             response = httpClient.execute(message);
@@ -341,7 +328,7 @@ public class CloudMineWebService implements Parcelable{
             LOG.error("Error executing command: " + message.getURI(), e);
         }
         finally {
-            AsyncHttpClient.consumeEntityResponse(response);
+            CMWebService.consumeEntityResponse(response);
         }
         return constructor.construct(null);
     }
@@ -377,14 +364,14 @@ public class CloudMineWebService implements Parcelable{
         return put;
     }
 
-    private HttpPut createPut(User user) {
+    private HttpPut createPut(CMUser user) {
         HttpPut put = new HttpPut(baseUrl.account().create().urlString());
         addCloudMineHeader(put);
         addJson(put, user.asJson());
         return put;
     }
 
-    private HttpPut createPut(CloudMineFile file) {
+    private HttpPut createPut(CMFile file) {
         HttpPut put = new HttpPut(baseUrl.binary(file.getKey()).urlString());
         addCloudMineHeader(put);
         put.setEntity(new ByteArrayEntity(file.getFileContents()));
@@ -398,13 +385,13 @@ public class CloudMineWebService implements Parcelable{
         return post;
     }
 
-    private HttpPost createLoginPost(User user) {
+    private HttpPost createLoginPost(CMUser user) {
         HttpPost post = createPost(baseUrl.account().login().urlString());
         post.addHeader("Authorization", "Basic " + user.encode());
         return post;
     }
 
-    private HttpPost createLogoutPost(UserToken sessionToken) {
+    private HttpPost createLogoutPost(CMUserToken sessionToken) {
         HttpPost post = createPost(baseUrl.account().logout().urlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.sessionToken());
         return post;
@@ -448,6 +435,6 @@ public class CloudMineWebService implements Parcelable{
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
-        message.addHeader(ApiCredentials.cloudMineHeader());
+        message.addHeader(CMApiCredentials.cloudMineHeader());
     }
 }

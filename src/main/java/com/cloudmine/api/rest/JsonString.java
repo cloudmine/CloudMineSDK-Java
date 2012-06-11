@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/24/12, 4:32 PM
  */
 public class JsonString implements Json {

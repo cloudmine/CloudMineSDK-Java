@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/7/12, 6:15 PM
  */
 public class SuccessErrorResponseTest {

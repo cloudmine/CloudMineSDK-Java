@@ -1,7 +1,5 @@
 package com.cloudmine.api;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
@@ -11,22 +9,10 @@ import java.util.*;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/24/12, 1:29 PM
  */
-public class SimpleCMObject implements Json, Parcelable {
-    public static final Creator<SimpleCMObject> CREATOR =
-            new Creator<SimpleCMObject>() {
-                @Override
-                public SimpleCMObject createFromParcel(Parcel parcel) {
-                    return new SimpleCMObject(parcel);
-                }
-
-                @Override
-                public SimpleCMObject[] newArray(int i) {
-                    return new SimpleCMObject[i];
-                }
-            };
+public class SimpleCMObject implements Json {
 
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
@@ -104,10 +90,6 @@ public class SimpleCMObject implements Json, Parcelable {
      */
     public Object value() {
         return topLevelMap.get(topLevelKey);
-    }
-
-    public SimpleCMObject(Parcel in) {
-        this(new JsonString(in.readString()));
     }
 
     public Object get(String key) {
@@ -265,16 +247,16 @@ public class SimpleCMObject implements Json, Parcelable {
         add(JsonUtilities.CLASS_KEY, className);
     }
 
-    public void setType(CloudMineType type) {
+    public void setType(CMType type) {
         add(JsonUtilities.TYPE_KEY, type.typeId());
     }
 
-    public CloudMineType getType() {
+    public CMType getType() {
         Object type = get(JsonUtilities.TYPE_KEY);
-        return CloudMineType.getTypeById((String)type);
+        return CMType.getTypeById((String) type);
     }
 
-    public boolean isType(CloudMineType type) {
+    public boolean isType(CMType type) {
         return getType().equals(type);
     }
 
@@ -338,15 +320,5 @@ public class SimpleCMObject implements Json, Parcelable {
     @Override
     public int hashCode() {
         return topLevelMap.hashCode();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(asJson());
     }
 }

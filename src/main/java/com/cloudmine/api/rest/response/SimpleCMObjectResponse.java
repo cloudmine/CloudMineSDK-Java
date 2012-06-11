@@ -1,7 +1,6 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
-import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 
 import java.util.*;
@@ -9,27 +8,27 @@ import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/24/12, 2:03 PM
  */
-public class SimpleObjectResponse extends SuccessErrorResponse {
-    public static final ResponseConstructor<SimpleObjectResponse> CONSTRUCTOR =
-            new ResponseConstructor<SimpleObjectResponse>() {
+public class SimpleCMObjectResponse extends SuccessErrorResponse {
+    public static final ResponseConstructor<SimpleCMObjectResponse> CONSTRUCTOR =
+            new ResponseConstructor<SimpleCMObjectResponse>() {
 
                 @Override
-                public SimpleObjectResponse construct(HttpResponse response) {
-                    return new SimpleObjectResponse(response);
+                public SimpleCMObjectResponse construct(HttpResponse response) {
+                    return new SimpleCMObjectResponse(response);
                 }
 
                 @Override
-                public Future<SimpleObjectResponse> constructFuture(Future<HttpResponse> futureResponse) {
+                public Future<SimpleCMObjectResponse> constructFuture(Future<HttpResponse> futureResponse) {
                     return createFutureResponse(futureResponse, this);
                 }
             };
 
     private final Map<String, SimpleCMObject> objectMap;
 
-    public SimpleObjectResponse(HttpResponse response) {
+    public SimpleCMObjectResponse(HttpResponse response) {
         super(response);
         if(hasSuccess()) {
             Map<String, SimpleCMObject> tempMap = new HashMap<String, SimpleCMObject>();

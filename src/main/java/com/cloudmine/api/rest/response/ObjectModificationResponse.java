@@ -1,6 +1,5 @@
 package com.cloudmine.api.rest.response;
 
-import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 
 import java.util.concurrent.Future;
@@ -8,7 +7,7 @@ import java.util.concurrent.Future;
 /**
  * Response returned whenever objects are PUT or POSTED to CloudMine
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/7/12, 3:20 PM
  */
 public class ObjectModificationResponse extends SuccessErrorResponse{

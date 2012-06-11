@@ -1,17 +1,18 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.loopj.android.http.ResponseConstructor;
+
+import com.cloudmine.api.rest.response.ResponseConstructor;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/22/12, 6:12 PM
  */
-public abstract class CloudMineWebServiceCallback<T> implements WebServiceCallback<T> {
+public abstract class CMWebServiceCallback<T> implements WebServiceCallback<T> {
 
     private final ResponseConstructor<T> constructor;
 
-    public CloudMineWebServiceCallback(ResponseConstructor<T> constructor) {
+    public CMWebServiceCallback(ResponseConstructor<T> constructor) {
         this.constructor = constructor;
     }
 

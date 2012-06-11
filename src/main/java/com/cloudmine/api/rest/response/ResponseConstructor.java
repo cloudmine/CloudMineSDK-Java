@@ -1,4 +1,4 @@
-package com.loopj.android.http;
+package com.cloudmine.api.rest.response;
 
 import org.apache.http.HttpResponse;
 
@@ -6,7 +6,7 @@ import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/5/12, 3:54 PM
  */
 public interface ResponseConstructor<T> {

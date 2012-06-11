@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.ApiCredentials;
+import com.cloudmine.api.CMApiCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +10,10 @@ import java.util.Collection;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 11:21 AM
  */
-public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
+public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     enum VERSION implements BaseURL {
         V1("/v1");
         private final String urlRepresentation;
@@ -31,31 +31,31 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
             return urlString();
         }
     }
-    private static final Logger LOG = LoggerFactory.getLogger(CloudMineURLBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
     public static final String APP = "/app";
 
 
-    public CloudMineURLBuilder() {
-        this(ApiCredentials.applicationIdentifier());
+    public CMURLBuilder() {
+        this(CMApiCredentials.applicationIdentifier());
     }
 
-    public CloudMineURLBuilder(String appId) {
+    public CMURLBuilder(String appId) {
         this(CLOUD_MINE_URL, appId);
     }
 
-    protected CloudMineURLBuilder(String cloudMineUrl, String appId) {
+    protected CMURLBuilder(String cloudMineUrl, String appId) {
         this(cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId), "", "");
     }
 
-    protected CloudMineURLBuilder(String baseUrl, String actions, String queryParams) {
+    protected CMURLBuilder(String baseUrl, String actions, String queryParams) {
         super(baseUrl, actions, queryParams);
 
     }
 
-    protected CloudMineURLBuilder newBuilder(String baseUrl, String actions, String queryParams) {
-        return new CloudMineURLBuilder(baseUrl, actions, queryParams);
+    protected CMURLBuilder newBuilder(String baseUrl, String actions, String queryParams) {
+        return new CMURLBuilder(baseUrl, actions, queryParams);
     }
 
     protected static String extractAppId(String url) {
@@ -76,7 +76,7 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return queryParams;
     }
 
-    public CloudMineURLBuilder search(String search) {
+    public CMURLBuilder search(String search) {
         String encodedSearch;
         try {
             encodedSearch = URLEncoder.encode(search, "UTF-8");
@@ -87,29 +87,29 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return addAction("search").addQuery("q", encodedSearch);
     }
 
-    public CloudMineURLBuilder data() {
+    public CMURLBuilder data() {
         return addAction("data");
     }
 
-    public CloudMineURLBuilder deleteAll() {
+    public CMURLBuilder deleteAll() {
         return data().addQuery("all", "true");
     }
 
-    public CloudMineURLBuilder delete(Collection<String> keys) {
+    public CMURLBuilder delete(Collection<String> keys) {
         return data().keys(keys);
     }
 
-    public CloudMineURLBuilder delete(String key) {
+    public CMURLBuilder delete(String key) {
         return data().key(key);
     }
 
-    public CloudMineURLBuilder key(String key) {
+    public CMURLBuilder key(String key) {
         if(key == null)
             return this;
         return addQuery("keys", key);
     }
 
-    public CloudMineURLBuilder keys(Collection<String> keys) {
+    public CMURLBuilder keys(Collection<String> keys) {
         if(keys == null || keys.size() == 0)
             return this;
         return addQuery("keys", keysToString(keys));
@@ -125,35 +125,35 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
         return keyString;
     }
 
-    public CloudMineURLBuilder account() {
+    public CMURLBuilder account() {
         return this.addAction("account");
     }
 
-    public CloudMineURLBuilder login() {
+    public CMURLBuilder login() {
         return this.addAction("login");
     }
 
-    public CloudMineURLBuilder logout() {
+    public CMURLBuilder logout() {
         return this.addAction("logout");
     }
 
-    public CloudMineURLBuilder user() {
+    public CMURLBuilder user() {
         return this.addAction("user");
     }
 
-    public CloudMineURLBuilder create() {
+    public CMURLBuilder create() {
         return this.addAction("create");
     }
 
-    public CloudMineURLBuilder text() {
+    public CMURLBuilder text() {
         return this.addAction("text");
     }
 
-    public CloudMineURLBuilder binary() {
+    public CMURLBuilder binary() {
         return this.addAction("binary");
     }
 
-    public CloudMineURLBuilder binary(String key) {
+    public CMURLBuilder binary(String key) {
         return this.binary().addKey(key);
     }
 
@@ -162,7 +162,7 @@ public class CloudMineURLBuilder extends BaseURLBuilder<CloudMineURLBuilder> {
      * @param key
      * @return
      */
-    public CloudMineURLBuilder addKey(String key) {
+    public CMURLBuilder addKey(String key) {
         if(key != null) {
             return this.addAction(key);
         }

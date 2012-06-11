@@ -3,7 +3,6 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.loopj.android.http.ResponseConstructor;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,18 +17,18 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 3:26 PM
  */
-public class CloudMineResponse implements Json {
+public class CMResponse implements Json {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CloudMineResponse.class);
-    public static final ResponseConstructor<CloudMineResponse> CONSTRUCTOR = new ResponseConstructor<CloudMineResponse>() {
-        public CloudMineResponse construct(HttpResponse response) {
-            return new CloudMineResponse(response);
+    private static final Logger LOG = LoggerFactory.getLogger(CMResponse.class);
+    public static final ResponseConstructor<CMResponse> CONSTRUCTOR = new ResponseConstructor<CMResponse>() {
+        public CMResponse construct(HttpResponse response) {
+            return new CMResponse(response);
         }
 
-        public Future<CloudMineResponse> constructFuture(Future<HttpResponse> response) {
+        public Future<CMResponse> constructFuture(Future<HttpResponse> response) {
             return createFutureResponse(response);
         }
     };
@@ -39,7 +38,7 @@ public class CloudMineResponse implements Json {
     private final Map<String, Object> baseMap;
     private final int statusCode;
 
-    public static Future<CloudMineResponse> createFutureResponse(Future<HttpResponse> response) {
+    public static Future<CMResponse> createFutureResponse(Future<HttpResponse> response) {
         return createFutureResponse(response, CONSTRUCTOR);
     }
 
@@ -79,7 +78,7 @@ public class CloudMineResponse implements Json {
         };
     }
 
-    public CloudMineResponse(HttpResponse response)  {
+    public CMResponse(HttpResponse response)  {
         if(response != null &&
                 response.getStatusLine() != null) {
             statusCode = response.getStatusLine().getStatusCode();
@@ -90,7 +89,7 @@ public class CloudMineResponse implements Json {
         baseMap = extractResponseMap(response);
     }
 
-    public CloudMineResponse(String messageBody, int statusCode) {
+    public CMResponse(String messageBody, int statusCode) {
         Map<String, Object> tempNode;
         try {
             tempNode = JsonUtilities.jsonToMap(messageBody);

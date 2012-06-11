@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/24/12, 3:01 PM
  */
 public class SimpleCMObjectTest {

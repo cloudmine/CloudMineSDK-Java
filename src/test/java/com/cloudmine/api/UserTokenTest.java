@@ -7,7 +7,7 @@ import static junit.framework.Assert.assertFalse;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 3:49 PM
  */
 public class UserTokenTest {
@@ -16,7 +16,7 @@ public class UserTokenTest {
     public void testFromJson() {
         String json = userTokenJson();
 
-        UserToken token = new UserToken(json);
+        CMUserToken token = new CMUserToken(json);
 
         assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.sessionToken());
     }
@@ -30,7 +30,7 @@ public class UserTokenTest {
 
     @Test
     public void testIsValid() {
-        UserToken token = new UserToken("null");
+        CMUserToken token = new CMUserToken("null");
         assertFalse(token.isValid());
     }
 }

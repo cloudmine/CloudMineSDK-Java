@@ -6,7 +6,7 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 11:48 AM
  */
 public class URLBuilderTest {

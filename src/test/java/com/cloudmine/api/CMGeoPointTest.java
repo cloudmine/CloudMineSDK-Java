@@ -7,7 +7,7 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/4/12, 12:08 PM
  */
 public class CMGeoPointTest {

@@ -10,7 +10,7 @@ import java.net.URL;
 /**
  * This class only exists to make Java be cool about types. Should never be directly instantiated
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/17/12, 10:48 AM
  */
 public abstract class BaseURLBuilder<T> implements BaseURL {

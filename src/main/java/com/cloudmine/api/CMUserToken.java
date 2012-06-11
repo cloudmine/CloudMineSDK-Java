@@ -11,19 +11,19 @@ import java.util.Map;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 3:40 PM
  */
-public class UserToken implements Json {
+public class CMUserToken implements Json {
     private static final Date EXPIRED_DATE = new Date(0);
-    public static final UserToken FAILED = new UserToken("invalidToken", EXPIRED_DATE);
+    public static final CMUserToken FAILED = new CMUserToken("invalidToken", EXPIRED_DATE);
 
     public static final String SESSION_KEY = "session_token";
     public static final String EXPIRES_KEY = "expires";
     private final String sessionToken;
     private final DateTime expires;
 
-    public UserToken(String json) {
+    public CMUserToken(String json) {
         boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
         if(jsonIsEmpty) {
             sessionToken = "";
@@ -33,7 +33,7 @@ public class UserToken implements Json {
             boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
                     !objectMap.containsKey(EXPIRES_KEY);
             if(isMissingKey) {
-                throw new JsonConversionException("Can't create UserToken from json missing field");
+                throw new JsonConversionException("Can't create CMUserToken from json missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
     //        String dateString = objectMap.get(EXPIRES_KEY).toString();
@@ -42,7 +42,7 @@ public class UserToken implements Json {
         }
     }
 
-    public UserToken(String sessionToken, Date expires) {
+    public CMUserToken(String sessionToken, Date expires) {
         this.sessionToken = sessionToken;
         this.expires = new DateTime(expires);
     }

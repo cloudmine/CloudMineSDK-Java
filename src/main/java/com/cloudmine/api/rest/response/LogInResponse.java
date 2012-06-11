@@ -1,17 +1,16 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.UserToken;
-import com.loopj.android.http.ResponseConstructor;
+import com.cloudmine.api.CMUserToken;
 import org.apache.http.HttpResponse;
 
 import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 5:38 PM
  */
-public class LogInResponse extends CloudMineResponse {
+public class LogInResponse extends CMResponse {
 
     public static final ResponseConstructor<LogInResponse> CONSTRUCTOR = new ResponseConstructor<LogInResponse>() {
         @Override
@@ -25,18 +24,18 @@ public class LogInResponse extends CloudMineResponse {
         }
     };
 
-    private final UserToken userToken;
+    private final CMUserToken userToken;
 
     public LogInResponse(HttpResponse response) {
         super(response);
         if(wasSuccess()) {
-            userToken = new UserToken(asJson());
+            userToken = new CMUserToken(asJson());
         } else {
-            userToken = UserToken.FAILED;
+            userToken = CMUserToken.FAILED;
         }
     }
 
-    public UserToken userToken() {
+    public CMUserToken userToken() {
         return userToken;
     }
 

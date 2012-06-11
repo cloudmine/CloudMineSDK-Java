@@ -8,10 +8,10 @@ import java.util.Map;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/31/12, 10:55 AM
  */
-public class CloudMineDateFormat extends DateFormat {
+public class CMDateFormat extends DateFormat {
 
     public static Date fromNumber(Number toConvertInSeconds) {
         return new Date(toConvertInSeconds.longValue() * 1000);
@@ -50,6 +50,6 @@ public class CloudMineDateFormat extends DateFormat {
 
     @Override
     public Object clone() {
-        return new CloudMineDateFormat();
+        return new CMDateFormat();
     }
 }

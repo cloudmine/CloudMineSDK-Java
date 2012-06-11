@@ -2,18 +2,18 @@ package com.cloudmine.api;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/4/12, 1:08 PM
  */
-public enum CloudMineType {
+public enum CMType {
     GEO_POINT("geopoint"), NONE("");
 
     private final String typeId;
 
-    public static CloudMineType getTypeById(String typeId) {
+    public static CMType getTypeById(String typeId) {
         if(typeId == null)
             return NONE;
-        for(CloudMineType type : CloudMineType.values()) {
+        for(CMType type : CMType.values()) {
             if(typeId.equals(type.typeId())) {
                 return type;
             }
@@ -21,7 +21,7 @@ public enum CloudMineType {
         return NONE;
     }
 
-    private CloudMineType(String typeId) {
+    private CMType(String typeId) {
         this.typeId = typeId;
     }
 

@@ -3,7 +3,7 @@ package com.cloudmine.api.rest.response;
 /**
  * Represents the statuses that an insertion of an object can return
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/7/12, 3:45 PM
  */
 public enum ResponseValue {

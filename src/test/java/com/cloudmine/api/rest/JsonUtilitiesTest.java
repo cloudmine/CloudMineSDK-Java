@@ -12,7 +12,7 @@ import static junit.framework.Assert.*;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 1:43 PM
  */
 public class JsonUtilitiesTest {

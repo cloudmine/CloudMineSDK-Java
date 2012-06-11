@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/16/12, 10:54 AM
  */
 public class URLBuilder extends BaseURLBuilder<URLBuilder> {

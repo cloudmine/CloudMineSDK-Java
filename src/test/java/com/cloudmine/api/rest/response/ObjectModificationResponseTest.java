@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import junit.framework.Assert;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -8,7 +9,7 @@ import static junit.framework.Assert.assertTrue;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 6/7/12, 3:24 PM
  */
 public class ObjectModificationResponseTest {
@@ -27,8 +28,8 @@ public class ObjectModificationResponseTest {
         assertFalse(response.wasUpdated("key3"));
         assertTrue(response.wasCreated("key3"));
         assertFalse(response.wasCreated("key2"));
-        assertEquals(ResponseValue.UPDATED, response.keyResponse("key2"));
-        assertEquals(ResponseValue.CREATED, response.keyResponse("key3"));
-        assertEquals(ResponseValue.MISSING, response.keyResponse("key4"));
+        Assert.assertEquals(ResponseValue.UPDATED, response.keyResponse("key2"));
+        Assert.assertEquals(ResponseValue.CREATED, response.keyResponse("key3"));
+        Assert.assertEquals(ResponseValue.MISSING, response.keyResponse("key4"));
     }
 }

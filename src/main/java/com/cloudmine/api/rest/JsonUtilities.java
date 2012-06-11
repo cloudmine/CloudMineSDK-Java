@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 1:42 PM
  */
 public class JsonUtilities {
@@ -34,7 +34,7 @@ public class JsonUtilities {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
 
     public static final String EMPTY_JSON = "{ }";
-    public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CloudMineDateFormat();
+    public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CMDateFormat();
     static {
         //Using a serializer instead of setting the DateFormat to get around string escape issues
         SimpleModule dateModule = new SimpleModule("DateModule", new Version(1, 0, 0, null));
@@ -137,7 +137,7 @@ public class JsonUtilities {
             Object timeStamp = jsonMap.get(TIME_KEY);
             if(timeStamp != null) {
                 try {
-                    return CloudMineDateFormat.fromNumber(Long.parseLong(timeStamp.toString()));
+                    return CMDateFormat.fromNumber(Long.parseLong(timeStamp.toString()));
                 } catch(NumberFormatException e) {
                     throw new JsonConversionException("Couldn't parse date", e);
                 }
@@ -237,7 +237,7 @@ public class JsonUtilities {
         if(isDateClass) {
             Object time = jsonMap.get(TIME_KEY);
             if(time instanceof Number) {
-                return CloudMineDateFormat.fromNumber((Number) time); //replace Number with Date
+                return CMDateFormat.fromNumber((Number) time); //replace Number with Date
             } else {
                 throw new JsonConversionException("Received non number time");
             }

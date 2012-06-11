@@ -2,7 +2,7 @@ package com.cloudmine.api.exceptions;
 
 /**
  * Copyright CloudMine LLC
- * User: johnmccarthy
+ * CMUser: johnmccarthy
  * Date: 5/21/12, 2:07 PM
  */
 public class JsonConversionException extends RuntimeException {
