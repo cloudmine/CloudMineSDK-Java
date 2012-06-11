@@ -20,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -68,6 +65,10 @@ public class CMWebService {
         lastInstantiatedInstance = this;
     }
 
+    public CMWebService(String appId, AsynchronousHttpClient asyncClient) {
+        this(new CMURLBuilder(appId), asyncClient);
+    }
+
     /**
      * If the entity response is not fully consumed, the connection will not be released
      * @param response
@@ -97,15 +98,16 @@ public class CMWebService {
     }
 
     public ObjectModificationResponse deleteAll() {
-        return executeCommand(createDeleteAll(), ObjectModificationResponse.CONSTRUCTOR);
+        return executeCommand(createDeleteAll(), objectModificationResponseConstructor());
     }
 
+
     public ObjectModificationResponse delete(Collection<String> keys) {
-        return executeCommand(createDelete(keys), ObjectModificationResponse.CONSTRUCTOR);
+        return executeCommand(createDelete(keys), objectModificationResponseConstructor());
     }
 
     public ObjectModificationResponse delete(String key) {
-        return executeCommand(createDelete(key), ObjectModificationResponse.CONSTRUCTOR);
+        return executeCommand(createDelete(key), objectModificationResponseConstructor());
     }
 
     public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass) {
@@ -114,7 +116,15 @@ public class CMWebService {
 
     public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
-        return executeAsyncCommand(search, callback, SimpleCMObjectResponse.CONSTRUCTOR);
+        return executeAsyncCommand(search, callback, simpleCMObjectResponseConstructor());
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object) {
+        return asyncDeleteObject(object, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject objects, WebServiceCallback callback) {
+        return asyncDeleteObjects(Collections.singletonList(objects), callback);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
@@ -130,12 +140,33 @@ public class CMWebService {
         return asyncDelete(keys, callback);
     }
 
+    public Future<ObjectModificationResponse> asyncDelete(String key) {
+        return asyncDelete(key, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncDelete(String key, WebServiceCallback callback) {
+        return asyncDelete(Collections.singletonList(key), callback);
+    }
+
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys) {
         return asyncDelete(keys, WebServiceCallback.DO_NOTHING);
     }
 
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback) {
-        return executeAsyncCommand(createDelete(keys), callback, ObjectModificationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createDelete(keys), callback, objectModificationResponseConstructor());
+    }
+
+    /**
+     * This will delete ALL the objects associated with this API key. Be careful...
+     * @param callback
+     * @return
+     */
+    public Future<ObjectModificationResponse> asyncDeleteAll(WebServiceCallback callback) {
+        return executeAsyncCommand(createDeleteAll(), callback, objectModificationResponseConstructor());
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteAll() {
+        return asyncDeleteAll(WebServiceCallback.DO_NOTHING);
     }
 
     public Future<FileCreationResponse> asyncUpload(CMFile file) {
@@ -143,7 +174,7 @@ public class CMWebService {
     }
 
     public Future<FileCreationResponse> asyncUpload(CMFile file, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(file), callback, FileCreationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
     }
 
     public Future<CMFile> asyncLoadFile(String key) {
@@ -151,7 +182,7 @@ public class CMWebService {
     }
 
     public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetFile(key), callback, CMFile.constructor(key));
+        return executeAsyncCommand(createGetFile(key), callback, cmFileConstructor(key));
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects() {
@@ -175,7 +206,7 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetObjects(keys), callback, SimpleCMObjectResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createGetObjects(keys), callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
@@ -183,7 +214,7 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
-        return executeAsyncCommand(createSearch(searchString), callback, SimpleCMObjectResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createSearch(searchString), callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
@@ -191,7 +222,7 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(toCreate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createPut(toCreate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) {
@@ -206,7 +237,7 @@ public class CMWebService {
         String jsonStringsCollection = JsonUtilities.jsonCollection(
                 jsons.toArray(new Json[jsons.size()])
         ).asJson();
-        return executeAsyncCommand(createPut(jsonStringsCollection), callback, ObjectModificationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createPut(jsonStringsCollection), callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
@@ -214,7 +245,7 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
-        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, ObjectModificationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncUpdateAll(Collection<SimpleCMObject> objects) {
@@ -229,11 +260,11 @@ public class CMWebService {
             i++;
         }
         String json = JsonUtilities.jsonCollection(jsonStrings).asJson();
-        return executeAsyncCommand(createJsonPost(json), callback, ObjectModificationResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
     public SimpleCMObjectResponse get() {
-        return executeCommand(createGet(), SimpleCMObjectResponse.CONSTRUCTOR);
+        return executeCommand(createGet(), simpleCMObjectResponseConstructor());
     }
 
     public CMFile getFile(String key) {
@@ -248,29 +279,30 @@ public class CMWebService {
 
     public SimpleCMObjectResponse search(String searchString) {
         HttpGet get = createSearch(searchString);
-        return executeCommand(get, SimpleCMObjectResponse.CONSTRUCTOR);
+        return executeCommand(get, simpleCMObjectResponseConstructor());
     }
 
     public ObjectModificationResponse set(String json) {
         HttpPut put = createPut(json);
-        return executeCommand(put, ObjectModificationResponse.CONSTRUCTOR);
+        return executeCommand(put, objectModificationResponseConstructor());
     }
 
     public ObjectModificationResponse update(String json) {
         HttpPost post = createJsonPost(json);
-        return executeCommand(post, ObjectModificationResponse.CONSTRUCTOR);
+        return executeCommand(post, objectModificationResponseConstructor());
     }
 
     public FileCreationResponse set(CMFile file) {
-        return executeCommand(createPut(file), FileCreationResponse.CONSTRUCTOR);
+        return executeCommand(createPut(file), fileCreationResponseConstructor());
     }
+
 
     public Future<CMResponse> asyncCreateUser(CMUser user) {
         return executeAsyncCommand(createPut(user));
     }
 
     public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(user), callback, CMResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
     }
 
     public Future<LogInResponse> asyncLogin(CMUser user) {
@@ -278,7 +310,7 @@ public class CMWebService {
     }
 
     public Future<LogInResponse> asyncLogin(CMUser user, WebServiceCallback callback) {
-        return executeAsyncCommand(createLoginPost(user), callback, LogInResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
     }
 
     public Future<CMResponse> asyncLogout(CMUserToken token) {
@@ -286,7 +318,7 @@ public class CMWebService {
     }
 
     public Future<CMResponse> asyncLogout(CMUserToken token, WebServiceCallback callback) {
-        return executeAsyncCommand(createLogoutPost(token), callback, CMResponse.CONSTRUCTOR);
+        return executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
 
@@ -295,7 +327,7 @@ public class CMWebService {
     }
 
     public LogInResponse login(CMUser user) {
-        return executeCommand(createLoginPost(user), LogInResponse.CONSTRUCTOR);
+        return executeCommand(createLoginPost(user), logInResponseConstructor());
     }
 
     public CMResponse logout(CMUserToken sessionToken) {
@@ -303,15 +335,15 @@ public class CMWebService {
     }
 
     private CMResponse executeCommand(HttpUriRequest message) {
-        return executeCommand(message, CMResponse.CONSTRUCTOR);
+        return executeCommand(message, cmResponseConstructor());
     }
 
     private Future<CMResponse> executeAsyncCommand(HttpUriRequest message) {
-        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, CMResponse.CONSTRUCTOR);
+        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, cmResponseConstructor());
     }
 
     private Future<CMResponse> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback) {
-        return executeAsyncCommand(message, callback, CMResponse.CONSTRUCTOR);
+        return executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
     private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
@@ -333,6 +365,7 @@ public class CMWebService {
         return constructor.construct(null);
     }
 
+    //**************************Http commands*****************************************
     private HttpGet createSearch(String search) {
         HttpGet get = new HttpGet(baseUrl.search(search).urlString());
         addCloudMineHeader(get);
@@ -436,5 +469,30 @@ public class CMWebService {
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
         message.addHeader(CMApiCredentials.cloudMineHeader());
+    }
+
+    //**********************RESPONSE CONSTRUCTORS******************************
+    protected ResponseConstructor<FileCreationResponse> fileCreationResponseConstructor() {
+        return FileCreationResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<ObjectModificationResponse> objectModificationResponseConstructor() {
+        return ObjectModificationResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<CMResponse> cmResponseConstructor() {
+        return CMResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<CMFile> cmFileConstructor(String key) {
+        return CMFile.constructor(key);
+    }
+
+    protected ResponseConstructor<LogInResponse> logInResponseConstructor() {
+        return LogInResponse.CONSTRUCTOR;
+    }
+
+    private ResponseConstructor<SimpleCMObjectResponse> simpleCMObjectResponseConstructor() {
+        return SimpleCMObjectResponse.CONSTRUCTOR;
     }
 }
