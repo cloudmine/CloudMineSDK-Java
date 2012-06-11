@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,6 +50,20 @@ public class JsonUtilities {
             @Override
             public Class<Date> handledType() {
                 return Date.class;
+            }
+        });
+
+        dateModule.addSerializer(new JsonSerializer<SimpleCMObject>() {
+
+            @Override
+            public void serialize(SimpleCMObject value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                jgen.writeRaw(":");
+                jgen.writeRaw(value.asUnkeyedObject());
+            }
+
+            @Override
+            public Class<SimpleCMObject> handledType() {
+                return SimpleCMObject.class;
             }
         });
 
@@ -147,15 +162,15 @@ public class JsonUtilities {
         return "\"" + toQuote + "\"";
     }
 
-    public static String jsonCollection(Collection<? extends Json> jsonEntities) {
+    public static Json jsonCollection(Collection<? extends Json> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new Json[jsonEntities.size()]));
     }
 
-    public static String jsonStringsCollection(Collection<String> jsonEntities) {
+    public static Json jsonStringsCollection(Collection<String> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
     }
 
-    public static String jsonCollection(Json... jsonEntities) {
+    public static Json jsonCollection(Json... jsonEntities) {
         String[] jsonStrings = new String[jsonEntities.length];
         for(int i = 0; i < jsonEntities.length; i++) {
             jsonStrings[i] = jsonEntities[i].asJson();
@@ -163,7 +178,7 @@ public class JsonUtilities {
         return jsonCollection(jsonStrings);
     }
 
-    public static String jsonCollection(String... jsonEntities) {
+    public static Json jsonCollection(String... jsonEntities) {
         StringBuilder json = new StringBuilder("{\n");
         String comma = "";
         for(String jsonEntity : jsonEntities) {
@@ -173,7 +188,7 @@ public class JsonUtilities {
             comma = ",\n";
         }
         json.append("\n}");
-        return json.toString();
+        return new JsonString(json.toString());
     }
 
     public static String mapToJson(Map<String, Object> map) throws JsonConversionException {
@@ -245,6 +260,14 @@ public class JsonUtilities {
         } catch (IOException e) {
             throw new JsonConversionException("Couldn't read inputJson", e);
         }
+    }
+
+    public static boolean isJsonEquivalent(Json first, Json second) throws JsonConversionException {
+        if(first == null)
+            return second == null;
+        if(second == null)
+            return false;
+        return isJsonEquivalent(first.asJson(), second.asJson());
     }
 
     /**

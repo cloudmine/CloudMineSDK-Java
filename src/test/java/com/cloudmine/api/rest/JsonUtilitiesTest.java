@@ -108,8 +108,8 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testJsonCollection() {
-        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT)));
-        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}");
+        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT).asJson()));
+        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}").asJson();
         Map<String, Object> jsonMap = JsonUtilities.jsonToMap(jsonCollectionString);
         assertEquals(2, jsonMap.size());
     }

@@ -218,7 +218,7 @@ public class CloudMineWebService implements Parcelable{
         }
         String jsonStringsCollection = JsonUtilities.jsonCollection(
                 jsons.toArray(new Json[jsons.size()])
-        );
+        ).asJson();
         return executeAsyncCommand(createPut(jsonStringsCollection), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 
@@ -241,7 +241,7 @@ public class CloudMineWebService implements Parcelable{
             jsonStrings[i] = cmObject.asKeyedObject();
             i++;
         }
-        String json = JsonUtilities.jsonCollection(jsonStrings);
+        String json = JsonUtilities.jsonCollection(jsonStrings).asJson();
         return executeAsyncCommand(createJsonPost(json), callback, ObjectModificationResponse.CONSTRUCTOR);
     }
 

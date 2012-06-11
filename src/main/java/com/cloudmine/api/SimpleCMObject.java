@@ -280,11 +280,10 @@ public class SimpleCMObject implements Json, Parcelable {
 
     public final void add(String key, Object value) {
         contents.put(key, value);
-//        if(value instanceof SimpleCMObject) {
-//            contents.put(key, ((SimpleCMObject)value).asJson());
-//        }else {
-//
-//        }
+    }
+
+    public void add(SimpleCMObject value) {
+        add(value.key(), value);
     }
 
     /**
@@ -301,7 +300,11 @@ public class SimpleCMObject implements Json, Parcelable {
     }
 
     public String asKeyedObject() {
-        return JsonUtilities.addQuotes(topLevelKey) + ":" + JsonUtilities.mapToJson(contents);
+        return JsonUtilities.addQuotes(topLevelKey) + ":" + asUnkeyedObject();
+    }
+
+    public String asUnkeyedObject() {
+        return JsonUtilities.mapToJson(contents);
     }
 
     public String asJson() {

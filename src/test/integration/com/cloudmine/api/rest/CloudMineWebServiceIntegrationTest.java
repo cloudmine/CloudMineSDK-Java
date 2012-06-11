@@ -296,19 +296,19 @@ public class CloudMineWebServiceIntegrationTest {
 
     @Test
     public void testAsyncGeoSearch() {
-        SimpleCMObject geoObject = new SimpleCMObject();
-        geoObject.add("geoPoint", new CMGeoPoint(100, 100));
+        SimpleCMObject geoObject = new SimpleCMObject("location");
+        geoObject.add("geoPoint", new CMGeoPoint(50, 50, "geo"));
 
         store.set(geoObject.asJson());
 
-        store.asyncSearch("[geoPoint near (90, 90)]", testCallback(new SimpleObjectResponseCallback() {
+        store.asyncSearch("[geoPoint near (50, 50)]", testCallback(new SimpleObjectResponseCallback() {
            public void onCompletion(SimpleObjectResponse response) {
                List<SimpleCMObject> objects = response.objects();
                assertEquals(1, objects.size());
 
                CMGeoPoint geoPoint = objects.get(0).getGeoPoint("geoPoint");
-               assertEquals(100, geoPoint.latitude());
-               assertEquals(100, geoPoint.longitude());
+               assertEquals(50, geoPoint.latitude(), 2);
+               assertEquals(50, geoPoint.longitude(), 2);
 
            }
         }));

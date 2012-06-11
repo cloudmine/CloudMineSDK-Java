@@ -126,11 +126,16 @@ public class SimpleCMObjectTest {
     @Test
     public void testGeoAsJson() {
         SimpleCMObject object = new SimpleCMObject("topLevelKey");
-        object.add("geo", new CMGeoPoint(50, 50, "geoObject"));
-        System.out.println(object.asJson());
-        String expectedJson = "{\"topLevelKey\":{\"geo\":{\"geoObject\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}}";
+        CMGeoPoint geoObject = new CMGeoPoint(50, 50, "geoObject");
+        object.add("geo", geoObject);
+        String expectedJson = "{\"topLevelKey\":{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
 
+        //difference is in the key value - geo vs geoObject
+        object = new SimpleCMObject("topLevelKey");
+        object.add(geoObject);
+        expectedJson = "{\"topLevelKey\":{\"geoObject\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+        assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
 
     }
 }
