@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.CMGeoPoint;
 import com.cloudmine.api.SimpleCMObject;
 import org.junit.Test;
 
@@ -121,11 +122,38 @@ public class JsonUtilitiesTest {
     }
 
     @Test
+    public void testUnwrap() {
+        String simpleJson = "{\"key\":55}";
+        String unwrappedSimpleJson = "\"key\":55";
+        assertEquals(unwrappedSimpleJson, JsonUtilities.unwrap(simpleJson));
+
+
+        String json = "\n     { \"key\":value, \"objectKey\":{ \"someObject\":55 } }";
+        String unwrappedJson = "\n      \"key\":value, \"objectKey\":{ \"someObject\":55 } ";
+        assertEquals(unwrappedJson, JsonUtilities.unwrap(json));
+    }
+
+    @Test
     public void testMapToJson() {
         Map<String, Object> jsonMap = createComplexObjectMap();
         String json = JsonUtilities.mapToJson(jsonMap);
 
         assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, json));
+
+        SimpleCMObject pictureObject = new SimpleCMObject();
+        pictureObject.setClass("task");
+        pictureObject.add("dueDate", new Date());
+        pictureObject.add("taskName", "gggg");
+        pictureObject.add("isDone", true);
+        pictureObject.add("priority", 0);
+        pictureObject.add("location", new CMGeoPoint(50, 50));
+        pictureObject.add("picture", "pictureKey");
+        try {
+            pictureObject.asJson(); //this is an ugly test but it routes through mapToJson and this used to fail
+        }catch(Exception e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test

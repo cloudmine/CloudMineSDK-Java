@@ -1,6 +1,8 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.rest.JsonUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +13,7 @@ import java.util.Map;
  * Date: 5/21/12, 11:40 AM
  */
 public class CMUser {
-
+    private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
     private final String email;
@@ -44,7 +46,13 @@ public class CMUser {
     }
 
     protected String encodeString(String toEncode) {
-        return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
+        try {
+            return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
+        }catch(NoClassDefFoundError ncdfe) {
+            LOG.error("Do not instantiate CMUser objects on Android! You must use AndroidCMUser, as " +
+                    "android does not provide an implementation for DataTypeConverter", ncdfe);
+            throw ncdfe;
+        }
     }
 
     public String toString() {

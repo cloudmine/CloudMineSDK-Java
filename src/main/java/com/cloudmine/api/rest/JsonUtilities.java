@@ -57,8 +57,9 @@ public class JsonUtilities {
 
             @Override
             public void serialize(SimpleCMObject value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                jgen.writeRaw(":");
-                jgen.writeRaw(value.asUnkeyedObject());
+                jgen.writeStartObject();
+                jgen.writeRaw(unwrap(value.asUnkeyedObject()));
+                jgen.writeEndObject();
             }
 
             @Override
@@ -70,8 +71,9 @@ public class JsonUtilities {
         dateModule.addSerializer(new JsonSerializer<Json>() {
             @Override
             public void serialize(Json value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-                jgen.writeRaw(":");
-                jgen.writeRaw(value.asJson());
+                jgen.writeStartObject();
+                jgen.writeRaw(unwrap(value.asJson()));
+                jgen.writeEndObject();
             }
             @Override
             public Class<Json> handledType() {
@@ -155,6 +157,25 @@ public class JsonUtilities {
         return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
     }
 
+    public static String unwrap(String json) {
+        if(json == null) {
+            return "";
+        }
+        int openBraces = json.indexOf("{");
+        int closeBraces = json.lastIndexOf("}");
+        if(openBraces < 0 || closeBraces < 0) {
+            LOG.error("Given json to unwrap that does not have braces: " + json);
+            return json;
+        }
+        String preOpen = json.substring(0, openBraces);
+        String betweenBraces = json.substring(openBraces + 1, closeBraces);
+        String postClose = json.substring(closeBraces + 1, json.length());
+        String unwrappedJson = preOpen + //everything before the first open brace
+                betweenBraces + //everything between the first place and the last closing brace
+                postClose; //everything after the last closing brace
+        return unwrappedJson;
+    }
+
     public static String addQuotes(String toQuote) {
         if(toQuote == null) {
             return NULL_STRING;
@@ -197,7 +218,6 @@ public class JsonUtilities {
         }
         try { //TODO this shit all brokes
             StringWriter writer = new StringWriter();
-            JsonGenerator generator = jsonMapper.getJsonFactory().createJsonGenerator(writer);
             jsonMapper.writeValue(writer, map);
             return writer.toString();
         } catch (IOException e) {
