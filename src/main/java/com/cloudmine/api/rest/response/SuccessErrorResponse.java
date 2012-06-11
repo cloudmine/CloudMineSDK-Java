@@ -56,19 +56,26 @@ public class SuccessErrorResponse extends CMResponse {
                 successResponse.containsKey(key);
     }
 
+    public List<SimpleCMObject> getErrorObjects() {
+        return getObjects(errorResponse);
+    }
+
     public List<SimpleCMObject> getSuccessObjects() {
-        if(successResponse == null || successResponse.isEmpty()) {
-            LOG.error("Null or non empty successResponse, empty list returned for getSuccessObjects");
+        return getObjects(successResponse);
+    }
+
+    private List<SimpleCMObject> getObjects(Map<String, Object> objectMap) {
+        if(objectMap == null || objectMap.isEmpty()) {
+            LOG.info("Null or non empty response object, empty list returned for getObjects");
             return Collections.emptyList();
         }
         List<SimpleCMObject> successObjects = new ArrayList<SimpleCMObject>();
-
-
-        for(Map.Entry<String, Object> successEntry : successResponse.entrySet()) {
+        for(Map.Entry<String, Object> successEntry : objectMap.entrySet()) {
             String successName = successEntry.getKey();
             Map<String, Object> successMap = convertToMap(successEntry.getValue());
             successObjects.add(new SimpleCMObject(successName, successMap));
         }
         return successObjects;
+
     }
 }
