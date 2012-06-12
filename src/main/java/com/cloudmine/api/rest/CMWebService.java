@@ -30,21 +30,25 @@ import java.util.concurrent.Future;
 public class CMWebService {
     private static CMWebService lastInstantiatedInstance;
 
-    /**
-     * Returns the last instantiated instance of CMWebService.
-     * @return
-     */
-    public static CMWebService defaultService() {
-        return lastInstantiatedInstance;
-    }
+
 
     public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
 
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
+    public static final String AGENT_HEADER_KEY = "X-CloudMine-Agent";
 
     protected final CMURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
     private final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
+
+    /**
+     * Returns the last instantiated instance of CMWebService.
+     * @return
+     */
+    public static CMWebService defaultService() { //TODO This is totally not thread safe at all
+        //might not be possible to make it perfectly thread safe, based on http://www.ibm.com/developerworks/java/library/j-dcl/index.html
+        return lastInstantiatedInstance;
+    }
 
     public CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
@@ -456,8 +460,12 @@ public class CMWebService {
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
         message.addHeader(CMApiCredentials.cloudMineHeader());
+        message.addHeader(new BasicHeader(AGENT_HEADER_KEY, cloudMineAgent()));
     }
 
+    protected String cloudMineAgent() {
+        return "javasdk 1.0";
+    }
     //**********************RESPONSE CONSTRUCTORS******************************
     protected ResponseConstructor<FileCreationResponse> fileCreationResponseConstructor() {
         return FileCreationResponse.CONSTRUCTOR;
