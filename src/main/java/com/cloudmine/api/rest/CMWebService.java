@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
@@ -28,35 +29,23 @@ import java.util.concurrent.Future;
  * Date: 5/16/12, 2:34 PM
  */
 public class CMWebService {
-    private static CMWebService lastInstantiatedInstance;
-
-
-
-    public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
 
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
+    public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
     public static final String AGENT_HEADER_KEY = "X-CloudMine-Agent";
+
 
     protected final CMURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
-    private final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
+    protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
+    private UserCMWebService userWebService;
 
-    /**
-     * Returns the last instantiated instance of CMWebService.
-     * @return
-     */
-    public static CMWebService defaultService() { //TODO This is totally not thread safe at all
-        //might not be possible to make it perfectly thread safe, based on http://www.ibm.com/developerworks/java/library/j-dcl/index.html
-        return lastInstantiatedInstance;
-    }
-
-    public CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
+    protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
         asyncHttpClient = asyncClient;
-        lastInstantiatedInstance = this;
     }
 
-    public CMWebService(String appId, AsynchronousHttpClient asyncClient) {
+    protected CMWebService(String appId, AsynchronousHttpClient asyncClient) {
         this(new CMURLBuilder(appId), asyncClient);
     }
 
@@ -81,11 +70,28 @@ public class CMWebService {
     }
 
     public UserCMWebService userWebService(CMUserToken token) {
+        return createUserCMWebService(token);
+    }
+
+    protected UserCMWebService createUserCMWebService(CMUserToken token) {
         return new UserCMWebService(baseUrl.user(), token, asyncHttpClient);
     }
 
-    public UserCMWebService userWebService(CMResponse response) {
-        return userWebService(new CMUserToken(response.asJson()));
+    /**
+     * This will set the default UserCMWebService and return it.
+     * @param token
+     * @return
+     */
+    public UserCMWebService setLoggedInUser(CMUserToken token) {
+        userWebService = userWebService(token);
+        return userWebService;
+    }
+
+    public UserCMWebService userWebService() {
+        if(userWebService == null) {
+            throw new CreationException("Cannot request a user web service until setLoggedInUser has been called");
+        }
+        return userWebService;
     }
 
     public ObjectModificationResponse deleteAll() {

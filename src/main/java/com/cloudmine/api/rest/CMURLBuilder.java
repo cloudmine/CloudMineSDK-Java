@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,11 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     public static final String APP = "/app";
 
 
-    public CMURLBuilder() {
+    /**
+     *
+     * @throws CreationException if CMApiCredentials.initialize has not been called yet
+     */
+    public CMURLBuilder() throws CreationException {
         this(CMApiCredentials.applicationIdentifier());
     }
 
