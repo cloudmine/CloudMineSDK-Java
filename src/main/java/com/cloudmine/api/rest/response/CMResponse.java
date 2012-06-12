@@ -85,7 +85,6 @@ public class CMResponse implements Json {
         } else {
             statusCode = NO_RESPONSE_CODE;
         }
-        response.getStatusLine().getStatusCode();
         baseMap = extractResponseMap(response);
     }
 

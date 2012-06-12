@@ -4,7 +4,6 @@ import com.cloudmine.api.*;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -13,7 +12,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.message.BasicHeaderElement;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,20 +38,8 @@ public class CMWebService {
         return lastInstantiatedInstance;
     }
 
-    public static final Header JSON_HEADER = new Header() {
-        public String getName() {
-            return "Content-Type";
-        }
+    public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
 
-        public String getValue() {
-            return "application/json";
-        }
-
-        public HeaderElement[] getElements() {
-            return new HeaderElement[] { new BasicHeaderElement(getName(), getValue()) };
-        }
-
-    };
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
 
     protected final CMURLBuilder baseUrl;

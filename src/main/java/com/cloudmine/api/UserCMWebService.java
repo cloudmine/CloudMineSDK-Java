@@ -34,7 +34,7 @@ public class UserCMWebService extends CMWebService {
 
 
     @Override
-    public void addCloudMineHeader(AbstractHttpMessage message) {
+    protected void addCloudMineHeader(AbstractHttpMessage message) {
         super.addCloudMineHeader(message);
         message.addHeader(userHeader);
     }
