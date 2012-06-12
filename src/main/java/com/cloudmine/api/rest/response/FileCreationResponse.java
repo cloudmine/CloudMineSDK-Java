@@ -27,7 +27,7 @@ public class FileCreationResponse extends CMResponse {
         super(response);
     }
 
-    public String getFileKey() {
+    public String fileKey() {
         Object key = getObject("key");
         if(key == null) {
             return null;

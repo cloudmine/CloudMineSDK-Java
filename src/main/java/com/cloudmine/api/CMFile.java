@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
 /**
@@ -55,8 +56,15 @@ public class CMFile implements Json {
     private final byte[] fileContents;
 
     public CMFile(byte[] fileContents, String key, String contentType) {
-        this.key = key;
-        this.contentType = contentType;
+        if(fileContents == null) {
+            throw new CreationException(new NullPointerException("Cannot create a new file with empty contents"));
+        }
+        this.key = key == null ?
+                SimpleCMObject.generateUniqueKey() :
+                key;
+        this.contentType = contentType == null ?
+                DEFAULT_CONTENT_TYPE :
+                contentType;
         this.fileContents = fileContents;
     }
 
@@ -73,23 +81,21 @@ public class CMFile implements Json {
         this(extractInputStream(response), extractContentType(response), key);
     }
 
-    public CMFile(InputStream contents, String contentType, String key) {
-        if(contents == null) {
-            throw new CreationException(new NullPointerException("Cannot create a new file with empty contents"));
-        }
-        this.key = key;
-        this.contentType = contentType == null ?
-                                    DEFAULT_CONTENT_TYPE :
-                                        contentType;
+    public CMFile(InputStream contents, String key, String contentType) {
+        this(inputStreamToByteArray(contents), key, contentType);
+
+    }
+
+    private static byte[] inputStreamToByteArray(InputStream contents) throws CreationException {
         try {
-            fileContents = IOUtils.toByteArray(contents);
+            return IOUtils.toByteArray(contents);
         } catch (IOException e) {
             LOG.error("IOException converting file contents to byte array", e);
             throw new CreationException(e);
         }
     }
 
-    public byte[] getFileContents() {
+    public byte[] fileContents() {
         return fileContents;
     }
 
@@ -98,18 +104,18 @@ public class CMFile implements Json {
         return new ByteArrayInputStream(fileContents);
     }
 
-    public String getKey() {
+    public String key() {
         return key;
     }
 
-    public String getContentType() {
+    public String contentType() {
         return contentType;
     }
 
     private static String extractContentType(HttpResponse response) {
         if(response == null || response.getEntity() == null || response.getEntity().getContentType() == null)
             return null;
-        return response.getEntity().getContentType().toString();
+        return response.getEntity().getContentType().getValue();
     }
 
     private static InputStream extractInputStream(HttpResponse response) {
@@ -123,6 +129,27 @@ public class CMFile implements Json {
         }
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        hash = hash * 31 + contentType.hashCode();
+        hash = hash * 31 + key.hashCode();
+        hash = hash * 31 + Arrays.hashCode(fileContents);
+        return hash;
+    }
+
+    @Override
+    public final boolean equals(Object other) {
+        if(other instanceof CMFile) {
+            CMFile otherFile = (CMFile)other;
+            return otherFile.contentType().equals(contentType()) &&
+                    otherFile.key().equals(key()) &&
+                    Arrays.equals(otherFile.fileContents(), fileContents());
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.append("Key: ").append(key).append(" Content-Type: ").append(contentType).append(" contents: ");
@@ -131,6 +158,7 @@ public class CMFile implements Json {
         }
         return string.toString();
     }
+
 
     @Override
     public String asJson() {

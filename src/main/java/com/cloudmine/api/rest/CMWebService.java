@@ -166,6 +166,26 @@ public class CMWebService {
         return asyncDeleteAll(WebServiceCallback.DO_NOTHING);
     }
 
+    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file) {
+        return asyncDeleteFile(file, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, WebServiceCallback callback) {
+        return asyncDelete(file.key(), callback);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files) {
+        return asyncDeleteFiles(files, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, WebServiceCallback callback) {
+        Collection<String> keys = new ArrayList<String>(files.size());
+        for(CMFile file : files) {
+            keys.add(file.key());
+        }
+        return asyncDelete(keys, callback);
+    }
+
     public Future<FileCreationResponse> asyncUpload(CMFile file) {
         return asyncUpload(file, WebServiceCallback.DO_NOTHING);
     }
@@ -402,10 +422,10 @@ public class CMWebService {
     }
 
     private HttpPut createPut(CMFile file) {
-        HttpPut put = new HttpPut(baseUrl.binary(file.getKey()).urlString());
+        HttpPut put = new HttpPut(baseUrl.binary(file.key()).urlString());
         addCloudMineHeader(put);
-        put.setEntity(new ByteArrayEntity(file.getFileContents()));
-        put.addHeader("Content-Type", file.getContentType());
+        put.setEntity(new ByteArrayEntity(file.fileContents()));
+        put.addHeader("Content-Type", file.contentType());
         return put;
     }
 
