@@ -1,8 +1,6 @@
-package com.cloudmine.api;
+package com.cloudmine.api.rest;
 
-import com.cloudmine.api.rest.AsynchronousHttpClient;
-import com.cloudmine.api.rest.CMURLBuilder;
-import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.CMUserToken;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
