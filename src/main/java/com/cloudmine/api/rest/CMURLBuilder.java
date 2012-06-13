@@ -134,6 +134,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return this.addAction("account");
     }
 
+    public CMURLBuilder reset() {
+        return this.addAction("reset");
+    }
+
     public CMURLBuilder password() {
         return this.addAction("password");
     }

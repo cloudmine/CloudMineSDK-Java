@@ -33,6 +33,11 @@ public class CMWebService {
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
     public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
     public static final String AGENT_HEADER_KEY = "X-CloudMine-Agent";
+    public static final String PASSWORD_KEY = "password";
+    public static final String JSON_ENCODING = "UTF-8";
+    public static final String AUTHORIZATION_KEY = "Authorization";
+    public static final String CLOUD_MINE_AGENT = "javasdk 1.0";
+    public static final String EMAIL_KEY = "email";
 
 
     protected final CMURLBuilder baseUrl;
@@ -334,6 +339,22 @@ public class CMWebService {
         return executeAsyncCommand(createChangePassword(user, newPassword), callback);
     }
 
+    public Future<CMResponse> asyncResetPasswordRequest(String email) {
+        return asyncResetPasswordRequest(email, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> asyncResetPasswordRequest(String email, WebServiceCallback callback) {
+        return executeAsyncCommand(createResetPassword(email), callback);
+    }
+
+    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword) {
+        return asyncResetPasswordConfirmation(token, newPassword, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword, WebServiceCallback callback) {
+        return executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
+    }
+
     public Future<LogInResponse> asyncLogin(CMUser user) {
         return asyncLogin(user, WebServiceCallback.DO_NOTHING);
     }
@@ -483,23 +504,41 @@ public class CMWebService {
         return get;
     }
 
+    private HttpPost createResetPasswordConfirmation(String token, String newPassword) {
+        HttpPost post = new HttpPost(baseUrl.account().password().reset().addAction(token).urlString());
+        addCloudMineHeader(post);
+        addJson(post, JsonUtilities.jsonCollection(
+                JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)
+        ));
+        return post;
+    }
+
+    private HttpPost createResetPassword(String email) {
+        HttpPost post = new HttpPost(baseUrl.account().password().reset().urlString());
+        addCloudMineHeader(post);
+        addJson(post, JsonUtilities.jsonCollection(
+                JsonUtilities.createJsonProperty(EMAIL_KEY, email)
+        ));
+        return post;
+    }
+
     private HttpPost createChangePassword(CMUser user, String newPassword) {
         HttpPost post = new HttpPost(baseUrl.account().password().change().urlString());
         addCloudMineHeader(post);
         addAuthorizationHeader(user, post);
         addJson(post, JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty("password", newPassword)));
+                JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
         return post;
     }
 
     private void addJson(HttpEntityEnclosingRequestBase message, String json) {
         if(json == null)
-            json = "";
+            json = JsonUtilities.EMPTY_JSON;
         if(!message.containsHeader(JSON_HEADER.getName())) {
             message.addHeader(JSON_HEADER);
         }
         try {
-            message.setEntity(new StringEntity(json, "UTF-8"));
+            message.setEntity(new StringEntity(json, JSON_ENCODING));
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error encoding json", e);
         }
@@ -510,7 +549,7 @@ public class CMWebService {
     }
 
     private void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
-        post.addHeader("Authorization", "Basic " + user.encode());
+        post.addHeader(AUTHORIZATION_KEY, "Basic " + user.encode());
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
@@ -519,7 +558,7 @@ public class CMWebService {
     }
 
     protected String cloudMineAgent() {
-        return "javasdk 1.0";
+        return CLOUD_MINE_AGENT;
     }
     //**********************RESPONSE CONSTRUCTORS******************************
     protected ResponseConstructor<FileCreationResponse> fileCreationResponseConstructor() {
