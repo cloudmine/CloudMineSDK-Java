@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.commons.io.IOUtils;
@@ -78,7 +79,7 @@ public class CMFile implements Json {
     }
 
     public CMFile(HttpResponse response, String key) {
-        this(extractInputStream(response), extractContentType(response), key);
+        this(extractInputStream(response), key, extractContentType(response));
     }
 
     public CMFile(InputStream contents, String key, String contentType) {
@@ -162,6 +163,11 @@ public class CMFile implements Json {
 
     @Override
     public String asJson() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return
+             JsonUtilities.jsonCollection(
+                JsonUtilities.createJsonProperty("key", key),
+                JsonUtilities.createJsonProperty("content_type", contentType),
+                JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, CMType.FILE.asJson())).asJson();
+
     }
 }

@@ -59,4 +59,9 @@ public class CMUser {
         return email + ":" + password;
     }
 
+
+    public static void main(String... args) {
+        CMUser user = new CMUser("TA@t.com", "GOD");
+        System.out.println(user.encode());
+    }
 }

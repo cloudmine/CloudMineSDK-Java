@@ -322,6 +322,18 @@ public class CMWebService {
         return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
     }
 
+    public CMResponse changePassword(CMUser user, String newPassword) {
+        return executeCommand(createChangePassword(user, newPassword));
+    }
+
+    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword) {
+        return asyncChangePassword(user, newPassword, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword, WebServiceCallback callback) {
+        return executeAsyncCommand(createChangePassword(user, newPassword), callback);
+    }
+
     public Future<LogInResponse> asyncLogin(CMUser user) {
         return asyncLogin(user, WebServiceCallback.DO_NOTHING);
     }
@@ -437,7 +449,7 @@ public class CMWebService {
 
     private HttpPost createLoginPost(CMUser user) {
         HttpPost post = createPost(baseUrl.account().login().urlString());
-        post.addHeader("Authorization", "Basic " + user.encode());
+        addAuthorizationHeader(user, post);
         return post;
     }
 
@@ -471,6 +483,15 @@ public class CMWebService {
         return get;
     }
 
+    private HttpPost createChangePassword(CMUser user, String newPassword) {
+        HttpPost post = new HttpPost(baseUrl.account().password().change().urlString());
+        addCloudMineHeader(post);
+        addAuthorizationHeader(user, post);
+        addJson(post, JsonUtilities.jsonCollection(
+                JsonUtilities.createJsonProperty("password", newPassword)));
+        return post;
+    }
+
     private void addJson(HttpEntityEnclosingRequestBase message, String json) {
         if(json == null)
             json = "";
@@ -482,6 +503,14 @@ public class CMWebService {
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error encoding json", e);
         }
+    }
+
+    private void addJson(HttpEntityEnclosingRequestBase message, Json json) {
+        addJson(message, json.asJson());
+    }
+
+    private void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
+        post.addHeader("Authorization", "Basic " + user.encode());
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
