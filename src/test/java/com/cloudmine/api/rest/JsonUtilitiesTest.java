@@ -117,7 +117,7 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testDateReplacement() {
-        SimpleCMObject object = new SimpleCMObject("someKey", createComplexObjectMap());
+        SimpleCMObject object = SimpleCMObject.SimpleCMObject("someKey", createComplexObjectMap());
         assertEquals(dateValue, object.getDate("date"));
     }
 
@@ -140,13 +140,13 @@ public class JsonUtilitiesTest {
 
         assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, json));
 
-        SimpleCMObject pictureObject = new SimpleCMObject();
+        SimpleCMObject pictureObject = SimpleCMObject.SimpleCMObject();
         pictureObject.setClass("task");
         pictureObject.add("dueDate", new Date());
         pictureObject.add("taskName", "gggg");
         pictureObject.add("isDone", true);
         pictureObject.add("priority", 0);
-        pictureObject.add("location", new CMGeoPoint(50, 50));
+        pictureObject.add("location", CMGeoPoint.CMGeoPoint(50, 50));
         pictureObject.add("picture", "pictureKey");
         try {
             pictureObject.asJson(); //this is an ugly test but it routes through mapToJson and this used to fail

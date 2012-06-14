@@ -45,6 +45,10 @@ public class CMWebService {
     protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
     private UserCMWebService userWebService;
 
+    public static CMWebService service() {
+        return AndroidCMWebService.service();
+    }
+
     protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
         asyncHttpClient = asyncClient;
@@ -79,7 +83,7 @@ public class CMWebService {
     }
 
     protected UserCMWebService createUserCMWebService(CMUserToken token) {
-        return new UserCMWebService(baseUrl.user(), token, asyncHttpClient);
+        return UserCMWebService.UserCMWebService(baseUrl.user(), token, asyncHttpClient);
     }
 
     /**
@@ -292,7 +296,7 @@ public class CMWebService {
     public CMFile getFile(String key) {
         try {
             HttpResponse response = httpClient.execute(createGetFile(key));
-            return new CMFile(response, key);
+            return CMFile.CMFile(response, key);
         } catch (IOException e) {
             //TODO handle this
         }

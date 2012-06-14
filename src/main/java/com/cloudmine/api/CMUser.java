@@ -19,10 +19,15 @@ public class CMUser {
     private final String email;
     private final String password;
 
-    public CMUser(String email, String password) {
+    public static CMUser CMUser(String email, String password) {
+        return new CMUser(email, password);
+    }
+
+    CMUser(String email, String password) {
         this.email = email;
         this.password = password;
     }
+
 
     public String asJson() {
         Map<String, Object> jsonMap = new HashMap<String, Object>();
@@ -61,7 +66,7 @@ public class CMUser {
 
 
     public static void main(String... args) {
-        CMUser user = new CMUser("TA@t.com", "GOD");
+        CMUser user = CMUser("TA@t.com", "GOD");
         System.out.println(user.encode());
     }
 }

@@ -16,14 +16,14 @@ import java.util.Map;
  */
 public class CMUserToken implements Json {
     private static final Date EXPIRED_DATE = new Date(0);
-    public static final CMUserToken FAILED = new CMUserToken("invalidToken", EXPIRED_DATE);
+    public static final CMUserToken FAILED = CMUserToken("invalidToken", EXPIRED_DATE);
 
     public static final String SESSION_KEY = "session_token";
     public static final String EXPIRES_KEY = "expires";
     private final String sessionToken;
     private final DateTime expires;
 
-    public CMUserToken(String json) {
+    private CMUserToken(String json) {
         boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
         if(jsonIsEmpty) {
             sessionToken = "";
@@ -42,9 +42,17 @@ public class CMUserToken implements Json {
         }
     }
 
-    public CMUserToken(String sessionToken, Date expires) {
+    private CMUserToken(String sessionToken, Date expires) {
         this.sessionToken = sessionToken;
         this.expires = new DateTime(expires);
+    }
+
+    public static CMUserToken CMUserToken(String json) {
+        return new CMUserToken(json);
+    }
+
+    public static CMUserToken CMUserToken(String sessionToken, Date expires) {
+        return new CMUserToken(sessionToken, expires);
     }
 
     public String asJson() {

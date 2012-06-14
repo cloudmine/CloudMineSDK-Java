@@ -73,7 +73,7 @@ public class SuccessErrorResponse extends CMResponse {
         for(Map.Entry<String, Object> successEntry : objectMap.entrySet()) {
             String successName = successEntry.getKey();
             Map<String, Object> successMap = convertToMap(successEntry.getValue());
-            successObjects.add(new SimpleCMObject(successName, successMap));
+            successObjects.add(SimpleCMObject.SimpleCMObject(successName, successMap));
         }
         return successObjects;
 

@@ -23,12 +23,15 @@ public class UserCMWebService extends CMWebService {
     private final Header userHeader;
 
 
-    public UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
+    UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.userToken = token;
         userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.sessionToken());
     }
 
+    public static UserCMWebService UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
+        return new UserCMWebService(baseUrl, token, asynchronousHttpClient);
+    }
 
 
     @Override

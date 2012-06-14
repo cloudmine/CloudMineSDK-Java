@@ -16,7 +16,7 @@ public class UserTokenTest {
     public void testFromJson() {
         String json = userTokenJson();
 
-        CMUserToken token = new CMUserToken(json);
+        CMUserToken token = CMUserToken.CMUserToken(json);
 
         assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.sessionToken());
     }
@@ -30,7 +30,7 @@ public class UserTokenTest {
 
     @Test
     public void testIsValid() {
-        CMUserToken token = new CMUserToken("null");
+        CMUserToken token = CMUserToken.CMUserToken("null");
         assertFalse(token.isValid());
     }
 }
