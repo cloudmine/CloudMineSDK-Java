@@ -23,6 +23,12 @@ public class UserCMWebService extends CMWebService {
     private final Header userHeader;
 
 
+    /**
+     * Provides access to a specific users data.
+     * @param baseUrl the base URL to hit; this should be something like https://api.cloudmine.me/v1/app/{appid}/user
+     * @param token the users token that represents a logged in session; acquire by using CMWebService.login
+     * @param asynchronousHttpClient This should probably be the AndroidAsynchronousHttpClient, but you may provide your own implementation of the interface
+     */
     public UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.userToken = token;

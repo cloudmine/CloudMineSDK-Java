@@ -285,6 +285,14 @@ public class CMWebService {
         return executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
+    public SimpleCMObjectResponse get(String key) {
+        return get(Collections.singletonList(key));
+    }
+
+    public SimpleCMObjectResponse get(Collection<String> keys) {
+        return executeCommand(createGetObjects(keys), simpleCMObjectResponseConstructor());
+    }
+
     public SimpleCMObjectResponse get() {
         return executeCommand(createGet(), simpleCMObjectResponseConstructor());
     }

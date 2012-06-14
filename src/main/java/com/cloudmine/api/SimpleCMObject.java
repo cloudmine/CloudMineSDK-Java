@@ -1,11 +1,14 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
@@ -17,6 +20,8 @@ public class SimpleCMObject implements Json {
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
     private final String topLevelKey;
+    private ObjectLevel ownershipLevel;
+
 
     public SimpleCMObject() {
         this(generateUniqueKey());
@@ -47,7 +52,6 @@ public class SimpleCMObject implements Json {
      * @param objectMap
      */
     public SimpleCMObject(Map<String, Object> objectMap) {
-
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
             topLevelKey = generateUniqueKey();
@@ -66,8 +70,24 @@ public class SimpleCMObject implements Json {
                 throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
             }
         }
+        ownershipLevel = ObjectLevel.UNKNOWN;
     }
 
+    /**
+     * Asynchronously save this object to its store. If no store has been set, it saves to the app
+     * level store.
+     */
+    public Future<SimpleCMObjectResponse> save() {
+
+    }
+
+    public ObjectLevel ownershipLevel() {
+        return ownershipLevel;
+    }
+
+    public void setOwnershipLevel(ObjectLevel level) {
+        ownershipLevel = level;
+    }
 
     protected static String generateUniqueKey() {
         return UUID.randomUUID().toString();
