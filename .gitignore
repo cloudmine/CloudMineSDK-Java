@@ -1,3 +1,8 @@
+*.backup.*
+*.base.*
+*.local.*
+*.remote.*
+*.orig
 .#*
 *.class
 .idea

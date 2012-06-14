@@ -29,12 +29,15 @@ public class UserCMWebService extends CMWebService {
      * @param token the users token that represents a logged in session; acquire by using CMWebService.login
      * @param asynchronousHttpClient This should probably be the AndroidAsynchronousHttpClient, but you may provide your own implementation of the interface
      */
-    public UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
+    UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.userToken = token;
         userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.sessionToken());
     }
 
+    public static UserCMWebService UserCMWebService(CMURLBuilder baseUrl, CMUserToken token, AsynchronousHttpClient asynchronousHttpClient) {
+        return new UserCMWebService(baseUrl, token, asynchronousHttpClient);
+    }
 
 
     @Override

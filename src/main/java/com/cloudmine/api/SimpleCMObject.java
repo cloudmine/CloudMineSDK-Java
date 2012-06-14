@@ -23,19 +23,39 @@ public class SimpleCMObject implements Json {
     private ObjectLevel ownershipLevel;
 
 
-    public SimpleCMObject() {
+    public static SimpleCMObject SimpleCMObject() {
+        return new SimpleCMObject();
+    }
+
+    public static SimpleCMObject SimpleCMObject(String topLevelKey) {
+        return new SimpleCMObject(topLevelKey);
+    }
+
+    public static SimpleCMObject SimpleCMObject(Json json) {
+        return new SimpleCMObject(json);
+    }
+
+    public static SimpleCMObject SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
+        return new SimpleCMObject(topLevelKey, contents);
+    }
+
+    public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) {
+        return new SimpleCMObject(objectMap);
+    }
+
+    SimpleCMObject() {
         this(generateUniqueKey());
     }
 
-    public SimpleCMObject(String topLevelKey) {
+    SimpleCMObject(String topLevelKey) {
         this(topLevelKey, new HashMap<String, Object>());
     }
 
-    public SimpleCMObject(Json json) {
+    SimpleCMObject(Json json) {
         this(JsonUtilities.jsonToMap(json));
     }
 
-    public SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
+    SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
         this(new HashMap<String, Object>() {
             {
                 put(topLevelKey, contents);
@@ -51,7 +71,8 @@ public class SimpleCMObject implements Json {
      *
      * @param objectMap
      */
-    public SimpleCMObject(Map<String, Object> objectMap) {
+    SimpleCMObject(Map<String, Object> objectMap) {
+
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
             topLevelKey = generateUniqueKey();
@@ -256,9 +277,9 @@ public class SimpleCMObject implements Json {
             return null;
         //Need to start at the bottom of the inheritance chain and work up
         if(CMGeoPoint.class.isAssignableFrom(klass)) {
-            return (T)new CMGeoPoint(new JsonString(json));
+            return (T) CMGeoPoint.CMGeoPoint(new JsonString(json));
         } else if(SimpleCMObject.class.isAssignableFrom(klass)) {
-            return (T)new SimpleCMObject(new JsonString(json));
+            return (T) SimpleCMObject(new JsonString(json));
         }
         return null;
     }

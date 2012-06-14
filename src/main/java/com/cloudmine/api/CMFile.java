@@ -25,6 +25,9 @@ import java.util.concurrent.Future;
  */
 public class CMFile implements Json {
 
+    public static CMFile CMFile(InputStream contents, String key, String contentType) {
+        return new CMFile(contents, key, contentType);
+    }
 
     public static class Constructor implements ResponseConstructor<CMFile> {
         private final String key;
@@ -35,7 +38,7 @@ public class CMFile implements Json {
 
         @Override
         public CMFile construct(HttpResponse response) {
-            return new CMFile(response, key);
+            return CMFile(response, key);
         }
 
         @Override
@@ -56,7 +59,23 @@ public class CMFile implements Json {
     private final String contentType;
     private final byte[] fileContents;
 
-    public CMFile(byte[] fileContents, String key, String contentType) {
+    public static CMFile CMFile(byte[] fileContents, String key, String contentType) {
+        return new CMFile(fileContents, key, contentType);
+    }
+
+    public static CMFile CMFile(InputStream contents) {
+        return new CMFile(contents);
+    }
+
+    public static CMFile CMFile(InputStream contents, String contentType) {
+        return new CMFile(contents, contentType);
+    }
+
+    public static CMFile CMFile(HttpResponse response, String key) {
+        return new CMFile(response, key);
+    }
+
+    CMFile(byte[] fileContents, String key, String contentType) {
         if(fileContents == null) {
             throw new CreationException(new NullPointerException("Cannot create a new file with empty contents"));
         }
@@ -69,20 +88,17 @@ public class CMFile implements Json {
         this.fileContents = fileContents;
     }
 
-
-    public CMFile(InputStream contents) {
+    private CMFile(InputStream contents) {
         this(contents, null, null);
     }
-
-    public CMFile(InputStream contents, String contentType) {
+    private CMFile(InputStream contents, String contentType) {
         this(contents, contentType, null);
     }
-
-    public CMFile(HttpResponse response, String key) {
+    private CMFile(HttpResponse response, String key) {
         this(extractInputStream(response), key, extractContentType(response));
     }
 
-    public CMFile(InputStream contents, String key, String contentType) {
+    private CMFile(InputStream contents, String key, String contentType) {
         this(inputStreamToByteArray(contents), key, contentType);
 
     }

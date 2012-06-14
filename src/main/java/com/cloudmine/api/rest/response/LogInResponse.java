@@ -29,7 +29,7 @@ public class LogInResponse extends CMResponse {
     public LogInResponse(HttpResponse response) {
         super(response);
         if(wasSuccess()) {
-            userToken = new CMUserToken(asJson());
+            userToken = CMUserToken.CMUserToken(asJson());
         } else {
             userToken = CMUserToken.FAILED;
         }

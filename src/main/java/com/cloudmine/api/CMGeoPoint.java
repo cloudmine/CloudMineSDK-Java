@@ -16,11 +16,23 @@ public class CMGeoPoint extends SimpleCMObject {
     public static final String LONGITUDE_KEY = "longitude";
     public static final String LATITUDE_KEY = "latitude";
 
-    public CMGeoPoint(double longitude, double latitude) {
+    public static CMGeoPoint CMGeoPoint(double longitude, double latitude) {
+        return new CMGeoPoint(longitude, latitude);
+    }
+
+    public static CMGeoPoint CMGeoPoint(double longitude, double latitude, String key) {
+        return new CMGeoPoint(longitude, latitude, key);
+    }
+
+    public static CMGeoPoint CMGeoPoint(Json json) throws JsonConversionException {
+        return new CMGeoPoint(json);
+    }
+
+    CMGeoPoint(double longitude, double latitude) {
         this(longitude, latitude, generateUniqueKey());
     }
 
-    public CMGeoPoint(double longitude, double latitude, String key) {
+    CMGeoPoint(double longitude, double latitude, String key) {
         super(key);
         setClass(GEOPOINT_CLASS);
         setType(CMType.GEO_POINT);
@@ -33,7 +45,7 @@ public class CMGeoPoint extends SimpleCMObject {
      * @param json
      * @throws JsonConversionException
      */
-    public CMGeoPoint(Json json) throws JsonConversionException {
+    CMGeoPoint(Json json) throws JsonConversionException {
         super(json);
         boolean isMissingAnything = !(isType(CMType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {

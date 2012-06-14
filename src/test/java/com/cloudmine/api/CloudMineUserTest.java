@@ -13,7 +13,7 @@ public class CloudMineUserTest {
 
     @Test
     public void testJson() {
-        CMUser user = new CMUser("jake@cloudmine.me", "12345");
+        CMUser user = CMUser.CMUser("jake@cloudmine.me", "12345");
         assertEquals("{\"email\":\"jake@cloudmine.me\",\"password\":\"12345\"}", user.asJson());
     }
 }

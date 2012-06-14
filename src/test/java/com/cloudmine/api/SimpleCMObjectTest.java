@@ -45,31 +45,31 @@ public class SimpleCMObjectTest {
         unkeyedMap.put("stringKey", "aString");
         unkeyedMap.put("intKey", Integer.valueOf(5));
 
-        SimpleCMObject topKeyed = new SimpleCMObject(topLevelKeyedMap);
+        SimpleCMObject topKeyed = SimpleCMObject.SimpleCMObject(topLevelKeyedMap);
         assertEquals("topLevelKey", topKeyed.key());
         assertEquals(Integer.valueOf(5), topKeyed.getInteger("intKey"));
 
-        SimpleCMObject unkeyed = new SimpleCMObject(unkeyedMap);
+        SimpleCMObject unkeyed = SimpleCMObject.SimpleCMObject(unkeyedMap);
         assertEquals("aString", unkeyed.getString("stringKey"));
         assertNotNull(unkeyed.key());
 
         Map<String, Object> unkeyedSingleEntry = new HashMap<String, Object>();
         unkeyedSingleEntry.put("stringKey", "aString");
-        SimpleCMObject unkeyedSingle = new SimpleCMObject(unkeyedSingleEntry);
+        SimpleCMObject unkeyedSingle = SimpleCMObject.SimpleCMObject(unkeyedSingleEntry);
         assertFalse("stringKey".equals(unkeyedSingle.key()));
         assertEquals("aString", unkeyedSingle.getString("stringKey"));
     }
 
     @Test
     public void testKeyConstructor() {
-        SimpleCMObject object = new SimpleCMObject("topLevelKey");
+        SimpleCMObject object = SimpleCMObject.SimpleCMObject("topLevelKey");
         object.add("string", "value");
 
         assertEquals("topLevelKey", object.key());
     }
 
     private SimpleCMObject createComplexObject() {
-        return new SimpleCMObject("topLevelKey", JsonUtilitiesTest.createComplexObjectMap());
+        return SimpleCMObject.SimpleCMObject("topLevelKey", JsonUtilitiesTest.createComplexObjectMap());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class SimpleCMObjectTest {
         lotsOfListsMap.put("string", stringList);
         lotsOfListsMap.put("boolean", booleanList);
         lotsOfListsMap.put("null", nullList);
-        SimpleCMObject listObject = new SimpleCMObject(lotsOfListsMap);
+        SimpleCMObject listObject = SimpleCMObject.SimpleCMObject(lotsOfListsMap);
 
         assertEquals(doubleList, listObject.getList("double"));
         assertEquals(stringList, listObject.getList("string"));
@@ -117,7 +117,7 @@ public class SimpleCMObjectTest {
         assertFalse(object.getBoolean("non existent boolean", Boolean.FALSE));
         assertTrue(object.getBoolean("boolean"));
 
-        CMGeoPoint geoPoint = new CMGeoPoint(3.3, 4);
+        CMGeoPoint geoPoint = CMGeoPoint.CMGeoPoint(3.3, 4);
         object.add("location", geoPoint);
         assertEquals(geoPoint, object.getGeoPoint("location"));
 
@@ -125,14 +125,14 @@ public class SimpleCMObjectTest {
 
     @Test
     public void testGeoAsJson() {
-        SimpleCMObject object = new SimpleCMObject("topLevelKey");
-        CMGeoPoint geoObject = new CMGeoPoint(50, 50, "geoObject");
+        SimpleCMObject object = SimpleCMObject.SimpleCMObject("topLevelKey");
+        CMGeoPoint geoObject = CMGeoPoint.CMGeoPoint(50, 50, "geoObject");
         object.add("geo", geoObject);
         String expectedJson = "{\"topLevelKey\":{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
 
         //difference is in the key value - geo vs geoObject
-        object = new SimpleCMObject("topLevelKey");
+        object = SimpleCMObject.SimpleCMObject("topLevelKey");
         object.add(geoObject);
         expectedJson = "{\"topLevelKey\":{\"geoObject\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
