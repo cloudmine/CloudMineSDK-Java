@@ -1,11 +1,15 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.response.LogInResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
@@ -16,11 +20,12 @@ public class CMUser {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
+
     private final String email;
     private final String password;
 
     public static CMUser CMUser(String email, String password) {
-        return new CMUser(email, password);
+        return new AndroidCMUser(email, password);
     }
 
     CMUser(String email, String password) {
@@ -44,6 +49,14 @@ public class CMUser {
         return password;
     }
 
+    public Future<LogInResponse> login() {
+        return login(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<LogInResponse> login(WebServiceCallback callback) {
+        return CMWebService.service().asyncLogin(this, callback);
+    }
+
     public String encode() {
         String userString = email + ":" + password;
         String encodedString = encodeString(userString);
@@ -52,7 +65,8 @@ public class CMUser {
 
     protected String encodeString(String toEncode) {
         try {
-            return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
+            return null;
+//            return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
         }catch(NoClassDefFoundError ncdfe) {
             LOG.error("Do not instantiate CMUser objects on Android! You must use AndroidCMUser, as " +
                     "android does not provide an implementation for DataTypeConverter", ncdfe);

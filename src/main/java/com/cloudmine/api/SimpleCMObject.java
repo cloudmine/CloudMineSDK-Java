@@ -1,11 +1,12 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
+import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -20,7 +21,7 @@ public class SimpleCMObject implements Json {
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
     private final String topLevelKey;
-    private ObjectLevel ownershipLevel;
+    private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
 
     public static SimpleCMObject SimpleCMObject() {
@@ -91,23 +92,38 @@ public class SimpleCMObject implements Json {
                 throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
             }
         }
-        ownershipLevel = ObjectLevel.UNKNOWN;
+    }
+
+    /**
+     * Set what store to save this object with. If this is not set, it is assumed to be saved with
+     * the default, app level store. If you are saving the object to a user level store, the user must
+     * be logged in when save is called. Once the StoreIdentifier is set, it cannot be changed.
+     * @param identifier the identifier for the store this should be saved with. calling saveWith(null)
+     *                   is the same as not calling saveWith, and false will be returned
+     * @return true if the value was set; false if it has already been set OR null was passed in
+     */
+    public boolean saveWith(StoreIdentifier identifier) {
+        return storeId.setValue(identifier);
+    }
+
+    public boolean saveWith(CMUserToken user) {
+        return saveWith(new StoreIdentifier(user));
     }
 
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
      */
-    public Future<SimpleCMObjectResponse> save() {
-
+    public Future<ObjectModificationResponse> save() {
+        return save(WebServiceCallback.DO_NOTHING);
     }
 
-    public ObjectLevel ownershipLevel() {
-        return ownershipLevel;
+    public Future<ObjectModificationResponse> save(WebServiceCallback callback) {
+        return store().saveObject(this, callback);
     }
 
-    public void setOwnershipLevel(ObjectLevel level) {
-        ownershipLevel = level;
+    private CMStore store() {
+        return CMStore.store(storeId.value(StoreIdentifier.DEFAULT));
     }
 
     protected static String generateUniqueKey() {

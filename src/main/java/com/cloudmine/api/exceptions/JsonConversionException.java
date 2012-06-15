@@ -5,7 +5,7 @@ package com.cloudmine.api.exceptions;
  * CMUser: johnmccarthy
  * Date: 5/21/12, 2:07 PM
  */
-public class JsonConversionException extends RuntimeException {
+public class JsonConversionException extends CloudMineException{
     public JsonConversionException(Throwable t) {
         super(t);
     }

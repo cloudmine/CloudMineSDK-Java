@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -45,8 +48,15 @@ public class CMWebService {
     protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
     private UserCMWebService userWebService;
 
+    /**
+     * Get the instance of CMWebService. You should use this method instead of constructing your own,
+     * as the actual implementation of CMWebService differs based on what platform your code is running
+     * on.
+     * @return a platform appropriate implementation of CMWebService
+     */
     public static CMWebService service() {
-        return AndroidCMWebService.service();
+//        return null;
+        return AndroidCMWebService.service(); //This will be returned for the android library
     }
 
     protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {

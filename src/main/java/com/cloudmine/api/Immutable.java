@@ -24,6 +24,12 @@ public class Immutable<T>
     }
 
     public T value() { return value; }
+
+    public T value(T alternative) {
+        return value() == null ?
+                alternative :
+                value();
+    }
     /**
      * Set the value. Returns true if the value was set, false otherwise
      * @param value
