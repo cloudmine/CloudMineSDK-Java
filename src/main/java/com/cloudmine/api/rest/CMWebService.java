@@ -20,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -46,7 +43,8 @@ public class CMWebService {
     protected final CMURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
     protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
-    private UserCMWebService userWebService;
+    private CMUserToken loggedInUserToken;
+    private final Map<CMUserToken, UserCMWebService> loggedInUserServices = new WeakHashMap<CMUserToken, UserCMWebService>();
 
     /**
      * Get the instance of CMWebService. You should use this method instead of constructing your own,
@@ -92,25 +90,34 @@ public class CMWebService {
         return createUserCMWebService(token);
     }
 
-    protected UserCMWebService createUserCMWebService(CMUserToken token) {
-        return UserCMWebService.UserCMWebService(baseUrl.user(), token, asyncHttpClient);
+    protected UserCMWebService createUserCMWebService(CMUserToken token) throws CreationException {
+        if(token == null || CMUserToken.FAILED.equals(token)) {
+            throw new CreationException("Cannot create a UserCMWebService off a failed or null token");
+        }
+        UserCMWebService userService = loggedInUserServices.get(token);
+        if(userService == null) {
+            userService = UserCMWebService.UserCMWebService(baseUrl.user(), token, asyncHttpClient);
+            loggedInUserServices.put(token, userService);
+        }
+        return userService;
     }
 
     /**
-     * This will set the default UserCMWebService and return it.
-     * @param token
-     * @return
+     * This will set the default UserCMWebService and return it. This must be called before calling
+     * userWebService, unless you pass userWebService a CMUserToken
+     * @param token the token retrieved from a LoginResponse
+     * @return the UserCMWebService that is created from this request.
      */
-    public UserCMWebService setLoggedInUser(CMUserToken token) {
-        userWebService = userWebService(token);
-        return userWebService;
+    public synchronized UserCMWebService setLoggedInUser(CMUserToken token) {
+        loggedInUserToken = token;
+        return userWebService(token);
     }
 
-    public UserCMWebService userWebService() {
-        if(userWebService == null) {
+    public synchronized UserCMWebService userWebService() throws CreationException {
+        if(loggedInUserToken == null) {
             throw new CreationException("Cannot request a user web service until setLoggedInUser has been called");
         }
-        return userWebService;
+        return userWebService(loggedInUserToken);
     }
 
     public ObjectModificationResponse deleteAll() {

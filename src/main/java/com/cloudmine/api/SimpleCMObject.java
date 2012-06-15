@@ -110,6 +110,10 @@ public class SimpleCMObject implements Json {
         return saveWith(new StoreIdentifier(user));
     }
 
+    public StoreIdentifier savedWith() {
+        return storeId.value(StoreIdentifier.DEFAULT);
+    }
+
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
@@ -317,12 +321,14 @@ public class SimpleCMObject implements Json {
         return getType().equals(type);
     }
 
-    public final void add(String key, Object value) {
+    public final SimpleCMObject add(String key, Object value) {
         contents.put(key, value);
+        return this;
     }
 
-    public void add(SimpleCMObject value) {
+    public SimpleCMObject add(SimpleCMObject value) {
         add(value.key(), value);
+        return this;
     }
 
     /**
