@@ -51,6 +51,11 @@ public class CMFile implements Json {
         return new Constructor(key);
     }
 
+    public static boolean isEmpty(CMFile file) {
+        return file == null ||
+                (file.fileContents().length == 1 && file.fileContents()[0] == 32);
+    }
+
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CMFile.class);
@@ -77,7 +82,7 @@ public class CMFile implements Json {
 
     CMFile(byte[] fileContents, String key, String contentType) {
         if(fileContents == null) {
-            throw new CreationException(new NullPointerException("Cannot create a new file with empty contents"));
+            throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
         this.key = key == null ?
                 SimpleCMObject.generateUniqueKey() :

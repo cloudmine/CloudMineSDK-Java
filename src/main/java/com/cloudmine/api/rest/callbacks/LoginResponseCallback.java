@@ -9,7 +9,7 @@ import com.cloudmine.api.rest.response.LogInResponse;
  * Date: 5/24/12, 4:52 PM
  */
 public class LoginResponseCallback extends CMWebServiceCallback<LogInResponse> {
-
+    public static final LoginResponseCallback DO_NOTHING = new LoginResponseCallback();
     public LoginResponseCallback() {
         super(LogInResponse.CONSTRUCTOR);
     }

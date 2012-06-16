@@ -133,11 +133,11 @@ public class CMWebService {
         return executeCommand(createDelete(key), objectModificationResponseConstructor());
     }
 
-    public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass) {
-        return allObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass) {
+        return asyncLoadObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> allObjectsOfClass(String klass, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, WebServiceCallback callback) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
         return executeAsyncCommand(search, callback, simpleCMObjectResponseConstructor());
     }

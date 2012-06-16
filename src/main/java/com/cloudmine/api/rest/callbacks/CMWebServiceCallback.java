@@ -9,7 +9,6 @@ import com.cloudmine.api.rest.response.ResponseConstructor;
  * Date: 5/22/12, 6:12 PM
  */
 public abstract class CMWebServiceCallback<T> implements WebServiceCallback<T> {
-
     private final ResponseConstructor<T> constructor;
 
     public CMWebServiceCallback(ResponseConstructor<T> constructor) {

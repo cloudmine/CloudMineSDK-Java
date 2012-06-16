@@ -7,6 +7,7 @@ import com.cloudmine.api.rest.response.LogInResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -87,12 +88,64 @@ public class CMStore {
         return serviceForObject(object).asyncInsert(object, callback);
     }
 
-    public Future<SimpleCMObjectResponse> allObjects(WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object) {
+        return deleteObject(object, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, WebServiceCallback callback) {
+        return serviceForObject(object).asyncDeleteObject(object, callback);
+    }
+
+    public Future<SimpleCMObjectResponse> allApplicationObjects(WebServiceCallback callback) {
         return applicationService.asyncLoadObjects(callback);
     }
 
     public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback) {
-        return applicationService.userWebService(loggedInUserToken()).asyncLoadObjects(callback);
+        return userService().asyncLoadObjects(callback);
+    }
+
+    private UserCMWebService userService() {
+        return applicationService.userWebService(loggedInUserToken());
+    }
+
+    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys) {
+        return applicationObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
+        return applicationService.asyncLoadObjects(keys, callback);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys) {
+        return userObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
+        return userService().asyncLoadObjects(keys, callback);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsSearch(String search) {
+        return userObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsSearch(String search, WebServiceCallback callback) {
+        return userService().asyncSearch(search);
+    }
+
+    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search) {
+        return applicationObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search, WebServiceCallback callback) {
+        return applicationService.asyncSearch(search, callback);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass) {
+        return userObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback) {
+        return userService().asyncLoadObjectsOfClass(klass, callback);
     }
 
     public Future<LogInResponse> login(CMUser user) {
@@ -106,7 +159,7 @@ public class CMStore {
     private CMWebService serviceForObject(SimpleCMObject object) {
         switch(object.savedWith().level()) {
             case USER:
-                return applicationService.userWebService(loggedInUserToken());
+                return userService();
             case UNKNOWN:
             case APPLICATION:
             default:
