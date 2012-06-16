@@ -7,9 +7,7 @@ import com.cloudmine.api.rest.response.LogInResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -20,6 +18,10 @@ import java.util.concurrent.Future;
 public class CMStore {
 
     private static final Map<StoreIdentifier, CMStore> storeMap = new HashMap<StoreIdentifier, CMStore>();
+    public static final String EMPTY_SUCCESS_RESPONSE = "{\n" +
+            "                            \"success\":{}\n" +
+            "                        }";
+
     static {
         storeMap.put(StoreIdentifier.DEFAULT, new CMStore());
     }
@@ -49,8 +51,9 @@ public class CMStore {
 
     private final CMWebService applicationService;
     private final Immutable<CMUserToken> loggedInUserToken = new Immutable<CMUserToken>();
-
-
+    private final Map<String, SimpleCMObject> applicationObjects = new HashMap<String, SimpleCMObject>();
+    private final Map<String, SimpleCMObject> userObjects = new HashMap<String, SimpleCMObject>();
+    private final Map<String, SimpleCMObject> objects = new HashMap<String, SimpleCMObject>();
     public static CMStore CMStore(StoreIdentifier identifier) {
         return new CMStore(identifier);
     }
@@ -73,6 +76,8 @@ public class CMStore {
     private CMUserToken loggedInUserToken() {
         return loggedInUserToken.value(CMUserToken.FAILED);
     }
+
+    /*****************************OBJECTS********************************/
 
     /**
      * Asynchronously save the object based on the StoreIdentifier associated with it. If no StoreIdentifier is
@@ -102,10 +107,6 @@ public class CMStore {
 
     public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback) {
         return userService().asyncLoadObjects(callback);
-    }
-
-    private UserCMWebService userService() {
-        return applicationService.userWebService(loggedInUserToken());
     }
 
     public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys) {
@@ -146,6 +147,139 @@ public class CMStore {
 
     public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback) {
         return userService().asyncLoadObjectsOfClass(klass, callback);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreApplicationObjects() {
+        return saveStoreApplicationObjects(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreApplicationObjects(WebServiceCallback callback) {
+        return applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreUserObjects() {
+        return saveStoreUserObjects(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreUserObjects(WebServiceCallback callback) {
+        return userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback);
+    }
+
+    public void saveStoreObjects() {
+        saveStoreObjects(WebServiceCallback.DO_NOTHING);
+    }
+
+    public void saveStoreObjects(WebServiceCallback appCallback, WebServiceCallback userCallback) {
+        saveStoreUserObjects(userCallback);
+        saveStoreApplicationObjects(appCallback);
+    }
+
+    /**
+     * Save all the objects in the store
+     * @param callback This callback will be called twice; once for user objects being stored, and once for application objects being stored
+     */
+    public void saveStoreObjects(WebServiceCallback callback) {
+        saveStoreUserObjects(callback);
+        saveStoreApplicationObjects(callback);
+    }
+
+//    public void saveStoreObjects(final WebServiceCallback callback) {
+//        //TODO this is a messy implementation. Basically do both inserts and start a thread that waits for the result
+//        //there is a much better way to do it but I don't have time to figure it out right now #excuses #shipit
+//        final CountDownLatch latch = new CountDownLatch(2);
+//        final List<ObjectModificationResponse> responses = new ArrayList<ObjectModificationResponse>();
+//        ObjectModificationResponseCallback countDownCallback = new ObjectModificationResponseCallback() {
+//            public void onCompletion(ObjectModificationResponse response) {
+//                responses.add(response);
+//                latch.countDown();
+//            }
+//        };
+//        saveStoreUserObjects(countDownCallback);
+//        saveStoreApplicationObjects(countDownCallback);
+//        Runnable toRun = new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                ObjectModificationResponse response = null;
+//                try {
+//                    latch.await();
+//                    response = ObjectModificationResponse.merge(responses);
+//
+//                } catch (InterruptedException e) {
+//                    //TODO care?
+//                } finally {
+//                    if(response == null) {
+//                        response = new ObjectModificationResponse(EMPTY_SUCCESS_RESPONSE, 408);
+//                    }
+//                    callback.onCompletion(response);
+//                }
+//
+//            }
+//        };
+//        new Thread(toRun).start();
+//    }
+
+    private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
+        List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
+        for(SimpleCMObject object : objects.values()) {
+            if(level.equals(object.savedWith().isLevel(level))) {
+                storeObjects.add(object);
+            }
+        }
+        return storeObjects;
+    }
+
+    public void addObject(SimpleCMObject object) {
+        objects.put(object.key(), object);
+    }
+
+    public void remoteObject(SimpleCMObject object) {
+        objects.remove(object.key());
+    }
+
+    public SimpleCMObject getStoredObject(String key) {
+        return objects.get(key);
+    }
+
+    /**********************************FILES******************************/
+
+    private Future<CMFile> applicationFile(String name) {
+        return applicationFile(name, WebServiceCallback.DO_NOTHING);
+    }
+
+    private Future<CMFile> applicationFile(String name, WebServiceCallback callback) {
+        return applicationService.asyncLoadFile(name, callback);
+    }
+
+    private Future<CMFile> userFile(String name) {
+        return userFile(name, WebServiceCallback.DO_NOTHING);
+    }
+
+    private Future<CMFile> userFile(String name, WebServiceCallback callback) {
+        return userService().asyncLoadFile(name, callback);
+    }
+
+    private Future<ObjectModificationResponse> deleteApplicationFile(String fileName) {
+        return deleteApplicationFile(fileName, WebServiceCallback.DO_NOTHING);
+    }
+
+    private Future<ObjectModificationResponse> deleteApplicationFile(String name, WebServiceCallback callback) {
+        return applicationService.asyncDeleteFile(name, callback);
+    }
+
+    private Future<ObjectModificationResponse> deleteUserFile(String fileName) {
+        return deleteUserFile(fileName, WebServiceCallback.DO_NOTHING);
+    }
+
+    private Future<ObjectModificationResponse> deleteUserFile(String fileName, WebServiceCallback callback) {
+        return userService().asyncDeleteFile(fileName, callback);
+    }
+
+    /*********************************USERS*******************************/
+
+
+    private UserCMWebService userService() {
+        return applicationService.userWebService(loggedInUserToken());
     }
 
     public Future<LogInResponse> login(CMUser user) {

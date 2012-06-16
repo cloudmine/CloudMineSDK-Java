@@ -212,6 +212,14 @@ public class CMWebService {
         return asyncDelete(keys, callback);
     }
 
+    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName) {
+        return asyncDeleteFile(fileName, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, WebServiceCallback callback) {
+        return asyncDelete(fileName, callback);
+    }
+
     public Future<FileCreationResponse> asyncUpload(CMFile file) {
         return asyncUpload(file, WebServiceCallback.DO_NOTHING);
     }

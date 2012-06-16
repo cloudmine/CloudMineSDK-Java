@@ -23,6 +23,7 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
             return createFutureResponse(futureResponse, this);
         }
     };
+
     public ObjectModificationResponse(HttpResponse response) {
         super(response);
     }

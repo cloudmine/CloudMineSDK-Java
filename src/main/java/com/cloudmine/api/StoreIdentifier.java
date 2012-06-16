@@ -43,6 +43,10 @@ public class StoreIdentifier {
         return ObjectLevel.USER == level();
     }
 
+    public boolean isLevel(ObjectLevel level) {
+        return level().equals(level);
+    }
+
     public ObjectLevel level() {
         return level;
     }
