@@ -8,6 +8,7 @@ import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 /**
@@ -53,7 +54,7 @@ public class CMStore {
     private final Immutable<CMUserToken> loggedInUserToken = new Immutable<CMUserToken>();
     private final Map<String, SimpleCMObject> applicationObjects = new HashMap<String, SimpleCMObject>();
     private final Map<String, SimpleCMObject> userObjects = new HashMap<String, SimpleCMObject>();
-    private final Map<String, SimpleCMObject> objects = new HashMap<String, SimpleCMObject>();
+    private final Map<String, SimpleCMObject> objects = new ConcurrentHashMap<String, SimpleCMObject>();
     public static CMStore CMStore(StoreIdentifier identifier) {
         return new CMStore(identifier);
     }
