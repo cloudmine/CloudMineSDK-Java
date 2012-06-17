@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.Future;
 
@@ -138,16 +140,25 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, WebServiceCallback callback) {
+        return asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
-        return executeAsyncCommand(search, callback, simpleCMObjectResponseConstructor());
+        return executeAsyncCommand(addRequestOptions(search, options),
+                callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object) {
         return asyncDeleteObject(object, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject objects, WebServiceCallback callback) {
-        return asyncDeleteObjects(Collections.singletonList(objects), callback);
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, WebServiceCallback callback) {
+        return asyncDeleteObject(object, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) {
+        return asyncDeleteObjects(Collections.singletonList(object), callback, options);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
@@ -155,12 +166,16 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+        return asyncDeleteObjects(objects, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, WebServiceCallback callback, CMRequestOptions options) {
         int size = objects.size();
         Collection<String> keys = new ArrayList<String>(size);
         for(SimpleCMObject object : objects) {
             keys.add(object.key());
         }
-        return asyncDelete(keys, callback);
+        return asyncDelete(keys, callback, options);
     }
 
     public Future<ObjectModificationResponse> asyncDelete(String key) {
@@ -168,7 +183,11 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDelete(String key, WebServiceCallback callback) {
-        return asyncDelete(Collections.singletonList(key), callback);
+        return asyncDelete(key, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncDelete(String key, WebServiceCallback callback, CMRequestOptions options) {
+        return asyncDelete(Collections.singletonList(key), callback, options);
     }
 
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys) {
@@ -176,7 +195,12 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback) {
-        return executeAsyncCommand(createDelete(keys), callback, objectModificationResponseConstructor());
+        return asyncDelete(keys, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createDelete(keys), options),
+                callback, objectModificationResponseConstructor());
     }
 
     /**
@@ -217,7 +241,11 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, WebServiceCallback callback) {
-        return asyncDelete(fileName, callback);
+        return asyncDeleteFile(fileName, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, WebServiceCallback callback, CMRequestOptions options) {
+        return asyncDelete(fileName, callback, options);
     }
 
     public Future<FileCreationResponse> asyncUpload(CMFile file) {
@@ -233,7 +261,12 @@ public class CMWebService {
     }
 
     public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetFile(key), callback, cmFileConstructor(key));
+        return asyncLoadFile(key, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createGetFile(key), options),
+                callback, cmFileConstructor(key));
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects() {
@@ -241,7 +274,11 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects(WebServiceCallback callback) {
-        return asyncLoadObjects(Collections.<String>emptyList(), callback);
+        return asyncLoadObjects(callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(WebServiceCallback callback, CMRequestOptions options) {
+        return asyncLoadObjects(Collections.<String>emptyList(), callback, options);
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObject(String key) {
@@ -257,15 +294,26 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
-        return executeAsyncCommand(createGetObjects(keys), callback, simpleCMObjectResponseConstructor());
+        return asyncLoadObjects(keys, callback, CMRequestOptions.NONE);
     }
+
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createGetObjects(keys), options),
+                callback, simpleCMObjectResponseConstructor());
+    }
+
 
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
         return asyncSearch(searchString, WebServiceCallback.DO_NOTHING);
     }
 
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
-        return executeAsyncCommand(createSearch(searchString), callback, simpleCMObjectResponseConstructor());
+        return asyncSearch(searchString, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createSearch(searchString), options),
+                callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
@@ -273,7 +321,13 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) {
-        return executeAsyncCommand(createPut(toCreate.asJson()), callback, objectModificationResponseConstructor());
+        return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback, CMRequestOptions options) {
+        return executeAsyncCommand(
+                addRequestOptions(createPut(toCreate.asJson()), options),
+                callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) {
@@ -281,6 +335,10 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback) {
+        return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback, CMRequestOptions options) {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(SimpleCMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
@@ -288,7 +346,8 @@ public class CMWebService {
         String jsonStringsCollection = JsonUtilities.jsonCollection(
                 jsons.toArray(new Json[jsons.size()])
         ).asJson();
-        return executeAsyncCommand(createPut(jsonStringsCollection), callback, objectModificationResponseConstructor());
+        return executeAsyncCommand(addRequestOptions(createPut(jsonStringsCollection), options),
+                callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
@@ -331,7 +390,7 @@ public class CMWebService {
             HttpResponse response = httpClient.execute(createGetFile(key));
             return CMFile.CMFile(response, key);
         } catch (IOException e) {
-            //TODO handle this
+            LOG.error("IOException getting file", e);
         }
         return null;
     }
@@ -473,6 +532,7 @@ public class CMWebService {
 
     private HttpDelete createDelete(Collection<String> keys) {
         HttpDelete delete = new HttpDelete(baseUrl.delete(keys).urlString());
+
         addCloudMineHeader(delete);
         return delete;
     }
@@ -592,6 +652,19 @@ public class CMWebService {
     protected void addCloudMineHeader(AbstractHttpMessage message) {
         message.addHeader(CMApiCredentials.cloudMineHeader());
         message.addHeader(new BasicHeader(AGENT_HEADER_KEY, cloudMineAgent()));
+    }
+
+    protected HttpRequestBase addRequestOptions(HttpRequestBase message, CMRequestOptions options) {
+        if(options != CMRequestOptions.NONE) {
+            String url = message.getURI().toASCIIString();
+            url = url + options.urlString();
+            try {
+                message.setURI(new URI(url));
+            } catch (URISyntaxException e) {
+                LOG.error("Unable to set the CMRequestionOptions for url: " + message.getURI().toASCIIString() + ", tried to add: " + options.urlString());
+            }
+        }
+        return message;
     }
 
     protected String cloudMineAgent() {

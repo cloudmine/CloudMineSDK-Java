@@ -91,7 +91,11 @@ public class CMStore {
     }
 
     public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, WebServiceCallback callback) {
-        return serviceForObject(object).asyncInsert(object, callback);
+        return saveObject(object, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) {
+        return serviceForObject(object).asyncInsert(object, callback, options);
     }
 
     public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object) {
@@ -99,15 +103,27 @@ public class CMStore {
     }
 
     public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, WebServiceCallback callback) {
-        return serviceForObject(object).asyncDeleteObject(object, callback);
+        return deleteObject(object, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) {
+        return serviceForObject(object).asyncDeleteObject(object, callback, options);
     }
 
     public Future<SimpleCMObjectResponse> allApplicationObjects(WebServiceCallback callback) {
-        return applicationService.asyncLoadObjects(callback);
+        return allApplicationObjects(callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> allApplicationObjects(WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadObjects(callback, options);
     }
 
     public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback) {
-        return userService().asyncLoadObjects(callback);
+        return allUserObjects(callback, CMRequestOptions.NONE);
+    }
+    
+    public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncLoadObjects(callback, options);
     }
 
     public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys) {
@@ -115,7 +131,11 @@ public class CMStore {
     }
 
     public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
-        return applicationService.asyncLoadObjects(keys, callback);
+        return applicationObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
+    }
+    
+    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadObjects(keys, callback, options);
     }
 
     public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys) {
@@ -123,7 +143,11 @@ public class CMStore {
     }
 
     public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
-        return userService().asyncLoadObjects(keys, callback);
+        return userObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncLoadObjects(keys, callback, options);
     }
 
     public Future<SimpleCMObjectResponse> userObjectsSearch(String search) {
@@ -131,7 +155,11 @@ public class CMStore {
     }
 
     public Future<SimpleCMObjectResponse> userObjectsSearch(String search, WebServiceCallback callback) {
-        return userService().asyncSearch(search);
+        return userObjectsSearch(search, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncSearch(search, callback, options);
     }
 
     public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search) {
@@ -139,7 +167,11 @@ public class CMStore {
     }
 
     public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search, WebServiceCallback callback) {
-        return applicationService.asyncSearch(search, callback);
+        return applicationObjectsSearch(search, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncSearch(search, callback, options);
     }
 
     public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass) {
@@ -147,7 +179,11 @@ public class CMStore {
     }
 
     public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback) {
-        return userService().asyncLoadObjectsOfClass(klass, callback);
+        return userObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncLoadObjectsOfClass(klass, callback, options);
     }
 
     public Future<ObjectModificationResponse> saveStoreApplicationObjects() {
@@ -155,7 +191,11 @@ public class CMStore {
     }
 
     public Future<ObjectModificationResponse> saveStoreApplicationObjects(WebServiceCallback callback) {
-        return applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback);
+        return saveStoreApplicationObjects(callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreApplicationObjects(WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback, options);
     }
 
     public Future<ObjectModificationResponse> saveStoreUserObjects() {
@@ -163,7 +203,11 @@ public class CMStore {
     }
 
     public Future<ObjectModificationResponse> saveStoreUserObjects(WebServiceCallback callback) {
-        return userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback);
+        return saveStoreUserObjects(callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> saveStoreUserObjects(WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback, options);
     }
 
     public void saveStoreObjects() {
@@ -171,8 +215,12 @@ public class CMStore {
     }
 
     public void saveStoreObjects(WebServiceCallback appCallback, WebServiceCallback userCallback) {
-        saveStoreUserObjects(userCallback);
-        saveStoreApplicationObjects(appCallback);
+        saveStoreObjects(appCallback, userCallback, CMRequestOptions.NONE);
+    }
+
+    public void saveStoreObjects(WebServiceCallback appCallback, WebServiceCallback userCallback, CMRequestOptions options) {
+        saveStoreUserObjects(userCallback, options);
+        saveStoreApplicationObjects(appCallback, options);
     }
 
     /**
@@ -180,8 +228,11 @@ public class CMStore {
      * @param callback This callback will be called twice; once for user objects being stored, and once for application objects being stored
      */
     public void saveStoreObjects(WebServiceCallback callback) {
-        saveStoreUserObjects(callback);
-        saveStoreApplicationObjects(callback);
+        saveStoreObjects(callback, CMRequestOptions.NONE);
+    }
+    
+    public void saveStoreObjects(WebServiceCallback callback, CMRequestOptions options) {
+        saveStoreObjects(callback, callback, options);
     }
 
 //    public void saveStoreObjects(final WebServiceCallback callback) {
@@ -207,7 +258,6 @@ public class CMStore {
 //                    response = ObjectModificationResponse.merge(responses);
 //
 //                } catch (InterruptedException e) {
-//                    //TODO care?
 //                } finally {
 //                    if(response == null) {
 //                        response = new ObjectModificationResponse(EMPTY_SUCCESS_RESPONSE, 408);
@@ -244,36 +294,52 @@ public class CMStore {
 
     /**********************************FILES******************************/
 
-    private Future<CMFile> applicationFile(String name) {
+    public Future<CMFile> applicationFile(String name) {
         return applicationFile(name, WebServiceCallback.DO_NOTHING);
     }
 
-    private Future<CMFile> applicationFile(String name, WebServiceCallback callback) {
-        return applicationService.asyncLoadFile(name, callback);
+    public Future<CMFile> applicationFile(String name, WebServiceCallback callback) {
+        return applicationFile(name, callback, CMRequestOptions.NONE);
     }
 
-    private Future<CMFile> userFile(String name) {
+    public Future<CMFile> applicationFile(String name, WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadFile(name, callback, options);
+    }
+
+    public Future<CMFile> userFile(String name) {
         return userFile(name, WebServiceCallback.DO_NOTHING);
     }
 
-    private Future<CMFile> userFile(String name, WebServiceCallback callback) {
-        return userService().asyncLoadFile(name, callback);
+    public Future<CMFile> userFile(String name, WebServiceCallback callback) {
+        return userFile(name, callback, CMRequestOptions.NONE);
     }
 
-    private Future<ObjectModificationResponse> deleteApplicationFile(String fileName) {
+    public Future<CMFile> userFile(String name, WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncLoadFile(name, callback, options);
+    }
+
+    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName) {
         return deleteApplicationFile(fileName, WebServiceCallback.DO_NOTHING);
     }
 
-    private Future<ObjectModificationResponse> deleteApplicationFile(String name, WebServiceCallback callback) {
-        return applicationService.asyncDeleteFile(name, callback);
+    public Future<ObjectModificationResponse> deleteApplicationFile(String name, WebServiceCallback callback) {
+        return deleteApplicationFile(name, callback, CMRequestOptions.NONE);
     }
 
-    private Future<ObjectModificationResponse> deleteUserFile(String fileName) {
+    public Future<ObjectModificationResponse> deleteApplicationFile(String name, WebServiceCallback callback, CMRequestOptions options) {
+        return applicationService.asyncDeleteFile(name, callback, options);
+    }
+
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName) {
         return deleteUserFile(fileName, WebServiceCallback.DO_NOTHING);
     }
 
-    private Future<ObjectModificationResponse> deleteUserFile(String fileName, WebServiceCallback callback) {
-        return userService().asyncDeleteFile(fileName, callback);
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName, WebServiceCallback callback) {
+        return deleteUserFile(fileName, callback, CMRequestOptions.NONE);
+    }
+
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName, WebServiceCallback callback, CMRequestOptions options) {
+        return userService().asyncDeleteFile(fileName, callback, options);
     }
 
     /*********************************USERS*******************************/

@@ -212,11 +212,11 @@ public class JsonUtilities {
         return new JsonString(json.toString());
     }
 
-    public static String mapToJson(Map<String, Object> map) throws JsonConversionException {
+    public static String mapToJson(Map<String, ? extends Object> map) throws JsonConversionException {
         if(map == null) {
             return EMPTY_JSON;
         }
-        try { //TODO this shit all brokes
+        try {
             StringWriter writer = new StringWriter();
             jsonMapper.writeValue(writer, map);
             return writer.toString();
