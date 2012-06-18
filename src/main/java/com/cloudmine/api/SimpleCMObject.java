@@ -114,6 +114,10 @@ public class SimpleCMObject implements Json {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
 
+    public boolean isOnLevel(ObjectLevel level) {
+        return savedWith().isLevel(level);
+    }
+
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.

@@ -273,7 +273,7 @@ public class CMStore {
     private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
         List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
         for(SimpleCMObject object : objects.values()) {
-            if(object.savedWith().isLevel(level)) {
+            if(object.isOnLevel(level)) {
                 storeObjects.add(object);
             }
         }
@@ -284,7 +284,7 @@ public class CMStore {
         objects.put(object.key(), object);
     }
 
-    public void remoteObject(SimpleCMObject object) {
+    public void removeObject(SimpleCMObject object) {
         objects.remove(object.key());
     }
 
