@@ -493,7 +493,7 @@ public class CMWebService {
     }
 
     private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
-        return constructor.constructFuture(asyncHttpClient.executeCommand(message, callback, constructor));
+        return asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
     private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) {

@@ -2,7 +2,6 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.ResponseConstructor;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import java.util.concurrent.Future;
@@ -14,5 +13,5 @@ import java.util.concurrent.Future;
  */
 public interface AsynchronousHttpClient {
 
-    public Future<HttpResponse> executeCommand(HttpUriRequest command, WebServiceCallback callback, ResponseConstructor constructor);
+    public <T> Future<T> executeCommand(HttpUriRequest command, WebServiceCallback<T> callback, ResponseConstructor<T> constructor);
 }

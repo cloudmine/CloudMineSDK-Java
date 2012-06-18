@@ -273,7 +273,7 @@ public class CMStore {
     private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
         List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
         for(SimpleCMObject object : objects.values()) {
-            if(level.equals(object.savedWith().isLevel(level))) {
+            if(object.savedWith().isLevel(level)) {
                 storeObjects.add(object);
             }
         }
