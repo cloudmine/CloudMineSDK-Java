@@ -3,6 +3,7 @@ package com.cloudmine.api;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.LogInResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,38 @@ public class CMUser {
         return CMWebService.service().asyncLogin(this, callback);
     }
 
+    public Future<CMResponse> createUser(WebServiceCallback callback) {
+        return CMWebService.service().asyncCreateUser(this, callback);
+    }
+
+    public Future<CMResponse> createUser() {
+        return createUser(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> changePassword(String newPassword) {
+        return changePassword(newPassword, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> changePassword(String newPassword, WebServiceCallback callback) {
+        return CMWebService.service().asyncChangePassword(this, newPassword, callback);
+    }
+
+    public Future<CMResponse> resetPasswordRequest() {
+        return resetPasswordRequest(WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> resetPasswordRequest(WebServiceCallback callback) {
+        return CMWebService.service().asyncResetPasswordRequest(email(), callback);
+    }
+
+    public Future<CMResponse> resetPasswordConfirmation(String emailToken, String newPassword) {
+        return resetPasswordConfirmation(emailToken, newPassword, WebServiceCallback.DO_NOTHING);
+    }
+
+    public Future<CMResponse> resetPasswordConfirmation(String emailToken, String newPassword, WebServiceCallback callback) {
+        return CMWebService.service().asyncResetPasswordConfirmation(emailToken, newPassword, callback);
+    }
+
     public String encode() {
         String userString = email + ":" + password;
         String encodedString = encodeString(userString);
@@ -65,7 +98,7 @@ public class CMUser {
 
     protected String encodeString(String toEncode) {
         try {
-            return null;
+            return null; //This is cool cause we're always returning AndroidCMUser
 //            return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
         }catch(NoClassDefFoundError ncdfe) {
             LOG.error("Do not instantiate CMUser objects on Android! You must use AndroidCMUser, as " +
