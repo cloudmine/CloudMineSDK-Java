@@ -6,7 +6,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 
 import java.util.*;
@@ -150,18 +150,18 @@ public class SimpleCMObject implements Json {
      * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
      */
     public Future<ObjectModificationResponse> save() throws JsonConversionException, CreationException {
-        return save(WebServiceCallback.DO_NOTHING);
+        return save(Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
-     * @param callback a WebServiceCallback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert this object to JSON; should not happen
      * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
      */
-    public Future<ObjectModificationResponse> save(WebServiceCallback callback) throws CreationException, JsonConversionException {
+    public Future<ObjectModificationResponse> save(Callback callback) throws CreationException, JsonConversionException {
         return store().saveObject(this, callback);
     }
 

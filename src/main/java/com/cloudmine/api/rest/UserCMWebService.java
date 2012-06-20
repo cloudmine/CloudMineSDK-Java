@@ -1,7 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
 import org.apache.http.message.AbstractHttpMessage;
@@ -59,16 +59,16 @@ public class UserCMWebService extends CMWebService {
      * @return A Future containing the response to the log out request
      */
     public Future<CMResponse> asyncLogout() {
-        return asyncLogout(WebServiceCallback.DO_NOTHING);
+        return asyncLogout(Callback.DO_NOTHING);
     }
 
     /**
      * Log the user associated with this service out of the system. Any future calls to any methods will fail for lack of
      * authentication
-     * @param callback a {@link WebServiceCallback} that expects a {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      * @return A Future containing the response to the log out request
      */
-    public Future<CMResponse> asyncLogout(WebServiceCallback callback) {
+    public Future<CMResponse> asyncLogout(Callback callback) {
         return asyncLogout(sessionToken, callback);
     }
 

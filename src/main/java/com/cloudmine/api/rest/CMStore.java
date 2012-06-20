@@ -3,8 +3,8 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
-import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
@@ -88,7 +88,7 @@ public class CMStore {
         return CMStore(StoreIdentifier.DEFAULT);
     }
 
-    private final LoginResponseCallback setLoggedInUserCallback(final WebServiceCallback callback) {
+    private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
         return new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
                 if(response.wasSuccess()) {
@@ -135,7 +135,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> saveObject(SimpleCMObject object) throws JsonConversionException, CreationException {
-        return saveObject(object, WebServiceCallback.DO_NOTHING);
+        return saveObject(object, Callback.DO_NOTHING);
     }
 
     /**
@@ -143,12 +143,12 @@ public class CMStore {
      * present, default (app level) is used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always saves the object with the user associated with the store.
      * @param object the object to save
-     * @param callback a WebServiceCallback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and this object is UserLevel
      */
-    public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, WebServiceCallback callback) throws JsonConversionException, CreationException {
+    public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, Callback callback) throws JsonConversionException, CreationException {
         return saveObject(object, callback, CMRequestOptions.NONE);
     }
 
@@ -157,13 +157,13 @@ public class CMStore {
      * present, default (app level) is used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always saves the object with the user associated with the store.
      * @param object the object to save
-     * @param callback a WebServiceCallback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
+    public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, Callback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
         return serviceForObject(object).asyncInsert(object, callback, options);
     }
 
@@ -176,7 +176,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object) throws CreationException {
-        return deleteObject(object, WebServiceCallback.DO_NOTHING);
+        return deleteObject(object, Callback.DO_NOTHING);
     }
 
     /**
@@ -184,11 +184,11 @@ public class CMStore {
      * used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
      * @param object to delete; this is done based on the object key, its values are ignored
-     * @param callback a WebServiceCallback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, WebServiceCallback callback) throws CreationException {
+    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, Callback callback) throws CreationException {
         return deleteObject(object, callback, CMRequestOptions.NONE);
     }
 
@@ -197,12 +197,12 @@ public class CMStore {
      * used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
      * @param object to delete; this is done based on the object key, its values are ignored
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) throws CreationException {
         return serviceForObject(object).asyncDeleteObject(object, callback, options);
     }
 
@@ -211,25 +211,25 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadAllApplicationObjects() {
-        return loadAllApplicationObjects(WebServiceCallback.DO_NOTHING);
+        return loadAllApplicationObjects(Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve all the application level objects and pass the results into the given callback.
-     * @param callback a WebServiceCallback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback) {
         return loadAllApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
      * Retrieve all the application level objects and pass the results into the given callback.
-     * @param callback a WebServiceCallback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadObjects(callback, options);
     }
 
@@ -240,27 +240,27 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadAllUserObjects() throws CreationException {
-        return loadAllUserObjects(WebServiceCallback.DO_NOTHING);
+        return loadAllUserObjects(Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve all the user level objects and pass the results into the given callback.
-     * @param callback a WebServiceCallback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadAllUserObjects(WebServiceCallback callback) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadAllUserObjects(Callback callback) throws CreationException {
         return loadAllUserObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
      * Retrieve all the user level objects and pass the results into the given callback.
-     * @param callback a WebServiceCallback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      *
      */
-    public Future<SimpleCMObjectResponse> loadAllUserObjects(WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadAllUserObjects(Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjects(callback, options);
     }
 
@@ -270,7 +270,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys) {
-        return loadApplicationObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+        return loadApplicationObjectsWithKeys(keys, Callback.DO_NOTHING);
     }
 
     /**
@@ -279,7 +279,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, Callback callback) {
         return loadApplicationObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
     }
 
@@ -290,7 +290,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadObjects(keys, callback, options);
     }
 
@@ -301,7 +301,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys) throws CreationException {
-        return loadUserObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+        return loadUserObjectsWithKeys(keys, Callback.DO_NOTHING);
     }
 
     /**
@@ -311,7 +311,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, Callback callback) throws CreationException {
         return loadUserObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
     }
 
@@ -323,7 +323,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjects(keys, callback, options);
     }
 
@@ -334,7 +334,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search) throws CreationException {
-        return loadUserObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+        return loadUserObjectsSearch(search, Callback.DO_NOTHING);
     }
 
     /**
@@ -344,7 +344,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, WebServiceCallback callback) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, Callback callback) throws CreationException {
         return loadUserObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
@@ -356,7 +356,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncSearch(search, callback, options);
     }
 
@@ -366,7 +366,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search) {
-        return loadApplicationObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+        return loadApplicationObjectsSearch(search, Callback.DO_NOTHING);
     }
 
     /**
@@ -375,7 +375,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback) {
         return loadApplicationObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
@@ -386,7 +386,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
         return applicationService.asyncSearch(search, callback, options);
     }
 
@@ -398,7 +398,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass) throws CreationException {
-        return loadUserObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+        return loadUserObjectsOfClass(klass, Callback.DO_NOTHING);
     }
 
     /**
@@ -409,7 +409,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, WebServiceCallback callback) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, Callback callback) throws CreationException {
         return loadUserObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
@@ -422,7 +422,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjectsOfClass(klass, callback, options);
     }
 
@@ -434,18 +434,18 @@ public class CMStore {
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      */
     public Future<ObjectModificationResponse> saveStoreApplicationObjects() throws JsonConversionException {
-        return saveStoreApplicationObjects(WebServiceCallback.DO_NOTHING);
+        return saveStoreApplicationObjects(Callback.DO_NOTHING);
     }
 
     /**
      * Saves all the application level objects that were added using {@link #addObject(com.cloudmine.api.SimpleCMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      */
-    public Future<ObjectModificationResponse> saveStoreApplicationObjects(WebServiceCallback callback) throws JsonConversionException {
+    public Future<ObjectModificationResponse> saveStoreApplicationObjects(Callback callback) throws JsonConversionException {
         return saveStoreApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -453,12 +453,12 @@ public class CMStore {
      * Saves all the application level objects that were added using {@link #addObject(com.cloudmine.api.SimpleCMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      */
-    public Future<ObjectModificationResponse> saveStoreApplicationObjects(WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException {
+    public Future<ObjectModificationResponse> saveStoreApplicationObjects(Callback callback, CMRequestOptions options) throws JsonConversionException {
         return applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback, options);
     }
 
@@ -471,19 +471,19 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> saveStoreUserObjects() throws JsonConversionException, CreationException {
-        return saveStoreUserObjects(WebServiceCallback.DO_NOTHING);
+        return saveStoreUserObjects(Callback.DO_NOTHING);
     }
 
     /**
      * Saves all the user level objects that were added using {@link #addObject(com.cloudmine.api.SimpleCMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> saveStoreUserObjects(WebServiceCallback callback) throws JsonConversionException, CreationException {
+    public Future<ObjectModificationResponse> saveStoreUserObjects(Callback callback) throws JsonConversionException, CreationException {
         return saveStoreUserObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -491,13 +491,13 @@ public class CMStore {
      * Saves all the user level objects that were added using {@link #addObject(com.cloudmine.api.SimpleCMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> saveStoreUserObjects(WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
+    public Future<ObjectModificationResponse> saveStoreUserObjects(Callback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
         return userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback, options);
     }
 
@@ -510,7 +510,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects() throws JsonConversionException, CreationException {
-        saveStoreObjects(WebServiceCallback.DO_NOTHING);
+        saveStoreObjects(Callback.DO_NOTHING);
     }
 
     /**
@@ -518,12 +518,12 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
-     * @param appCallback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
-     * @param userCallback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
+     * @param appCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
+     * @param userCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(WebServiceCallback appCallback, WebServiceCallback userCallback) throws JsonConversionException, CreationException {
+    public void saveStoreObjects(Callback appCallback, Callback userCallback) throws JsonConversionException, CreationException {
         saveStoreObjects(appCallback, userCallback, CMRequestOptions.NONE);
     }
 
@@ -532,13 +532,13 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
-     * @param appCallback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
-     * @param userCallback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
+     * @param appCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
+     * @param userCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(WebServiceCallback appCallback, WebServiceCallback userCallback, CMRequestOptions options) throws JsonConversionException, CreationException {
+    public void saveStoreObjects(Callback appCallback, Callback userCallback, CMRequestOptions options) throws JsonConversionException, CreationException {
         saveStoreUserObjects(userCallback, options);
         saveStoreApplicationObjects(appCallback, options);
     }
@@ -549,11 +549,11 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(WebServiceCallback callback) throws JsonConversionException, CreationException {
+    public void saveStoreObjects(Callback callback) throws JsonConversionException, CreationException {
         saveStoreObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -562,16 +562,16 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
-     * @param callback a {@link WebServiceCallback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws JsonConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
+    public void saveStoreObjects(Callback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
         saveStoreObjects(callback, callback, options);
     }
 
-//    public void saveStoreObjects(final WebServiceCallback callback) {
+//    public void saveStoreObjects(final Callback callback) {
 //        //TODO this is a messy implementation. Basically do both inserts and start a thread that waits for the result
 //        //there is a much better way to do it but I don't have time to figure it out right now #excuses #shipit
 //        final CountDownLatch latch = new CountDownLatch(2);
@@ -663,27 +663,27 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      */
     public Future<CMFile> loadApplicationFile(String key) {
-        return loadApplicationFile(key, WebServiceCallback.DO_NOTHING);
+        return loadApplicationFile(key, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified key, if it exists at the application level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String key, WebServiceCallback callback) {
+    public Future<CMFile> loadApplicationFile(String key, Callback callback) {
         return loadApplicationFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified key, if it exists at the application level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String key, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<CMFile> loadApplicationFile(String key, Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadFile(key, callback, options);
     }
 
@@ -694,29 +694,29 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<CMFile> loadUserFile(String key) throws CreationException {
-        return loadUserFile(key, WebServiceCallback.DO_NOTHING);
+        return loadUserFile(key, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified key, if it exists at the user level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String key, WebServiceCallback callback) throws CreationException {
+    public Future<CMFile> loadUserFile(String key, Callback callback) throws CreationException {
         return loadUserFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified key, if it exists at the user level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String key, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<CMFile> loadUserFile(String key, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadFile(key, callback, options);
     }
 
@@ -726,27 +726,27 @@ public class CMStore {
      * @return a Future containing the {@link ObjectModificationResponse}
      */
     public Future<ObjectModificationResponse> deleteApplicationFile(String key) {
-        return deleteApplicationFile(key, WebServiceCallback.DO_NOTHING);
+        return deleteApplicationFile(key, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the {@link CMFile} with the specified key, if it exists at the application level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String key, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> deleteApplicationFile(String key, Callback callback) {
         return deleteApplicationFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
      * Delete the {@link CMFile} with the specified key, if it exists at the application level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String key, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> deleteApplicationFile(String key, Callback callback, CMRequestOptions options) {
         return applicationService.asyncDeleteFile(key, callback, options);
     }
 
@@ -757,29 +757,29 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> deleteUserFile(String key) throws CreationException {
-        return deleteUserFile(key, WebServiceCallback.DO_NOTHING);
+        return deleteUserFile(key, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the {@link CMFile} with the specified key, if it exists at the user level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> deleteUserFile(String key, WebServiceCallback callback) throws CreationException {
+    public Future<ObjectModificationResponse> deleteUserFile(String key, Callback callback) throws CreationException {
         return deleteUserFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
      * Delete the {@link CMFile} with the specified key, if it exists at the user level
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link WebServiceCallback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> deleteUserFile(String key, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<ObjectModificationResponse> deleteUserFile(String key, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncDeleteFile(key, callback, options);
     }
 
@@ -796,16 +796,16 @@ public class CMStore {
      * @return a Future containing the {@link LoginResponse}
      */
     public Future<LoginResponse> login(CMUser user) {
-        return login(user, WebServiceCallback.DO_NOTHING);
+        return login(user, Callback.DO_NOTHING);
     }
 
     /**
      * Log in the specified user and set the {@link com.cloudmine.api.CMSessionToken} for this store to the response CMSessionToken
      * @param user the user to log in
-     * @param callback a {@link WebServiceCallback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      * @return a Future containing the {@link LoginResponse}
      */
-    public Future<LoginResponse> login(CMUser user, WebServiceCallback callback) {
+    public Future<LoginResponse> login(CMUser user, Callback callback) {
         return applicationService.asyncLogin(user, setLoggedInUserCallback(callback));
     }
 

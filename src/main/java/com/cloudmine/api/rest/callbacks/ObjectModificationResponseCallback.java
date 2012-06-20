@@ -8,7 +8,7 @@ import com.cloudmine.api.rest.response.ObjectModificationResponse;
  * inserting a {@link com.cloudmine.api.SimpleCMObject}
  * Copyright CloudMine LLC
  */
-public class ObjectModificationResponseCallback extends CMWebServiceCallback<ObjectModificationResponse> {
+public class ObjectModificationResponseCallback extends CMCallback<ObjectModificationResponse> {
     public ObjectModificationResponseCallback() {
         super(ObjectModificationResponse.CONSTRUCTOR);
     }

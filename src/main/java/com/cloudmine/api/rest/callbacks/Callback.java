@@ -6,8 +6,8 @@ package com.cloudmine.api.rest.callbacks;
  * exception is thrown during execution.
  * Copyright CloudMine LLC
  */
-public interface WebServiceCallback<T> {
-    public static final WebServiceCallback DO_NOTHING = new WebServiceCallback() {
+public interface Callback<T> {
+    public static final Callback DO_NOTHING = new Callback() {
 
         @Override
         public void onFailure(Throwable error, String message) {

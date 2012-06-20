@@ -3,7 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.rest.callbacks.WebServiceCallback;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -135,40 +135,40 @@ public class CMWebService {
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass) {
-        return asyncLoadObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+        return asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, Callback callback) {
         return asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
         return executeAsyncCommand(addRequestOptions(search, options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object) {
-        return asyncDeleteObject(object, WebServiceCallback.DO_NOTHING);
+        return asyncDeleteObject(object, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, Callback callback) {
         return asyncDeleteObject(object, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) {
         return asyncDeleteObjects(Collections.singletonList(object), callback, options);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
-        return asyncDeleteObjects(objects, WebServiceCallback.DO_NOTHING);
+        return asyncDeleteObjects(objects, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback) {
         return asyncDeleteObjects(objects, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback, CMRequestOptions options) {
         int size = objects.size();
         Collection<String> keys = new ArrayList<String>(size);
         for(SimpleCMObject object : objects) {
@@ -178,26 +178,26 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDelete(String key) {
-        return asyncDelete(key, WebServiceCallback.DO_NOTHING);
+        return asyncDelete(key, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String key, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDelete(String key, Callback callback) {
         return asyncDelete(key, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String key, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncDelete(String key, Callback callback, CMRequestOptions options) {
         return asyncDelete(Collections.singletonList(key), callback, options);
     }
 
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys) {
-        return asyncDelete(keys, WebServiceCallback.DO_NOTHING);
+        return asyncDelete(keys, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, Callback callback) {
         return asyncDelete(keys, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, Callback callback, CMRequestOptions options) {
         return executeAsyncCommand(addRequestOptions(createDelete(keys), options),
                 callback, objectModificationResponseConstructor());
     }
@@ -207,27 +207,27 @@ public class CMWebService {
      * @param callback
      * @return
      */
-    public Future<ObjectModificationResponse> asyncDeleteAll(WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteAll(Callback callback) {
         return executeAsyncCommand(createDeleteAll(), callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncDeleteAll() {
-        return asyncDeleteAll(WebServiceCallback.DO_NOTHING);
+        return asyncDeleteAll(Callback.DO_NOTHING);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file) {
-        return asyncDeleteFile(file, WebServiceCallback.DO_NOTHING);
+        return asyncDeleteFile(file, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, Callback callback) {
         return asyncDelete(file.getFileKey(), callback);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files) {
-        return asyncDeleteFiles(files, WebServiceCallback.DO_NOTHING);
+        return asyncDeleteFiles(files, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, Callback callback) {
         Collection<String> keys = new ArrayList<String>(files.size());
         for(CMFile file : files) {
             keys.add(file.getFileKey());
@@ -236,108 +236,108 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFile(String fileName) {
-        return asyncDeleteFile(fileName, WebServiceCallback.DO_NOTHING);
+        return asyncDeleteFile(fileName, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, Callback callback) {
         return asyncDeleteFile(fileName, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, Callback callback, CMRequestOptions options) {
         return asyncDelete(fileName, callback, options);
     }
 
     public Future<FileCreationResponse> asyncUpload(CMFile file) {
-        return asyncUpload(file, WebServiceCallback.DO_NOTHING);
+        return asyncUpload(file, Callback.DO_NOTHING);
     }
 
-    public Future<FileCreationResponse> asyncUpload(CMFile file, WebServiceCallback callback) {
+    public Future<FileCreationResponse> asyncUpload(CMFile file, Callback callback) {
         return executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
     }
 
     public Future<CMFile> asyncLoadFile(String key) {
-        return asyncLoadFile(key, WebServiceCallback.DO_NOTHING);
+        return asyncLoadFile(key, Callback.DO_NOTHING);
     }
 
-    public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback) {
+    public Future<CMFile> asyncLoadFile(String key, Callback callback) {
         return asyncLoadFile(key, callback, CMRequestOptions.NONE);
     }
 
-    public Future<CMFile> asyncLoadFile(String key, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<CMFile> asyncLoadFile(String key, Callback callback, CMRequestOptions options) {
         return executeAsyncCommand(addRequestOptions(createGetFile(key), options),
                 callback, cmFileConstructor(key));
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects() {
-        return asyncLoadObjects(WebServiceCallback.DO_NOTHING);
+        return asyncLoadObjects(Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Callback callback) {
         return asyncLoadObjects(callback, CMRequestOptions.NONE);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Callback callback, CMRequestOptions options) {
         return asyncLoadObjects(Collections.<String>emptyList(), callback, options);
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObject(String key) {
-        return asyncLoadObject(key, WebServiceCallback.DO_NOTHING);
+        return asyncLoadObject(key, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String key, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String key, Callback callback) {
         return asyncLoadObjects(Collections.<String>singleton(key), callback);
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys) {
-        return asyncLoadObjects(keys, WebServiceCallback.DO_NOTHING);
+        return asyncLoadObjects(keys, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, Callback callback) {
         return asyncLoadObjects(keys, callback, CMRequestOptions.NONE);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, Callback callback, CMRequestOptions options) {
         return executeAsyncCommand(addRequestOptions(createGetObjects(keys), options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
 
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
-        return asyncSearch(searchString, WebServiceCallback.DO_NOTHING);
+        return asyncSearch(searchString, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback) {
+    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, Callback callback) {
         return asyncSearch(searchString, callback, CMRequestOptions.NONE);
     }
 
-    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, Callback callback, CMRequestOptions options) {
         return executeAsyncCommand(addRequestOptions(createSearch(searchString), options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) throws JsonConversionException {
-        return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
+        return asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, Callback callback) throws JsonConversionException {
         return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         return executeAsyncCommand(
                 addRequestOptions(createPut(toCreate.asJson()), options),
                 callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) throws JsonConversionException {
-        return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
+        return asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback) throws JsonConversionException {
         return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(SimpleCMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
@@ -350,18 +350,18 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) throws JsonConversionException {
-        return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
+        return asyncUpdate(toUpdate, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, Callback callback) throws JsonConversionException {
         return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     public Future<ObjectModificationResponse> asyncUpdateAll(Collection<SimpleCMObject> objects) throws JsonConversionException {
-        return asyncUpdate(objects, WebServiceCallback.DO_NOTHING);
+        return asyncUpdate(objects, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, WebServiceCallback callback) throws JsonConversionException {
+    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, Callback callback) throws JsonConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
         for(SimpleCMObject cmObject : objects) {
@@ -376,47 +376,47 @@ public class CMWebService {
         return executeAsyncCommand(createPut(user));
     }
 
-    public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) throws JsonConversionException {
+    public Future<CMResponse> asyncCreateUser(CMUser user, Callback callback) throws JsonConversionException {
         return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
     }
 
     public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword) {
-        return asyncChangePassword(user, newPassword, WebServiceCallback.DO_NOTHING);
+        return asyncChangePassword(user, newPassword, Callback.DO_NOTHING);
     }
 
-    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword, WebServiceCallback callback) {
+    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword, Callback callback) {
         return executeAsyncCommand(createChangePassword(user, newPassword), callback);
     }
 
     public Future<CMResponse> asyncResetPasswordRequest(String email) {
-        return asyncResetPasswordRequest(email, WebServiceCallback.DO_NOTHING);
+        return asyncResetPasswordRequest(email, Callback.DO_NOTHING);
     }
 
-    public Future<CMResponse> asyncResetPasswordRequest(String email, WebServiceCallback callback) {
+    public Future<CMResponse> asyncResetPasswordRequest(String email, Callback callback) {
         return executeAsyncCommand(createResetPassword(email), callback);
     }
 
     public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword) {
-        return asyncResetPasswordConfirmation(token, newPassword, WebServiceCallback.DO_NOTHING);
+        return asyncResetPasswordConfirmation(token, newPassword, Callback.DO_NOTHING);
     }
 
-    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword, WebServiceCallback callback) {
+    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword, Callback callback) {
         return executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
     public Future<LoginResponse> asyncLogin(CMUser user) {
-        return asyncLogin(user, WebServiceCallback.DO_NOTHING);
+        return asyncLogin(user, Callback.DO_NOTHING);
     }
 
-    public Future<LoginResponse> asyncLogin(CMUser user, WebServiceCallback callback) {
+    public Future<LoginResponse> asyncLogin(CMUser user, Callback callback) {
         return executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
     }
 
     public Future<CMResponse> asyncLogout(CMSessionToken token) {
-        return asyncLogout(token, WebServiceCallback.DO_NOTHING);
+        return asyncLogout(token, Callback.DO_NOTHING);
     }
 
-    public Future<CMResponse> asyncLogout(CMSessionToken token, WebServiceCallback callback) {
+    public Future<CMResponse> asyncLogout(CMSessionToken token, Callback callback) {
         return executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
@@ -486,14 +486,14 @@ public class CMWebService {
     }
 
     private Future<CMResponse> executeAsyncCommand(HttpUriRequest message) {
-        return executeAsyncCommand(message, WebServiceCallback.DO_NOTHING, cmResponseConstructor());
+        return executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
     }
 
-    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback) {
+    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message, Callback callback) {
         return executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
+    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
         return asyncHttpClient.executeCommand(message, callback, constructor);
     }
 

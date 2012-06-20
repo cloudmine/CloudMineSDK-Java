@@ -6,7 +6,7 @@ import com.cloudmine.api.CMFile;
  * Callback for when loading files from CloudMine. Receives CMFile
  * Copyright CloudMine LLC
  */
-public class FileLoadCallback  extends CMWebServiceCallback<CMFile> {
+public class FileLoadCallback  extends CMCallback<CMFile> {
     public FileLoadCallback(String key) {
         super(CMFile.constructor(key));
     }
