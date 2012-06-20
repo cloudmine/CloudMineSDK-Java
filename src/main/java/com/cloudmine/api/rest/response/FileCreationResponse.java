@@ -5,7 +5,7 @@ import org.apache.http.HttpResponse;
 import java.util.concurrent.Future;
 
 /**
- * Returned by the CloudMine service in response to file creation requests. Contains the fileKey
+ * Returned by the CloudMine service in response to file creation requests. Contains the fileName
  * for the created file
  * Copyright CloudMine LLC
  */
@@ -32,10 +32,10 @@ public class FileCreationResponse extends CMResponse {
     }
 
     /**
-     * Get the key for the file. May be null
-     * @return The key for the file. May be null
+     * Get the name for the file. May be null if the create request failed
+     * @return The name for the file. May be null if the create request failed
      */
-    public String getFileKey() {
+    public String getFileName() {
         Object key = getObject("key");
         if(key == null) {
             return null;

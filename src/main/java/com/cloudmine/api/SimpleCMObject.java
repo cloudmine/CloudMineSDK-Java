@@ -42,8 +42,8 @@ public class SimpleCMObject implements Json {
         return new SimpleCMObject();
     }
 
-    public static SimpleCMObject SimpleCMObject(String topLevelKey) throws CreationException {
-        return new SimpleCMObject(topLevelKey);
+    public static SimpleCMObject SimpleCMObject(String objectId) throws CreationException {
+        return new SimpleCMObject(objectId);
     }
 
     public static SimpleCMObject SimpleCMObject(Json json) throws CreationException {
@@ -54,8 +54,8 @@ public class SimpleCMObject implements Json {
         }
     }
 
-    public static SimpleCMObject SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) throws CreationException {
-        return new SimpleCMObject(topLevelKey, contents);
+    public static SimpleCMObject SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
+        return new SimpleCMObject(objectId, contents);
     }
 
     public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
@@ -63,7 +63,7 @@ public class SimpleCMObject implements Json {
     }
 
     SimpleCMObject() throws CreationException {
-        this(generateUniqueKey());
+        this(generateUniqueObjectId());
     }
 
     SimpleCMObject(String objectId) throws CreationException {
@@ -83,8 +83,8 @@ public class SimpleCMObject implements Json {
     }
 
     /**
-     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be a top
-     * level key mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
+     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
+     * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
      * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
      * a top level key is generated and the objectMap is assumed to be the contents.
      *
@@ -94,7 +94,7 @@ public class SimpleCMObject implements Json {
 
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
-            objectId = generateUniqueKey();
+            objectId = generateUniqueObjectId();
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
             topLevelMap.put(objectId, contents);
@@ -110,6 +110,7 @@ public class SimpleCMObject implements Json {
                 throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
             }
         }
+        add(JsonUtilities.OBJECT_ID_KEY, objectId);
     }
 
     /**
@@ -169,7 +170,7 @@ public class SimpleCMObject implements Json {
         return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
     }
 
-    protected static String generateUniqueKey() {
+    protected static String generateUniqueObjectId() {
         return UUID.randomUUID().toString();
     }
 
@@ -196,12 +197,12 @@ public class SimpleCMObject implements Json {
         return contents.get(key);
     }
 
-    public SimpleCMObject getSimpleCMObject(String key) throws JsonConversionException {
-        return getValue(key, SimpleCMObject.class);
+    public SimpleCMObject getSimpleCMObject(String objectId) throws JsonConversionException {
+        return getValue(objectId, SimpleCMObject.class);
     }
 
-    public SimpleCMObject getSimpleCMObject(String key, SimpleCMObject alternative) throws JsonConversionException {
-        SimpleCMObject value = getSimpleCMObject(key);
+    public SimpleCMObject getSimpleCMObject(String objectId, SimpleCMObject alternative) throws JsonConversionException {
+        SimpleCMObject value = getSimpleCMObject(objectId);
         return value == null ?
                 alternative :
                     value;
@@ -281,12 +282,12 @@ public class SimpleCMObject implements Json {
         return getValue(key, Date.class);
     }
 
-    public CMGeoPoint getGeoPoint(String key) throws JsonConversionException {
-        return getValue(key, CMGeoPoint.class);
+    public CMGeoPoint getGeoPoint(String objectId) throws JsonConversionException {
+        return getValue(objectId, CMGeoPoint.class);
     }
 
-    public CMGeoPoint getGeoPoint(String key, CMGeoPoint alternative) throws JsonConversionException {
-        CMGeoPoint point = getGeoPoint(key);
+    public CMGeoPoint getGeoPoint(String objectId, CMGeoPoint alternative) throws JsonConversionException {
+        CMGeoPoint point = getGeoPoint(objectId);
         return point == null ?
                 alternative :
                     point;

@@ -171,7 +171,7 @@ public class CMStore {
      * Delete the given object from CloudMine. If no StoreIdentifier is present, default (app level) is
      * used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
-     * @param object to delete; this is done based on the object key, its values are ignored
+     * @param object to delete; this is done based on the object id, its values are ignored
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
@@ -183,7 +183,7 @@ public class CMStore {
      * Delete the given object from CloudMine. If no StoreIdentifier is present, default (app level) is
      * used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
-     * @param object to delete; this is done based on the object key, its values are ignored
+     * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
@@ -196,7 +196,7 @@ public class CMStore {
      * Delete the given object from CloudMine. If no {@link StoreIdentifier} is present, default (app level) is
      * used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
-     * @param object to delete; this is done based on the object key, its values are ignored
+     * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
@@ -265,66 +265,66 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
+     * Retrieve all the application level objects with the given objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys) {
-        return loadApplicationObjectsWithKeys(keys, Callback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds) {
+        return loadApplicationObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve all the application level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
+     * Retrieve all the application level objects with the given top level objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, Callback callback) {
-        return loadApplicationObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback) {
+        return loadApplicationObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve all the application level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
-     */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(keys, callback, options);
-    }
-
-    /**
-     * Retrieve all the user level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys) throws CreationException {
-        return loadUserObjectsWithKeys(keys, Callback.DO_NOTHING);
-    }
-
-    /**
-     * Retrieve all the user level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, Callback callback) throws CreationException {
-        return loadUserObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
-    }
-
-    /**
-     * Retrieve all the user level objects with the given top level keys
-     * @param keys the top level keys of the objects to retrieve
+     * Retrieve all the application level objects with the given top level objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadObjects(objectIds, callback, options);
+    }
+
+    /**
+     * Retrieve all the user level objects with the given top level objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjects(keys, callback, options);
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithObjectIds(Collection<String> objectIds) throws CreationException {
+        return loadUserObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
+    }
+
+    /**
+     * Retrieve all the user level objects with the given top level objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback callback) throws CreationException {
+        return loadUserObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
+    }
+
+    /**
+     * Retrieve all the user level objects with the given top level objectIds
+     * @param objectIds the top level objectIds of the objects to retrieve
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) throws CreationException {
+        return userService().asyncLoadObjects(objectIds, callback, options);
     }
 
     /**
@@ -643,144 +643,143 @@ public class CMStore {
     }
 
     /**
-     * Retrieve any existing, added SimpleCMObject with the specified top level key
-     * @param key the top level key associated with the desired SimpleCMObject
+     * Retrieve any existing, added SimpleCMObject with the specified objectId
+     * @param objectId the objectId associated with the desired SimpleCMObject
      * @return the SimpleCMObject if it exists; null otherwise
-     * @throws NullPointerException if the passed in key is null
      */
-    public SimpleCMObject getStoredObject(String key) {
-        if(key == null) {
-            throw new NullPointerException("Cannot add a null object to a CMStore");
+    public SimpleCMObject getStoredObject(String objectId) {
+        if(objectId == null) {
+            return null;
         }
-        return objects.get(key);
+        return objects.get(objectId);
     }
 
     /**********************************FILES******************************/
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String key) {
-        return loadApplicationFile(key, Callback.DO_NOTHING);
+    public Future<CMFile> loadApplicationFile(String fileName) {
+        return loadApplicationFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String key, Callback callback) {
-        return loadApplicationFile(key, callback, CMRequestOptions.NONE);
+    public Future<CMFile> loadApplicationFile(String fileName, Callback callback) {
+        return loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String key, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadFile(key, callback, options);
+    public Future<CMFile> loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadFile(fileName, callback, options);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String key) throws CreationException {
-        return loadUserFile(key, Callback.DO_NOTHING);
+    public Future<CMFile> loadUserFile(String fileName) throws CreationException {
+        return loadUserFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String key, Callback callback) throws CreationException {
-        return loadUserFile(key, callback, CMRequestOptions.NONE);
+    public Future<CMFile> loadUserFile(String fileName, Callback callback) throws CreationException {
+        return loadUserFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String key, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadFile(key, callback, options);
+    public Future<CMFile> loadUserFile(String fileName, Callback callback, CMRequestOptions options) throws CreationException {
+        return userService().asyncLoadFile(fileName, callback, options);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String key) {
-        return deleteApplicationFile(key, Callback.DO_NOTHING);
+    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName) {
+        return deleteApplicationFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String key, Callback callback) {
-        return deleteApplicationFile(key, callback, CMRequestOptions.NONE);
+    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName, Callback callback) {
+        return deleteApplicationFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the application level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse}
-     */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String key, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncDeleteFile(key, callback, options);
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public Future<ObjectModificationResponse> deleteUserFile(String key) throws CreationException {
-        return deleteUserFile(key, Callback.DO_NOTHING);
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public Future<ObjectModificationResponse> deleteUserFile(String key, Callback callback) throws CreationException {
-        return deleteUserFile(key, callback, CMRequestOptions.NONE);
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified key, if it exists at the user level
-     * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link ObjectModificationResponse}
+     */
+    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
+        return applicationService.asyncDeleteFile(fileName, callback, options);
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<ObjectModificationResponse> deleteUserFile(String key, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncDeleteFile(key, callback, options);
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName) throws CreationException {
+        return deleteUserFile(fileName, Callback.DO_NOTHING);
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @return a Future containing the {@link ObjectModificationResponse}
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName, Callback callback) throws CreationException {
+        return deleteUserFile(fileName, callback, CMRequestOptions.NONE);
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level
+     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param options options to apply to the call, such as a server function to pass the results of the call into
+     * @return a Future containing the {@link ObjectModificationResponse}
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public Future<ObjectModificationResponse> deleteUserFile(String fileName, Callback callback, CMRequestOptions options) throws CreationException {
+        return userService().asyncDeleteFile(fileName, callback, options);
     }
 
     /*********************************USERS*******************************/

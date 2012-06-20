@@ -7,7 +7,7 @@ import com.cloudmine.api.CMFile;
  * Copyright CloudMine LLC
  */
 public class FileLoadCallback  extends CMCallback<CMFile> {
-    public FileLoadCallback(String key) {
-        super(CMFile.constructor(key));
+    public FileLoadCallback(String fileName) {
+        super(CMFile.constructor(fileName));
     }
 }

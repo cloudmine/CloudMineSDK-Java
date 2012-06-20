@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 /**
+ * Provides direct access to the CloudMine API.
  * Copyright CloudMine LLC
  */
 public class CMWebService {
@@ -126,12 +127,12 @@ public class CMWebService {
     }
 
 
-    public ObjectModificationResponse delete(Collection<String> keys) throws CreationException {
-        return executeCommand(createDelete(keys), objectModificationResponseConstructor());
+    public ObjectModificationResponse delete(Collection<String> objectIds) throws CreationException {
+        return executeCommand(createDelete(objectIds), objectModificationResponseConstructor());
     }
 
-    public ObjectModificationResponse delete(String key) throws CreationException {
-        return executeCommand(createDelete(key), objectModificationResponseConstructor());
+    public ObjectModificationResponse delete(String objectId) throws CreationException {
+        return executeCommand(createDelete(objectId), objectModificationResponseConstructor());
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass) {
@@ -177,28 +178,28 @@ public class CMWebService {
         return asyncDelete(keys, callback, options);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String key) {
-        return asyncDelete(key, Callback.DO_NOTHING);
+    public Future<ObjectModificationResponse> asyncDelete(String objectId) {
+        return asyncDelete(objectId, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String key, Callback callback) {
-        return asyncDelete(key, callback, CMRequestOptions.NONE);
+    public Future<ObjectModificationResponse> asyncDelete(String objectId, Callback callback) {
+        return asyncDelete(objectId, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(String key, Callback callback, CMRequestOptions options) {
-        return asyncDelete(Collections.singletonList(key), callback, options);
+    public Future<ObjectModificationResponse> asyncDelete(String objectId, Callback callback, CMRequestOptions options) {
+        return asyncDelete(Collections.singletonList(objectId), callback, options);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys) {
-        return asyncDelete(keys, Callback.DO_NOTHING);
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds) {
+        return asyncDelete(objectIds, Callback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, Callback callback) {
-        return asyncDelete(keys, callback, CMRequestOptions.NONE);
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds, Callback callback) {
+        return asyncDelete(objectIds, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> keys, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createDelete(keys), options),
+    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createDelete(objectIds), options),
                 callback, objectModificationResponseConstructor());
     }
 
@@ -220,7 +221,7 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, Callback callback) {
-        return asyncDelete(file.getFileKey(), callback);
+        return asyncDelete(file.getFileName(), callback);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files) {
@@ -230,7 +231,7 @@ public class CMWebService {
     public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, Callback callback) {
         Collection<String> keys = new ArrayList<String>(files.size());
         for(CMFile file : files) {
-            keys.add(file.getFileKey());
+            keys.add(file.getFileName());
         }
         return asyncDelete(keys, callback);
     }
@@ -255,17 +256,17 @@ public class CMWebService {
         return executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
     }
 
-    public Future<CMFile> asyncLoadFile(String key) {
-        return asyncLoadFile(key, Callback.DO_NOTHING);
+    public Future<CMFile> asyncLoadFile(String fileName) {
+        return asyncLoadFile(fileName, Callback.DO_NOTHING);
     }
 
-    public Future<CMFile> asyncLoadFile(String key, Callback callback) {
-        return asyncLoadFile(key, callback, CMRequestOptions.NONE);
+    public Future<CMFile> asyncLoadFile(String fileName, Callback callback) {
+        return asyncLoadFile(fileName, callback, CMRequestOptions.NONE);
     }
 
-    public Future<CMFile> asyncLoadFile(String key, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createGetFile(key), options),
-                callback, cmFileConstructor(key));
+    public Future<CMFile> asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createGetFile(fileName), options),
+                callback, cmFileConstructor(fileName));
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects() {
@@ -280,24 +281,24 @@ public class CMWebService {
         return asyncLoadObjects(Collections.<String>emptyList(), callback, options);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String key) {
-        return asyncLoadObject(key, Callback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId) {
+        return asyncLoadObject(objectId, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String key, Callback callback) {
-        return asyncLoadObjects(Collections.<String>singleton(key), callback);
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId, Callback callback) {
+        return asyncLoadObjects(Collections.<String>singleton(objectId), callback);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys) {
-        return asyncLoadObjects(keys, Callback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds) {
+        return asyncLoadObjects(objectIds, Callback.DO_NOTHING);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, Callback callback) {
-        return asyncLoadObjects(keys, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds, Callback callback) {
+        return asyncLoadObjects(objectIds, callback, CMRequestOptions.NONE);
     }
 
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> keys, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createGetObjects(keys), options),
+    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        return executeAsyncCommand(addRequestOptions(createGetObjects(objectIds), options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
@@ -438,10 +439,10 @@ public class CMWebService {
         return executeCommand(createGet(), simpleCMObjectResponseConstructor());
     }
 
-    public CMFile loadFile(String key) throws CreationException {
+    public CMFile loadFile(String fileName) throws CreationException {
         try {
-            HttpResponse response = httpClient.execute(createGetFile(key));
-            return CMFile.CMFile(response, key);
+            HttpResponse response = httpClient.execute(createGetFile(fileName));
+            return CMFile.CMFile(response, fileName);
         } catch (IOException e) {
             LOG.error("IOException getting file", e);
             throw new CreationException("Couldn't get file because of IOException", e);
@@ -557,7 +558,7 @@ public class CMWebService {
     }
 
     private HttpPut createPut(CMFile file) {
-        HttpPut put = new HttpPut(baseUrl.binary(file.getFileKey()).asUrlString());
+        HttpPut put = new HttpPut(baseUrl.binary(file.getFileName()).asUrlString());
         addCloudMineHeader(put);
         put.setEntity(new ByteArrayEntity(file.getFileContents()));
         put.addHeader("Content-Type", file.getContentType());

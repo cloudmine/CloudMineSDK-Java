@@ -37,47 +37,47 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
 
     /**
      * Check whether a specific object already existed and had its values updated
-     * @param key the object key
+     * @param objectId the object objectId
      * @return true if the object already existed and was updated
      */
-    public boolean wasUpdated(String key) {
-        return ResponseValue.UPDATED.equals(getKeyResponse(key));
+    public boolean wasUpdated(String objectId) {
+        return ResponseValue.UPDATED.equals(getKeyResponse(objectId));
     }
 
     /**
      * Check whether a specific object was created
-     * @param key the object key
-     * @return true if the object associated with the given key was inserted
+     * @param objectId the object objectId
+     * @return true if the object associated with the given objectId was inserted
      */
-    public boolean wasCreated(String key) {
-        return ResponseValue.CREATED.equals(getKeyResponse(key));
+    public boolean wasCreated(String objectId) {
+        return ResponseValue.CREATED.equals(getKeyResponse(objectId));
     }
 
     /**
      * Check whether a specific object was deleted
-     * @param key the object key
-     * @return true if the object associated with the given key was deleted
+     * @param objectId the object objectId
+     * @return true if the object associated with the given objectId was deleted
      */
-    public boolean wasDeleted(String key) {
-        return ResponseValue.DELETED.equals(getKeyResponse(key));
+    public boolean wasDeleted(String objectId) {
+        return ResponseValue.DELETED.equals(getKeyResponse(objectId));
     }
 
     /**
      * Check whether a specific object was created, deleted, or updated
-     * @param key the object key
-     * @return true if the object associated with the given key was created, updated, or deleted
+     * @param objectId the object objectId
+     * @return true if the object associated with the given objectId was created, updated, or deleted
      */
-    public boolean wasModified(String key) {
-        return !ResponseValue.MISSING.equals(getKeyResponse(key));
+    public boolean wasModified(String objectId) {
+        return !ResponseValue.MISSING.equals(getKeyResponse(objectId));
     }
 
     /**
-     * Get the ResponseValue for the object associated with the given key
-     * @param key the object key
-     * @return the ResponseValue for the object associated with the given key. If the object does not exist, ResponseValue.MISSING is returned.
+     * Get the ResponseValue for the object associated with the given objectId
+     * @param objectId the object objectId
+     * @return the ResponseValue for the object associated with the given objectId. If the object does not exist, ResponseValue.MISSING is returned.
      */
-    public ResponseValue getKeyResponse(String key) {
-        Object keyedValue = getSuccessMap().get(key);
+    public ResponseValue getKeyResponse(String objectId) {
+        Object keyedValue = getSuccessMap().get(objectId);
         if(keyedValue == null)
             return ResponseValue.MISSING;
         return ResponseValue.getValue(keyedValue.toString());

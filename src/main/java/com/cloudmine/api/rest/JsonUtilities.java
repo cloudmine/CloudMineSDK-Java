@@ -103,6 +103,7 @@ public class JsonUtilities {
     public static final String TAB = "  ";
     public static final String CLASS_KEY = "__class__";
     public static final String TYPE_KEY = "__type__"; //type is used to identify objects that have special properties in CloudMine
+    public static final String OBJECT_ID_KEY = "__id__";
     public static final String DATE_CLASS = "datetime";
     public static final String TIME_KEY = "timestamp";
     public static final String ENCODING = "UTF-8";

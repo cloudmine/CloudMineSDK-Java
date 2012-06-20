@@ -12,7 +12,7 @@ public enum ResponseValue {
     /**
      * Works like valueOf, except ignores case and if the response value does not match any ResponseValues,
      * MISSING is returned.
-     * @param response The value attached to the inserted object's key in the success response
+     * @param response The value attached to the inserted object's objectId in the success response
      * @return CREATED, DELETED, or UPDATED if response.equalsIgnoreCase("created"|"updated"|"deleted") returns true; MISSING otherwise
      */
     public static ResponseValue getValue(String response) {

@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Parent class for CMResponses that include a "success" and "errors" top level key mapped to json
- * objects.
+ * Parent class for CMResponses that include a "success" and "errors" key mapped to a JSON object, or collection of JSON objects
  * Copyright CloudMine LLC
  */
 public class SuccessErrorResponse extends CMResponse {

@@ -19,13 +19,23 @@ import java.util.Arrays;
 import java.util.concurrent.Future;
 
 /**
- * The JSON representation of a CMFile consists of the
+ * A binary file that can be stored in CloudMine. Consists of a file name, content type, and the file
+ * contents as bytes. <BR>
+ * The JSON representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
  * Copyright CloudMine LLC
  */
 public class CMFile implements Json {
 
-    public static CMFile CMFile(InputStream contents, String key, String contentType) throws CreationException {
-        return new CMFile(contents, key, contentType);
+    /**
+     * Instantiate a new CMFile with the given contents, name, and type
+     * @param contents the contents of the file
+     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
+     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
+     * @return a new CMFile
+     * @throws CreationException If unable to read in the content stream
+     */
+    public static CMFile CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
+        return new CMFile(contents, fileName, contentType);
     }
 
     public static class Constructor implements ResponseConstructor<CMFile> {
@@ -50,6 +60,11 @@ public class CMFile implements Json {
         return new Constructor(key);
     }
 
+    /**
+     * Check whether the file is null and has any contents
+     * @param file the file to check
+     * @return true if the file is empty, false if the file has contents
+     */
     public static boolean isEmpty(CMFile file) {
         return file == null ||
                 (file.getFileContents().length == 1 && file.getFileContents()[0] == 32);
@@ -59,33 +74,62 @@ public class CMFile implements Json {
     public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CMFile.class);
 
-    private final String key;
+    private final String fileName;
     private final String contentType;
     private final byte[] fileContents;
 
-    public static CMFile CMFile(byte[] fileContents, String key, String contentType) throws CreationException {
-        return new CMFile(fileContents, key, contentType);
+    /**
+     * Instantiate a new CMFile with the given contents, name, and type
+     * @param fileContents the contents of the file
+     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
+     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
+     * @return a new CMFile
+     * @throws CreationException If given null fileContents
+     */
+    public static CMFile CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
+        return new CMFile(fileContents, fileName, contentType);
     }
 
+    /**
+     * Instantiate a new CMFile with the given contents. A unique name will be generated, and the DEFAULT_CONTENT_TYPE will be used
+     * @param contents the contents of the file
+     * @return a new CMFile
+     * @throws CreationException If unable to read in the content stream
+     */
     public static CMFile CMFile(InputStream contents) throws CreationException {
         return new CMFile(contents);
     }
 
+    /**
+     * Instantiate a new CMFile with the given contents, name, and type
+     * @param contents the contents of the file
+     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
+     * @return a new CMFile
+     * @throws CreationException If given null contents or unable to read in contents
+     */
     public static CMFile CMFile(InputStream contents, String contentType) throws CreationException {
         return new CMFile(contents, contentType);
     }
 
-    public static CMFile CMFile(HttpResponse response, String key) throws CreationException {
-        return new CMFile(response, key);
+    /**
+     * Instantiate a new CMFile, using the entity contents of the HttpResponse. The file will have the
+     * given fileName
+     * @param response received in response to a loadFile request
+     * @param fileName the name of the file. If null a unique name will be generated
+     * @return a new CMFile
+     * @throws CreationException if unable to read in the entity contents
+     */
+    public static CMFile CMFile(HttpResponse response, String fileName) throws CreationException {
+        return new CMFile(response, fileName);
     }
 
-    CMFile(byte[] fileContents, String key, String contentType) throws CreationException {
+    CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
         if(fileContents == null) {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
-        this.key = key == null ?
-                SimpleCMObject.generateUniqueKey() :
-                key;
+        this.fileName = fileName == null ?
+                SimpleCMObject.generateUniqueObjectId() :
+                fileName;
         this.contentType = contentType == null ?
                 DEFAULT_CONTENT_TYPE :
                 contentType;
@@ -98,12 +142,12 @@ public class CMFile implements Json {
     private CMFile(InputStream contents, String contentType) throws CreationException {
         this(contents, contentType, null);
     }
-    private CMFile(HttpResponse response, String key) throws CreationException {
-        this(extractInputStream(response), key, extractContentType(response));
+    private CMFile(HttpResponse response, String fileName) throws CreationException {
+        this(extractInputStream(response), fileName, extractContentType(response));
     }
 
-    private CMFile(InputStream contents, String key, String contentType) throws CreationException {
-        this(inputStreamToByteArray(contents), key, contentType);
+    private CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
+        this(inputStreamToByteArray(contents), fileName, contentType);
 
     }
 
@@ -116,19 +160,34 @@ public class CMFile implements Json {
         }
     }
 
+    /**
+     * Get the byte contents of the file
+     * @return the byte contents of the file
+     */
     public byte[] getFileContents() {
         return fileContents;
     }
 
-
+    /**
+     * Get the contents of the file as an InputStream
+     * @return the contents of the file as an InputStream
+     */
     public InputStream getFileContentStream() {
         return new ByteArrayInputStream(fileContents);
     }
 
-    public String getFileKey() {
-        return key;
+    /**
+     * The name of the file
+     * @return the name of the file
+     */
+    public String getFileName() {
+        return fileName;
     }
 
+    /**
+     * The MIME type for this file
+     * @return The MIME type for this file
+     */
     public String getContentType() {
         return contentType;
     }
@@ -154,7 +213,7 @@ public class CMFile implements Json {
     public int hashCode() {
         int hash = 1;
         hash = hash * 31 + contentType.hashCode();
-        hash = hash * 31 + key.hashCode();
+        hash = hash * 31 + fileName.hashCode();
         hash = hash * 31 + Arrays.hashCode(fileContents);
         return hash;
     }
@@ -164,7 +223,7 @@ public class CMFile implements Json {
         if(other instanceof CMFile) {
             CMFile otherFile = (CMFile)other;
             return otherFile.getContentType().equals(getContentType()) &&
-                    otherFile.getFileKey().equals(getFileKey()) &&
+                    otherFile.getFileName().equals(getFileName()) &&
                     Arrays.equals(otherFile.getFileContents(), getFileContents());
         }
         return false;
@@ -173,7 +232,7 @@ public class CMFile implements Json {
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append("Key: ").append(key).append(" Content-Type: ").append(contentType).append(" contents: ");
+        string.append("Key: ").append(fileName).append(" Content-Type: ").append(contentType).append(" contents: ");
         for(int i = 0; i < fileContents.length; i++) {
             string.append(fileContents[i]);
         }
@@ -185,7 +244,7 @@ public class CMFile implements Json {
     public String asJson() throws JsonConversionException {
         return
              JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty("key", key),
+                JsonUtilities.createJsonProperty("key", fileName),
                 JsonUtilities.createJsonProperty("content_type", contentType),
                 JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, CMType.FILE.asJson())).asJson();
 
