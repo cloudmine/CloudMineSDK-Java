@@ -1,6 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
@@ -12,54 +13,71 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 /**
+ * An object that can be inserted, updated, deleted, and retrieved from CloudMine. Has a non optional
+ * object id that is used to uniquely identify the object; if one is not provided at creation time, a
+ * random id is generated. May be associated with a {@link CMStore} through the use of a {@link StoreIdentifier},
+ * which allows the object to be modified on the CloudMine platform.
+ * Values can be added to the object through the use of the add method. In general, values will be converted
+ * to JSON based on the rules defined in the <a href="www.json.org">JSON specification.</a> The special cases are
+ * as follows:
+ * Map<String, Object> are treated as JSON objects
+ * Dates are converted into JSON objects
+ * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects
+ * SimpleCMObjects have 2 optional properties: class and type. Class is used for loading all similar objects, for
+ * example through {@link CMStore#userObjectsOfClass(String)}
+ * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
+ * to set this type yourself
+ *
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/24/12, 1:29 PM
  */
 public class SimpleCMObject implements Json {
 
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
-    private final String topLevelKey;
+    private final String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
 
-    public static SimpleCMObject SimpleCMObject() {
+    public static SimpleCMObject SimpleCMObject() throws CreationException {
         return new SimpleCMObject();
     }
 
-    public static SimpleCMObject SimpleCMObject(String topLevelKey) {
+    public static SimpleCMObject SimpleCMObject(String topLevelKey) throws CreationException {
         return new SimpleCMObject(topLevelKey);
     }
 
-    public static SimpleCMObject SimpleCMObject(Json json) {
-        return new SimpleCMObject(json);
+    public static SimpleCMObject SimpleCMObject(Json json) throws CreationException {
+        try {
+            return new SimpleCMObject(json);
+        } catch (JsonConversionException e) {
+            throw new CreationException(e);
+        }
     }
 
-    public static SimpleCMObject SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
+    public static SimpleCMObject SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) throws CreationException {
         return new SimpleCMObject(topLevelKey, contents);
     }
 
-    public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) {
+    public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
         return new SimpleCMObject(objectMap);
     }
 
-    SimpleCMObject() {
+    SimpleCMObject() throws CreationException {
         this(generateUniqueKey());
     }
 
-    SimpleCMObject(String topLevelKey) {
-        this(topLevelKey, new HashMap<String, Object>());
+    SimpleCMObject(String objectId) throws CreationException {
+        this(objectId, new HashMap<String, Object>());
     }
 
-    SimpleCMObject(Json json) {
+    SimpleCMObject(Json json) throws JsonConversionException, CreationException {
         this(JsonUtilities.jsonToMap(json));
     }
 
-    SimpleCMObject(final String topLevelKey, final Map<String, Object> contents) {
+    SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         this(new HashMap<String, Object>() {
             {
-                put(topLevelKey, contents);
+                put(objectId, contents);
             }
         });
     }
@@ -72,19 +90,19 @@ public class SimpleCMObject implements Json {
      *
      * @param objectMap
      */
-    SimpleCMObject(Map<String, Object> objectMap) {
+    SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
 
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
-            topLevelKey = generateUniqueKey();
+            objectId = generateUniqueKey();
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
-            topLevelMap.put(topLevelKey, contents);
+            topLevelMap.put(objectId, contents);
         } else {
             Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
             this.topLevelMap = objectMap;
             Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
-            topLevelKey = contentsEntry.getKey();
+            objectId = contentsEntry.getKey();
 
             try {
                 contents = (Map<String, Object>)contentsEntry.getValue();
@@ -106,8 +124,14 @@ public class SimpleCMObject implements Json {
         return storeId.setValue(identifier);
     }
 
-    public boolean saveWith(CMUserToken user) {
-        return saveWith(new StoreIdentifier(user));
+    /**
+     *
+     * @param session
+     * @return
+     * @throws CreationException if session is null
+     */
+    public boolean saveWith(CMSessionToken session) throws CreationException {
+        return saveWith(new StoreIdentifier(session));
     }
 
     public StoreIdentifier savedWith() {
@@ -122,15 +146,15 @@ public class SimpleCMObject implements Json {
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
      */
-    public Future<ObjectModificationResponse> save() {
+    public Future<ObjectModificationResponse> save() throws JsonConversionException, CreationException {
         return save(WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> save(WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> save(WebServiceCallback callback) throws CreationException, JsonConversionException {
         return store().saveObject(this, callback);
     }
 
-    private CMStore store() {
+    private CMStore store() throws CreationException {
         return CMStore.store(storeId.value(StoreIdentifier.DEFAULT));
     }
 
@@ -154,44 +178,44 @@ public class SimpleCMObject implements Json {
      * @return
      */
     public Object value() {
-        return topLevelMap.get(topLevelKey);
+        return topLevelMap.get(objectId);
     }
 
     public Object get(String key) {
         return contents.get(key);
     }
 
-    public SimpleCMObject getSimpleCMObject(String key) {
+    public SimpleCMObject getSimpleCMObject(String key) throws JsonConversionException {
         return getValue(key, SimpleCMObject.class);
     }
 
-    public SimpleCMObject getSimpleCMObject(String key, SimpleCMObject alternative) {
+    public SimpleCMObject getSimpleCMObject(String key, SimpleCMObject alternative) throws JsonConversionException {
         SimpleCMObject value = getSimpleCMObject(key);
         return value == null ?
                 alternative :
                     value;
     }
 
-    public <T> List<T> getList(String key) {
+    public <T> List<T> getList(String key) throws JsonConversionException {
         return getValue(key, List.class);
     }
 
-    public Integer getInteger(String key, Integer alternative) {
+    public Integer getInteger(String key, Integer alternative) throws JsonConversionException {
         Integer value = getInteger(key);
         return value == null ?
                 alternative :
                     value;
     }
 
-    public Integer getInteger(String key) {
+    public Integer getInteger(String key) throws JsonConversionException {
         return getValue(key, Integer.class);
     }
 
-    public Double getDouble(String key) {
+    public Double getDouble(String key) throws JsonConversionException {
         return getValue(key, Double.class);
     }
 
-    public Double getDouble(String... keys) {
+    public Double getDouble(String... keys) throws JsonConversionException {
         for(String key : keys) {
             Double val = getDouble(key);
             if(val != null) {
@@ -201,14 +225,14 @@ public class SimpleCMObject implements Json {
         return null;
     }
 
-    public Double getDouble(String key, Double alternative) {
+    public Double getDouble(String key, Double alternative) throws JsonConversionException {
         Double value = getDouble(key);
         return value == null ?
                 alternative :
                     value;
     }
 
-    public Boolean getBoolean(String key, Boolean alternative) {
+    public Boolean getBoolean(String key, Boolean alternative) throws JsonConversionException {
         Boolean value = getBoolean(key);
         return value == null ?
                 alternative :
@@ -220,37 +244,37 @@ public class SimpleCMObject implements Json {
      * @param key
      * @return
      */
-    public Boolean getBoolean(String key) {
+    public Boolean getBoolean(String key) throws JsonConversionException {
         return getValue(key, Boolean.class);
     }
 
-    public String getString(String key, String alternative) {
+    public String getString(String key, String alternative) throws JsonConversionException {
         String string = getString(key);
         return string == null ?
                 alternative :
                     string;
     }
 
-    public String getString(String key) {
+    public String getString(String key) throws JsonConversionException {
         return getValue(key, String.class);
     }
 
-    public Date getDate(String key, Date alternative) {
+    public Date getDate(String key, Date alternative) throws JsonConversionException {
         Date date = getDate(key);
         return date == null ?
                 alternative :
                     date;
     }
 
-    public Date getDate(String key) {
+    public Date getDate(String key) throws JsonConversionException {
         return getValue(key, Date.class);
     }
 
-    public CMGeoPoint getGeoPoint(String key) {
+    public CMGeoPoint getGeoPoint(String key) throws JsonConversionException {
         return getValue(key, CMGeoPoint.class);
     }
 
-    public CMGeoPoint getGeoPoint(String key, CMGeoPoint alternative) {
+    public CMGeoPoint getGeoPoint(String key, CMGeoPoint alternative) throws JsonConversionException {
         CMGeoPoint point = getGeoPoint(key);
         return point == null ?
                 alternative :
@@ -265,7 +289,7 @@ public class SimpleCMObject implements Json {
      * @param <T>
      * @return
      */
-    private <T> T getValue(String key, Class<T> klass) {
+    private <T> T getValue(String key, Class<T> klass) throws JsonConversionException {
         Object value = contents.get(key);
         if(key == null || klass == null || value == null) {
             return null;
@@ -281,7 +305,11 @@ public class SimpleCMObject implements Json {
                                                 ((Json)value).asJson() :
                                                     value.toString();
 
-            return newFromJson(valueString, klass);
+            try {
+                return newFromJson(valueString, klass);
+            } catch (CreationException e) {
+                throw new JsonConversionException(e);
+            }
         }
         if(value != null && klass.isAssignableFrom(valueClass)) {
             return (T)value;
@@ -296,7 +324,7 @@ public class SimpleCMObject implements Json {
      * @param <T>
      * @return
      */
-    private <T> T newFromJson(String json, Class<T> klass) {
+    private <T> T newFromJson(String json, Class<T> klass) throws CreationException {
         if(json == null || klass == null)
             return null;
         //Need to start at the bottom of the inheritance chain and work up
@@ -345,23 +373,27 @@ public class SimpleCMObject implements Json {
     }
 
     public String key() {
-        return topLevelKey;
+        return objectId;
     }
 
-    public String asKeyedObject() {
-        return JsonUtilities.addQuotes(topLevelKey) + ":" + asUnkeyedObject();
+    public String asKeyedObject() throws JsonConversionException {
+        return JsonUtilities.addQuotes(objectId) + ":" + asUnkeyedObject();
     }
 
-    public String asUnkeyedObject() {
+    public String asUnkeyedObject() throws JsonConversionException {
         return JsonUtilities.mapToJson(contents);
     }
 
-    public String asJson() {
+    public String asJson() throws JsonConversionException {
         return JsonUtilities.mapToJson(topLevelMap);
     }
 
     public String toString() {
-        return asJson();
+        try {
+            return asJson();
+        } catch (JsonConversionException e) {
+            return "Invalid json: " + e.getMessage();
+        }
     }
 
     /**

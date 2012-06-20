@@ -10,9 +10,8 @@ import java.net.URLEncoder;
 import java.util.Collection;
 
 /**
+ * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/16/12, 11:21 AM
  */
 public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     enum VERSION implements BaseURL {
@@ -39,17 +38,26 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
 
     /**
-     *
-     * @throws CreationException if CMApiCredentials.initialize has not been called yet
+     * Creates a default base url for the application id defined by calling {@link CMApiCredentials#initialize(String, String)}
+     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called yet
      */
     public CMURLBuilder() throws CreationException {
         this(CMApiCredentials.applicationIdentifier());
     }
 
+    /**
+     * Creates a base url builder for the specified application identifier
+     * @param appId the application id, found in the CloudMine developer dashboard
+     */
     public CMURLBuilder(String appId) {
         this(CLOUD_MINE_URL, appId);
     }
 
+    /**
+     * Creates a base url builder for a non standard base CloudMine url, eg https://api.beta.cloudmine.me
+     * @param cloudMineUrl the base part of the url
+     * @param appId the application identifier, found in the CloudMine developer dashboard
+     */
     protected CMURLBuilder(String cloudMineUrl, String appId) {
         this(cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId), "", "");
     }
@@ -73,14 +81,27 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return urlParts[1];
     }
 
+    /**
+     * Return all of this url after the /app/ portion
+     * @return all of this url after the /app/ portion
+     */
     public String appPath() {
         return extractAppId(urlString());
     }
 
+    /**
+     * Return the query part of this url
+     * @return the query part of this url
+     */
     public String queries() {
         return queryParams;
     }
 
+    /**
+     * Add a search query to this URL. The search portion of the query will be encoded
+     * @param search a search query
+     * @return a new CMURLBuilder with the given search query
+     */
     public CMURLBuilder search(String search) {
         String encodedSearch;
         try {
@@ -92,32 +113,60 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return addAction("search").addQuery("q", encodedSearch);
     }
 
+    /**
+     * Add the data action
+     * @return a new CMURLBuilder with a data action
+     */
     public CMURLBuilder data() {
         return addAction("data");
     }
 
+    /**
+     * Add the delete all action
+     * @return a new CMURLBuilder with delete all equal to true
+     */
     public CMURLBuilder deleteAll() {
         return data().addQuery("all", "true");
     }
 
-    public CMURLBuilder delete(Collection<String> keys) {
-        return data().keys(keys);
+    /**
+     * Add the specified objectIds to this url, to be deleted
+     * @param objectIds the top level objectIds to delete
+     * @return a new CMURLBuilder with all the specified objectIds to be deleted
+     */
+    public CMURLBuilder delete(Collection<String> objectIds) {
+        return data().objectIds(objectIds);
     }
 
-    public CMURLBuilder delete(String key) {
-        return data().key(key);
+    /**
+     * Equivalent to passing Collections.singleton(objectId) to {@link #delete(java.util.Collection)}
+     * @param objectId the object ids to delete
+     * @return a new CMURLBuilder with the specified objectId to delete
+     */
+    public CMURLBuilder delete(String objectId) {
+        return data().objectId(objectId);
     }
 
-    public CMURLBuilder key(String key) {
-        if(key == null)
+    /**
+     * Add the specified objectId as a query. Equivalent to passing Collections.singleton(objectId) to {@link #keys}
+     * @param objectId
+     * @return a new CMURLBuilder with the specified object id as a query
+     */
+    public CMURLBuilder objectId(String objectId) {
+        if(objectId == null)
             return this;
-        return addQuery("keys", key);
+        return addQuery("keys", objectId);
     }
 
-    public CMURLBuilder keys(Collection<String> keys) {
-        if(keys == null || keys.size() == 0)
+    /**
+     * Add the specified objectIds as a query.
+     * @param objectIds
+     * @return
+     */
+    public CMURLBuilder objectIds(Collection<String> objectIds) {
+        if(objectIds == null || objectIds.size() == 0)
             return this;
-        return addQuery("keys", keysToString(keys));
+        return addQuery("keys", keysToString(objectIds));
     }
 
     private String keysToString(Collection<String> keys) {

@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest;
 
-import org.apache.http.NameValuePair;
+import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +9,8 @@ import java.net.URL;
 
 /**
  * This class only exists to make Java be cool about types. Should never be directly instantiated
+ * Helps build URLs. Immutable, so any method that appears to mutate returns the new copy.
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/17/12, 10:48 AM
  */
 public abstract class BaseURLBuilder<T> implements BaseURL {
     private static final Logger LOG = LoggerFactory.getLogger(BaseURLBuilder.class);
@@ -19,8 +18,10 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     protected final String actions;
     protected final String queryParams;
 
-
-
+    /**
+     * Instantiate a new BaseURLBuilder
+     * @param baseUrl the beginning part of the URL. Actions and query params will be appended to this
+     */
     public BaseURLBuilder(String baseUrl) {
         this(baseUrl, "", "");
     }
@@ -60,30 +61,48 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
         return SEPARATOR + url;
     }
 
+    /**
+     * Add the given action to the URL, and return the new builder
+     * @param action the action to add. any trailing /'s are removed, and if the action does not begin with /, one is added.
+     *               So addAction("/foo/") and addAction("foo") are equivalent
+     * @return a new builder with the added action
+     */
     public T addAction(String action) {
         return newBuilder(baseUrl, actions + formatUrlPart(action), queryParams);
     }
 
+    /**
+     * Add the given query parameter to the URL, and returns the new builder. Query params are formated to
+     * look like "?key=value"
+     * @param key the query param key
+     * @param value the query param value
+     * @return the new builder with the added query param
+     */
     public T addQuery(String key, String value) {
         return newBuilder(baseUrl, actions, queryParams + toQueryParam(key, value));
     }
 
-    public T addQuery(NameValuePair param) {
-        return addQuery(param.getName(), param.getValue());
-    }
-
+    /**
+     * Return just the base part of this URL.
+     * @return the base part of the url, which was passed to the constructor when this URLBuilder was instantiated
+     */
     public String baseUrl() {
         return baseUrl;
     }
 
-    public URL url() {
+    /**
+     * This URLBuilder as a URL
+     * @return URL representation of this URLBuilder
+     * @throws CreationException if the URL is malformed
+     */
+    public URL url() throws CreationException {
         try {
             URL url = new URL(urlString());
             return url;
         } catch (MalformedURLException e) {
             LOG.error("URL was malformed", e);
+            throw new CreationException("Malformed URL: " + urlString(), e);
         }
-        return null;
     }
 
     @Override

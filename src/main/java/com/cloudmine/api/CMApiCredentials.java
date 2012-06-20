@@ -5,9 +5,9 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
 /**
+ * Singleton for defining your application identifier and application API key. Must be initialized before
+ * any calls to the CloudMine API will succeed.
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/16/12, 4:12 PM
  */
 public class CMApiCredentials {
     private static final String HEADER_KEY = "X-CloudMine-ApiKey";
@@ -18,11 +18,12 @@ public class CMApiCredentials {
     private final String applicationApiKey;
 
     /**
-     * Sets the application id and api key. Can be called multiple times, but only the first call
-     * @param id
-     * @param apiKey
+     * Sets the application id and api key. Can be called multiple times, but only the first call will modify the credentials value.
+     * It is an error
+     * @param id the application id from your CloudMine dashboard
+     * @param apiKey the API key from your CloudMine dashboard
      * @throws CreationException if you try to initialize twice with different values, or null values were passed in
-     * @return
+     * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
         if(id == null || apiKey == null) {
@@ -46,20 +47,38 @@ public class CMApiCredentials {
         applicationApiKey = apiKey;
     }
 
-    public static CMApiCredentials credentials() {
+    /**
+     * Returns the CMApiCredentials that were created in {@link #initialize(String, String)}
+     * @return the CMApiCredentials
+     * @throws CreationException if called before the credentials have been initialized
+     */
+    public static CMApiCredentials credentials() throws CreationException {
         if(credentials.isSet() == false) {
             throw new CreationException("Cannot access CMApiCredentials before they have been initialized");
         }
         return credentials.value();
     }
 
+    /**
+     * Returns the application identifier
+     * @return the application identifier
+     */
     public static String applicationIdentifier() {
         return credentials().applicationIdentifier;
     }
+
+    /**
+     * Returns the application API key
+     * @return the application API key
+     */
     public static String applicationApiKey() {
         return credentials().applicationApiKey;
     }
 
+    /**
+     * Returns a Header that contains the CloudMine authentication information for a request
+     * @return a Header that contains the CloudMine authentication information for a request
+     */
     public static Header cloudMineHeader() {
         return new BasicHeader(HEADER_KEY, applicationApiKey());
     }

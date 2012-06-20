@@ -4,9 +4,8 @@ package com.cloudmine.api.rest.callbacks;
 import com.cloudmine.api.rest.response.FileCreationResponse;
 
 /**
+ * Callback for inserting CMFiles into cloudmine. Receives {@link FileCreationResponse}
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 6/4/12, 5:32 PM
  */
 public class FileCreationResponseCallback extends CMWebServiceCallback<FileCreationResponse> {
     public FileCreationResponseCallback() {

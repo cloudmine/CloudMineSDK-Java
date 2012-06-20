@@ -1,42 +1,57 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.CMUserToken;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import org.apache.http.HttpResponse;
 
 import java.util.concurrent.Future;
 
 /**
+ * Returned by the CloudMine service in response to log in requests. Includes the sessionToken used by
+ * services that operate at the user level.
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/21/12, 5:38 PM
  */
-public class LogInResponse extends CMResponse {
+public class LoginResponse extends CMResponse {
 
-    public static final ResponseConstructor<LogInResponse> CONSTRUCTOR = new ResponseConstructor<LogInResponse>() {
+    public static final ResponseConstructor<LoginResponse> CONSTRUCTOR = new ResponseConstructor<LoginResponse>() {
         @Override
-        public LogInResponse construct(HttpResponse response) {
-            return new LogInResponse(response);
+        public LoginResponse construct(HttpResponse response) {
+            return new LoginResponse(response);
         }
 
         @Override
-        public Future<LogInResponse> constructFuture(Future<HttpResponse> futureResponse) {
+        public Future<LoginResponse> constructFuture(Future<HttpResponse> futureResponse) {
             return createFutureResponse(futureResponse, CONSTRUCTOR);
         }
     };
 
-    private final CMUserToken userToken;
+    private final CMSessionToken sessionToken;
 
-    public LogInResponse(HttpResponse response) {
+    /**
+     * Instantiate a new LoginResponse. You should probably not be calling this yourself
+     * @param response a response to a log in request
+     */
+    public LoginResponse(HttpResponse response) {
         super(response);
         if(wasSuccess()) {
-            userToken = CMUserToken.CMUserToken(asJson());
+            CMSessionToken tempToken;
+            try {
+                tempToken = CMSessionToken.CMSessionToken(asJson());
+            } catch (JsonConversionException e) {
+                tempToken = CMSessionToken.FAILED;
+            }
+            sessionToken = tempToken;
         } else {
-            userToken = CMUserToken.FAILED;
+            sessionToken = CMSessionToken.FAILED;
         }
     }
 
-    public CMUserToken userToken() {
-        return userToken;
+    /**
+     * the token used to authenticate this session with the server. If the request failed, it will be equal to {@link com.cloudmine.api.CMSessionToken#FAILED}
+     * @return the token used to authenticate this session with the server
+     */
+    public CMSessionToken userToken() {
+        return sessionToken;
     }
 
 }

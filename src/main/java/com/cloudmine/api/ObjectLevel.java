@@ -1,9 +1,8 @@
 package com.cloudmine.api;
 
 /**
+ * Different levels an object can be saved at. In general, UNKNOWN is treated as APPLICATION level
  * Copyright CloudMine LLC
- * User: johnmccarthy
- * Date: 6/13/12, 5:00 PM
  */
 public enum ObjectLevel {
     APPLICATION, USER, UNKNOWN

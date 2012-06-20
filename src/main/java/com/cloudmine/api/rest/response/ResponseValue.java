@@ -1,13 +1,12 @@
 package com.cloudmine.api.rest.response;
 
 /**
- * Represents the statuses that an insertion of an object can return
+ * Represents the statuses that an update/insert/delete operation on an object can return, including MISSING if
+ * the object was not modified at all
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 6/7/12, 3:45 PM
  */
 public enum ResponseValue {
-    CREATED(), DELETED(), UPDATED(), MISSING();
+    CREATED, DELETED, UPDATED, MISSING;
 
 
     /**

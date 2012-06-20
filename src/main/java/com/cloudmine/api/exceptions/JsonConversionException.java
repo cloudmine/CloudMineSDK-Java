@@ -1,9 +1,8 @@
 package com.cloudmine.api.exceptions;
 
 /**
+ * Thrown when unable to convert something to/from json
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/21/12, 2:07 PM
  */
 public class JsonConversionException extends CloudMineException{
     public JsonConversionException(Throwable t) {

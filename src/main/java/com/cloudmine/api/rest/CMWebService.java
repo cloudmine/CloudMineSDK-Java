@@ -2,6 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.callbacks.WebServiceCallback;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
@@ -45,17 +46,17 @@ public class CMWebService {
     protected final CMURLBuilder baseUrl;
     private final HttpClient httpClient = new DefaultHttpClient();
     protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
-    private CMUserToken loggedInUserToken;
-    private final Map<CMUserToken, UserCMWebService> loggedInUserServices = new WeakHashMap<CMUserToken, UserCMWebService>();
+    private CMSessionToken loggedInSessionToken;
+    private final Map<CMSessionToken, UserCMWebService> loggedInUserServices = new WeakHashMap<CMSessionToken, UserCMWebService>();
 
     /**
      * Get the instance of CMWebService. You should use this method instead of constructing your own,
      * as the actual implementation of CMWebService differs based on what platform your code is running
      * on.
      * @return a platform appropriate implementation of CMWebService
+     * @throws CreationException if CMApiCredentials.initialize has not yet been called
      */
-    public static CMWebService service() {
-//        return null;
+    public static CMWebService service() throws CreationException {
         return AndroidCMWebService.service(); //This will be returned for the android library
     }
 
@@ -88,12 +89,12 @@ public class CMWebService {
         }
     }
 
-    public UserCMWebService userWebService(CMUserToken token) {
+    public UserCMWebService userWebService(CMSessionToken token) throws CreationException {
         return createUserCMWebService(token);
     }
 
-    protected UserCMWebService createUserCMWebService(CMUserToken token) throws CreationException {
-        if(token == null || CMUserToken.FAILED.equals(token)) {
+    protected UserCMWebService createUserCMWebService(CMSessionToken token) throws CreationException {
+        if(token == null || CMSessionToken.FAILED.equals(token)) {
             throw new CreationException("Cannot create a UserCMWebService off a failed or null token");
         }
         UserCMWebService userService = loggedInUserServices.get(token);
@@ -106,32 +107,32 @@ public class CMWebService {
 
     /**
      * This will set the default UserCMWebService and return it. This must be called before calling
-     * userWebService, unless you pass userWebService a CMUserToken
+     * userWebService, unless you pass userWebService a CMSessionToken
      * @param token the token retrieved from a LoginResponse
      * @return the UserCMWebService that is created from this request.
      */
-    public synchronized UserCMWebService setLoggedInUser(CMUserToken token) {
-        loggedInUserToken = token;
+    public synchronized UserCMWebService setLoggedInUser(CMSessionToken token) throws CreationException {
+        loggedInSessionToken = token;
         return userWebService(token);
     }
 
     public synchronized UserCMWebService userWebService() throws CreationException {
-        if(loggedInUserToken == null) {
+        if(loggedInSessionToken == null) {
             throw new CreationException("Cannot request a user web service until setLoggedInUser has been called");
         }
-        return userWebService(loggedInUserToken);
+        return userWebService(loggedInSessionToken);
     }
 
-    public ObjectModificationResponse deleteAll() {
+    public ObjectModificationResponse deleteAll() throws CreationException {
         return executeCommand(createDeleteAll(), objectModificationResponseConstructor());
     }
 
 
-    public ObjectModificationResponse delete(Collection<String> keys) {
+    public ObjectModificationResponse delete(Collection<String> keys) throws CreationException {
         return executeCommand(createDelete(keys), objectModificationResponseConstructor());
     }
 
-    public ObjectModificationResponse delete(String key) {
+    public ObjectModificationResponse delete(String key) throws CreationException {
         return executeCommand(createDelete(key), objectModificationResponseConstructor());
     }
 
@@ -316,29 +317,29 @@ public class CMWebService {
                 callback, simpleCMObjectResponseConstructor());
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) {
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) throws JsonConversionException {
         return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback) throws JsonConversionException {
         return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException {
         return executeAsyncCommand(
                 addRequestOptions(createPut(toCreate.asJson()), options),
                 callback, objectModificationResponseConstructor());
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) {
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) throws JsonConversionException {
         return asyncInsert(toCreate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback) throws JsonConversionException {
         return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, WebServiceCallback callback, CMRequestOptions options) throws JsonConversionException {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(SimpleCMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
@@ -350,19 +351,19 @@ public class CMWebService {
                 callback, objectModificationResponseConstructor());
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) {
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) throws JsonConversionException {
         return asyncUpdate(toUpdate, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, WebServiceCallback callback) throws JsonConversionException {
         return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
-    public Future<ObjectModificationResponse> asyncUpdateAll(Collection<SimpleCMObject> objects) {
+    public Future<ObjectModificationResponse> asyncUpdateAll(Collection<SimpleCMObject> objects) throws JsonConversionException {
         return asyncUpdate(objects, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, WebServiceCallback callback) {
+    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, WebServiceCallback callback) throws JsonConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
         for(SimpleCMObject cmObject : objects) {
@@ -373,57 +374,63 @@ public class CMWebService {
         return executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
-    public SimpleCMObjectResponse get(String key) {
+    public SimpleCMObjectResponse get(String key) throws CreationException {
         return get(Collections.singletonList(key));
     }
 
-    public SimpleCMObjectResponse get(Collection<String> keys) {
+    /**
+     *
+     * @param keys
+     * @return
+     * @throws CreationException if unable to create the SimpleCMObjectResponse from the HttpResponse.
+     */
+    public SimpleCMObjectResponse get(Collection<String> keys) throws CreationException{
         return executeCommand(createGetObjects(keys), simpleCMObjectResponseConstructor());
     }
 
-    public SimpleCMObjectResponse get() {
+    public SimpleCMObjectResponse get() throws CreationException {
         return executeCommand(createGet(), simpleCMObjectResponseConstructor());
     }
 
-    public CMFile getFile(String key) {
+    public CMFile getFile(String key) throws CreationException {
         try {
             HttpResponse response = httpClient.execute(createGetFile(key));
             return CMFile.CMFile(response, key);
         } catch (IOException e) {
             LOG.error("IOException getting file", e);
+            throw new CreationException("Couldn't get file because of IOException", e);
         }
-        return null;
     }
 
-    public SimpleCMObjectResponse search(String searchString) {
+    public SimpleCMObjectResponse search(String searchString) throws CreationException {
         HttpGet get = createSearch(searchString);
         return executeCommand(get, simpleCMObjectResponseConstructor());
     }
 
-    public ObjectModificationResponse set(String json) {
+    public ObjectModificationResponse set(String json) throws CreationException {
         HttpPut put = createPut(json);
         return executeCommand(put, objectModificationResponseConstructor());
     }
 
-    public ObjectModificationResponse update(String json) {
+    public ObjectModificationResponse update(String json) throws CreationException {
         HttpPost post = createJsonPost(json);
         return executeCommand(post, objectModificationResponseConstructor());
     }
 
-    public FileCreationResponse set(CMFile file) {
+    public FileCreationResponse set(CMFile file) throws CreationException {
         return executeCommand(createPut(file), fileCreationResponseConstructor());
     }
 
 
-    public Future<CMResponse> asyncCreateUser(CMUser user) {
+    public Future<CMResponse> asyncCreateUser(CMUser user) throws JsonConversionException {
         return executeAsyncCommand(createPut(user));
     }
 
-    public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) {
+    public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) throws JsonConversionException {
         return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
     }
 
-    public CMResponse changePassword(CMUser user, String newPassword) {
+    public CMResponse changePassword(CMUser user, String newPassword) throws CreationException {
         return executeCommand(createChangePassword(user, newPassword));
     }
 
@@ -451,36 +458,36 @@ public class CMWebService {
         return executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
-    public Future<LogInResponse> asyncLogin(CMUser user) {
+    public Future<LoginResponse> asyncLogin(CMUser user) {
         return asyncLogin(user, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<LogInResponse> asyncLogin(CMUser user, WebServiceCallback callback) {
+    public Future<LoginResponse> asyncLogin(CMUser user, WebServiceCallback callback) {
         return executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
     }
 
-    public Future<CMResponse> asyncLogout(CMUserToken token) {
+    public Future<CMResponse> asyncLogout(CMSessionToken token) {
         return asyncLogout(token, WebServiceCallback.DO_NOTHING);
     }
 
-    public Future<CMResponse> asyncLogout(CMUserToken token, WebServiceCallback callback) {
+    public Future<CMResponse> asyncLogout(CMSessionToken token, WebServiceCallback callback) {
         return executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
 
-    public CMResponse set(CMUser user) {
+    public CMResponse set(CMUser user) throws CreationException, JsonConversionException {
         return executeCommand(createPut(user));
     }
 
-    public LogInResponse login(CMUser user) {
+    public LoginResponse login(CMUser user) throws CreationException {
         return executeCommand(createLoginPost(user), logInResponseConstructor());
     }
 
-    public CMResponse logout(CMUserToken sessionToken) {
+    public CMResponse logout(CMSessionToken sessionToken) throws CreationException {
         return executeCommand(createLogoutPost(sessionToken));
     }
 
-    private CMResponse executeCommand(HttpUriRequest message) {
+    private CMResponse executeCommand(HttpUriRequest message) throws CreationException {
         return executeCommand(message, cmResponseConstructor());
     }
 
@@ -496,7 +503,7 @@ public class CMWebService {
         return asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
-    private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) {
+    private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) throws CreationException{
         HttpResponse response = null;
         try {
             response = httpClient.execute(message);
@@ -504,11 +511,11 @@ public class CMWebService {
         }
         catch (IOException e) {
             LOG.error("Error executing command: " + message.getURI(), e);
+            throw new CreationException("Couldn't execute command, IOException: ", e);
         }
         finally {
             CMWebService.consumeEntityResponse(response);
         }
-        return constructor.construct(null);
     }
 
     //**************************Http commands*****************************************
@@ -544,7 +551,7 @@ public class CMWebService {
         return put;
     }
 
-    private HttpPut createPut(CMUser user) {
+    private HttpPut createPut(CMUser user) throws JsonConversionException {
         HttpPut put = new HttpPut(baseUrl.account().create().urlString());
         addCloudMineHeader(put);
         addJson(put, user.asJson());
@@ -571,7 +578,7 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createLogoutPost(CMUserToken sessionToken) {
+    private HttpPost createLogoutPost(CMSessionToken sessionToken) {
         HttpPost post = createPost(baseUrl.account().logout().urlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.sessionToken());
         return post;
@@ -596,7 +603,7 @@ public class CMWebService {
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
-        HttpGet get = new HttpGet(baseUrl.text().keys(keys).urlString());
+        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).urlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -604,18 +611,26 @@ public class CMWebService {
     private HttpPost createResetPasswordConfirmation(String token, String newPassword) {
         HttpPost post = new HttpPost(baseUrl.account().password().reset().addAction(token).urlString());
         addCloudMineHeader(post);
-        addJson(post, JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)
-        ));
+        try {
+            addJson(post, JsonUtilities.jsonCollection(
+                    JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)
+            ));
+        } catch (JsonConversionException e) {
+            LOG.error("Unable to create jsoncollection", e); //this should not happen ever so we swallow
+        }
         return post;
     }
 
     private HttpPost createResetPassword(String email) {
         HttpPost post = new HttpPost(baseUrl.account().password().reset().urlString());
         addCloudMineHeader(post);
-        addJson(post, JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty(EMAIL_KEY, email)
-        ));
+        try {
+            addJson(post, JsonUtilities.jsonCollection(
+                    JsonUtilities.createJsonProperty(EMAIL_KEY, email)
+            ));
+        } catch (JsonConversionException e) {
+            LOG.error("Unable to create json collection from email key", e); //this should never happen
+        }
         return post;
     }
 
@@ -623,8 +638,12 @@ public class CMWebService {
         HttpPost post = new HttpPost(baseUrl.account().password().change().urlString());
         addCloudMineHeader(post);
         addAuthorizationHeader(user, post);
-        addJson(post, JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
+        try {
+            addJson(post, JsonUtilities.jsonCollection(
+                    JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
+        } catch (JsonConversionException e) {
+            LOG.error("Unable to create json collection from property", e); //this should never happen
+        }
         return post;
     }
 
@@ -641,7 +660,7 @@ public class CMWebService {
         }
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, Json json) {
+    private void addJson(HttpEntityEnclosingRequestBase message, Json json) throws JsonConversionException {
         addJson(message, json.asJson());
     }
 
@@ -687,8 +706,8 @@ public class CMWebService {
         return CMFile.constructor(key);
     }
 
-    protected ResponseConstructor<LogInResponse> logInResponseConstructor() {
-        return LogInResponse.CONSTRUCTOR;
+    protected ResponseConstructor<LoginResponse> logInResponseConstructor() {
+        return LoginResponse.CONSTRUCTOR;
     }
 
     private ResponseConstructor<SimpleCMObjectResponse> simpleCMObjectResponseConstructor() {

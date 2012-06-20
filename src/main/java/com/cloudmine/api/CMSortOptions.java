@@ -3,28 +3,37 @@ package com.cloudmine.api;
 import com.cloudmine.api.rest.BaseURL;
 
 /**
+ * Encapsulates options related to sorting, such as the field to sort by and the direction
  * Copyright CloudMine LLC
- * User: johnmccarthy
- * Date: 6/17/12, 3:19 PM
  */
 public class CMSortOptions implements BaseURL{
 
     public static final CMSortOptions NONE = new CMSortOptions("");
 
-    enum SortOrder { ASCENDING, DESCENDING };
+    enum SortDirection { ASCENDING, DESCENDING };
 
-    private final SortOrder order;
+    private final SortDirection direction;
     private final String sortByField;
     private final Immutable<String> urlString = new Immutable<String>();
 
-    public CMSortOptions(SortOrder order, String sortByField) {
-        this.order = order;
+    /**
+     * Instantiate a new CMSortOptions for the specified field, in the specified direction
+     * @param sortByField the field on the object to sort by
+     * @param direction the direction of the field, ASCENDING or DESCENDING
+     */
+    public CMSortOptions(String sortByField, SortDirection direction) {
+        this.direction = direction;
         this.sortByField = sortByField;
     }
 
+    /**
+     * Instantiate a new CMSortOptions using a raw URL string. No leading & or ? necessary.
+     * You probably don't want to be calling this
+     * @param asString the raw URL string
+     */
     public CMSortOptions(String asString) {
         urlString.setValue(asString);
-        order = null;
+        direction = null;
         sortByField = null;
     }
 

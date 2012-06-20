@@ -4,9 +4,8 @@ package com.cloudmine.api.rest.callbacks;
 import com.cloudmine.api.rest.response.CMResponse;
 
 /**
+ * Base callback that receives a {@link CMResponse} in the onCompletion method
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/24/12, 4:53 PM
  */
 public class CMResponseCallback extends CMWebServiceCallback<CMResponse> {
     public CMResponseCallback() {

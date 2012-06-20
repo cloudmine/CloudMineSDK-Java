@@ -24,9 +24,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 /**
+ * Simplify working with JSON by putting all the utility methods in one place. Mostly focused on converting
+ * objects to and from JSON
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/21/12, 1:42 PM
  */
 public class JsonUtilities {
 
@@ -58,7 +58,14 @@ public class JsonUtilities {
             @Override
             public void serialize(SimpleCMObject value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 jgen.writeStartObject();
-                jgen.writeRaw(unwrap(value.asUnkeyedObject()));
+                String json = null;
+                try {
+                    json = value.asUnkeyedObject();
+                } catch (JsonConversionException e) {
+                    LOG.error("Error while serializing, sending empty json", e);
+                    json = EMPTY_JSON;
+                }
+                jgen.writeRaw(unwrap(json));
                 jgen.writeEndObject();
             }
 
@@ -72,7 +79,14 @@ public class JsonUtilities {
             @Override
             public void serialize(Json value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 jgen.writeStartObject();
-                jgen.writeRaw(unwrap(value.asJson()));
+                String json = null;
+                try {
+                    json = value.asJson();
+                } catch (JsonConversionException e) {
+                    LOG.error("Error while serializing, sending empty json", e);
+                    json = EMPTY_JSON;
+                }
+                jgen.writeRaw(unwrap(json));
                 jgen.writeEndObject();
             }
             @Override
@@ -94,6 +108,11 @@ public class JsonUtilities {
     public static final String TIME_KEY = "timestamp";
     public static final String ENCODING = "UTF-8";
 
+    /**
+     * Convert a {@link Date} to an unwrapped CloudMine date object. Unwrapped means it is not surrounded by { }
+     * @param date the Date to convert. If null, an empty string "" is returned
+     * @return the date as JSON, or "" if given null
+     */
     public static String dateToUnwrappedJsonClass(Date date ){
         if(date == null) {
             return NULL_STRING;
@@ -105,58 +124,42 @@ public class JsonUtilities {
 
     }
 
+    /**
+     * Convert a {@link Date} to a CloudMine date object
+     * @param date the Date to convert. If null, a wrapped empty string {\n""\n} is returned
+     * @return the date as a JSON object, or {""} if given null
+     */
     public static String dateToJsonClass(Date date) {
-        if(date == null) {
-            return NULL_STRING;
-        }
-        return "{\n" + dateToUnwrappedJsonClass(date) + "\n}";
+        String unwrappedDate = dateToUnwrappedJsonClass(date);
+        return "{\n" + unwrappedDate + "\n}";
     }
 
-    public static String createJsonClass(String className, String... properties) {
-        StringBuilder classBuilder =
-                new StringBuilder("{\n")
-                .append(createJsonProperty(CLASS_KEY, className)).append(",\n");
-        String comma = "";
-        for(String property : properties) {
-            classBuilder.append(comma).append(property);
-            comma = ",\n";
-        }
-        classBuilder.append("\n}");
-        return classBuilder.toString();
-    }
-
-    public static Date jsonClassToDate(String json) throws JsonConversionException {
-        try {
-            return CLOUDMINE_DATE_FORMATTER.parse(json);
-        } catch (ParseException e) {
-            throw new JsonConversionException("Couldn't parse: " + json, e);
-        }
-    }
-
-    public static Date jsonClassToDate(Map<String, Object> jsonMap) throws JsonConversionException {
-        if(jsonMap == null ||
-                DATE_CLASS.equals(jsonMap.get(CLASS_KEY))) {
-            Object timeStamp = jsonMap.get(TIME_KEY);
-            if(timeStamp != null) {
-                try {
-                    return CMDateFormat.fromNumber(Long.parseLong(timeStamp.toString()));
-                } catch(NumberFormatException e) {
-                    throw new JsonConversionException("Couldn't parse date", e);
-                }
-            }
-        }
-        throw new JsonConversionException("Given improper arguments to construct a date");
-    }
-
-
+    /**
+     * Convert a key and value to its JSON representation
+     * @param key the JSON key
+     * @param value the JSON value
+     * @return "key":"value"
+     */
     public static String createJsonProperty(String key, String value) {
         return new StringBuilder(addQuotes(key)).append(":").append(addQuotes(value)).toString();
     }
 
+    /**
+     * Convert a key and value to oits JSON representation
+     * @param key the JSON key
+     * @param value the JSON value
+     * @return "key":value
+     */
     public static String createJsonProperty(String key, Number value) {
         return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
     }
 
+    /**
+     * Remove the first "{" and last "}" from a JSON string
+     * @param json a valid JSON string
+     * @return if json == null, an empty string. if json does not contain an opening and closing brace, the passed in string. Otherwise,
+     *              the passed in JSON with the first and last { and } removed
+     */
     public static String unwrap(String json) {
         if(json == null) {
             return "";
@@ -176,6 +179,11 @@ public class JsonUtilities {
         return unwrappedJson;
     }
 
+    /**
+     * Quote a string
+     * @param toQuote the value to quote
+     * @return "toQuote"
+     */
     public static String addQuotes(String toQuote) {
         if(toQuote == null) {
             return NULL_STRING;
@@ -183,14 +191,29 @@ public class JsonUtilities {
         return "\"" + toQuote + "\"";
     }
 
+    /**
+     * Enclose all the passed in jsonEntities in a JSON collection
+     * @param jsonEntities to put into the collection
+     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     */
     public static Json jsonCollection(Collection<? extends Json> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new Json[jsonEntities.size()]));
     }
 
+    /**
+     * Enclose all the passed in strings in a JSON collection
+     * @param jsonEntities JSON strings to put in the collection
+     * @return { jsonEntities[0], jsonEntities[1], ...}
+     */
     public static Json jsonStringsCollection(Collection<String> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
     }
 
+    /**
+     * Enclose all the passed in jsonEntities in a JSON collection
+     * @param jsonEntities to put into the collection
+     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     */
     public static Json jsonCollection(Json... jsonEntities) {
         String[] jsonStrings = new String[jsonEntities.length];
         for(int i = 0; i < jsonEntities.length; i++) {
@@ -199,6 +222,11 @@ public class JsonUtilities {
         return jsonCollection(jsonStrings);
     }
 
+    /**
+     * Enclose all the passed in strings in a JSON collection
+     * @param jsonEntities JSON strings to put in the collection
+     * @return { jsonEntities[0], jsonEntities[1], ...}
+     */
     public static Json jsonCollection(String... jsonEntities) {
         StringBuilder json = new StringBuilder("{\n");
         String comma = "";
@@ -212,6 +240,12 @@ public class JsonUtilities {
         return new JsonString(json.toString());
     }
 
+    /**
+     * Convert a Map to its representation as a JSON string.
+     * @param map will be converted to its JSON representation
+     * @return valid JSON that represents the passed in map. It should be true that map.equals(jsonToMap(mapToJson(map)))
+     * @throws JsonConversionException if unable to convert this Map to json. This should never happen
+     */
     public static String mapToJson(Map<String, ? extends Object> map) throws JsonConversionException {
         if(map == null) {
             return EMPTY_JSON;
@@ -226,12 +260,24 @@ public class JsonUtilities {
         }
     }
 
+    /**
+     * Convert a Json entity to a Map representation
+     * @param json valid JSON
+     * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
+     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     */
     public static Map<String, Object> jsonToMap(Json json) throws JsonConversionException {
         if(json == null)
             return new HashMap<String, Object>();
         return jsonToMap(json.asJson());
     }
 
+    /**
+     * Convert a JSON string to a Map representation
+     * @param json valid JSON
+     * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
+     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     */
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
         try {
             Map<String, Object> jsonMap = jsonMapper.readValue(json, Map.class);
@@ -272,7 +318,16 @@ public class JsonUtilities {
         return jsonMap;
     }
 
-    public static Map<String, Object> jsonToMap(InputStream inputJson) {
+    /**
+     * Convert an InputStream containg JSON to a Map representation
+     * @param json a stream of valid JSON
+     * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
+     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     */
+    public static Map<String, Object> jsonToMap(InputStream inputJson) throws JsonConversionException {
+        if(inputJson == null) {
+            return new HashMap<String, Object>();
+        }
         StringWriter writer = new StringWriter();
         try {
             IOUtils.copy(inputJson, writer, ENCODING);
@@ -282,6 +337,14 @@ public class JsonUtilities {
         }
     }
 
+    /**
+     * Tests whether two json strings are equivalent; ignores formating and order. Expensive operation
+     * as the strings are parsed to JsonNodes, which are compared.
+     * @param first
+     * @param second
+     * @return true if first and second are equivalent JSON objects
+     * @throws JsonConversionException if unable to convert Json to a JsonNode or if first or second cannot be converted to a JSON string
+     */
     public static boolean isJsonEquivalent(Json first, Json second) throws JsonConversionException {
         if(first == null)
             return second == null;
@@ -295,8 +358,8 @@ public class JsonUtilities {
      * as the strings are parsed to JsonNodes, which are compared.
      * @param first
      * @param second
-     * @return
-     * @throws JsonConversionException
+     * @return true if first and second are equivalent JSON objects
+     * @throws JsonConversionException if unable to convert first or second to JsonNodes
      */
     public static boolean isJsonEquivalent(String first, String second) throws JsonConversionException {
         try {

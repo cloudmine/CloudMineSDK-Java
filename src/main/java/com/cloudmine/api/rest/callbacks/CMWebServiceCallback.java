@@ -4,21 +4,21 @@ package com.cloudmine.api.rest.callbacks;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 
 /**
+ * Base class for all Callback classes
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/22/12, 6:12 PM
  */
 public abstract class CMWebServiceCallback<T> implements WebServiceCallback<T> {
     private final ResponseConstructor<T> constructor;
 
+    /**
+     * Classes that extend this should have a noargs constructor that provides this constructor based on T
+     * @param constructor a way of constructing T from an {@link org.apache.http.HttpResponse}
+     */
     public CMWebServiceCallback(ResponseConstructor<T> constructor) {
         this.constructor = constructor;
     }
 
-    /**
-     * Only one the onCompletion methods should be overridden
-     * @param response
-     */
+
     @Override
     public void onCompletion(T response) {
 

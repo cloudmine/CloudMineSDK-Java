@@ -1,6 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.CMResponse;
@@ -25,7 +26,7 @@ import java.util.concurrent.Future;
  */
 public class CMFile implements Json {
 
-    public static CMFile CMFile(InputStream contents, String key, String contentType) {
+    public static CMFile CMFile(InputStream contents, String key, String contentType) throws CreationException {
         return new CMFile(contents, key, contentType);
     }
 
@@ -37,7 +38,7 @@ public class CMFile implements Json {
         }
 
         @Override
-        public CMFile construct(HttpResponse response) {
+        public CMFile construct(HttpResponse response) throws CreationException {
             return CMFile(response, key);
         }
 
@@ -64,23 +65,23 @@ public class CMFile implements Json {
     private final String contentType;
     private final byte[] fileContents;
 
-    public static CMFile CMFile(byte[] fileContents, String key, String contentType) {
+    public static CMFile CMFile(byte[] fileContents, String key, String contentType) throws CreationException {
         return new CMFile(fileContents, key, contentType);
     }
 
-    public static CMFile CMFile(InputStream contents) {
+    public static CMFile CMFile(InputStream contents) throws CreationException {
         return new CMFile(contents);
     }
 
-    public static CMFile CMFile(InputStream contents, String contentType) {
+    public static CMFile CMFile(InputStream contents, String contentType) throws CreationException {
         return new CMFile(contents, contentType);
     }
 
-    public static CMFile CMFile(HttpResponse response, String key) {
+    public static CMFile CMFile(HttpResponse response, String key) throws CreationException {
         return new CMFile(response, key);
     }
 
-    CMFile(byte[] fileContents, String key, String contentType) {
+    CMFile(byte[] fileContents, String key, String contentType) throws CreationException {
         if(fileContents == null) {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
@@ -93,17 +94,17 @@ public class CMFile implements Json {
         this.fileContents = fileContents;
     }
 
-    private CMFile(InputStream contents) {
+    private CMFile(InputStream contents) throws CreationException {
         this(contents, null, null);
     }
-    private CMFile(InputStream contents, String contentType) {
+    private CMFile(InputStream contents, String contentType) throws CreationException {
         this(contents, contentType, null);
     }
-    private CMFile(HttpResponse response, String key) {
+    private CMFile(HttpResponse response, String key) throws CreationException {
         this(extractInputStream(response), key, extractContentType(response));
     }
 
-    private CMFile(InputStream contents, String key, String contentType) {
+    private CMFile(InputStream contents, String key, String contentType) throws CreationException {
         this(inputStreamToByteArray(contents), key, contentType);
 
     }
@@ -140,7 +141,7 @@ public class CMFile implements Json {
         return response.getEntity().getContentType().getValue();
     }
 
-    private static InputStream extractInputStream(HttpResponse response) {
+    private static InputStream extractInputStream(HttpResponse response) throws CreationException {
         if(response == null || response.getEntity() == null)
             return null;
         try {
@@ -183,7 +184,7 @@ public class CMFile implements Json {
 
 
     @Override
-    public String asJson() {
+    public String asJson() throws JsonConversionException {
         return
              JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonProperty("key", key),

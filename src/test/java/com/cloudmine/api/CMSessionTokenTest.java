@@ -10,13 +10,13 @@ import static junit.framework.Assert.assertFalse;
  * CMUser: johnmccarthy
  * Date: 5/21/12, 3:49 PM
  */
-public class UserTokenTest {
+public class CMSessionTokenTest {
 
     @Test
     public void testFromJson() {
         String json = userTokenJson();
 
-        CMUserToken token = CMUserToken.CMUserToken(json);
+        CMSessionToken token = CMSessionToken.CMSessionToken(json);
 
         assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.sessionToken());
     }
@@ -30,7 +30,7 @@ public class UserTokenTest {
 
     @Test
     public void testIsValid() {
-        CMUserToken token = CMUserToken.CMUserToken("null");
+        CMSessionToken token = CMSessionToken.CMSessionToken("null");
         assertFalse(token.isValid());
     }
 }

@@ -1,12 +1,15 @@
 package com.cloudmine.api.rest;
 
 /**
+ * A generic Builder for URL strings
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/16/12, 10:54 AM
  */
 public class URLBuilder extends BaseURLBuilder<URLBuilder> {
 
+    /**
+     * Instantiate a new URLBuilder with the specified base url
+     * @param baseUrl the beginning of the URL
+     */
     public URLBuilder(String baseUrl) {
         super(baseUrl);
     }

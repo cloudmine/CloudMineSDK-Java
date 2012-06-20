@@ -1,9 +1,8 @@
 package com.cloudmine.api.exceptions;
 
 /**
+ * Thrown when unable to instantiate something
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/18/12, 4:17 PM
  */
 public class CreationException extends CloudMineException{
 

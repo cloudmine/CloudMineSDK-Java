@@ -8,30 +8,30 @@ import com.cloudmine.api.exceptions.CreationException;
  * Date: 6/14/12, 3:09 PM
  */
 public class StoreIdentifier {
-    public static final StoreIdentifier DEFAULT = applicationLevel();
+    public static final StoreIdentifier DEFAULT = new StoreIdentifier(ObjectLevel.APPLICATION, null);
     private final ObjectLevel level; //never let this be null
-    private final CMUserToken userToken;
+    private final CMSessionToken sessionToken;
 
-    public static StoreIdentifier applicationLevel(){
-        return new StoreIdentifier(ObjectLevel.APPLICATION, null);
+    public static StoreIdentifier applicationLevel() throws CreationException {
+        return DEFAULT;
     }
 
-    private StoreIdentifier(ObjectLevel level, CMUserToken user) {
-        if(user == null && ObjectLevel.APPLICATION != level) {
+    private StoreIdentifier(ObjectLevel level, CMSessionToken session) throws CreationException {
+        if(session == null && ObjectLevel.APPLICATION != level) {
             throw new CreationException("User cannot be null unless we are saving to ");
         }
         if(level == null) {
             level = ObjectLevel.UNKNOWN;
         }
         this.level = level;
-        this.userToken = user;
+        this.sessionToken = session;
     }
 
-    public StoreIdentifier(CMUserToken user) {
-        this(ObjectLevel.USER, user);
+    public StoreIdentifier(CMSessionToken session) throws CreationException {
+        this(ObjectLevel.USER, session);
     }
 
-    public StoreIdentifier() {
+    public StoreIdentifier() throws CreationException {
         this(ObjectLevel.APPLICATION, null);
     }
 
@@ -51,8 +51,8 @@ public class StoreIdentifier {
         return level;
     }
 
-    public CMUserToken userToken() {
-        return userToken;
+    public CMSessionToken userToken() {
+        return sessionToken;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class StoreIdentifier {
         StoreIdentifier that = (StoreIdentifier) o;
 
         if (level != that.level) return false;
-        if (userToken != null ? !userToken.equals(that.userToken) : that.userToken != null) return false;
+        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
 
         return true;
     }
@@ -71,7 +71,7 @@ public class StoreIdentifier {
     @Override
     public int hashCode() {
         int result = level != null ? level.hashCode() : 0;
-        result = 31 * result + (userToken != null ? userToken.hashCode() : 0);
+        result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
         return result;
     }
 }

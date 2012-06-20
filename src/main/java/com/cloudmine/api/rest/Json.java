@@ -1,10 +1,16 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.exceptions.JsonConversionException;
+
 /**
+ * Anything that can be converted to JSON should implement this interface
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/21/12, 3:43 PM
  */
 public interface Json {
-    public String asJson();
+    /**
+     * Convert this object to a json representation
+     * @return this object as json
+     * @throws JsonConversionException if unable to convert to valid json
+     */
+    public String asJson() throws JsonConversionException;
 }

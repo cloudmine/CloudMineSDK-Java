@@ -54,7 +54,7 @@ public class SuccessErrorResponseTest {
     public void testGetSuccessObjects() {
         SuccessErrorResponse response = new SuccessErrorResponse(SET_RESPONSE, 200);
 
-        Collection<SimpleCMObject> successObjects = response.getSuccessObjects();
+        Collection<SimpleCMObject> successObjects = response.successObjects();
 
         assertEquals(3, successObjects.size());
     }

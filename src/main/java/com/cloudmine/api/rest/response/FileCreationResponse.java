@@ -5,9 +5,9 @@ import org.apache.http.HttpResponse;
 import java.util.concurrent.Future;
 
 /**
+ * Returned by the CloudMine service in response to file creation requests. Contains the fileKey
+ * for the created file
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 6/4/12, 5:28 PM
  */
 public class FileCreationResponse extends CMResponse {
 
@@ -23,10 +23,18 @@ public class FileCreationResponse extends CMResponse {
         }
     };
 
+    /**
+     * Instantiate a new FileCreationResponse. You should probably not be calling this yourself
+     * @param response a response to a file creation request
+     */
     public FileCreationResponse(HttpResponse response) {
         super(response);
     }
 
+    /**
+     * Get the key for the file. May be null
+     * @return The key for the file. May be null
+     */
     public String fileKey() {
         Object key = getObject("key");
         if(key == null) {

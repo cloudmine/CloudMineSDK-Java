@@ -1,16 +1,15 @@
 package com.cloudmine.api.rest.callbacks;
 
 
-import com.cloudmine.api.rest.response.LogInResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
 
 /**
+ * Callback for calls that return a {@link com.cloudmine.api.rest.response.LoginResponse}
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/24/12, 4:52 PM
  */
-public class LoginResponseCallback extends CMWebServiceCallback<LogInResponse> {
+public class LoginResponseCallback extends CMWebServiceCallback<LoginResponse> {
     public static final LoginResponseCallback DO_NOTHING = new LoginResponseCallback();
     public LoginResponseCallback() {
-        super(LogInResponse.CONSTRUCTOR);
+        super(LoginResponse.CONSTRUCTOR);
     }
 }
