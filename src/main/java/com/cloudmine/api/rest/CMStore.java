@@ -15,9 +15,9 @@ import java.util.concurrent.Future;
 
 /**
  * The main class for interacting with the CloudMine API. Stores can operate on both the user or application level
- * Preconditions for use:
- * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context
- * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key
+ * Preconditions for use:<br>
+ * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
+ * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
  * Copyright CloudMine LLC
  */
 public class CMStore {
@@ -609,7 +609,8 @@ public class CMStore {
     private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
         List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
         for(SimpleCMObject object : objects.values()) {
-            if(object.isOnLevel(level)) {
+            if(object.isOnLevel(level) ||
+                    (ObjectLevel.APPLICATION == level && object.isOnLevel(ObjectLevel.UNKNOWN))) {
                 storeObjects.add(object);
             }
         }

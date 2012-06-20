@@ -6,8 +6,6 @@ import com.cloudmine.api.rest.Json;
 
 /**
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 6/4/12, 11:57 AM
  */
 public class CMGeoPoint extends SimpleCMObject {
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};

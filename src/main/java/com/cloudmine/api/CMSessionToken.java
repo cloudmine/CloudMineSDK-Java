@@ -28,6 +28,16 @@ public class CMSessionToken implements Json {
     private final String sessionToken;
     private final DateTime expires;
 
+    /**
+     * Instantiates a new CMSessionToken based on a JSON string returned from a login request
+     * @param json A JSON string returned from a login request
+     * @return a new CMSessionToken
+     * @throws JsonConversionException if invalid JSON is passed in
+     */
+    public static CMSessionToken CMSessionToken(String json) throws JsonConversionException {
+        return new CMSessionToken(json);
+    }
+
     private CMSessionToken(String json) throws JsonConversionException {
         boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
         if(jsonIsEmpty) {
@@ -50,16 +60,6 @@ public class CMSessionToken implements Json {
     private CMSessionToken(String sessionToken, Date expires) {
         this.sessionToken = sessionToken;
         this.expires = new DateTime(expires);
-    }
-
-    /**
-     * Instantiates a new CMSessionToken based on a JSON string returned from a login request
-     * @param json A JSON string returned from a login request
-     * @return a new CMSessionToken
-     * @throws JsonConversionException if invalid JSON is passed in
-     */
-    public static CMSessionToken CMSessionToken(String json) throws JsonConversionException {
-        return new CMSessionToken(json);
     }
 
     /**

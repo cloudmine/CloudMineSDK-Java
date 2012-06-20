@@ -21,9 +21,8 @@ public class CMSortOptions implements BaseURL{
      * @param sortByField the field on the object to sort by
      * @param direction the direction of the field, ASCENDING or DESCENDING
      */
-    public CMSortOptions(String sortByField, SortDirection direction) {
-        this.direction = direction;
-        this.sortByField = sortByField;
+    public static CMSortOptions CMSortOptions(String sortByField, SortDirection direction) {
+        return new CMSortOptions(sortByField, direction);
     }
 
     /**
@@ -31,7 +30,16 @@ public class CMSortOptions implements BaseURL{
      * You probably don't want to be calling this
      * @param asString the raw URL string
      */
-    public CMSortOptions(String asString) {
+    public static CMSortOptions CMSortOptions(String asString) {
+        return new CMSortOptions(asString);
+    }
+
+    CMSortOptions(String sortByField, SortDirection direction) {
+        this.direction = direction;
+        this.sortByField = sortByField;
+    }
+
+    CMSortOptions(String asString) {
         urlString.setValue(asString);
         direction = null;
         sortByField = null;

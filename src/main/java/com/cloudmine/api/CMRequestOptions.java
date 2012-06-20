@@ -20,7 +20,11 @@ public class CMRequestOptions implements BaseURL{
      * @param serverFunction a server side code snippet to call, and any options associated with that
      * @param sortOptions sorting options for any results
      */
-    public CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
+    public static CMRequestOptions CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
+        return new CMRequestOptions(pagingOptions, serverFunction, sortOptions);
+    }
+
+    CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
         this.pagingOptions = pagingOptions;
         this.serverFunction = serverFunction;
         this.sortOptions = sortOptions;
