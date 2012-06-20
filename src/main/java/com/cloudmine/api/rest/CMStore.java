@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback;
 import com.cloudmine.api.rest.response.FileLoadResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
@@ -92,18 +93,33 @@ public class CMStore {
     private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
         return new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
+                try {
                 if(response.wasSuccess()) {
                     setLoggedInUser(response.getSessionToken());
                 }
-                callback.onCompletion(response);
+                }finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
+    }
+
+    private final SimpleCMObjectResponseCallback objectLoadUpdateStoreCallback(final Callback callback) {
+        return new SimpleCMObjectResponseCallback() {
+            public void onCompletion(SimpleCMObjectResponse response) {
+                try {
+                if(response.wasSuccess()) {
+                    addObjects(response.getSuccessObjects());
+                }
+                }finally {
+                    callback.onCompletion(response);
+                }
             }
         };
     }
 
     private final CMWebService applicationService;
     private final Immutable<CMSessionToken> loggedInUserToken = new Immutable<CMSessionToken>();
-    private final Map<String, SimpleCMObject> applicationObjects = new HashMap<String, SimpleCMObject>();
-    private final Map<String, SimpleCMObject> userObjects = new HashMap<String, SimpleCMObject>();
     private final Map<String, SimpleCMObject> objects = new ConcurrentHashMap<String, SimpleCMObject>();
 
     private CMStore() throws CreationException {
@@ -165,6 +181,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> saveObject(SimpleCMObject object, Callback callback, CMRequestOptions options) throws JsonConversionException, CreationException {
+        addObject(object);
         return serviceForObject(object).asyncInsert(object, callback, options);
     }
 
@@ -204,6 +221,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<ObjectModificationResponse> deleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) throws CreationException {
+        removeObject(object);
         return serviceForObject(object).asyncDeleteObject(object, callback, options);
     }
 
@@ -231,7 +249,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(callback, options);
+        return applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback),
+                options);
     }
 
 
@@ -262,7 +281,7 @@ public class CMStore {
      *
      */
     public Future<SimpleCMObjectResponse> loadAllUserObjects(Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjects(callback, options);
+        return userService().asyncLoadObjects(objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -292,7 +311,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(objectIds, callback, options);
+        return applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -325,7 +344,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjects(objectIds, callback, options);
+        return userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -358,7 +377,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncSearch(search, callback, options);
+        return userService().asyncSearch(search, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -388,7 +407,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncSearch(search, callback, options);
+        return applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -424,7 +443,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjectsOfClass(klass, callback, options);
+        return userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -622,25 +641,53 @@ public class CMStore {
      * Add the specified object to the store. No API calls are performed as a result of this operation; to
      * save the added object, call {@link #saveStoreObjects()} or a related method
      * @param object gets added to the local store
-     * @throws NullPointerException if the passed in object is null
      */
-    public void addObject(SimpleCMObject object) throws NullPointerException {
-        if(object == null) {
-            throw new NullPointerException("Cannot add a null object to a CMStore");
-        }
+    public void addObject(SimpleCMObject object) {
         objects.put(object.getObjectId(), object);
     }
 
     /**
-     * Add the specified object to the store. No API calls are performed as a result of this operation
-     * @param object gets removed from the local store
-     * @throws NullPointerException if the passed in object is null
+     * Add all the given objects to the store. No API calls are performed as a result of this operation
+     * @param objects to add to the local store
      */
-    public void removeObject(SimpleCMObject object) throws NullPointerException {
-        if(object == null) {
-            throw new NullPointerException("Cannot add a null object to a CMStore");
+    public void addObjects(Collection<SimpleCMObject> objects) {
+        if(objects == null) {
+            return;
         }
-        objects.remove(object.getObjectId());
+        for(SimpleCMObject object : objects) {
+            addObject(object);
+        }
+    }
+
+    /**
+     * Remove the specified object from the store. No API calls are performed as a result of this operation
+     * @param object gets removed from the local store
+     */
+    public void removeObject(SimpleCMObject object) {
+        if(object == null)
+            return;
+        removeObject(object.getObjectId());
+    }
+
+    /**
+     * Remove the object specified by this objectId from the store. No API calls are performed as a result of this operation
+     * @param objectId the id of the object to remove from the store
+     */
+    public void removeObject(String objectId) {
+        objects.remove(objectId);
+    }
+
+    /**
+     * Remove all the objects with the given objectIds from the store. No API calls are performed as a result of this operation
+     * @param objectIds the ids of the objects to remove from the store
+     */
+    public void removeObjects(Collection<String> objectIds) {
+        if(objectIds == null) {
+            return;
+        }
+        for(String objectId : objectIds) {
+            removeObject(objectId);
+        }
     }
 
     /**

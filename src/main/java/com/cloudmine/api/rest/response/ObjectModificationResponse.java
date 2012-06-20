@@ -2,6 +2,8 @@ package com.cloudmine.api.rest.response;
 
 import org.apache.http.HttpResponse;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -69,6 +71,20 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      */
     public boolean wasModified(String objectId) {
         return !ResponseValue.MISSING.equals(getKeyResponse(objectId));
+    }
+
+    /**
+     * Gets the object ids of all the objects that were deleted
+     * @return the object ids of all the objects that were deleted
+     */
+    public List<String> getDeletedObjectIds() {
+        List<String> deletedObjectIds = new ArrayList<String>();
+        for(String objectId : getSuccessMap().keySet()) {
+            if(wasDeleted(objectId)) {
+                deletedObjectIds.add(objectId);
+            }
+        }
+        return deletedObjectIds;
     }
 
     /**
