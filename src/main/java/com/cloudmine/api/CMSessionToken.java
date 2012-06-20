@@ -3,8 +3,10 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
-import org.joda.time.DateTime;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Map;
  * Copyright CloudMine LLC
  */
 public class CMSessionToken implements Json {
+    private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     private static final Date EXPIRED_DATE = new Date(0);
     public static final String INVALID_TOKEN = "invalidToken";
     /**
@@ -26,7 +29,7 @@ public class CMSessionToken implements Json {
     public static final String SESSION_KEY = "session_token";
     public static final String EXPIRES_KEY = "expires";
     private final String sessionToken;
-    private final DateTime expires;
+    private final Date expires;
 
     /**
      * Instantiates a new CMSessionToken based on a JSON string returned from a login request
@@ -42,7 +45,7 @@ public class CMSessionToken implements Json {
         boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
         if(jsonIsEmpty) {
             sessionToken = INVALID_TOKEN;
-            expires = new DateTime(EXPIRED_DATE);
+            expires = EXPIRED_DATE;
         } else {
             Map<String, Object> objectMap = JsonUtilities.jsonToMap(json);
             boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
@@ -51,15 +54,18 @@ public class CMSessionToken implements Json {
                 throw new JsonConversionException("Can't create CMSessionToken from json missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
-    //        String dateString = objectMap.get(EXPIRES_KEY).toString();
-    //        expires = JsonUtilities.toDate(dateString);
-            expires = new DateTime(); //TODO figure out how we're going to be formatting these dates
+            String dateString = objectMap.get(EXPIRES_KEY).toString();
+            try {
+                expires = LOGIN_EXPIRES_FORMAT.parse(dateString);
+            } catch (ParseException e) {
+                throw new JsonConversionException(e);
+            }
         }
     }
 
     private CMSessionToken(String sessionToken, Date expires) {
         this.sessionToken = sessionToken;
-        this.expires = new DateTime(expires);
+        this.expires = expires;
     }
 
     /**
@@ -75,7 +81,7 @@ public class CMSessionToken implements Json {
     public String asJson() throws JsonConversionException {
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         jsonMap.put(SESSION_KEY, sessionToken);
-        jsonMap.put(EXPIRES_KEY, expires.toDate());
+        jsonMap.put(EXPIRES_KEY, expires);
         return JsonUtilities.mapToJson(jsonMap);
     }
 
@@ -87,12 +93,16 @@ public class CMSessionToken implements Json {
         return sessionToken;
     }
 
+    public Date getExpiredDate() {
+        return expires;
+    }
+
     /**
      * Whether this token has expired or not.
      * @return false if it has expired, true otherwise
      */
     public boolean isValid() {
-        return expires.isAfterNow();
+        return expires.after(new Date());
     }
 
 }
