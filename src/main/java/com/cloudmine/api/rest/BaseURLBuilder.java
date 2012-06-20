@@ -72,6 +72,17 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     }
 
     /**
+     * Remove the given action from the url, if it exists. Then returns the new builder
+     * @param action the action to remove, trailing /'s will be removed and leading / will be added if needed
+     * @return a new builder without the added action
+     */
+    public T removeAction(String action) {
+        String formattedAction = formatUrlPart(action);
+        String newActions = actions.replace(formattedAction, "");
+        return newBuilder(baseUrl, newActions, queryParams);
+    }
+
+    /**
      * Add the given query parameter to the URL, and returns the new builder. Query params are formated to
      * look like "?key=value"
      * @param key the query param key

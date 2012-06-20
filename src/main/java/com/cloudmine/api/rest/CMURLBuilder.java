@@ -14,6 +14,9 @@ import java.util.Collection;
  * Copyright CloudMine LLC
  */
 public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
+
+    public static final String USER = "user";
+
     enum VERSION implements BaseURL {
         V1("/v1");
         private final String urlRepresentation;
@@ -148,7 +151,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
 
     /**
-     * Add the specified objectId as a query. Equivalent to passing Collections.singleton(objectId) to {@link #keys}
+     * Add the specified objectId as a query. Equivalent to passing Collections.singleton(objectId) to {@link #objectIds(java.util.Collection)}
      * @param objectId
      * @return a new CMURLBuilder with the specified object id as a query
      */
@@ -179,8 +182,12 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return keyString;
     }
 
+    public CMURLBuilder notUser() {
+        return this.removeAction(USER);
+    }
+
     public CMURLBuilder account() {
-        return this.addAction("account");
+        return this.notUser().addAction("account");
     }
 
     public CMURLBuilder reset() {
@@ -204,7 +211,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
 
     public CMURLBuilder user() {
-        return this.addAction("user");
+        return this.addAction(USER);
     }
 
     public CMURLBuilder create() {
