@@ -256,17 +256,17 @@ public class CMWebService {
         return executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
     }
 
-    public Future<CMFile> asyncLoadFile(String fileName) {
+    public Future<FileLoadResponse> asyncLoadFile(String fileName) {
         return asyncLoadFile(fileName, Callback.DO_NOTHING);
     }
 
-    public Future<CMFile> asyncLoadFile(String fileName, Callback callback) {
+    public Future<FileLoadResponse> asyncLoadFile(String fileName, Callback callback) {
         return asyncLoadFile(fileName, callback, CMRequestOptions.NONE);
     }
 
-    public Future<CMFile> asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
+    public Future<FileLoadResponse> asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
         return executeAsyncCommand(addRequestOptions(createGetFile(fileName), options),
-                callback, cmFileConstructor(fileName));
+                callback, fileLoadResponseResponseConstructor(fileName));
     }
 
     public Future<SimpleCMObjectResponse> asyncLoadObjects() {
@@ -699,6 +699,10 @@ public class CMWebService {
 
     protected ResponseConstructor<CMResponse> cmResponseConstructor() {
         return CMResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<FileLoadResponse> fileLoadResponseResponseConstructor(String key) {
+        return FileLoadResponse.constructor(key);
     }
 
     protected ResponseConstructor<CMFile> cmFileConstructor(String key) {

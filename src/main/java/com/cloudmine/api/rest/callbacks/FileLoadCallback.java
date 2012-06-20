@@ -1,13 +1,13 @@
 package com.cloudmine.api.rest.callbacks;
 
-import com.cloudmine.api.CMFile;
+import com.cloudmine.api.rest.response.FileLoadResponse;
 
 /**
  * Callback for when loading files from CloudMine. Receives CMFile
  * Copyright CloudMine LLC
  */
-public class FileLoadCallback  extends CMCallback<CMFile> {
+public class FileLoadCallback  extends CMCallback<FileLoadResponse> {
     public FileLoadCallback(String fileName) {
-        super(CMFile.constructor(fileName));
+        super(FileLoadResponse.constructor(fileName));
     }
 }

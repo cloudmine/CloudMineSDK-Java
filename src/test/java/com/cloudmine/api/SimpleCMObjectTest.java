@@ -24,6 +24,7 @@ public class SimpleCMObjectTest {
         SimpleCMObject object = createComplexObject();
         String expectedJson = "{\"topLevelKey\":{\n" +
                 "    \"name\":\"john\",\n" +
+                "    \"__id__\":\"topLevelKey\",\n" +
                 "    \"numbers\":[1, 2, 3, 4, 5],\n" +
                 "    \"date\":{\n" +
                 "    " + JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, JsonUtilities.DATE_CLASS) + ",\n" +
@@ -128,13 +129,13 @@ public class SimpleCMObjectTest {
         SimpleCMObject object = SimpleCMObject.SimpleCMObject("topLevelKey");
         CMGeoPoint geoObject = CMGeoPoint.CMGeoPoint(50, 50, "geoObject");
         object.add("geo", geoObject);
-        String expectedJson = "{\"topLevelKey\":{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+        String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", \"geo\":{\"__id__\":\"geoObject\", \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
 
         //difference is in the key value - geo vs geoObject
         object = SimpleCMObject.SimpleCMObject("topLevelKey");
         object.add(geoObject);
-        expectedJson = "{\"topLevelKey\":{\"geoObject\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+        expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\",\"geoObject\":{\"__id__\":\"geoObject\", \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.asJson(), JsonUtilities.isJsonEquivalent(expectedJson, object.asJson()));
 
     }

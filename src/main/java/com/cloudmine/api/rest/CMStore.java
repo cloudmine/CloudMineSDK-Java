@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.response.FileLoadResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
@@ -661,7 +662,7 @@ public class CMStore {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String fileName) {
+    public Future<FileLoadResponse> loadApplicationFile(String fileName) {
         return loadApplicationFile(fileName, Callback.DO_NOTHING);
     }
 
@@ -671,7 +672,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String fileName, Callback callback) {
+    public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback) {
         return loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
     }
 
@@ -682,7 +683,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
+    public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadFile(fileName, callback, options);
     }
 
@@ -692,7 +693,7 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String fileName) throws CreationException {
+    public Future<FileLoadResponse> loadUserFile(String fileName) throws CreationException {
         return loadUserFile(fileName, Callback.DO_NOTHING);
     }
 
@@ -703,7 +704,7 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String fileName, Callback callback) throws CreationException {
+    public Future<FileLoadResponse> loadUserFile(String fileName, Callback callback) throws CreationException {
         return loadUserFile(fileName, callback, CMRequestOptions.NONE);
     }
 
@@ -715,7 +716,7 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> loadUserFile(String fileName, Callback callback, CMRequestOptions options) throws CreationException {
+    public Future<FileLoadResponse> loadUserFile(String fileName, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadFile(fileName, callback, options);
     }
 
