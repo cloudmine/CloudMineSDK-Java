@@ -52,7 +52,7 @@ public class CMApiCredentials {
      * @return the CMApiCredentials
      * @throws CreationException if called before the credentials have been initialized
      */
-    public static CMApiCredentials credentials() throws CreationException {
+    public static CMApiCredentials getCredentials() throws CreationException {
         if(credentials.isSet() == false) {
             throw new CreationException("Cannot access CMApiCredentials before they have been initialized");
         }
@@ -63,23 +63,23 @@ public class CMApiCredentials {
      * Returns the application identifier
      * @return the application identifier
      */
-    public static String applicationIdentifier() {
-        return credentials().applicationIdentifier;
+    public static String getApplicationIdentifier() {
+        return getCredentials().applicationIdentifier;
     }
 
     /**
      * Returns the application API key
      * @return the application API key
      */
-    public static String applicationApiKey() {
-        return credentials().applicationApiKey;
+    public static String getApplicationApiKey() {
+        return getCredentials().applicationApiKey;
     }
 
     /**
      * Returns a Header that contains the CloudMine authentication information for a request
      * @return a Header that contains the CloudMine authentication information for a request
      */
-    public static Header cloudMineHeader() {
-        return new BasicHeader(HEADER_KEY, applicationApiKey());
+    public static Header getCloudMineHeader() {
+        return new BasicHeader(HEADER_KEY, getApplicationApiKey());
     }
 }

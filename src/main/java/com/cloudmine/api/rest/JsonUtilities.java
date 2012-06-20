@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public class JsonUtilities {
             @Override
             public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
                 jgen.writeStartObject();
-                jgen.writeRaw(dateToUnwrappedJsonClass(value));
+                jgen.writeRaw(convertDateToUnwrappedJsonClass(value));
                 jgen.writeEndObject();
             }
 
@@ -113,7 +112,7 @@ public class JsonUtilities {
      * @param date the Date to convert. If null, an empty string "" is returned
      * @return the date as JSON, or "" if given null
      */
-    public static String dateToUnwrappedJsonClass(Date date ){
+    public static String convertDateToUnwrappedJsonClass(Date date){
         if(date == null) {
             return NULL_STRING;
         }
@@ -129,8 +128,8 @@ public class JsonUtilities {
      * @param date the Date to convert. If null, a wrapped empty string {\n""\n} is returned
      * @return the date as a JSON object, or {""} if given null
      */
-    public static String dateToJsonClass(Date date) {
-        String unwrappedDate = dateToUnwrappedJsonClass(date);
+    public static String convertDateToJsonClass(Date date) {
+        String unwrappedDate = convertDateToUnwrappedJsonClass(date);
         return "{\n" + unwrappedDate + "\n}";
     }
 
@@ -320,7 +319,7 @@ public class JsonUtilities {
 
     /**
      * Convert an InputStream containg JSON to a Map representation
-     * @param json a stream of valid JSON
+     * @param inputJson a stream of valid JSON
      * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
      * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
      */
@@ -346,10 +345,6 @@ public class JsonUtilities {
      * @throws JsonConversionException if unable to convert Json to a JsonNode or if first or second cannot be converted to a JSON string
      */
     public static boolean isJsonEquivalent(Json first, Json second) throws JsonConversionException {
-        if(first == null)
-            return second == null;
-        if(second == null)
-            return false;
         return isJsonEquivalent(first.asJson(), second.asJson());
     }
 
@@ -362,6 +357,10 @@ public class JsonUtilities {
      * @throws JsonConversionException if unable to convert first or second to JsonNodes
      */
     public static boolean isJsonEquivalent(String first, String second) throws JsonConversionException {
+        if(first == null)
+            return second == null;
+        if(second == null)
+            return false;
         try {
             JsonNode firstNode = jsonMapper.readTree(first);
             try {

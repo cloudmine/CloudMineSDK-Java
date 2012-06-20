@@ -46,17 +46,17 @@ public class SimpleCMObjectTest {
         unkeyedMap.put("intKey", Integer.valueOf(5));
 
         SimpleCMObject topKeyed = SimpleCMObject.SimpleCMObject(topLevelKeyedMap);
-        assertEquals("topLevelKey", topKeyed.key());
+        assertEquals("topLevelKey", topKeyed.getObjectId());
         assertEquals(Integer.valueOf(5), topKeyed.getInteger("intKey"));
 
         SimpleCMObject unkeyed = SimpleCMObject.SimpleCMObject(unkeyedMap);
         assertEquals("aString", unkeyed.getString("stringKey"));
-        assertNotNull(unkeyed.key());
+        assertNotNull(unkeyed.getObjectId());
 
         Map<String, Object> unkeyedSingleEntry = new HashMap<String, Object>();
         unkeyedSingleEntry.put("stringKey", "aString");
         SimpleCMObject unkeyedSingle = SimpleCMObject.SimpleCMObject(unkeyedSingleEntry);
-        assertFalse("stringKey".equals(unkeyedSingle.key()));
+        assertFalse("stringKey".equals(unkeyedSingle.getObjectId()));
         assertEquals("aString", unkeyedSingle.getString("stringKey"));
     }
 
@@ -65,7 +65,7 @@ public class SimpleCMObjectTest {
         SimpleCMObject object = SimpleCMObject.SimpleCMObject("topLevelKey");
         object.add("string", "value");
 
-        assertEquals("topLevelKey", object.key());
+        assertEquals("topLevelKey", object.getObjectId());
     }
 
     private SimpleCMObject createComplexObject() {

@@ -28,8 +28,6 @@ import java.util.concurrent.Future;
 
 /**
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/16/12, 2:34 PM
  */
 public class CMWebService {
 
@@ -56,8 +54,8 @@ public class CMWebService {
      * @return a platform appropriate implementation of CMWebService
      * @throws CreationException if CMApiCredentials.initialize has not yet been called
      */
-    public static CMWebService service() throws CreationException {
-        return AndroidCMWebService.service(); //This will be returned for the android library
+    public static CMWebService getService() throws CreationException {
+        return AndroidCMWebService.getService(); //This will be returned for the android library
     }
 
     protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
@@ -89,7 +87,7 @@ public class CMWebService {
         }
     }
 
-    public UserCMWebService userWebService(CMSessionToken token) throws CreationException {
+    public UserCMWebService getUserWebService(CMSessionToken token) throws CreationException {
         return createUserCMWebService(token);
     }
 
@@ -113,14 +111,14 @@ public class CMWebService {
      */
     public synchronized UserCMWebService setLoggedInUser(CMSessionToken token) throws CreationException {
         loggedInSessionToken = token;
-        return userWebService(token);
+        return getUserWebService(token);
     }
 
-    public synchronized UserCMWebService userWebService() throws CreationException {
+    public synchronized UserCMWebService getUserWebService() throws CreationException {
         if(loggedInSessionToken == null) {
             throw new CreationException("Cannot request a user web service until setLoggedInUser has been called");
         }
-        return userWebService(loggedInSessionToken);
+        return getUserWebService(loggedInSessionToken);
     }
 
     public ObjectModificationResponse deleteAll() throws CreationException {
@@ -174,7 +172,7 @@ public class CMWebService {
         int size = objects.size();
         Collection<String> keys = new ArrayList<String>(size);
         for(SimpleCMObject object : objects) {
-            keys.add(object.key());
+            keys.add(object.getObjectId());
         }
         return asyncDelete(keys, callback, options);
     }
@@ -222,7 +220,7 @@ public class CMWebService {
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, WebServiceCallback callback) {
-        return asyncDelete(file.key(), callback);
+        return asyncDelete(file.getFileKey(), callback);
     }
 
     public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files) {
@@ -232,7 +230,7 @@ public class CMWebService {
     public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, WebServiceCallback callback) {
         Collection<String> keys = new ArrayList<String>(files.size());
         for(CMFile file : files) {
-            keys.add(file.key());
+            keys.add(file.getFileKey());
         }
         return asyncDelete(keys, callback);
     }
@@ -374,64 +372,12 @@ public class CMWebService {
         return executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
-    public SimpleCMObjectResponse get(String key) throws CreationException {
-        return get(Collections.singletonList(key));
-    }
-
-    /**
-     *
-     * @param keys
-     * @return
-     * @throws CreationException if unable to create the SimpleCMObjectResponse from the HttpResponse.
-     */
-    public SimpleCMObjectResponse get(Collection<String> keys) throws CreationException{
-        return executeCommand(createGetObjects(keys), simpleCMObjectResponseConstructor());
-    }
-
-    public SimpleCMObjectResponse get() throws CreationException {
-        return executeCommand(createGet(), simpleCMObjectResponseConstructor());
-    }
-
-    public CMFile getFile(String key) throws CreationException {
-        try {
-            HttpResponse response = httpClient.execute(createGetFile(key));
-            return CMFile.CMFile(response, key);
-        } catch (IOException e) {
-            LOG.error("IOException getting file", e);
-            throw new CreationException("Couldn't get file because of IOException", e);
-        }
-    }
-
-    public SimpleCMObjectResponse search(String searchString) throws CreationException {
-        HttpGet get = createSearch(searchString);
-        return executeCommand(get, simpleCMObjectResponseConstructor());
-    }
-
-    public ObjectModificationResponse set(String json) throws CreationException {
-        HttpPut put = createPut(json);
-        return executeCommand(put, objectModificationResponseConstructor());
-    }
-
-    public ObjectModificationResponse update(String json) throws CreationException {
-        HttpPost post = createJsonPost(json);
-        return executeCommand(post, objectModificationResponseConstructor());
-    }
-
-    public FileCreationResponse set(CMFile file) throws CreationException {
-        return executeCommand(createPut(file), fileCreationResponseConstructor());
-    }
-
-
     public Future<CMResponse> asyncCreateUser(CMUser user) throws JsonConversionException {
         return executeAsyncCommand(createPut(user));
     }
 
     public Future<CMResponse> asyncCreateUser(CMUser user, WebServiceCallback callback) throws JsonConversionException {
         return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
-    }
-
-    public CMResponse changePassword(CMUser user, String newPassword) throws CreationException {
-        return executeCommand(createChangePassword(user, newPassword));
     }
 
     public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword) {
@@ -474,8 +420,60 @@ public class CMWebService {
         return executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
+    public SimpleCMObjectResponse loadObject(String objectId) throws CreationException {
+        return loadObjects(Collections.singletonList(objectId));
+    }
 
-    public CMResponse set(CMUser user) throws CreationException, JsonConversionException {
+    /**
+     *
+     * @param objectIds
+     * @return
+     * @throws CreationException if unable to create the SimpleCMObjectResponse from the HttpResponse.
+     */
+    public SimpleCMObjectResponse loadObjects(Collection<String> objectIds) throws CreationException{
+        return executeCommand(createGetObjects(objectIds), simpleCMObjectResponseConstructor());
+    }
+
+    public SimpleCMObjectResponse loadAllObjects() throws CreationException {
+        return executeCommand(createGet(), simpleCMObjectResponseConstructor());
+    }
+
+    public CMFile loadFile(String key) throws CreationException {
+        try {
+            HttpResponse response = httpClient.execute(createGetFile(key));
+            return CMFile.CMFile(response, key);
+        } catch (IOException e) {
+            LOG.error("IOException getting file", e);
+            throw new CreationException("Couldn't get file because of IOException", e);
+        }
+    }
+
+    public SimpleCMObjectResponse loadSearch(String searchString) throws CreationException {
+        HttpGet get = createSearch(searchString);
+        return executeCommand(get, simpleCMObjectResponseConstructor());
+    }
+
+    public ObjectModificationResponse insert(String json) throws CreationException {
+        HttpPut put = createPut(json);
+        return executeCommand(put, objectModificationResponseConstructor());
+    }
+
+
+    public ObjectModificationResponse update(String json) throws CreationException {
+        HttpPost post = createJsonPost(json);
+        return executeCommand(post, objectModificationResponseConstructor());
+    }
+
+    public FileCreationResponse insert(CMFile file) throws CreationException {
+        return executeCommand(createPut(file), fileCreationResponseConstructor());
+    }
+
+    public CMResponse changePassword(CMUser user, String newPassword) throws CreationException {
+        return executeCommand(createChangePassword(user, newPassword));
+    }
+
+
+    public CMResponse insert(CMUser user) throws CreationException, JsonConversionException {
         return executeCommand(createPut(user));
     }
 
@@ -485,10 +483,6 @@ public class CMWebService {
 
     public CMResponse logout(CMSessionToken sessionToken) throws CreationException {
         return executeCommand(createLogoutPost(sessionToken));
-    }
-
-    private CMResponse executeCommand(HttpUriRequest message) throws CreationException {
-        return executeCommand(message, cmResponseConstructor());
     }
 
     private Future<CMResponse> executeAsyncCommand(HttpUriRequest message) {
@@ -501,6 +495,10 @@ public class CMWebService {
 
     private <T> Future<T> executeAsyncCommand(HttpUriRequest message, WebServiceCallback callback, ResponseConstructor<T> constructor) {
         return asyncHttpClient.executeCommand(message, callback, constructor);
+    }
+
+    private CMResponse executeCommand(HttpUriRequest message) throws CreationException {
+        return executeCommand(message, cmResponseConstructor());
     }
 
     private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) throws CreationException{
@@ -520,67 +518,67 @@ public class CMWebService {
 
     //**************************Http commands*****************************************
     private HttpGet createSearch(String search) {
-        HttpGet get = new HttpGet(baseUrl.search(search).urlString());
+        HttpGet get = new HttpGet(baseUrl.search(search).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpDelete createDeleteAll() {
-        HttpDelete delete = new HttpDelete(baseUrl.deleteAll().urlString());
+        HttpDelete delete = new HttpDelete(baseUrl.deleteAll().asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpDelete createDelete(String key) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(key).urlString());
+        HttpDelete delete = new HttpDelete(baseUrl.delete(key).asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpDelete createDelete(Collection<String> keys) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).urlString());
+        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).asUrlString());
 
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpPut createPut(String json) {
-        HttpPut put = new HttpPut(baseUrl.text().urlString());
+        HttpPut put = new HttpPut(baseUrl.text().asUrlString());
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
     }
 
     private HttpPut createPut(CMUser user) throws JsonConversionException {
-        HttpPut put = new HttpPut(baseUrl.account().create().urlString());
+        HttpPut put = new HttpPut(baseUrl.account().create().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.asJson());
         return put;
     }
 
     private HttpPut createPut(CMFile file) {
-        HttpPut put = new HttpPut(baseUrl.binary(file.key()).urlString());
+        HttpPut put = new HttpPut(baseUrl.binary(file.getFileKey()).asUrlString());
         addCloudMineHeader(put);
-        put.setEntity(new ByteArrayEntity(file.fileContents()));
-        put.addHeader("Content-Type", file.contentType());
+        put.setEntity(new ByteArrayEntity(file.getFileContents()));
+        put.addHeader("Content-Type", file.getContentType());
         return put;
     }
 
     private HttpPost createJsonPost(String json) {
-        HttpPost post = createPost(baseUrl.text().urlString());
+        HttpPost post = createPost(baseUrl.text().asUrlString());
         addJson(post, json);
         return post;
     }
 
     private HttpPost createLoginPost(CMUser user) {
-        HttpPost post = createPost(baseUrl.account().login().urlString());
+        HttpPost post = createPost(baseUrl.account().login().asUrlString());
         addAuthorizationHeader(user, post);
         return post;
     }
 
     private HttpPost createLogoutPost(CMSessionToken sessionToken) {
-        HttpPost post = createPost(baseUrl.account().logout().urlString());
-        post.addHeader("X-CloudMine-SessionToken", sessionToken.sessionToken());
+        HttpPost post = createPost(baseUrl.account().logout().asUrlString());
+        post.addHeader("X-CloudMine-SessionToken", sessionToken.getSessionToken());
         return post;
     }
 
@@ -591,25 +589,25 @@ public class CMWebService {
     }
 
     private HttpGet createGet() {
-        HttpGet get = new HttpGet(baseUrl.text().urlString());
+        HttpGet get = new HttpGet(baseUrl.text().asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpGet createGetFile(String key) {
-        HttpGet get = new HttpGet(baseUrl.binary(key).urlString());
+        HttpGet get = new HttpGet(baseUrl.binary(key).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
-        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).urlString());
+        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpPost createResetPasswordConfirmation(String token, String newPassword) {
-        HttpPost post = new HttpPost(baseUrl.account().password().reset().addAction(token).urlString());
+        HttpPost post = new HttpPost(baseUrl.account().password().reset().addAction(token).asUrlString());
         addCloudMineHeader(post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
@@ -622,7 +620,7 @@ public class CMWebService {
     }
 
     private HttpPost createResetPassword(String email) {
-        HttpPost post = new HttpPost(baseUrl.account().password().reset().urlString());
+        HttpPost post = new HttpPost(baseUrl.account().password().reset().asUrlString());
         addCloudMineHeader(post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
@@ -635,7 +633,7 @@ public class CMWebService {
     }
 
     private HttpPost createChangePassword(CMUser user, String newPassword) {
-        HttpPost post = new HttpPost(baseUrl.account().password().change().urlString());
+        HttpPost post = new HttpPost(baseUrl.account().password().change().asUrlString());
         addCloudMineHeader(post);
         addAuthorizationHeader(user, post);
         try {
@@ -669,24 +667,24 @@ public class CMWebService {
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
-        message.addHeader(CMApiCredentials.cloudMineHeader());
-        message.addHeader(new BasicHeader(AGENT_HEADER_KEY, cloudMineAgent()));
+        message.addHeader(CMApiCredentials.getCloudMineHeader());
+        message.addHeader(new BasicHeader(AGENT_HEADER_KEY, getCloudMineAgent()));
     }
 
     protected HttpRequestBase addRequestOptions(HttpRequestBase message, CMRequestOptions options) {
         if(options != CMRequestOptions.NONE) {
             String url = message.getURI().toASCIIString();
-            url = url + options.urlString();
+            url = url + options.asUrlString();
             try {
                 message.setURI(new URI(url));
             } catch (URISyntaxException e) {
-                LOG.error("Unable to set the CMRequestionOptions for url: " + message.getURI().toASCIIString() + ", tried to add: " + options.urlString());
+                LOG.error("Unable to set the CMRequestionOptions for url: " + message.getURI().toASCIIString() + ", tried to add: " + options.asUrlString());
             }
         }
         return message;
     }
 
-    protected String cloudMineAgent() {
+    protected String getCloudMineAgent() {
         return CLOUD_MINE_AGENT;
     }
     //**********************RESPONSE CONSTRUCTORS******************************

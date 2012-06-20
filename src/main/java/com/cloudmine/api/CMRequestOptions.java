@@ -27,11 +27,11 @@ public class CMRequestOptions implements BaseURL{
     }
 
     @Override
-    public String urlString() {
+    public String asUrlString() {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("?").append(pagingOptions.urlString());
-        urlBuilder.append("&").append(serverFunction.urlString()); //TODO this is broke for NONE
-        urlBuilder.append("&").append(sortOptions.urlString());
+        urlBuilder.append("?").append(pagingOptions.asUrlString());
+        urlBuilder.append("&").append(serverFunction.asUrlString()); //TODO this is broke for NONE
+        urlBuilder.append("&").append(sortOptions.asUrlString());
         return urlBuilder.toString();
     }
 }

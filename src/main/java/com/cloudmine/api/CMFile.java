@@ -21,8 +21,6 @@ import java.util.concurrent.Future;
 /**
  * The JSON representation of a CMFile consists of the
  * Copyright CloudMine LLC
- * CMUser: johnmccarthy
- * Date: 5/18/12, 3:29 PM
  */
 public class CMFile implements Json {
 
@@ -54,7 +52,7 @@ public class CMFile implements Json {
 
     public static boolean isEmpty(CMFile file) {
         return file == null ||
-                (file.fileContents().length == 1 && file.fileContents()[0] == 32);
+                (file.getFileContents().length == 1 && file.getFileContents()[0] == 32);
     }
 
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
@@ -118,7 +116,7 @@ public class CMFile implements Json {
         }
     }
 
-    public byte[] fileContents() {
+    public byte[] getFileContents() {
         return fileContents;
     }
 
@@ -127,11 +125,11 @@ public class CMFile implements Json {
         return new ByteArrayInputStream(fileContents);
     }
 
-    public String key() {
+    public String getFileKey() {
         return key;
     }
 
-    public String contentType() {
+    public String getContentType() {
         return contentType;
     }
 
@@ -165,9 +163,9 @@ public class CMFile implements Json {
     public final boolean equals(Object other) {
         if(other instanceof CMFile) {
             CMFile otherFile = (CMFile)other;
-            return otherFile.contentType().equals(contentType()) &&
-                    otherFile.key().equals(key()) &&
-                    Arrays.equals(otherFile.fileContents(), fileContents());
+            return otherFile.getContentType().equals(getContentType()) &&
+                    otherFile.getFileKey().equals(getFileKey()) &&
+                    Arrays.equals(otherFile.getFileContents(), getFileContents());
         }
         return false;
     }

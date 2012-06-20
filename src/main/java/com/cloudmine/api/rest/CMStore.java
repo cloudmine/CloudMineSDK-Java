@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
  * Preconditions for use:
  * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key
- * If
  * Copyright CloudMine LLC
  */
 public class CMStore {
@@ -32,8 +31,8 @@ public class CMStore {
      * @return the default store
      * @throws CreationException if the preconditions for use are not satisfied
      */
-    public static CMStore store() throws CreationException {
-        return store(StoreIdentifier.DEFAULT);
+    public static CMStore getStore() throws CreationException {
+        return getStore(StoreIdentifier.DEFAULT);
     }
 
     /**
@@ -44,7 +43,7 @@ public class CMStore {
      * @return the store associated with the given StoreIdentifier
      * @throws CreationException if the preconditions for use are not satisfied
      */
-    public static CMStore store(StoreIdentifier storeId) throws CreationException {
+    public static CMStore getStore(StoreIdentifier storeId) throws CreationException {
         if(storeId == null) {
             storeId = StoreIdentifier.DEFAULT;
         }
@@ -57,7 +56,18 @@ public class CMStore {
     }
 
     /**
-     * Instantiate a new CMStore with the given StoreIdentifier. Differs from {@link CMStore#store(com.cloudmine.api.StoreIdentifier)}
+     * Retrieve the CMStore associated with the given CMSessionToken, or creates a new CMStore and returns it
+     * if no appropriate store already exists
+     * @param token A non null token received in response to a log in request
+     * @return a CMStore whose user level methods will interact with the user associated with the passed in CMSessionToken
+     * @throws CreationException if CMSessionToken was null or if the preconditions for use are not satisfied
+     */
+    public static CMStore getStore(CMSessionToken token) throws CreationException {
+        return getStore(new StoreIdentifier(token));
+    }
+
+    /**
+     * Instantiate a new CMStore with the given StoreIdentifier. Differs from {@link CMStore#getStore}
      * as it always returns a new instance
      * @param identifier the identifier for the store. If null, defaults to {@link StoreIdentifier#DEFAULT}
      * @return the store
@@ -67,8 +77,9 @@ public class CMStore {
         return new CMStore(identifier);
     }
 
+
     /**
-     * Instantiate a new CMStore with the default StoreIdentifier. Differs from {@link CMStore#store(com.cloudmine.api.StoreIdentifier)}
+     * Instantiate a new CMStore with the default StoreIdentifier. Differs from {@link CMStore#getStore}
      * as it always returns a new instance
      * @return the store
      * @throws CreationException if the preconditions for use are not satisfied
@@ -77,23 +88,11 @@ public class CMStore {
         return CMStore(StoreIdentifier.DEFAULT);
     }
 
-
-    /**
-     * Retrieve the CMStore associated with the given CMSessionToken, or creates a new CMStore and returns it
-     * if no appropriate store already exists
-     * @param token A non null token received in response to a log in request
-     * @return a CMStore whose user level methods will interact with the user associated with the passed in CMSessionToken
-     * @throws CreationException if CMSessionToken was null or if the preconditions for use are not satisfied
-     */
-    public static CMStore store(CMSessionToken token) throws CreationException {
-        return store(new StoreIdentifier(token));
-    }
-
     private final LoginResponseCallback setLoggedInUserCallback(final WebServiceCallback callback) {
         return new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
                 if(response.wasSuccess()) {
-                    setLoggedInUser(response.userToken());
+                    setLoggedInUser(response.getSessionToken());
                 }
                 callback.onCompletion(response);
             }
@@ -115,9 +114,9 @@ public class CMStore {
             identifier = StoreIdentifier.DEFAULT;
         }
         if(identifier.isUserLevel()) {
-            setLoggedInUser(identifier.userToken());
+            setLoggedInUser(identifier.getSessionToken());
         }
-        applicationService = CMWebService.service();
+        applicationService = CMWebService.getService();
     }
 
     private CMSessionToken loggedInUserToken() {
@@ -211,8 +210,8 @@ public class CMStore {
      * Retrieve all the application level objects
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> allApplicationObjects() {
-        return allApplicationObjects(WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadAllApplicationObjects() {
+        return loadAllApplicationObjects(WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -220,8 +219,8 @@ public class CMStore {
      * @param callback a WebServiceCallback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> allApplicationObjects(WebServiceCallback callback) {
-        return allApplicationObjects(callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(WebServiceCallback callback) {
+        return loadAllApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -230,7 +229,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> allApplicationObjects(WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(WebServiceCallback callback, CMRequestOptions options) {
         return applicationService.asyncLoadObjects(callback, options);
     }
 
@@ -240,8 +239,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> allUserObjects() throws CreationException {
-        return allUserObjects(WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadAllUserObjects() throws CreationException {
+        return loadAllUserObjects(WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -250,8 +249,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback) throws CreationException {
-        return allUserObjects(callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadAllUserObjects(WebServiceCallback callback) throws CreationException {
+        return loadAllUserObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -261,7 +260,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      *
      */
-    public Future<SimpleCMObjectResponse> allUserObjects(WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadAllUserObjects(WebServiceCallback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjects(callback, options);
     }
 
@@ -270,8 +269,8 @@ public class CMStore {
      * @param keys the top level keys of the objects to retrieve
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys) {
-        return applicationObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys) {
+        return loadApplicationObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -280,8 +279,8 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
-        return applicationObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) {
+        return loadApplicationObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -291,7 +290,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) {
         return applicationService.asyncLoadObjects(keys, callback, options);
     }
 
@@ -301,8 +300,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys) throws CreationException {
-        return userObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys) throws CreationException {
+        return loadUserObjectsWithKeys(keys, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -312,8 +311,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) throws CreationException {
-        return userObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, WebServiceCallback callback) throws CreationException {
+        return loadUserObjectsWithKeys(keys, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -324,7 +323,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsWithKeys(Collection<String> keys, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjects(keys, callback, options);
     }
 
@@ -334,8 +333,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsSearch(String search) throws CreationException {
-        return userObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search) throws CreationException {
+        return loadUserObjectsSearch(search, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -345,8 +344,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsSearch(String search, WebServiceCallback callback) throws CreationException {
-        return userObjectsSearch(search, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, WebServiceCallback callback) throws CreationException {
+        return loadUserObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -357,7 +356,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncSearch(search, callback, options);
     }
 
@@ -366,8 +365,8 @@ public class CMStore {
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search) {
-        return applicationObjectsSearch(search, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search) {
+        return loadApplicationObjectsSearch(search, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -376,8 +375,8 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search, WebServiceCallback callback) {
-        return applicationObjectsSearch(search, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, WebServiceCallback callback) {
+        return loadApplicationObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -387,7 +386,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> applicationObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, WebServiceCallback callback, CMRequestOptions options) {
         return applicationService.asyncSearch(search, callback, options);
     }
 
@@ -398,8 +397,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass) throws CreationException {
-        return userObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
+    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass) throws CreationException {
+        return loadUserObjectsOfClass(klass, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -410,8 +409,8 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback) throws CreationException {
-        return userObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, WebServiceCallback callback) throws CreationException {
+        return loadUserObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -423,7 +422,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<SimpleCMObjectResponse> userObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjectsOfClass(klass, callback, options);
     }
 
@@ -627,7 +626,7 @@ public class CMStore {
         if(object == null) {
             throw new NullPointerException("Cannot add a null object to a CMStore");
         }
-        objects.put(object.key(), object);
+        objects.put(object.getObjectId(), object);
     }
 
     /**
@@ -639,7 +638,7 @@ public class CMStore {
         if(object == null) {
             throw new NullPointerException("Cannot add a null object to a CMStore");
         }
-        objects.remove(object.key());
+        objects.remove(object.getObjectId());
     }
 
     /**
@@ -662,8 +661,8 @@ public class CMStore {
      * @param key the file key, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> applicationFile(String key) {
-        return applicationFile(key, WebServiceCallback.DO_NOTHING);
+    public Future<CMFile> loadApplicationFile(String key) {
+        return loadApplicationFile(key, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -672,8 +671,8 @@ public class CMStore {
      * @param callback a {@link WebServiceCallback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> applicationFile(String key, WebServiceCallback callback) {
-        return applicationFile(key, callback, CMRequestOptions.NONE);
+    public Future<CMFile> loadApplicationFile(String key, WebServiceCallback callback) {
+        return loadApplicationFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -683,7 +682,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @return a Future containing the {@link CMFile}
      */
-    public Future<CMFile> applicationFile(String key, WebServiceCallback callback, CMRequestOptions options) {
+    public Future<CMFile> loadApplicationFile(String key, WebServiceCallback callback, CMRequestOptions options) {
         return applicationService.asyncLoadFile(key, callback, options);
     }
 
@@ -693,8 +692,8 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> userFile(String key) throws CreationException {
-        return userFile(key, WebServiceCallback.DO_NOTHING);
+    public Future<CMFile> loadUserFile(String key) throws CreationException {
+        return loadUserFile(key, WebServiceCallback.DO_NOTHING);
     }
 
     /**
@@ -704,8 +703,8 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> userFile(String key, WebServiceCallback callback) throws CreationException {
-        return userFile(key, callback, CMRequestOptions.NONE);
+    public Future<CMFile> loadUserFile(String key, WebServiceCallback callback) throws CreationException {
+        return loadUserFile(key, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -716,7 +715,7 @@ public class CMStore {
      * @return a Future containing the {@link CMFile}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public Future<CMFile> userFile(String key, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
+    public Future<CMFile> loadUserFile(String key, WebServiceCallback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadFile(key, callback, options);
     }
 
@@ -787,7 +786,7 @@ public class CMStore {
 
 
     private UserCMWebService userService() throws CreationException {
-        return applicationService.userWebService(loggedInUserToken());
+        return applicationService.getUserWebService(loggedInUserToken());
     }
 
     /**
@@ -810,7 +809,7 @@ public class CMStore {
     }
 
     private CMWebService serviceForObject(SimpleCMObject object) throws CreationException {
-        switch(object.savedWith().level()) {
+        switch(object.getSavedWith().getObjectLevel()) {
             case USER:
                 return userService();
             case UNKNOWN:

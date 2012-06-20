@@ -36,22 +36,22 @@ public class StoreIdentifier {
     }
 
     public boolean isApplicationLevel() {
-        return ObjectLevel.APPLICATION == level();
+        return ObjectLevel.APPLICATION == getObjectLevel();
     }
 
     public boolean isUserLevel() {
-        return ObjectLevel.USER == level();
+        return ObjectLevel.USER == getObjectLevel();
     }
 
     public boolean isLevel(ObjectLevel level) {
-        return level().equals(level);
+        return getObjectLevel().equals(level);
     }
 
-    public ObjectLevel level() {
+    public ObjectLevel getObjectLevel() {
         return level;
     }
 
-    public CMSessionToken userToken() {
+    public CMSessionToken getSessionToken() {
         return sessionToken;
     }
 

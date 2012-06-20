@@ -22,13 +22,13 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         }
 
         @Override
-        public String urlString() {
+        public String asUrlString() {
             return urlRepresentation;
         }
 
         @Override
         public String toString() {
-            return urlString();
+            return asUrlString();
         }
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
@@ -42,7 +42,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called yet
      */
     public CMURLBuilder() throws CreationException {
-        this(CMApiCredentials.applicationIdentifier());
+        this(CMApiCredentials.getApplicationIdentifier());
     }
 
     /**
@@ -85,15 +85,15 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      * Return all of this url after the /app/ portion
      * @return all of this url after the /app/ portion
      */
-    public String appPath() {
-        return extractAppId(urlString());
+    public String getApplicationPath() {
+        return extractAppId(asUrlString());
     }
 
     /**
      * Return the query part of this url
      * @return the query part of this url
      */
-    public String queries() {
+    public String getQueries() {
         return queryParams;
     }
 

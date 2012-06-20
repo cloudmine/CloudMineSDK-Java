@@ -31,12 +31,12 @@ public class UserCMWebService extends CMWebService {
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.sessionToken = token;
-        userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.sessionToken());
+        userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.getSessionToken());
     }
 
     /**
      * Instantiate a new UserCMWebService with the specified properties. You probably shouldn't be calling this; instead, use
-     * {@link CMWebService#userWebService(com.cloudmine.api.CMSessionToken)}
+     * {@link CMWebService#getUserWebService(com.cloudmine.api.CMSessionToken)}
      * @param baseUrl the entire path, including the user part, for this store to operate on
      * @param token the logged in users token
      * @param asynchronousHttpClient the client to make asynchronous calls through; should be platform specific
@@ -73,7 +73,7 @@ public class UserCMWebService extends CMWebService {
     }
 
     @Override
-    public UserCMWebService userWebService(CMSessionToken token) {
+    public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
     }
 }

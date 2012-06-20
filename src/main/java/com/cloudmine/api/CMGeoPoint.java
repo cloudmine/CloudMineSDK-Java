@@ -78,15 +78,15 @@ public class CMGeoPoint extends SimpleCMObject {
         return false;
     }
 
-    public double longitude() throws JsonConversionException {
+    public double getLongitude() throws JsonConversionException {
         return getDouble(LONGITUDE_KEYS);
     }
 
-    public double latitude() throws JsonConversionException {
+    public double getLatitude() throws JsonConversionException {
         return getDouble(LATITUDE_KEYS);
     }
 
-    public String locationString() throws JsonConversionException {
-        return longitude() + ", " + latitude();
+    public String getLocationString() throws JsonConversionException {
+        return getLongitude() + ", " + getLatitude();
     }
 }

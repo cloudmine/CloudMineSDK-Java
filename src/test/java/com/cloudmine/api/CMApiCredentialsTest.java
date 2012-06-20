@@ -24,8 +24,8 @@ public class CMApiCredentialsTest {
 
         CMApiCredentials.initialize("someId", "someApiKey");
 
-        assertEquals("someId", CMApiCredentials.applicationIdentifier());
-        assertEquals("someApiKey", CMApiCredentials.applicationApiKey());
+        assertEquals("someId", CMApiCredentials.getApplicationIdentifier());
+        assertEquals("someApiKey", CMApiCredentials.getApplicationApiKey());
 
 
         try {

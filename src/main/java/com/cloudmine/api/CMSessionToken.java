@@ -19,7 +19,7 @@ public class CMSessionToken implements Json {
     private static final Date EXPIRED_DATE = new Date(0);
     public static final String INVALID_TOKEN = "invalidToken";
     /**
-     * Represents a failed log in attempt. Will be returned by {@link com.cloudmine.api.rest.response.LoginResponse#userToken()} if the log in request fails
+     * Represents a failed log in attempt. Will be returned by {@link com.cloudmine.api.rest.response.LoginResponse#getSessionToken()} if the log in request fails
      */
     public static final CMSessionToken FAILED = CMSessionToken.CMSessionToken(INVALID_TOKEN, EXPIRED_DATE);
 
@@ -83,7 +83,7 @@ public class CMSessionToken implements Json {
      * Get the session token String
      * @return the session token string
      */
-    public String sessionToken() {
+    public String getSessionToken() {
         return sessionToken;
     }
 

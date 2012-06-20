@@ -28,8 +28,8 @@ public class ObjectModificationResponseTest {
         assertFalse(response.wasUpdated("key3"));
         assertTrue(response.wasCreated("key3"));
         assertFalse(response.wasCreated("key2"));
-        Assert.assertEquals(ResponseValue.UPDATED, response.keyResponse("key2"));
-        Assert.assertEquals(ResponseValue.CREATED, response.keyResponse("key3"));
-        Assert.assertEquals(ResponseValue.MISSING, response.keyResponse("key4"));
+        Assert.assertEquals(ResponseValue.UPDATED, response.getKeyResponse("key2"));
+        Assert.assertEquals(ResponseValue.CREATED, response.getKeyResponse("key3"));
+        Assert.assertEquals(ResponseValue.MISSING, response.getKeyResponse("key4"));
     }
 }

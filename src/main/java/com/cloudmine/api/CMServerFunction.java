@@ -66,7 +66,7 @@ public class CMServerFunction implements BaseURL{
     }
 
     @Override
-    public String urlString() {
+    public String asUrlString() {
         boolean isNotSet = urlString.isSet() == false;
         if(isNotSet) {
             StringBuilder urlBuilder = new StringBuilder();

@@ -35,7 +35,7 @@ public class FileCreationResponse extends CMResponse {
      * Get the key for the file. May be null
      * @return The key for the file. May be null
      */
-    public String fileKey() {
+    public String getFileKey() {
         Object key = getObject("key");
         if(key == null) {
             return null;

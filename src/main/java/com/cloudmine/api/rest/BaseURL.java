@@ -11,5 +11,5 @@ public interface BaseURL {
      * A string representation of this URL
      * @return A string representation of this URL
      */
-    public String urlString();
+    public String asUrlString();
 }

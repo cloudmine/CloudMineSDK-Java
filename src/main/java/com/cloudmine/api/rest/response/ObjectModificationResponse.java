@@ -41,7 +41,7 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      * @return true if the object already existed and was updated
      */
     public boolean wasUpdated(String key) {
-        return ResponseValue.UPDATED.equals(keyResponse(key));
+        return ResponseValue.UPDATED.equals(getKeyResponse(key));
     }
 
     /**
@@ -50,7 +50,7 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      * @return true if the object associated with the given key was inserted
      */
     public boolean wasCreated(String key) {
-        return ResponseValue.CREATED.equals(keyResponse(key));
+        return ResponseValue.CREATED.equals(getKeyResponse(key));
     }
 
     /**
@@ -59,7 +59,7 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      * @return true if the object associated with the given key was deleted
      */
     public boolean wasDeleted(String key) {
-        return ResponseValue.DELETED.equals(keyResponse(key));
+        return ResponseValue.DELETED.equals(getKeyResponse(key));
     }
 
     /**
@@ -68,7 +68,7 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      * @return true if the object associated with the given key was created, updated, or deleted
      */
     public boolean wasModified(String key) {
-        return !ResponseValue.MISSING.equals(keyResponse(key));
+        return !ResponseValue.MISSING.equals(getKeyResponse(key));
     }
 
     /**
@@ -76,8 +76,8 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
      * @param key the object key
      * @return the ResponseValue for the object associated with the given key. If the object does not exist, ResponseValue.MISSING is returned.
      */
-    public ResponseValue keyResponse(String key) {
-        Object keyedValue = successMap().get(key);
+    public ResponseValue getKeyResponse(String key) {
+        Object keyedValue = getSuccessMap().get(key);
         if(keyedValue == null)
             return ResponseValue.MISSING;
         return ResponseValue.getValue(keyedValue.toString());

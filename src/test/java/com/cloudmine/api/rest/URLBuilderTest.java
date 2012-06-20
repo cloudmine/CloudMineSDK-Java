@@ -17,18 +17,18 @@ public class URLBuilderTest {
     public void testUrl() {
         URLBuilder builder = new URLBuilder(BASE_URL);
         String expectedUrl = BASE_URL;
-        assertEquals(expectedUrl, builder.urlString());
+        assertEquals(expectedUrl, builder.asUrlString());
 
         //Test that trailing "/" are removed
-        assertEquals(BASE_URL, new URLBuilder(BASE_URL + "/").urlString());
+        assertEquals(BASE_URL, new URLBuilder(BASE_URL + "/").asUrlString());
 
         builder = builder.addAction("statuses")
                     .addAction("home_timeline");
         expectedUrl += "/statuses/home_timeline";
-        assertEquals(expectedUrl, builder.urlString());
+        assertEquals(expectedUrl, builder.asUrlString());
 
         builder = builder.addQuery("user", "john");
         expectedUrl += "?user=john";
-        assertEquals(expectedUrl, builder.urlString());
+        assertEquals(expectedUrl, builder.asUrlString());
     }
 }

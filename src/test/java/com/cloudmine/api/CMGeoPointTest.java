@@ -16,15 +16,15 @@ public class CMGeoPointTest {
     public void testConstructor() {
         CMGeoPoint point = CMGeoPoint.CMGeoPoint(23.5, 100.1);
 
-        assertEquals(100.1, point.latitude());
+        assertEquals(100.1, point.getLatitude());
 
         point = CMGeoPoint.CMGeoPoint(new JsonString("{\"location\": {\n" +
                 "            \"__type__\": \"geopoint\",\n" +
                 "            \"x\": 45.5,\n" +
                 "            \"lat\": -70.2\n" +
                 "        }}"));
-        assertEquals(-70.2, point.latitude());
-        assertEquals(45.5, point.longitude());
+        assertEquals(-70.2, point.getLatitude());
+        assertEquals(45.5, point.getLongitude());
 
         CMGeoPoint duplicatePoint = CMGeoPoint.CMGeoPoint(point);
         assertEquals(point, duplicatePoint);

@@ -36,8 +36,8 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse {
         super(response);
         if(hasSuccess()) {
             Map<String, SimpleCMObject> tempMap = new HashMap<String, SimpleCMObject>();
-            for(SimpleCMObject object : successObjects()) {
-                tempMap.put(object.key(), object);
+            for(SimpleCMObject object : getSuccessObjects()) {
+                tempMap.put(object.getObjectId(), object);
             }
             objectMap = Collections.unmodifiableMap(tempMap);
         } else {
@@ -49,16 +49,16 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse {
      * Returns a List of all the SimpleCMObjects fetched by the request
      * @return
      */
-    public List<SimpleCMObject> objects() {
-        return successObjects();
+    public List<SimpleCMObject> getObjects() {
+        return getSuccessObjects();
     }
 
     /**
-     * Returns the object with the given key, or null if it doesn't exist
-     * @param key the top level key for the object
+     * Returns the object with the given objectId, or null if it doesn't exist
+     * @param objectId the objectId for the object
      * @return the object, or null if it was not retrieved
      */
-    public SimpleCMObject object(String key) {
-        return objectMap.get(key);
+    public SimpleCMObject getSimpleCMObject(String objectId) {
+        return objectMap.get(objectId);
     }
 }

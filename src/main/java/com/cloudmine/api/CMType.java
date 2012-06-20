@@ -23,7 +23,7 @@ public enum CMType implements Json {
         if(typeId == null)
             return NONE;
         for(CMType type : CMType.values()) {
-            if(typeId.equalsIgnoreCase(type.typeId())) {
+            if(typeId.equalsIgnoreCase(type.getTypeId())) {
                 return type;
             }
         }
@@ -38,12 +38,12 @@ public enum CMType implements Json {
      * String representation of this CMType
      * @return String representation of this CMType
      */
-    public String typeId() {
+    public String getTypeId() {
         return typeId;
     }
 
     @Override
     public String asJson() {
-        return JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, typeId());
+        return JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, getTypeId());
     }
 }

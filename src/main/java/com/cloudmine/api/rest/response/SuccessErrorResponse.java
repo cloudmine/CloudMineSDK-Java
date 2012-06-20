@@ -49,7 +49,7 @@ public class SuccessErrorResponse extends CMResponse {
      * Returns a copy of the success json object, represented as a Map<String, Object></String,>
      * @return a copy of the success json object, represented as a Map<String, Object></String,>
      */
-    public Map<String, Object> successMap() {
+    public Map<String, Object> getSuccessMap() {
         return new HashMap<String, Object>(successResponse);
     }
 
@@ -84,7 +84,7 @@ public class SuccessErrorResponse extends CMResponse {
      * @return the error response as a collection of SimpleCMObjects
      * @throws CreationException if the error response contained improperly formed json
      */
-    public List<SimpleCMObject> errorObjects() throws CreationException {
+    public List<SimpleCMObject> getErrorObjects() throws CreationException {
         return getObjects(errorResponse);
     }
 
@@ -93,7 +93,7 @@ public class SuccessErrorResponse extends CMResponse {
      * @return the success response as a collection of SimpleCMObjects
      * @throws CreationException if the success response contained improperly formed json
      */
-    public List<SimpleCMObject> successObjects() throws CreationException {
+    public List<SimpleCMObject> getSuccessObjects() throws CreationException {
         return getObjects(successResponse);
     }
 

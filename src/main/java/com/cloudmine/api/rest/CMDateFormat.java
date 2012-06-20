@@ -30,7 +30,7 @@ public class CMDateFormat extends DateFormat {
 
     @Override
     public StringBuffer format(Date date, StringBuffer stringBuffer, FieldPosition fieldPosition) {
-        String formattedDate = JsonUtilities.dateToJsonClass(date);
+        String formattedDate = JsonUtilities.convertDateToJsonClass(date);
         stringBuffer.append(formattedDate);
         return stringBuffer;
     }

@@ -86,7 +86,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
      * Return just the base part of this URL.
      * @return the base part of the url, which was passed to the constructor when this URLBuilder was instantiated
      */
-    public String baseUrl() {
+    public String getBaseUrl() {
         return baseUrl;
     }
 
@@ -95,31 +95,31 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
      * @return URL representation of this URLBuilder
      * @throws CreationException if the URL is malformed
      */
-    public URL url() throws CreationException {
+    public URL getUrl() throws CreationException {
         try {
-            URL url = new URL(urlString());
+            URL url = new URL(asUrlString());
             return url;
         } catch (MalformedURLException e) {
             LOG.error("URL was malformed", e);
-            throw new CreationException("Malformed URL: " + urlString(), e);
+            throw new CreationException("Malformed URL: " + asUrlString(), e);
         }
     }
 
     @Override
-    public String urlString() {
-        String url = baseUrl() + actions + queryParams;
+    public String asUrlString() {
+        String url = getBaseUrl() + actions + queryParams;
         return url;
     }
 
     @Override
     public String toString() {
-        return urlString();
+        return asUrlString();
     }
 
     @Override
     public boolean equals(Object other) {
         if(other != null && other instanceof BaseURLBuilder) { //This will allow this to equal subclasses of the URL builder
-            return ((BaseURLBuilder)other).urlString().equals(this.urlString());
+            return ((BaseURLBuilder)other).asUrlString().equals(this.asUrlString());
         } else {
             return false;
         }
@@ -127,6 +127,6 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
 
     @Override
     public int hashCode() {
-        return urlString().hashCode();
+        return asUrlString().hashCode();
     }
 }

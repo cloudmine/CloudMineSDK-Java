@@ -38,7 +38,7 @@ public class CMPagingOptions implements BaseURL {
         this.includeCount = includeCount;
     }
 
-    public String urlString() {
+    public String asUrlString() {
         boolean isNotSet = !urlString.isSet();
         if(isNotSet) {
 
@@ -49,7 +49,7 @@ public class CMPagingOptions implements BaseURL {
     }
 
     public String toString() {
-        return urlString();
+        return asUrlString();
     }
 
 }

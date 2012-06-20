@@ -18,7 +18,7 @@ public class CMSessionTokenTest {
 
         CMSessionToken token = CMSessionToken.CMSessionToken(json);
 
-        assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.sessionToken());
+        assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.getSessionToken());
     }
 
     private String userTokenJson() {

@@ -38,7 +38,7 @@ public class CMSortOptions implements BaseURL{
     }
 
     @Override
-    public String urlString() {//TODO figure out how this is represented
+    public String asUrlString() {//TODO figure out how this is represented
         return urlString.value();
     }
 }

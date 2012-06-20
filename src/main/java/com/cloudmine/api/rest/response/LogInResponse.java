@@ -50,7 +50,7 @@ public class LoginResponse extends CMResponse {
      * the token used to authenticate this session with the server. If the request failed, it will be equal to {@link com.cloudmine.api.CMSessionToken#FAILED}
      * @return the token used to authenticate this session with the server
      */
-    public CMSessionToken userToken() {
+    public CMSessionToken getSessionToken() {
         return sessionToken;
     }
 

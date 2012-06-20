@@ -18,32 +18,32 @@ public class CMURLBuilderTest {
     public void testGet() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID);
         String expectedUrl = expectedBaseUrl();
-        assertEquals(expectedUrl, builder.urlString());
+        assertEquals(expectedUrl, builder.asUrlString());
 
         expectedUrl += "/text";
-        assertEquals(expectedUrl, builder.text().urlString());
+        assertEquals(expectedUrl, builder.text().asUrlString());
     }
 
     @Test
     public void testSearch() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID).search("[ingredients=\"chicken\"]");
-        assertEquals(expectedBaseUrl() + "/search?q=%5Bingredients%3D%22chicken%22%5D", builder.urlString());
+        assertEquals(expectedBaseUrl() + "/search?q=%5Bingredients%3D%22chicken%22%5D", builder.asUrlString());
     }
 
     @Test
     public void testAccount() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID).account();
-        assertEquals(expectedBaseUrl() + "/account", builder.urlString());
+        assertEquals(expectedBaseUrl() + "/account", builder.asUrlString());
 
-        assertEquals(expectedBaseUrl() + "/account/create", builder.create().urlString());
+        assertEquals(expectedBaseUrl() + "/account/create", builder.create().asUrlString());
     }
 
     @Test
     public void testDelete() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID).deleteAll();
         String expectedUrl = expectedBaseUrl() + "/data?all=true";
-        assertEquals(expectedUrl, builder.urlString());
-        assertEquals(expectedUrl, builder.url().toString());
+        assertEquals(expectedUrl, builder.asUrlString());
+        assertEquals(expectedUrl, builder.getUrl().toString());
     }
 
     @Test
@@ -58,13 +58,13 @@ public class CMURLBuilderTest {
     public void testUser() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID);
 
-        assertEquals("/" + APP_ID + "/user", builder.user().appPath());
+        assertEquals("/" + APP_ID + "/user", builder.user().getApplicationPath());
     }
 
     @Test
     public void testExtractAppId() {
         assertEquals("/" + APP_ID, CMURLBuilder.extractAppId(expectedBaseUrl()));
-        assertEquals("/" + APP_ID + "/user", CMURLBuilder.extractAppId(new CMURLBuilder(APP_ID).user().urlString()));
+        assertEquals("/" + APP_ID + "/user", CMURLBuilder.extractAppId(new CMURLBuilder(APP_ID).user().asUrlString()));
     }
 
     private String expectedBaseUrl() {

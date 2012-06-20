@@ -68,7 +68,7 @@ public class CMUser {
      * The users email address
      * @return The users email address
      */
-    public String email() {
+    public String getEmail() {
         return email;
     }
 
@@ -76,7 +76,7 @@ public class CMUser {
      * The users password
      * @return The users password
      */
-    public String password() {
+    public String getPassword() {
         return password;
     }
 
@@ -96,7 +96,7 @@ public class CMUser {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public Future<LoginResponse> login(WebServiceCallback callback) throws CreationException {
-        return CMWebService.service().asyncLogin(this, callback);
+        return CMWebService.getService().asyncLogin(this, callback);
     }
 
     /**
@@ -107,7 +107,7 @@ public class CMUser {
      * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
      */
     public Future<CMResponse> createUser(WebServiceCallback callback) throws CreationException, JsonConversionException {
-        return CMWebService.service().asyncCreateUser(this, callback);
+        return CMWebService.getService().asyncCreateUser(this, callback);
     }
 
     /**
@@ -138,7 +138,7 @@ public class CMUser {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public Future<CMResponse> changePassword(String newPassword, WebServiceCallback callback) throws CreationException {
-        return CMWebService.service().asyncChangePassword(this, newPassword, callback);
+        return CMWebService.getService().asyncChangePassword(this, newPassword, callback);
     }
 
     /**
@@ -157,7 +157,7 @@ public class CMUser {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public Future<CMResponse> resetPasswordRequest(WebServiceCallback callback) throws CreationException {
-        return CMWebService.service().asyncResetPasswordRequest(email(), callback);
+        return CMWebService.getService().asyncResetPasswordRequest(getEmail(), callback);
     }
 
     /**
@@ -180,7 +180,7 @@ public class CMUser {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public Future<CMResponse> resetPasswordConfirmation(String emailToken, String newPassword, WebServiceCallback callback) throws CreationException {
-        return CMWebService.service().asyncResetPasswordConfirmation(emailToken, newPassword, callback);
+        return CMWebService.getService().asyncResetPasswordConfirmation(emailToken, newPassword, callback);
     }
 
     /**

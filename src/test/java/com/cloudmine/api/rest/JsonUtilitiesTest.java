@@ -103,7 +103,7 @@ public class JsonUtilitiesTest {
                 "\"__class__\":\"datetime\",\n" +
                 "\"timestamp\":3425345\n" +
                 "}";
-        String jsonDate = JsonUtilities.dateToJsonClass(date);
+        String jsonDate = JsonUtilities.convertDateToJsonClass(date);
         assertEquals(expectedJsonDate, jsonDate);
     }
 

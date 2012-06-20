@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
  * Dates are converted into JSON objects
  * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects
  * SimpleCMObjects have 2 optional properties: class and type. Class is used for loading all similar objects, for
- * example through {@link CMStore#userObjectsOfClass(String)}
+ * example through {@link CMStore#loadUserObjectsOfClass(String)}
  * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
  * to set this type yourself
  *
@@ -116,46 +116,57 @@ public class SimpleCMObject implements Json {
      * Set what store to save this object with. If this is not set, it is assumed to be saved with
      * the default, app level store. If you are saving the object to a user level store, the user must
      * be logged in when save is called. Once the StoreIdentifier is set, it cannot be changed.
-     * @param identifier the identifier for the store this should be saved with. calling saveWith(null)
-     *                   is the same as not calling saveWith, and false will be returned
+     * @param identifier the identifier for the store this should be saved with. calling setSaveWith(null)
+     *                   is the same as not calling setSaveWith, and false will be returned
      * @return true if the value was set; false if it has already been set OR null was passed in
      */
-    public boolean saveWith(StoreIdentifier identifier) {
+    public boolean setSaveWith(StoreIdentifier identifier) {
         return storeId.setValue(identifier);
     }
 
     /**
-     *
-     * @param session
-     * @return
+     * Set that this object should be saved at the User level, and should be saved using the given CMSessionToken.
+     * @param session the session of the user to save this SimpleCMObject with
+     * @return true if the value was set; false if it has already been set OR null was passed in
      * @throws CreationException if session is null
      */
-    public boolean saveWith(CMSessionToken session) throws CreationException {
-        return saveWith(new StoreIdentifier(session));
+    public boolean setSaveWith(CMSessionToken session) throws CreationException {
+        return setSaveWith(new StoreIdentifier(session));
     }
 
-    public StoreIdentifier savedWith() {
+    public StoreIdentifier getSavedWith() {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
 
     public boolean isOnLevel(ObjectLevel level) {
-        return savedWith().isLevel(level);
+        return getSavedWith().isLevel(level);
     }
 
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
+     * @return a Future containing the {@link ObjectModificationResponse}
+     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
+     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
      */
     public Future<ObjectModificationResponse> save() throws JsonConversionException, CreationException {
         return save(WebServiceCallback.DO_NOTHING);
     }
 
+    /**
+     * Asynchronously save this object to its store. If no store has been set, it saves to the app
+     * level store.
+     * @param callback a WebServiceCallback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @return a Future containing the {@link ObjectModificationResponse}
+     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
+     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
+     */
     public Future<ObjectModificationResponse> save(WebServiceCallback callback) throws CreationException, JsonConversionException {
         return store().saveObject(this, callback);
     }
 
     private CMStore store() throws CreationException {
-        return CMStore.store(storeId.value(StoreIdentifier.DEFAULT));
+        return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
     }
 
     protected static String generateUniqueKey() {
@@ -177,7 +188,7 @@ public class SimpleCMObject implements Json {
      * Objects, but may just be a single value
      * @return
      */
-    public Object value() {
+    public Object getValue() {
         return topLevelMap.get(objectId);
     }
 
@@ -341,7 +352,7 @@ public class SimpleCMObject implements Json {
     }
 
     public void setType(CMType type) {
-        add(JsonUtilities.TYPE_KEY, type.typeId());
+        add(JsonUtilities.TYPE_KEY, type.getTypeId());
     }
 
     public CMType getType() {
@@ -353,13 +364,13 @@ public class SimpleCMObject implements Json {
         return getType().equals(type);
     }
 
-    public final SimpleCMObject add(String key, Object value) {
+    public SimpleCMObject add(String key, Object value) {
         contents.put(key, value);
         return this;
     }
 
     public SimpleCMObject add(SimpleCMObject value) {
-        add(value.key(), value);
+        add(value.getObjectId(), value);
         return this;
     }
 
@@ -372,7 +383,7 @@ public class SimpleCMObject implements Json {
         return contents.remove(key);
     }
 
-    public String key() {
+    public String getObjectId() {
         return objectId;
     }
 
