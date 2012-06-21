@@ -122,10 +122,6 @@ public class CMStore {
     private final Immutable<CMSessionToken> loggedInUserToken = new Immutable<CMSessionToken>();
     private final Map<String, SimpleCMObject> objects = new ConcurrentHashMap<String, SimpleCMObject>();
 
-    private CMStore() throws CreationException {
-        this(StoreIdentifier.DEFAULT);
-    }
-
     private CMStore(StoreIdentifier identifier) throws CreationException {
         if(identifier == null) {
             identifier = StoreIdentifier.DEFAULT;
@@ -312,6 +308,34 @@ public class CMStore {
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback), options);
+    }
+
+    /**
+     * Retrieve all the application level objects with the given objectIds
+     * @param objectId the top level objectIds of the objects to retrieve
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId) {
+        return loadApplicationObjectWithObjectId(objectId, Callback.DO_NOTHING);
+    }
+    /**
+     * Retrieve all the application level objects with the given objectIds
+     * @param objectId the top level objectIds of the objects to retrieve
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId, Callback callback) {
+        return loadApplicationObjectWithObjectId(objectId, callback, CMRequestOptions.NONE);
+    }
+    /**
+     * Retrieve all the application level objects with the given objectIds
+     * @param objectId the top level objectIds of the objects to retrieve
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId, Callback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**

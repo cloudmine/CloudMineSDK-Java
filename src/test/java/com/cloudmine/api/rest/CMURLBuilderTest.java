@@ -1,6 +1,12 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.CMPagingOptions;
+import com.cloudmine.api.CMRequestOptions;
+import com.cloudmine.api.CMServerFunction;
+import com.cloudmine.api.CMSortOptions;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotSame;
@@ -28,6 +34,12 @@ public class CMURLBuilderTest {
     public void testSearch() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID).search("[ingredients=\"chicken\"]");
         assertEquals(expectedBaseUrl() + "/search?q=%5Bingredients%3D%22chicken%22%5D", builder.asUrlString());
+    }
+
+    @Test
+    public void testObjectIds() {
+        CMURLBuilder builder = new CMURLBuilder(APP_ID).text().objectIds(Arrays.asList("noSpaces", "some spaces"));
+        assertEquals(expectedBaseUrl() + "/text?keys=noSpaces,some+spaces", builder.asUrlString());
     }
 
     @Test
@@ -59,6 +71,18 @@ public class CMURLBuilderTest {
         CMURLBuilder builder = new CMURLBuilder(APP_ID);
 
         assertEquals("/" + APP_ID + "/user", builder.user().getApplicationPath());
+    }
+
+    @Test
+    public void testOptions() {
+        CMURLBuilder builder = new CMURLBuilder(APP_ID);
+
+        CMRequestOptions requestOptions = CMRequestOptions.CMRequestOptions(
+                CMPagingOptions.CMPagingOptions(5, 10, true),
+                CMServerFunction.CMServerFunction("cool Snippet", false),
+                CMSortOptions.NONE);
+        String expectedUrl = expectedBaseUrl() + "/text?keys=one,two,three+and+four&limit=5&skip=10&count=true&f=cool+Snippet&result_only=false&async=false";
+        assertEquals(expectedUrl, builder.text().objectIds(Arrays.asList("one", "two", "three and four")).options(requestOptions).asUrlString());
     }
 
     @Test

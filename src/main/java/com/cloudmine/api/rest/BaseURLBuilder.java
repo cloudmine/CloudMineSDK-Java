@@ -37,8 +37,14 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
 
     protected abstract T newBuilder(String baseUrl, String actions, String queryParams);
 
-    protected static String toQueryParam(String key, String value) {
-        return "?" + key + "=" + value;
+    protected String toQueryParam(String key, String value) {
+        return key + "=" + value;
+    }
+
+    private String querySeparator() {
+        return queryParams == null || queryParams.isEmpty() ?
+                "?" :
+                "&";
     }
 
     protected static String formatUrlPart(String url) {
@@ -90,7 +96,11 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
      * @return the new builder with the added query param
      */
     public T addQuery(String key, String value) {
-        return newBuilder(baseUrl, actions, queryParams + toQueryParam(key, value));
+        return addQuery(toQueryParam(key, value));
+    }
+
+    public T addQuery(String query) {
+        return newBuilder(baseUrl, actions, queryParams + querySeparator() +  query);
     }
 
     /**

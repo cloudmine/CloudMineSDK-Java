@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.BaseURL;
+import com.cloudmine.api.rest.CMURLBuilder;
 import com.cloudmine.api.rest.JsonUtilities;
 
 import java.util.Collections;
@@ -29,7 +30,11 @@ public class CMServerFunction implements BaseURL{
      * You probably don't want to be calling this
      * @param asString the raw URL string that will be appended to the request URL
      */
-    public CMServerFunction(String asString) {
+    public static CMServerFunction CMServerFunction(String asString) {
+        return new CMServerFunction(asString);
+    }
+
+    CMServerFunction(String asString) {
         urlString.setValue(asString);
         snippetName = "";
         resultsOnly = false;
@@ -43,7 +48,11 @@ public class CMServerFunction implements BaseURL{
      * @param snippetName the name of the snippet, defined in your CloudMine dashboard
      * @param resultsOnly if true, only the results of the function call are returned, otherwise the original data is returned as well
      */
-    public CMServerFunction(String snippetName, boolean resultsOnly) {
+    public static CMServerFunction CMServerFunction(String snippetName, boolean resultsOnly) {
+        return new CMServerFunction(snippetName, resultsOnly);
+    }
+
+    CMServerFunction(String snippetName, boolean resultsOnly) {
         this(snippetName, resultsOnly, DEFAULT_ASYNC, DEFAULT_EXTRA_PARAMETERS);
     }
 
@@ -55,7 +64,11 @@ public class CMServerFunction implements BaseURL{
      * @param isAsynchronous if true, run the code snippet asynchronously; this will cause the HTTP call to return immediately but will leave your code running on our servers. The only way to return data from an asynchronous call is to save it back using the CloudMine API from within the function. When false (default), the HTTP call will not complete until the function is done running.
      * @param extraParameters Allows you to pass in arbitrary parameters to the function. They will be available as data.params. If specified as valid JSON, they will already be parsed as a JSON object.
      */
-    public CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
+    public static CMServerFunction CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
+        return new CMServerFunction(snippetName, resultsOnly, isAsynchronous, extraParameters);
+    }
+
+    CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
         if(snippetName == null) {
             throw new CreationException("Cannot call a null function!");
         }
@@ -70,7 +83,7 @@ public class CMServerFunction implements BaseURL{
         boolean isNotSet = urlString.isSet() == false;
         if(isNotSet) {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append("f=").append(snippetName).append("&result_only=").append(resultsOnly).append("&async=").append(isAsynchronous);
+            urlBuilder.append("f=").append(CMURLBuilder.encode(snippetName)).append("&result_only=").append(resultsOnly).append("&async=").append(isAsynchronous);
             boolean haveExtraParameters = !extraParameters.isEmpty();
             if(haveExtraParameters) {
                 urlBuilder.append("&params=");

@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.Future;
 
@@ -199,8 +197,8 @@ public class CMWebService {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]");
-        return executeAsyncCommand(addRequestOptions(search, options),
+        HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]", options);
+        return executeAsyncCommand(search,
                 callback, simpleCMObjectResponseConstructor());
     }
 
@@ -326,7 +324,7 @@ public class CMWebService {
      * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
     public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createDelete(objectIds), options),
+        return executeAsyncCommand(createDelete(objectIds, options),
                 callback, objectModificationResponseConstructor());
     }
 
@@ -464,7 +462,7 @@ public class CMWebService {
      * @return a Future containing the {@link FileLoadResponse}
      */
     public Future<FileLoadResponse> asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createGetFile(fileName), options),
+        return executeAsyncCommand(createGetFile(fileName, options),
                 callback, fileLoadResponseResponseConstructor(fileName));
     }
 
@@ -496,7 +494,7 @@ public class CMWebService {
     }
 
     /**
-     * Retrieve all the object with the given objectId
+     * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
@@ -505,13 +503,24 @@ public class CMWebService {
     }
 
     /**
-     * Retrieve all the object with the given objectId
+     * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId, Callback callback) {
         return asyncLoadObjects(Collections.<String>singleton(objectId), callback);
+    }
+
+    /**
+     * Retrieve the object with the given objectId
+     * @param objectId the top level objectId of the object to retrieve
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId, Callback callback, CMRequestOptions options) {
+        return asyncLoadObjects(Collections.<String>singleton(objectId), callback, options);
     }
 
     /**
@@ -541,7 +550,7 @@ public class CMWebService {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createGetObjects(objectIds), options),
+        return executeAsyncCommand(createGetObjects(objectIds, options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
@@ -572,7 +581,7 @@ public class CMWebService {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(addRequestOptions(createSearch(searchString), options),
+        return executeAsyncCommand(createSearch(searchString, options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
@@ -607,7 +616,7 @@ public class CMWebService {
      */
     public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         return executeAsyncCommand(
-                addRequestOptions(createPut(toCreate.asJson()), options),
+                createPut(toCreate.asJson(), options),
                 callback, objectModificationResponseConstructor());
     }
 
@@ -648,7 +657,7 @@ public class CMWebService {
         String jsonStringsCollection = JsonUtilities.jsonCollection(
                 jsons.toArray(new Json[jsons.size()])
         ).asJson();
-        return executeAsyncCommand(addRequestOptions(createPut(jsonStringsCollection), options),
+        return executeAsyncCommand(createPut(jsonStringsCollection, options),
                 callback, objectModificationResponseConstructor());
     }
 
@@ -983,7 +992,10 @@ public class CMWebService {
 
     //**************************Http commands*****************************************
     private HttpGet createSearch(String search) {
-        HttpGet get = new HttpGet(baseUrl.search(search).asUrlString());
+        return createSearch(search, CMRequestOptions.NONE);
+    }
+    private HttpGet createSearch(String search, CMRequestOptions options) {
+        HttpGet get = new HttpGet(baseUrl.search(search).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -995,20 +1007,31 @@ public class CMWebService {
     }
 
     private HttpDelete createDelete(String key) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(key).asUrlString());
+        return createDelete(key, CMRequestOptions.NONE);
+    }
+
+    private HttpDelete createDelete(String key, CMRequestOptions options) {
+        HttpDelete delete = new HttpDelete(baseUrl.delete(key).options(options).asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpDelete createDelete(Collection<String> keys) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).asUrlString());
+        return createDelete(keys, CMRequestOptions.NONE);
+    }
+
+    private HttpDelete createDelete(Collection<String> keys, CMRequestOptions options) {
+        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).options(options).asUrlString());
 
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpPut createPut(String json) {
-        HttpPut put = new HttpPut(baseUrl.text().asUrlString());
+        return createPut(json, CMRequestOptions.NONE);
+    }
+    private HttpPut createPut(String json, CMRequestOptions options) {
+        HttpPut put = new HttpPut(baseUrl.text().options(options).asUrlString());
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
@@ -1060,13 +1083,21 @@ public class CMWebService {
     }
 
     private HttpGet createGetFile(String key) {
-        HttpGet get = new HttpGet(baseUrl.binary(key).asUrlString());
+        return createGetFile(key, CMRequestOptions.NONE);
+    }
+
+    private HttpGet createGetFile(String key, CMRequestOptions options) {
+        HttpGet get = new HttpGet(baseUrl.binary(key).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
-        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).asUrlString());
+        return createGetObjects(keys, CMRequestOptions.NONE);
+    }
+
+    private HttpGet createGetObjects(Collection<String> keys, CMRequestOptions options) {
+        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -1134,19 +1165,6 @@ public class CMWebService {
     protected void addCloudMineHeader(AbstractHttpMessage message) {
         message.addHeader(CMApiCredentials.getCloudMineHeader());
         message.addHeader(new BasicHeader(AGENT_HEADER_KEY, getCloudMineAgent()));
-    }
-
-    protected HttpRequestBase addRequestOptions(HttpRequestBase message, CMRequestOptions options) {
-        if(options != CMRequestOptions.NONE) {
-            String url = message.getURI().toASCIIString();
-            url = url + options.asUrlString();
-            try {
-                message.setURI(new URI(url));
-            } catch (URISyntaxException e) {
-                LOG.error("Unable to set the CMRequestionOptions for url: " + message.getURI().toASCIIString() + ", tried to add: " + options.asUrlString());
-            }
-        }
-        return message;
     }
 
     protected String getCloudMineAgent() {

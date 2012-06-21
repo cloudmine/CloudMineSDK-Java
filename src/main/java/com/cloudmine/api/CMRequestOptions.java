@@ -24,6 +24,18 @@ public class CMRequestOptions implements BaseURL{
         return new CMRequestOptions(pagingOptions, serverFunction, sortOptions);
     }
 
+    public static CMRequestOptions CMRequestOptions(CMPagingOptions pagingOptions) {
+        return new CMRequestOptions(pagingOptions, CMServerFunction.NONE, CMSortOptions.NONE);
+    }
+
+    public static CMRequestOptions CMRequestOptions(CMServerFunction function) {
+        return new CMRequestOptions(CMPagingOptions.NONE, function, CMSortOptions.NONE);
+    }
+
+    public static CMRequestOptions CMRequestOptions(CMSortOptions sortOptions) {
+        return new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, sortOptions);
+    }
+
     CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
         this.pagingOptions = pagingOptions;
         this.serverFunction = serverFunction;
@@ -33,9 +45,24 @@ public class CMRequestOptions implements BaseURL{
     @Override
     public String asUrlString() {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("?").append(pagingOptions.asUrlString());
-        urlBuilder.append("&").append(serverFunction.asUrlString()); //TODO this is broke for NONE
-        urlBuilder.append("&").append(sortOptions.asUrlString());
+        boolean hasPaging = !CMPagingOptions.NONE.equals(pagingOptions);
+        addIfExists(urlBuilder, pagingOptions);
+        addIfExists(urlBuilder, serverFunction);
+        addIfExists(urlBuilder, sortOptions);
+//        urlBuilder.append("?").append(pagingOptions.asUrlString());
+//        urlBuilder.append("&").append(serverFunction.asUrlString()); //TODO this is broke for NONE
+//        urlBuilder.append("&").append(sortOptions.asUrlString());
         return urlBuilder.toString();
+    }
+
+    private void addIfExists(StringBuilder builder, BaseURL url) {
+        if(url.asUrlString().isEmpty()) {
+            return;
+        }
+        boolean isNotEmpty = !builder.toString().isEmpty();
+        if(isNotEmpty) {
+            builder.append("&");
+        }
+        builder.append(url.asUrlString());
     }
 }

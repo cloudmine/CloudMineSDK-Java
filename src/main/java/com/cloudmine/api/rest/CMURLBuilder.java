@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,13 +108,23 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      */
     public CMURLBuilder search(String search) {
         String encodedSearch;
-        try {
-            encodedSearch = URLEncoder.encode(search, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            encodedSearch = search;
-            LOG.error("Error encoding search string: " + search, e);
-        }
+        encodedSearch = encode(search);
         return addAction("search").addQuery("q", encodedSearch);
+    }
+
+    public static String encode(String url) {
+        String encodedSearch;
+        try {
+            encodedSearch = URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            encodedSearch = url;
+            LOG.error("Error encoding search string: " + url, e);
+        }
+        return encodedSearch;
+    }
+
+    public CMURLBuilder options(CMRequestOptions options) {
+        return addQuery(options.asUrlString());
     }
 
     /**
@@ -176,7 +187,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         String keyString = "";
         String comma = "";
         for(String key : keys) {
-            keyString += comma + key;
+            keyString += comma + encode(key);
             comma = ",";
         }
         return keyString;
