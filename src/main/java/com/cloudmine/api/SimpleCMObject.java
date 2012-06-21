@@ -38,14 +38,32 @@ public class SimpleCMObject implements Json {
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
 
-    public static SimpleCMObject SimpleCMObject() throws CreationException {
+    /**
+     * Instantiate a new SimpleCMObject with a randomly generated objectId
+     * @return a new SimpleCMObject with a randomly generated objectId
+     */
+    public static SimpleCMObject SimpleCMObject() {
         return new SimpleCMObject();
     }
 
-    public static SimpleCMObject SimpleCMObject(String objectId) throws CreationException {
+    /**
+     * Instantiate a new SimpleCMObject with the given objectId
+     * @param objectId the objectId for the new SimpleCMObject
+     * @return a new SimpleCMObject with the given objectId
+     */
+    public static SimpleCMObject SimpleCMObject(String objectId) {
         return new SimpleCMObject(objectId);
     }
 
+    /**
+     * Instantiate a new SimpleCMObject based on the given JSON.
+     * If the JSON has only one entry, it is assumed to be the objectId mapped to the contents of the object, unless that single entry is not a JSON object.
+     * If the JSON has more than one top level key or consists of a single key mapped to a value instead of another JSON object,
+     * an objectId is generated and the given JSON is assumed to be the contents.
+     * @param json valid JSON
+     * @return a new SimpleCMObject
+     * @throws CreationException if unable to parse the given JSON
+     */
     public static SimpleCMObject SimpleCMObject(Json json) throws CreationException {
         try {
             return new SimpleCMObject(json);
@@ -54,10 +72,26 @@ public class SimpleCMObject implements Json {
         }
     }
 
+    /**
+     * Instantiate a new SimpleCMObject with the given objectId and containing the given contents
+     * @param objectId identifies the SimpleCMObject
+     * @param contents key value pairs that will be converted to JSON and persisted with the object
+     * @return a SimpleCMObject containing the given contents with the given objectId
+     * @throws CreationException if unable to map the given contents to JSON
+     */
     public static SimpleCMObject SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         return new SimpleCMObject(objectId, contents);
     }
 
+    /**
+     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
+     * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
+     * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
+     * a top level key is generated and the objectMap is assumed to be the contents.
+     * @param objectMap see above
+     * @return a new SimpleCMObject
+     * @throws CreationException if unable to map the given contents to JSON
+     */
     public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
         return new SimpleCMObject(objectMap);
     }
@@ -87,7 +121,6 @@ public class SimpleCMObject implements Json {
      * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
      * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
      * a top level key is generated and the objectMap is assumed to be the contents.
-     *
      * @param objectMap
      */
     SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
@@ -135,10 +168,19 @@ public class SimpleCMObject implements Json {
         return setSaveWith(new StoreIdentifier(session));
     }
 
+    /**
+     * Gets the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
+     * @return the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
+     */
     public StoreIdentifier getSavedWith() {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
 
+    /**
+     * Check whether this SimpleCMObject saves to a particular level
+     * @param level the level to check
+     * @return true if this saves with the given level
+     */
     public boolean isOnLevel(ObjectLevel level) {
         return getSavedWith().isLevel(level);
     }
@@ -187,20 +229,39 @@ public class SimpleCMObject implements Json {
     /**
      * Returns the value associated with the top level key; This will probably be a Map of Strings to
      * Objects, but may just be a single value
-     * @return
+     * @return the value associated with the top level key; This will probably be a Map of Strings to
+     * Objects, but may just be a single value
      */
     public Object getValue() {
         return topLevelMap.get(objectId);
     }
 
+    /**
+     * Get the value associated with the given key. May be null if the key does not exist
+     * @param key the key for the desired value
+     * @return the value associated with the given key. May be null if the key does not exist
+     */
     public Object get(String key) {
         return contents.get(key);
     }
 
+    /**
+     * Get a SimpleCMObject associated with the given objectId
+     * @param objectId the objectId of the SimpleCMObject
+     * @return the SimpleCMObject associated with the given objectId, or null if it is not a part of this SimpleCMObject
+     * @throws JsonConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
+     */
     public SimpleCMObject getSimpleCMObject(String objectId) throws JsonConversionException {
         return getValue(objectId, SimpleCMObject.class);
     }
 
+    /**
+     * Get a SimpleCMObject associated with the given objectId
+     * @param objectId the objectId of the SimpleCMObject
+     * @param alternative will be returned instead of null if there is nothing associated with the given objectId
+     * @return the SimpleCMObject associated with the given objectId, or the alternative if it is not a part of this SimpleCMObject
+     * @throws JsonConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
+     */
     public SimpleCMObject getSimpleCMObject(String objectId, SimpleCMObject alternative) throws JsonConversionException {
         SimpleCMObject value = getSimpleCMObject(objectId);
         return value == null ?
@@ -208,26 +269,53 @@ public class SimpleCMObject implements Json {
                     value;
     }
 
-    public <T> List<T> getList(String key) throws JsonConversionException {
+    /**
+     * Get the JSON array as a List associated with the given key
+     * @param key the key for the JSON array
+     * @param <T> the type of the list contents
+     * @return a List of type T that is associated with the given key, or null if
+     */
+    public <T> List<T> getList(String key) {
         return getValue(key, List.class);
     }
 
-    public Integer getInteger(String key, Integer alternative) throws JsonConversionException {
+    /**
+     * Get a number value as an Integer
+     * @param key the JSON key
+     * @param alternative a value to use if no Number exists for the given key
+     * @return the Number associated with the key if it exists, or alternative
+     */
+    public Integer getInteger(String key, Integer alternative) {
         Integer value = getInteger(key);
         return value == null ?
                 alternative :
                     value;
     }
 
-    public Integer getInteger(String key) throws JsonConversionException {
+    /**
+     * Get a number value as an Integer
+     * @param key the JSON key
+     * @return the Number associated with the key if it exists, or null
+     */
+    public Integer getInteger(String key)  {
         return getValue(key, Integer.class);
     }
 
-    public Double getDouble(String key) throws JsonConversionException {
+    /**
+     * Get a number value as a Double
+     * @param key the JSON key
+     * @return the Number associated with the key if it exists, or null
+     */
+    public Double getDouble(String key)  {
         return getValue(key, Double.class);
     }
 
-    public Double getDouble(String... keys) throws JsonConversionException {
+    /**
+     * Get the first number value that is associated with one of the given keys
+     * @param keys the keys to check
+     * @return the first Number value that is associated with one of the given keys, or null if none exist
+     */
+    public Double getDouble(String... keys)  {
         for(String key : keys) {
             Double val = getDouble(key);
             if(val != null) {
@@ -237,14 +325,26 @@ public class SimpleCMObject implements Json {
         return null;
     }
 
-    public Double getDouble(String key, Double alternative) throws JsonConversionException {
+    /**
+     * Get a number value as a Double
+     * @param key the JSON key
+     * @param alternative will be returned if no Number value exists for the given key
+     * @return the Number associated with the key if it exists, or alternative
+     */
+    public Double getDouble(String key, Double alternative)  {
         Double value = getDouble(key);
         return value == null ?
                 alternative :
                     value;
     }
 
-    public Boolean getBoolean(String key, Boolean alternative) throws JsonConversionException {
+    /**
+     * Get a boolean value
+     * @param key the JSON key
+     * @param alternative will be returned if no boolean value exists for the given key
+     * @return the boolean associated with the key if it exists, or alternative
+     */
+    public Boolean getBoolean(String key, Boolean alternative)  {
         Boolean value = getBoolean(key);
         return value == null ?
                 alternative :
@@ -253,39 +353,75 @@ public class SimpleCMObject implements Json {
 
     /**
      * Returns Boolean.TRUE, Boolean.FALSE, or null if the key does not exist
-     * @param key
-     * @return
+     * @param key the JSON key
+     * @return the associated value, or null if the key doesn't exist, or if it does exist but isn't associated with a boolean value
      */
-    public Boolean getBoolean(String key) throws JsonConversionException {
+    public Boolean getBoolean(String key) {
         return getValue(key, Boolean.class);
     }
 
-    public String getString(String key, String alternative) throws JsonConversionException {
+    /**
+     * Returns the String value associated with the given key, or the alternative if it doesn't exist
+     * @param key the JSON key
+     * @param alternative an alternative to use if the value is not found
+     * @return the String value associated with the given key, or the alternative if it doesn't exist
+     */
+    public String getString(String key, String alternative)  {
         String string = getString(key);
         return string == null ?
                 alternative :
                     string;
     }
 
-    public String getString(String key) throws JsonConversionException {
+    /**
+     * Returns the String value associated with the given key, or null if it doesn't exist
+     * @param key the JSON key
+     * @return the String value associated with the given key, or the alternative if it doesn't exist
+     */
+    public String getString(String key) {
         return getValue(key, String.class);
     }
 
-    public Date getDate(String key, Date alternative) throws JsonConversionException {
+    /**
+     * Returns the Date value associated with the given key, or the alternative if it doesn't exist
+     * @param key the JSON key
+     * @param alternative an alternative Date value to use if the given key does not exist
+     * @return the Date value associated with the given key, or the alternative if it doesn't exist
+     */
+    public Date getDate(String key, Date alternative) {
         Date date = getDate(key);
         return date == null ?
                 alternative :
                     date;
     }
 
-    public Date getDate(String key) throws JsonConversionException {
+    /**
+     * Returns the Date value associated with the given key, null if it doesn't exist
+     * @param key the JSON key
+     * @return the Date value associated with the given key, or null if it doesn't exist
+     */
+    public Date getDate(String key) {
         return getValue(key, Date.class);
     }
 
+
+    /**
+     * Returns the CMGeoPoint value associated with the given key, or null if it doesn't exist
+     * @param objectId the JSON key
+     * @return the CMGeoPoint value associated with the given key, or null if it doesn't exist
+     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
+     */
     public CMGeoPoint getGeoPoint(String objectId) throws JsonConversionException {
         return getValue(objectId, CMGeoPoint.class);
     }
 
+    /**
+     * Returns the CMGeoPoint value associated with the given key, or the alternative if it doesn't exist
+     * @param objectId the JSON key
+     * @param alternative an alternative CMGeoPoint value to use if the given key does not exist
+     * @return the Date value associated with the given key, or the alternative if it doesn't exist
+     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
+     */
     public CMGeoPoint getGeoPoint(String objectId, CMGeoPoint alternative) throws JsonConversionException {
         CMGeoPoint point = getGeoPoint(objectId);
         return point == null ?
@@ -348,28 +484,58 @@ public class SimpleCMObject implements Json {
         return null;
     }
 
+    /**
+     * Set the class property for this SimpleCMObject. This lets you do things like load all objects of a
+     * certain class, through {@link CMStore#loadApplicationObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param className the classname for this SimpleCMObject
+     */
     public void setClass(String className) {
         add(JsonUtilities.CLASS_KEY, className);
     }
 
+    /**
+     * Set the type of this SimpleCMObject. Types are CloudMine specific, and it is unlikely you should be doing this yourself
+     * @param type the type to use
+     */
     public void setType(CMType type) {
         add(JsonUtilities.TYPE_KEY, type.getTypeId());
     }
 
+    /**
+     * Get the type of this SimpleCMObject. If it has not been set, {@link CMType#NONE} is returned
+     * @return the type of this SimpleCMObject. If it has not been set, {@link CMType#NONE} is returned
+     */
     public CMType getType() {
         Object type = get(JsonUtilities.TYPE_KEY);
         return CMType.getTypeById((String) type);
     }
 
+    /**
+     * Check whether this has the specified type
+     * @param type the type to check
+     * @return true if getType() would return the specified type
+     */
     public boolean isType(CMType type) {
         return getType().equals(type);
     }
 
+    /**
+     * Add a property to this SimpleCMObject. The value can be anything, but if it is not a Map, Number, String, Boolean, array, or Collection
+     * it will not be deserialized properly and may cause issues later on.
+     * @param key to associate with the value
+     * @param value the property
+     * @return this
+     */
     public SimpleCMObject add(String key, Object value) {
         contents.put(key, value);
         return this;
     }
 
+    /**
+     * Add another SimpleCMObject to this SimpleCMObject. The objectId will be used as the key
+     * @param value a SimpleCMObject
+     * @return this
+     */
     public SimpleCMObject add(SimpleCMObject value) {
         add(value.getObjectId(), value);
         return this;
@@ -384,14 +550,28 @@ public class SimpleCMObject implements Json {
         return contents.remove(key);
     }
 
+    /**
+     * Get the objectId that uniquely identifies this SimpleCMObject
+     * @return the objectId that uniquely identifies this SimpleCMObject
+     */
     public String getObjectId() {
         return objectId;
     }
 
+    /**
+     * Get a representation of this SimpleCMObject in the form "objectId":{contents}
+     * @return a representation of this SimpleCMObject in the form "objectId":{contents}
+     * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
+     */
     public String asKeyedObject() throws JsonConversionException {
         return JsonUtilities.addQuotes(objectId) + ":" + asUnkeyedObject();
     }
 
+    /**
+     * Get a JSON representation of this SimpleCMObject in the form of {contents}
+     * @return a JSON representation of this SimpleCMObject in the form of {contents}
+     * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
+     */
     public String asUnkeyedObject() throws JsonConversionException {
         return JsonUtilities.mapToJson(contents);
     }

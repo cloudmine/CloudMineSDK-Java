@@ -294,7 +294,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects with the given top level objectIds
+     * Retrieve all the application level objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
@@ -304,7 +304,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects with the given top level objectIds
+     * Retrieve all the application level objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
@@ -444,6 +444,29 @@ public class CMStore {
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, Callback callback, CMRequestOptions options) throws CreationException {
         return userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback), options);
+    }
+
+    /**
+     * Retrieve all the application level objects that are of the specified class. Class values are set using
+     * {@link SimpleCMObject#setClass(String)}
+     * @param klass the class type to load
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsOfClass(String klass, Callback callback) {
+        return loadApplicationObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    }
+
+    /**
+     * Retrieve all the application level objects that are of the specified class. Class values are set using
+     * {@link SimpleCMObject#setClass(String)}
+     * @param klass the class type to load
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
+     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     */
+    public Future<SimpleCMObjectResponse> loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
+        return applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback), options);
     }
 
     /**
@@ -707,7 +730,7 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link CMFile}
+     * @return a Future containing the {@link FileLoadResponse}
      */
     public Future<FileLoadResponse> loadApplicationFile(String fileName) {
         return loadApplicationFile(fileName, Callback.DO_NOTHING);
@@ -716,8 +739,8 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @return a Future containing the {@link CMFile}
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @return a Future containing the {@link FileLoadResponse}
      */
     public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback) {
         return loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
@@ -726,9 +749,9 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link CMFile}
+     * @return a Future containing the {@link FileLoadResponse}
      */
     public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
         return applicationService.asyncLoadFile(fileName, callback, options);
@@ -737,7 +760,7 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link CMFile}
+     * @return a Future containing the {@link FileLoadResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<FileLoadResponse> loadUserFile(String fileName) throws CreationException {
@@ -747,8 +770,8 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @return a Future containing the {@link CMFile}
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @return a Future containing the {@link FileLoadResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<FileLoadResponse> loadUserFile(String fileName, Callback callback) throws CreationException {
@@ -758,9 +781,9 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a CMFile or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link CMFile}
+     * @return a Future containing the {@link FileLoadResponse}
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<FileLoadResponse> loadUserFile(String fileName, Callback callback, CMRequestOptions options) throws CreationException {
