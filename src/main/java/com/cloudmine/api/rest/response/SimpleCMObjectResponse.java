@@ -2,8 +2,13 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
 import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -12,6 +17,7 @@ import java.util.concurrent.Future;
  * Copyright CloudMine LLC
  */
 public class SimpleCMObjectResponse extends SuccessErrorResponse {
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObjectResponse.class);
     public static final ResponseConstructor<SimpleCMObjectResponse> CONSTRUCTOR =
             new ResponseConstructor<SimpleCMObjectResponse>() {
 
@@ -25,6 +31,8 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse {
                     return createFutureResponse(futureResponse, this);
                 }
             };
+    public static final String COUNT_KEY = "count";
+    public static final int NO_COUNT = -1;
 
     private final Map<String, SimpleCMObject> objectMap;
 
@@ -60,5 +68,19 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse {
      */
     public SimpleCMObject getSimpleCMObject(String objectId) {
         return objectMap.get(objectId);
+    }
+
+    /**
+     * If this load was made with count=true (specified by using {@link com.cloudmine.api.CMPagingOptions})
+     * then this will return the number of entries for the query that was made, regardless of how many results
+     * were returned.
+     * @return the number of entries for the query that was made, or {@link #NO_COUNT} if count=true wasn't requested, or if unable to parse the count property as an Integer
+     */
+    public int getCount() {
+        Object countObject = getObject(COUNT_KEY);
+        if(countObject != null && countObject instanceof Integer) {
+            return ((Integer)countObject).intValue();
+        }
+        return NO_COUNT;
     }
 }
