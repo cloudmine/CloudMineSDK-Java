@@ -3,7 +3,8 @@ package com.cloudmine.api;
 import com.cloudmine.api.rest.BaseURL;
 
 /**
- * Contains options relating to paging for get and search requests. For more information see <a href="https://cloudmine.me/docs/api-reference#ref/object_paging">the CloudMine API documentation on Paging</a>
+ * Contains options relating to paging for get and search requests. For more information see
+ * <a href="https://cloudmine.me/docs/api-reference#ref/object_paging">the CloudMine API documentation on Paging</a>
  * Copyright CloudMine LLC
  */
 public class CMPagingOptions implements BaseURL {

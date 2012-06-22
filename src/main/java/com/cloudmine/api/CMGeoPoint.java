@@ -7,7 +7,7 @@ import com.cloudmine.api.rest.Json;
 /**
  * A SimpleCMObject that has location information associated with it. This allows you to perform
  * geographic searches for this data. For more information, including search information, view the
- * <a href="https://cloudmine.me/docs/data-storage#ref/query_geo">CloudMine geo query documentation</a>
+ * <a href="https://cloudmine.me/docs/object-storage#query_geof">CloudMine geo query documentation</a>
  * Copyright CloudMine LLC
  */
 public class CMGeoPoint extends SimpleCMObject {

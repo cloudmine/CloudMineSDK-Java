@@ -556,7 +556,7 @@ public class CMWebService {
 
     /**
      * Retrieve all the objects that match the given search
-     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
@@ -565,7 +565,7 @@ public class CMWebService {
 
     /**
      * Retrieve all the objects that match the given search
-     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
@@ -575,7 +575,7 @@ public class CMWebService {
 
     /**
      * Retrieve all the objects that match the given search
-     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
@@ -876,7 +876,7 @@ public class CMWebService {
 
     /**
      * Make a blocking call to search for CloudMine objects.
-     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @return  the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws NetworkException if unable to perform the network call
      */

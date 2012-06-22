@@ -380,7 +380,7 @@ public class CMStore {
 
     /**
      * Retrieve all the user level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
@@ -390,7 +390,7 @@ public class CMStore {
 
     /**
      * Retrieve all the user level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
@@ -401,7 +401,7 @@ public class CMStore {
 
     /**
      * Retrieve all the user level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
@@ -413,7 +413,7 @@ public class CMStore {
 
     /**
      * Retrieve all the application level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search) {
@@ -422,7 +422,7 @@ public class CMStore {
 
     /**
      * Retrieve all the application level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
@@ -432,7 +432,7 @@ public class CMStore {
 
     /**
      * Retrieve all the application level objects that match the given search
-     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/api-reference#ref/query_syntax">Search query syntax</a>
+     * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
