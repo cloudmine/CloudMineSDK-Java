@@ -4,7 +4,7 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 
 /**
  * Anything that can be converted to JSON should implement this interface
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public interface Json {
     /**

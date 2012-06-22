@@ -5,7 +5,7 @@ import com.cloudmine.api.rest.response.ResponseConstructor;
 
 /**
  * Base class for all Callback classes
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public abstract class CMCallback<T> implements Callback<T> {
     private final ResponseConstructor<T> constructor;

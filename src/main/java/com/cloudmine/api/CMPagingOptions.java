@@ -5,7 +5,7 @@ import com.cloudmine.api.rest.BaseURL;
 /**
  * Contains options relating to paging for get and search requests. For more information see
  * <a href="https://cloudmine.me/docs/api-reference#ref/object_paging">the CloudMine API documentation on Paging</a>
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMPagingOptions implements BaseURL {
     public static final CMPagingOptions NONE = new CMPagingOptions("");

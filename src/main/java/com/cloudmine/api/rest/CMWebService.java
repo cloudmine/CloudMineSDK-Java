@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
  * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
 
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMWebService {
 
@@ -833,6 +833,7 @@ public class CMWebService {
      * @param objectId of the object to load
      * @return a SimpleCMObjectResponse containing success or failure, and the loaded object if it exists and the call was a success
      * @throws NetworkException if unable to perform the request
+     *
      */
     public SimpleCMObjectResponse loadObject(String objectId) throws NetworkException {
         return loadObjects(Collections.singletonList(objectId));

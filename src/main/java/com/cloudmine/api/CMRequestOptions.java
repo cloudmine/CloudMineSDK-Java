@@ -4,7 +4,7 @@ import com.cloudmine.api.rest.BaseURL;
 
 /**
  * A container for the different options that can be passed into a request.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMRequestOptions implements BaseURL{
     public static final CMRequestOptions NONE = new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, CMSortOptions.NONE);

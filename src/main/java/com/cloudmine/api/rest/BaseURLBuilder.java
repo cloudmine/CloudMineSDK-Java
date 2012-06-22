@@ -10,7 +10,7 @@ import java.net.URL;
 /**
  * This class only exists to make Java be cool about types. Should never be directly instantiated
  * Helps build URLs. Immutable, so any method that appears to mutate returns the new copy.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public abstract class BaseURLBuilder<T> implements BaseURL {
     private static final Logger LOG = LoggerFactory.getLogger(BaseURLBuilder.class);

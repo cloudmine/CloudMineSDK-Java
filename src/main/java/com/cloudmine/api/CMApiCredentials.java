@@ -7,7 +7,7 @@ import org.apache.http.message.BasicHeader;
 /**
  * Singleton for defining your application identifier and application API key. Must be initialized before
  * any calls to the CloudMine API will succeed.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMApiCredentials {
     private static final String HEADER_KEY = "X-CloudMine-ApiKey";

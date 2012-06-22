@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 /**
  * An immutable string that is valid JSON.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class JsonString implements Json {
 

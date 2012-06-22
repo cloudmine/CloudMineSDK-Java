@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 /**
  * Returned by the CloudMine service in response to log in requests. Includes the sessionToken used by
  * services that operate at the user level.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class LoginResponse extends CMResponse {
 

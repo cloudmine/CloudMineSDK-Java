@@ -2,7 +2,7 @@ package com.cloudmine.api.exceptions;
 
 /**
  * Base exception for CloudMine classes.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CloudMineException extends RuntimeException {
     protected CloudMineException(String msg) {

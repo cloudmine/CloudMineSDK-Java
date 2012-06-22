@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 /**
  * Defines the methods that must be implemented by any http client that will be used for asynchronous requests
  * to the CloudMine API
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public interface AsynchronousHttpClient {
 

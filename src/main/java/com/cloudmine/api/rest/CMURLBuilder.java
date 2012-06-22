@@ -12,7 +12,7 @@ import java.util.Collection;
 
 /**
  * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 

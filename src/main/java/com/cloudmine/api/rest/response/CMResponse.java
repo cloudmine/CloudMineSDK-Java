@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * The base response returned by requests to the cloudmine web service. Consists of the JSON response,
  * if any, and the status code.
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMResponse implements Json {
 

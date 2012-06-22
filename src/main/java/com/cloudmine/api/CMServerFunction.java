@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Encapsulates options and snippet name information for making server side function calls. For more information,
  * see <a href="https://cloudmine.me/docs/custom-code">the CloudMine documentation on executing custom code</a>
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMServerFunction implements BaseURL{
     public static final CMServerFunction NONE = new CMServerFunction("");

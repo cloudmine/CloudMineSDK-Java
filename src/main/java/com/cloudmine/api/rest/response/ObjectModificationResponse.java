@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 /**
  * Response returned whenever objects are added, updated, or deleted on the CloudMine platform.
  * Lets you check whether a specific object was updated/created/deleted/modified
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class ObjectModificationResponse extends SuccessErrorResponse{
 

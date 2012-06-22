@@ -11,7 +11,7 @@ import java.util.*;
 
 /**
  * Parent class for CMResponses that include a "success" and "errors" key mapped to a JSON object, or collection of JSON objects
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class SuccessErrorResponse extends CMResponse {
     private static final Logger LOG = LoggerFactory.getLogger(SuccessErrorResponse.class);

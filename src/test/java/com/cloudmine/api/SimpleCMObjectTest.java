@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  * CMUser: johnmccarthy
  * Date: 5/24/12, 3:01 PM
  */
