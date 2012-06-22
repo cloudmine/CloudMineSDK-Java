@@ -2,18 +2,35 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 
+import java.util.WeakHashMap;
+
 /**
+ * Identifies a store
  * Copyright CloudMine LLC
- * User: johnmccarthy
- * Date: 6/14/12, 3:09 PM
  */
 public class StoreIdentifier {
+    private static final WeakHashMap<CMSessionToken, StoreIdentifier> storeMap = new WeakHashMap<CMSessionToken, StoreIdentifier>();
     public static final StoreIdentifier DEFAULT = new StoreIdentifier(ObjectLevel.APPLICATION, null);
     private final ObjectLevel level; //never let this be null
     private final CMSessionToken sessionToken;
 
     public static StoreIdentifier applicationLevel() throws CreationException {
         return DEFAULT;
+    }
+
+    /**
+     * Get the StoreIdentifier for the given token. If no StoreIdentifier exists, one will be created.
+     * @param session a logged in user's session
+     * @return the StoreIdentifier for the given session
+     * @throws CreationException if given a null session
+     */
+    public static StoreIdentifier StoreIdentifier(CMSessionToken session) throws CreationException{
+        StoreIdentifier identifier = storeMap.get(session);
+        if(identifier == null) {
+            identifier = new StoreIdentifier(session);
+            storeMap.put(session, identifier);
+        }
+        return identifier;
     }
 
     private StoreIdentifier(ObjectLevel level, CMSessionToken session) throws CreationException {
@@ -27,11 +44,11 @@ public class StoreIdentifier {
         this.sessionToken = session;
     }
 
-    public StoreIdentifier(CMSessionToken session) throws CreationException {
+    StoreIdentifier(CMSessionToken session) throws CreationException {
         this(ObjectLevel.USER, session);
     }
 
-    public StoreIdentifier() throws CreationException {
+    StoreIdentifier() throws CreationException {
         this(ObjectLevel.APPLICATION, null);
     }
 
@@ -53,6 +70,11 @@ public class StoreIdentifier {
 
     public CMSessionToken getSessionToken() {
         return sessionToken;
+    }
+
+    @Override
+    public String toString() {
+        return level.toString();
     }
 
     @Override

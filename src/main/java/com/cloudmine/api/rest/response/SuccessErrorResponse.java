@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.Immutable;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.CreationException;
 import org.apache.http.HttpResponse;
@@ -18,6 +19,7 @@ public class SuccessErrorResponse extends CMResponse {
     private static final String ERRORS = "errors";
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
+    private final Immutable<List<SimpleCMObject>> successObjects = new Immutable<List<SimpleCMObject>>();
 
     /**
      * Instantiate a new SuccessErrorResponse. You probably shouldn't be calling this yourself
@@ -93,7 +95,13 @@ public class SuccessErrorResponse extends CMResponse {
      * @throws CreationException if the success response contained improperly formed json
      */
     public List<SimpleCMObject> getSuccessObjects() throws CreationException {
-        return getObjects(successResponse);
+        List<SimpleCMObject> objects = successObjects.value();
+        boolean isNotSet = objects == null;
+        if(isNotSet) {
+            objects = getObjects(successResponse);
+            successObjects.setValue(objects);
+        }
+        return objects;
     }
 
     private List<SimpleCMObject> getObjects(Map<String, Object> objectMap) throws CreationException {

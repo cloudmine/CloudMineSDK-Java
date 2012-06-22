@@ -65,7 +65,7 @@ public class CMStore {
      * @throws CreationException if CMSessionToken was null or if the preconditions for use are not satisfied
      */
     public static CMStore getStore(CMSessionToken token) throws CreationException {
-        return getStore(new StoreIdentifier(token));
+        return getStore(StoreIdentifier.StoreIdentifier(token));
     }
 
     /**
@@ -104,20 +104,6 @@ public class CMStore {
         };
     }
 
-    private final SimpleCMObjectResponseCallback objectLoadUpdateStoreCallback(final Callback callback) {
-        return new SimpleCMObjectResponseCallback() {
-            public void onCompletion(SimpleCMObjectResponse response) {
-                try {
-                if(response.wasSuccess()) {
-                    addObjects(response.getSuccessObjects());
-                }
-                }finally {
-                    callback.onCompletion(response);
-                }
-            }
-        };
-    }
-
     private final CMWebService applicationService;
     private final Immutable<CMSessionToken> loggedInUserToken = new Immutable<CMSessionToken>();
     private final Map<String, SimpleCMObject> objects = new ConcurrentHashMap<String, SimpleCMObject>();
@@ -136,6 +122,27 @@ public class CMStore {
         return loggedInUserToken.value(CMSessionToken.FAILED);
     }
 
+    private final SimpleCMObjectResponseCallback objectLoadUpdateStoreCallback(final Callback callback, final StoreIdentifier identifier) {
+        return new SimpleCMObjectResponseCallback() {
+            public void onCompletion(SimpleCMObjectResponse response) {
+                try {
+                    if(response.wasSuccess()) {
+                        List<SimpleCMObject> simpleCMObjects = response.getSuccessObjects();
+                        addObjects(simpleCMObjects);
+                        for(SimpleCMObject object : simpleCMObjects) {
+                            object.setSaveWith(identifier);
+                        }
+                    }
+                }finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
+    }
+
+    public StoreIdentifier getUserStoreIdentifier() {
+        return StoreIdentifier.StoreIdentifier(loggedInUserToken());
+    }
     /*****************************OBJECTS********************************/
 
     /**
@@ -167,7 +174,7 @@ public class CMStore {
 
     /**
      * Asynchronously save the object based on the StoreIdentifier associated with it. If no StoreIdentifier is
-     * present, default (app level) is used; however, the object's StoreIdentifier is not updated.
+     * present, default (app level) is used; and the object's StoreIdentifier is updated.
      * NOTE: No matter what user is associated with the object to save, the store always saves the object with the user associated with the store.
      * @param object the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
@@ -245,7 +252,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback),
+        return applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT),
                 options);
     }
 
@@ -274,10 +281,10 @@ public class CMStore {
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
-     *
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadAllUserObjects(Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjects(objectLoadUpdateStoreCallback(callback), options);
+        return userService().asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(loggedInUserToken())), options);
     }
 
     /**
@@ -307,7 +314,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback), options);
+        return applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
@@ -335,7 +342,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback), options);
+        return applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
@@ -368,7 +375,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback), options);
+        return userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(loggedInUserToken())), options);
     }
 
     /**
@@ -401,7 +408,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsSearch(String search, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncSearch(search, objectLoadUpdateStoreCallback(callback), options);
+        return userService().asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(loggedInUserToken())), options);
     }
 
     /**
@@ -431,7 +438,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback), options);
+        return applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
@@ -467,7 +474,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public Future<SimpleCMObjectResponse> loadUserObjectsOfClass(String klass, Callback callback, CMRequestOptions options) throws CreationException {
-        return userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback), options);
+        return userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(loggedInUserToken())), options);
     }
 
     /**
@@ -490,7 +497,7 @@ public class CMStore {
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
     public Future<SimpleCMObjectResponse> loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback), options);
+        return applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
@@ -676,8 +683,10 @@ public class CMStore {
     private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
         List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
         for(SimpleCMObject object : objects.values()) {
-            if(object.isOnLevel(level) ||
-                    (ObjectLevel.APPLICATION == level && object.isOnLevel(ObjectLevel.UNKNOWN))) {
+            if(object.isOnLevel(level)) {
+                if((ObjectLevel.APPLICATION == level && object.isOnLevel(ObjectLevel.UNKNOWN))) {
+                    object.setSaveWith(StoreIdentifier.applicationLevel());
+                }
                 storeObjects.add(object);
             }
         }
@@ -747,6 +756,14 @@ public class CMStore {
             return null;
         }
         return objects.get(objectId);
+    }
+
+    /**
+     * Get all of the objects that have been persisted using this store
+     * @return all of the objects that have been persisted using this store
+     */
+    public List<SimpleCMObject> getStoredObjects() {
+        return new ArrayList<SimpleCMObject>(objects.values());
     }
 
     /**********************************FILES******************************/
@@ -910,6 +927,7 @@ public class CMStore {
             case UNKNOWN:
             case APPLICATION:
             default:
+                object.setSaveWith(StoreIdentifier.applicationLevel());
                 return applicationService;
         }
     }

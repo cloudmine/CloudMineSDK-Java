@@ -54,6 +54,9 @@ public class CMGeoPoint extends SimpleCMObject {
         }
     }
 
+    public static void main(String... args) {
+    }
+
     CMGeoPoint(double longitude, double latitude) throws CreationException {
         this(longitude, latitude, generateUniqueObjectId());
     }
