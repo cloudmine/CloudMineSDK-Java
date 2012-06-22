@@ -497,7 +497,7 @@ public class SimpleCMObject implements Json {
      * Set the type of this SimpleCMObject. Types are CloudMine specific, and it is unlikely you should be doing this yourself
      * @param type the type to use
      */
-    public void setType(CMType type) {
+    protected void setType(CMType type) {
         add(JsonUtilities.TYPE_KEY, type.getTypeId());
     }
 
