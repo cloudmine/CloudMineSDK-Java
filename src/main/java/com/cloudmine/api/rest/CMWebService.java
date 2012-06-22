@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
  * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
 
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMWebService {
 

@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Simplify working with JSON by putting all the utility methods in one place. Mostly focused on converting
  * objects to and from JSON
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class JsonUtilities {
 

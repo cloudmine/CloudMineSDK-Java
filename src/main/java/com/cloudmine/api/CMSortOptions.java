@@ -4,7 +4,7 @@ import com.cloudmine.api.rest.BaseURL;
 
 /**
  * Encapsulates options related to sorting, such as the field to sort by and the direction
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMSortOptions implements BaseURL{
 

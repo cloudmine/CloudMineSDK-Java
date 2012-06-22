@@ -7,7 +7,7 @@ import org.apache.http.HttpResponse;
 import java.util.concurrent.Future;
 
 /**
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  * User: johnmccarthy
  * Date: 6/20/12, 3:45 PM
  */

@@ -12,7 +12,7 @@ import java.util.Map;
 import static junit.framework.Assert.*;
 
 /**
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  * CMUser: johnmccarthy
  * Date: 5/21/12, 1:43 PM
  */

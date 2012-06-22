@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 /**
  * Used to provide an interface to construct various types of response objects from an {@link HttpResponse}
  * There is probably no reason for you to be dealing with this
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public interface ResponseConstructor<T> {
     /**

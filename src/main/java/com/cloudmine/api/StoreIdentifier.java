@@ -6,7 +6,7 @@ import java.util.WeakHashMap;
 
 /**
  * Identifies a store
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class StoreIdentifier {
     private static final WeakHashMap<CMSessionToken, StoreIdentifier> storeMap = new WeakHashMap<CMSessionToken, StoreIdentifier>();

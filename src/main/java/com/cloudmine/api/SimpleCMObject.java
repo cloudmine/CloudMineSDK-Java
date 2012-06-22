@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
  * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
  * to set this type yourself
  *
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class SimpleCMObject implements Json {
 

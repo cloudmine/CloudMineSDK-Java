@@ -6,7 +6,7 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 /**
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  * CMUser: johnmccarthy
  * Date: 6/7/12, 3:46 PM
  */

@@ -8,7 +8,7 @@ import com.cloudmine.api.rest.Json;
  * A SimpleCMObject that has location information associated with it. This allows you to perform
  * geographic searches for this data. For more information, including search information, view the
  * <a href="https://cloudmine.me/docs/object-storage#query_geof">CloudMine geo query documentation</a>
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMGeoPoint extends SimpleCMObject {
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};

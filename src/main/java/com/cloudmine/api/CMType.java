@@ -6,7 +6,7 @@ import com.cloudmine.api.rest.JsonUtilities;
 /**
  * CloudMine specific types, such as geopoint or file. If you instantiate a {@link CMGeoPoint} or a {@link CMFile}, these will
  * be set automatically.
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public enum CMType implements Json {
     GEO_POINT("geopoint"), FILE("file"), NONE("");

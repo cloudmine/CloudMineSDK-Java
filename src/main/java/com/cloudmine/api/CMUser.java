@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
  * at the {@link ObjectLevel.USER}, in which case they must be loaded and saved using the {@link CMSessionToken}
  * obtained by logging in as their associated CMUser. CMUser objects should be instantiated through the static {@link #CMUser(String, String)}
  * function, as platform specific implementations may be necessary.
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMUser {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);

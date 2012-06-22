@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
  * A binary file that can be stored in CloudMine. Consists of a file name, content type, and the file
  * contents as bytes. <BR>
  * The JSON representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMFile implements Json {
 

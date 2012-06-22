@@ -14,7 +14,7 @@ import java.util.concurrent.Future;
 /**
  *  Returned by the CloudMine service in response to object fetch requests. Provides access to the
  *  {@link SimpleCMObject}s returned by the request
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class SimpleCMObjectResponse extends SuccessErrorResponse {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObjectResponse.class);

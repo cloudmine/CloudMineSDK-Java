@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class UserCMWebService extends CMWebService {
 

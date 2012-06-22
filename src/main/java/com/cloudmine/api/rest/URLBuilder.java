@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 /**
  * A generic Builder for URL strings
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class URLBuilder extends BaseURLBuilder<URLBuilder> {
 

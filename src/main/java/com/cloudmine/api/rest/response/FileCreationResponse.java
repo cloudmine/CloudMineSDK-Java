@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 /**
  * Returned by the CloudMine service in response to file creation requests. Contains the fileName
  * for the created file
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class FileCreationResponse extends CMResponse {
 

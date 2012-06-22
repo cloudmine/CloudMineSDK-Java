@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * DateFormat for converting json dates to java Dates
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMDateFormat extends DateFormat {
 

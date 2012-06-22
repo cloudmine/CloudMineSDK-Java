@@ -3,7 +3,7 @@ package com.cloudmine.api.rest.response;
 /**
  * Represents the statuses that an update/insert/delete operation on an object can return, including MISSING if
  * the object was not modified at all
- * Copyright CloudMine LLC
+ * Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public enum ResponseValue {
     CREATED, DELETED, UPDATED, MISSING;
