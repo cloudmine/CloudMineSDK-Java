@@ -1,5 +1,6 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.*;
@@ -193,15 +194,46 @@ public class SimpleCMObject implements Json, Savable {
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
      * then it saves to the APPLICATION store. Once a SimpleCMObject has been saved, it cannot be saved to a
      * different
-     * @throws JsonConversionException
-     * @throws CreationException
+     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws CreationException if CMApiCredentials has not been initialized properly
      */
     public void save() throws JsonConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
-
+    /**
+     * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
+     * then it saves to the APPLICATION store. Once a SimpleCMObject has been saved, it cannot be saved to a
+     * different
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws CreationException if CMApiCredentials has not been initialized properly
+     */
     public void save(Callback callback) throws CreationException, JsonConversionException {
         store().saveObject(this, callback);
+    }
+
+    public void saveWithUser(CMUser user) throws CreationException, JsonConversionException {
+        saveWithUser(user, Callback.DO_NOTHING);
+    }
+    /**
+     * Save this object in in the given CMUser's store. If {@link #setSaveWith(StoreIdentifier)} has already been called
+     * Once a SimpleCMObject has been saved, it cannot be saved to a
+     * different
+     * @param user the user to save this object with
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws CreationException if CMApiCredentials has not been initialized properly
+     * @throws AccessException if setSaveWith has already been set
+     */
+    public void saveWithUser(CMUser user, Callback callback) throws CreationException, AccessException, JsonConversionException{
+        boolean wasAlreadySet = !setSaveWith(user);
+        boolean notSameUser = wasAlreadySet && //skip the check if it wasn't already set; still check below in if statement for clarity
+                                !user.equals(getUser());
+        if(wasAlreadySet &&
+                notSameUser) {
+            throw new AccessException("Cannot save with user if saveWith has already been set");
+        }
+        save(callback);
     }
 
     @Override
