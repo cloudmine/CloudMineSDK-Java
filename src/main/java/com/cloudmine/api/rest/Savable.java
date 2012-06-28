@@ -44,6 +44,18 @@ public interface Savable {
     public boolean isOnLevel(ObjectLevel level);
 
     /**
+     * Check whether this object is saved to the user level
+     * @return true if user level, false otherwise
+     */
+    public boolean isUserLevel();
+
+    /**
+     * Check whether this object is saved to the application level
+     * @return true if application level, false otherwise
+     */
+    public boolean isApplicationLevel();
+
+    /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
      * @throws com.cloudmine.api.exceptions.JsonConversionException if unable to convert this object to JSON; should not happen

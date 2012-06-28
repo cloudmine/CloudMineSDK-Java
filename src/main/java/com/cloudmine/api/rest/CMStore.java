@@ -251,7 +251,6 @@ public class CMStore {
                 options);
     }
 
-
     /**
      * Retrieve all the application level objects
      * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.

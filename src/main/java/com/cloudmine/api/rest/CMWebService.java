@@ -98,7 +98,7 @@ public class CMWebService {
     /**
      * Get a UserCMWebService for the given token; if none already exist, one will be created. This lets
      * you perform operations at the user level, such as object persistance
-     * @param token a session token return from a valid login request
+     * @param token a session token return from a valid login request or a logged in user
      * @return A UserCMWebService that includes the given session token in its requests and operates at the user level
      * @throws CreationException if given a null or failed session token
      */
@@ -1053,7 +1053,7 @@ public class CMWebService {
         HttpPut put = new HttpPut(baseUrl.binary(file.getFileName()).asUrlString());
         addCloudMineHeader(put);
         put.setEntity(new ByteArrayEntity(file.getFileContents()));
-        put.addHeader("Content-Type", file.getContentType());
+        put.addHeader("Content-Type", file.getMimeType());
         return put;
     }
 

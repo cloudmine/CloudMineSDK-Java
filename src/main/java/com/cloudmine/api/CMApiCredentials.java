@@ -19,7 +19,7 @@ public class CMApiCredentials {
 
     /**
      * Sets the application id and api key. Can be called multiple times, but only the first call will modify the credentials value.
-     * It is an error
+     * It is an error to call this multiple times with different values
      * @param id the application id from your CloudMine dashboard
      * @param apiKey the API key from your CloudMine dashboard
      * @throws CreationException if you try to initialize twice with different values, or null values were passed in

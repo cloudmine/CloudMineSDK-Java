@@ -186,6 +186,16 @@ public class CMFile implements Json, Savable {
     }
 
     @Override
+    public boolean isUserLevel() {
+        return isOnLevel(ObjectLevel.USER);
+    }
+
+    @Override
+    public boolean isApplicationLevel() {
+        return isOnLevel(ObjectLevel.APPLICATION);
+    }
+
+    @Override
     public void save() throws JsonConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
@@ -235,10 +245,21 @@ public class CMFile implements Json, Savable {
 
     /**
      * The MIME type for this file
-     * @return The MIME type for this file
+     * @return The MIME type for this file; if it was not specified, "application/octet-stream" is assumed
      */
-    public String getContentType() {
+    public String getMimeType() {
         return contentType;
+    }
+
+
+    /**
+     * The MIME type for this file
+     * @return The MIME type for this file; if it was not specified, "application/octet-stream" is assumed
+     * @deprecated in favor of the more accurately named getMimeType
+     */
+    @Deprecated
+    public String getContentType() {
+        return getMimeType();
     }
 
     private static String extractContentType(HttpResponse response) {
@@ -271,7 +292,7 @@ public class CMFile implements Json, Savable {
     public final boolean equals(Object other) {
         if(other instanceof CMFile) {
             CMFile otherFile = (CMFile)other;
-            return otherFile.getContentType().equals(getContentType()) &&
+            return otherFile.getMimeType().equals(getMimeType()) &&
                     otherFile.getFileName().equals(getFileName()) &&
                     Arrays.equals(otherFile.getFileContents(), getFileContents());
         }

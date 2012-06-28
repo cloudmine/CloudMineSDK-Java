@@ -16,14 +16,14 @@ import java.util.*;
  * which allows the object to be modified on the CloudMine platform.
  * Values can be added to the object through the use of the add method. In general, values will be converted
  * to JSON based on the rules defined in the <a href="www.json.org">JSON specification.</a> The special cases are
- * as follows:
- * Map<String, Object> are treated as JSON objects
- * Dates are converted into JSON objects
- * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects
+ * as follows:<br>
+ * Map<String, Object> are treated as JSON objects<br>
+ * Dates are converted into JSON objects<br>
+ * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects<br>
  * SimpleCMObjects have 2 optional properties: class and type. Class is used for loading all similar objects, for
- * example through {@link CMStore#loadUserObjectsOfClass(String)}
+ * example through {@link CMStore#loadUserObjectsOfClass(String)}<br>
  * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
- * to set this type yourself
+ * to set this type yourself<br>
  *
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
@@ -179,7 +179,23 @@ public class SimpleCMObject implements Json, Savable {
         return getSavedWith().isLevel(level);
     }
 
+    @Override
+    public boolean isUserLevel() {
+        return isOnLevel(ObjectLevel.USER);
+    }
 
+    @Override
+    public boolean isApplicationLevel() {
+        return isOnLevel(ObjectLevel.APPLICATION);
+    }
+
+    /**
+     * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
+     * then it saves to the APPLICATION store. Once a SimpleCMObject has been saved, it cannot be saved to a
+     * different
+     * @throws JsonConversionException
+     * @throws CreationException
+     */
     public void save() throws JsonConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
