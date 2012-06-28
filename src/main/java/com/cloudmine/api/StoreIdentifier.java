@@ -9,43 +9,43 @@ import java.util.WeakHashMap;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class StoreIdentifier {
-    private static final WeakHashMap<CMSessionToken, StoreIdentifier> storeMap = new WeakHashMap<CMSessionToken, StoreIdentifier>();
+    private static final WeakHashMap<CMUser, StoreIdentifier> storeMap = new WeakHashMap<CMUser, StoreIdentifier>();
     public static final StoreIdentifier DEFAULT = new StoreIdentifier(ObjectLevel.APPLICATION, null);
     private final ObjectLevel level; //never let this be null
-    private final CMSessionToken sessionToken;
+    private final CMUser user;
 
     public static StoreIdentifier applicationLevel() throws CreationException {
         return DEFAULT;
     }
 
     /**
-     * Get the StoreIdentifier for the given token. If no StoreIdentifier exists, one will be created.
-     * @param session a logged in user's session
+     * Get the StoreIdentifier for the given user. If no StoreIdentifier exists, one will be created.
+     * @param user the user that objects at the USER level are saved with
      * @return the StoreIdentifier for the given session
      * @throws CreationException if given a null session
      */
-    public static StoreIdentifier StoreIdentifier(CMSessionToken session) throws CreationException{
-        StoreIdentifier identifier = storeMap.get(session);
+    public static StoreIdentifier StoreIdentifier(CMUser user) throws CreationException{
+        StoreIdentifier identifier = storeMap.get(user);
         if(identifier == null) {
-            identifier = new StoreIdentifier(session);
-            storeMap.put(session, identifier);
+            identifier = new StoreIdentifier(user);
+            storeMap.put(user, identifier);
         }
         return identifier;
     }
 
-    private StoreIdentifier(ObjectLevel level, CMSessionToken session) throws CreationException {
-        if(session == null && ObjectLevel.APPLICATION != level) {
-            throw new CreationException("User cannot be null unless we are saving to ");
+    private StoreIdentifier(ObjectLevel level, CMUser user) throws CreationException {
+        if(user == null && ObjectLevel.APPLICATION != level) {
+            throw new CreationException("User cannot be null unless we are saving to the application level");
         }
         if(level == null) {
             level = ObjectLevel.UNKNOWN;
         }
         this.level = level;
-        this.sessionToken = session;
+        this.user = user;
     }
 
-    StoreIdentifier(CMSessionToken session) throws CreationException {
-        this(ObjectLevel.USER, session);
+    StoreIdentifier(CMUser user) throws CreationException {
+        this(ObjectLevel.USER, user);
     }
 
     StoreIdentifier() throws CreationException {
@@ -68,8 +68,8 @@ public class StoreIdentifier {
         return level;
     }
 
-    public CMSessionToken getSessionToken() {
-        return sessionToken;
+    public CMUser getUser() {
+        return user;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class StoreIdentifier {
         StoreIdentifier that = (StoreIdentifier) o;
 
         if (level != that.level) return false;
-        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
+        if (user != null ? !user.equals(that.user) : that.user != null) return false;
 
         return true;
     }
@@ -93,7 +93,7 @@ public class StoreIdentifier {
     @Override
     public int hashCode() {
         int result = level != null ? level.hashCode() : 0;
-        result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        result = 31 * result + (user != null ? user.hashCode() : 0);
         return result;
     }
 }

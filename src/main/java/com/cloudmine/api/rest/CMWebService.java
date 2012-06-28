@@ -118,6 +118,8 @@ public class CMWebService {
         return userService;
     }
 
+
+
     /**
      * This will set the default UserCMWebService and return it. This must be called before calling
      * userWebService, unless you pass userWebService a CMSessionToken.
@@ -130,13 +132,13 @@ public class CMWebService {
     }
 
     /**
-     * Get the 'default' user web service. Requires that setLoggedInUser has been called
+     * Get the 'default' user web service. Requires that setUser has been called
      * @return the UserCMWebService for the logged in user
-     * @throws CreationException if setLoggedInUser has not been called, or was called with an invalid value
+     * @throws CreationException if setUser has not been called, or was called with an invalid value
      */
     public synchronized UserCMWebService getUserWebService() throws CreationException {
         if(loggedInSessionToken == null) {
-            throw new CreationException("Cannot request a user web service until setLoggedInUser has been called");
+            throw new CreationException("Cannot request a user web service until setUser has been called");
         }
         return getUserWebService(loggedInSessionToken);
     }
@@ -801,6 +803,8 @@ public class CMWebService {
 
     /**
      * Asynchronously log in this user
+     * NOTE: It is recommended that {@link CMUser#login(com.cloudmine.api.rest.callbacks.Callback)} is used instead of this method,
+     * as it will set the user's CMSessionToken properly
      * @param user the user to log in
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      * @return A Future containing the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store

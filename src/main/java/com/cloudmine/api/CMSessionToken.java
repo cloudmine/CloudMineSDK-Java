@@ -54,12 +54,21 @@ public class CMSessionToken implements Json {
                 throw new JsonConversionException("Can't create CMSessionToken from json missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
-            String dateString = objectMap.get(EXPIRES_KEY).toString();
-            try {
-                expires = LOGIN_EXPIRES_FORMAT.parse(dateString);
-            } catch (ParseException e) {
-                throw new JsonConversionException(e);
+            Object dateObject = objectMap.get(EXPIRES_KEY);
+            Date tempDate;
+            if(dateObject instanceof Date) {
+                tempDate = (Date) dateObject;
+            } else if(dateObject != null) {
+                String dateString = dateObject.toString();
+                try {
+                    tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
+                } catch (ParseException e) {
+                    throw new JsonConversionException(e);
+                }
+            } else {
+                tempDate = EXPIRED_DATE;
             }
+            expires = tempDate;
         }
     }
 
@@ -102,7 +111,8 @@ public class CMSessionToken implements Json {
      * @return false if it has expired, true otherwise
      */
     public boolean isValid() {
-        return expires.after(new Date());
+        return FAILED != this &&
+                expires.after(new Date());
     }
 
 }

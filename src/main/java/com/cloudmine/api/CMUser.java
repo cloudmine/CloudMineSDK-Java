@@ -3,8 +3,11 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.FakeFuture;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import org.slf4j.Logger;
@@ -23,12 +26,13 @@ import java.util.concurrent.Future;
  */
 public class CMUser {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
+
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
 
     private final String email;
     private final String password;
-
+    private CMSessionToken sessionToken;
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -80,6 +84,21 @@ public class CMUser {
         return password;
     }
 
+    public CMSessionToken getSessionToken() {
+        if(sessionToken == null) {
+            return CMSessionToken.FAILED;
+        }
+        return sessionToken;
+    }
+
+    /**
+     * Check whether this user is logged in
+     * @return true if the user is logged in successfully; false otherwise
+     */
+    public boolean isLoggedIn() {
+        return sessionToken != null && sessionToken.isValid();
+    }
+
     /**
      * Asynchronously log in this user
      * @return A Future containing the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store
@@ -96,7 +115,27 @@ public class CMUser {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public Future<LoginResponse> login(Callback callback) throws CreationException {
-        return CMWebService.getService().asyncLogin(this, callback);
+        if(isLoggedIn()) {
+            LoginResponse fakeResponse = new LoginResponse(getSessionToken().asJson());
+            callback.onCompletion(fakeResponse);
+            return new FakeFuture<LoginResponse>(fakeResponse);
+        }
+        return CMWebService.getService().asyncLogin(this, setLoggedInUserCallback(callback));
+    }
+
+    /**
+     * Asynchronously log out this user
+     */
+    public void logout() {
+        logout(Callback.DO_NOTHING);
+    }
+
+    /**
+     * Asynchronously log out this user
+     * @param callback a {@link Callback} that expects a {@link CMResponse}. It is recommended that a {@link CMResponseCallback} is used here
+     */
+    public void logout(Callback callback) {
+        CMWebService.getService().asyncLogout(getSessionToken(), setLoggedOutUserCallback(callback));
     }
 
     /**
@@ -207,5 +246,35 @@ public class CMUser {
     @Override
     public String toString() {
         return email + ":" + password;
+    }
+
+
+    private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
+        return new LoginResponseCallback() {
+            public void onCompletion(LoginResponse response) {
+                try {
+                    if(response.wasSuccess() &&
+                            response.getSessionToken().isValid()) {
+                        sessionToken = response.getSessionToken();
+                    }
+                }finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
+    }
+
+    private final CMResponseCallback setLoggedOutUserCallback(final Callback callback) {
+        return new CMResponseCallback() {
+            public void onCompletion(CMResponse response) {
+                try {
+                    if(response.wasSuccess()) {
+                        sessionToken = null;
+                    }
+                } finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
     }
 }

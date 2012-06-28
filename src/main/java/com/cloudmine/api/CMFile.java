@@ -2,8 +2,11 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.Savable;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.commons.io.IOUtils;
@@ -24,7 +27,7 @@ import java.util.concurrent.Future;
  * The JSON representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMFile implements Json {
+public class CMFile implements Json, Savable {
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
@@ -77,6 +80,7 @@ public class CMFile implements Json {
     private final String fileName;
     private final String contentType;
     private final byte[] fileContents;
+    private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
@@ -160,6 +164,46 @@ public class CMFile implements Json {
         }
     }
 
+
+    @Override
+    public boolean setSaveWith(StoreIdentifier identifier) {
+        return storeId.setValue(identifier);
+    }
+
+    @Override
+    public boolean setSaveWith(CMUser user) {
+        return setSaveWith(StoreIdentifier.StoreIdentifier(user));
+    }
+
+    @Override
+    public StoreIdentifier getSavedWith() {
+        return storeId.value(StoreIdentifier.DEFAULT);
+    }
+
+    @Override
+    public boolean isOnLevel(ObjectLevel level) {
+        return getSavedWith().isLevel(level);
+    }
+
+    @Override
+    public void save() throws JsonConversionException, CreationException {
+        save(Callback.DO_NOTHING);
+    }
+
+    @Override
+    public void save(Callback callback) throws CreationException, JsonConversionException {
+        store().saveFile(this, callback);
+    }
+
+    @Override
+    public CMUser getUser() {
+        return getSavedWith().getUser();
+    }
+
+    private CMStore store() throws CreationException {
+        return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
+    }
+
     /**
      * Get the byte contents of the file
      * @return the byte contents of the file
@@ -182,6 +226,11 @@ public class CMFile implements Json {
      */
     public String getFileName() {
         return fileName;
+    }
+
+    @Override
+    public String getObjectId() {
+        return getFileName();
     }
 
     /**

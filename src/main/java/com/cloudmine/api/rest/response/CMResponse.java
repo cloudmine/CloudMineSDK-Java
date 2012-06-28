@@ -1,6 +1,5 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -199,9 +198,10 @@ public class CMResponse implements Json {
 
     @Override
     public String asJson() throws JsonConversionException {
-        if(asJsonString == null) {
-            asJsonString = JsonUtilities.mapToJson(baseMap);
-        }
-        return asJsonString;
+//        if(asJsonString == null) {
+//            asJsonString = JsonUtilities.mapToJson(baseMap);
+//        }
+//        return asJsonString;
+        return JsonUtilities.mapToJson(baseMap);
     }
 }

@@ -2,15 +2,12 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.rest.CMStore;
-import com.cloudmine.api.rest.Json;
-import com.cloudmine.api.rest.JsonString;
-import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.*;
 import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * An object that can be inserted, updated, deleted, and retrieved from CloudMine. Has a non optional
@@ -30,8 +27,8 @@ import java.util.concurrent.Future;
  *
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SimpleCMObject implements Json {
-
+public class SimpleCMObject implements Json, Savable {
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObject.class);
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
     private final String objectId;
@@ -146,26 +143,23 @@ public class SimpleCMObject implements Json {
         add(JsonUtilities.OBJECT_ID_KEY, objectId);
     }
 
-    /**
-     * Set what store to save this object with. If this is not set, it is assumed to be saved with
-     * the default, app level store. If you are saving the object to a user level store, the user must
-     * be logged in when save is called. Once the StoreIdentifier is set, it cannot be changed.
-     * @param identifier the identifier for the store this should be saved with. calling setSaveWith(null)
-     *                   is the same as not calling setSaveWith, and false will be returned
-     * @return true if the value was set; false if it has already been set OR null was passed in
-     */
     public boolean setSaveWith(StoreIdentifier identifier) {
+        LOG.debug("StoreId is current: " + storeId + " and if unset will be set to " + identifier);
         return storeId.setValue(identifier);
     }
 
     /**
      * Set that this object should be saved at the User level, and should be saved using the given CMSessionToken.
-     * @param session the session of the user to save this SimpleCMObject with
+     * @param user the user to save this SimpleCMObject with
      * @return true if the value was set; false if it has already been set OR null was passed in
-     * @throws CreationException if session is null
      */
-    public boolean setSaveWith(CMSessionToken session) throws CreationException {
-        return setSaveWith(new StoreIdentifier(session));
+    public boolean setSaveWith(CMUser user) {
+        try {
+            return setSaveWith(new StoreIdentifier(user));
+        } catch(CreationException e) {
+            LOG.error("CreationException thrown, setSaveWith not set", e);
+            return false;
+        }
     }
 
     /**
@@ -185,27 +179,18 @@ public class SimpleCMObject implements Json {
         return getSavedWith().isLevel(level);
     }
 
-    /**
-     * Asynchronously save this object to its store. If no store has been set, it saves to the app
-     * level store.
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
-     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
-     */
-    public Future<ObjectModificationResponse> save() throws JsonConversionException, CreationException {
-        return save(Callback.DO_NOTHING);
+
+    public void save() throws JsonConversionException, CreationException {
+        save(Callback.DO_NOTHING);
     }
 
-    /**
-     * Asynchronously save this object to its store. If no store has been set, it saves to the app
-     * level store.
-     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
-     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
-     */
-    public Future<ObjectModificationResponse> save(Callback callback) throws CreationException, JsonConversionException {
-        return store().saveObject(this, callback);
+    public void save(Callback callback) throws CreationException, JsonConversionException {
+        store().saveObject(this, callback);
+    }
+
+    @Override
+    public CMUser getUser() {
+        return getSavedWith().getUser();
     }
 
     private CMStore store() throws CreationException {
@@ -550,10 +535,7 @@ public class SimpleCMObject implements Json {
         return contents.remove(key);
     }
 
-    /**
-     * Get the objectId that uniquely identifies this SimpleCMObject
-     * @return the objectId that uniquely identifies this SimpleCMObject
-     */
+    @Override
     public String getObjectId() {
         return objectId;
     }

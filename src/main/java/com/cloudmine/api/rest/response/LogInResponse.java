@@ -3,6 +3,8 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Future;
 
@@ -12,7 +14,7 @@ import java.util.concurrent.Future;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class LoginResponse extends CMResponse {
-
+    private static final Logger LOG = LoggerFactory.getLogger(LoginResponse.class);
     public static final ResponseConstructor<LoginResponse> CONSTRUCTOR = new ResponseConstructor<LoginResponse>() {
         @Override
         public LoginResponse construct(HttpResponse response) {
@@ -33,17 +35,27 @@ public class LoginResponse extends CMResponse {
      */
     public LoginResponse(HttpResponse response) {
         super(response);
+        sessionToken = readInToken();
+    }
+
+    public LoginResponse(String json) {
+        super(json, 200);
+        sessionToken = readInToken();
+    }
+
+    private CMSessionToken readInToken() {
+        CMSessionToken tempToken;
         if(wasSuccess()) {
-            CMSessionToken tempToken;
             try {
                 tempToken = CMSessionToken.CMSessionToken(asJson());
             } catch (JsonConversionException e) {
+                LOG.error("Unable to parse json", e);
                 tempToken = CMSessionToken.FAILED;
             }
-            sessionToken = tempToken;
         } else {
-            sessionToken = CMSessionToken.FAILED;
+            tempToken = CMSessionToken.FAILED;
         }
+        return tempToken;
     }
 
     /**
