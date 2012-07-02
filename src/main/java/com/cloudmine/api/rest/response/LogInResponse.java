@@ -2,6 +2,7 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.response.code.LoginCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.concurrent.Future;
  * services that operate at the user level.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class LoginResponse extends CMResponse {
+public class LoginResponse extends ResponseBase<LoginCode> {
     private static final Logger LOG = LoggerFactory.getLogger(LoginResponse.class);
     public static final ResponseConstructor<LoginResponse> CONSTRUCTOR = new ResponseConstructor<LoginResponse>() {
         @Override
@@ -41,6 +42,11 @@ public class LoginResponse extends CMResponse {
     public LoginResponse(String json) {
         super(json, 200);
         sessionToken = readInToken();
+    }
+
+
+    public LoginCode getResponseCode() {
+        return LoginCode.codeForStatus(getStatusCode());
     }
 
     private CMSessionToken readInToken() {

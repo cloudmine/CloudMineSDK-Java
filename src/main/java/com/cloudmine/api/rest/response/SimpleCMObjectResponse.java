@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import java.util.concurrent.Future;
  *  {@link SimpleCMObject}s returned by the request
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SimpleCMObjectResponse extends SuccessErrorResponse {
+public class SimpleCMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObjectResponse.class);
     public static final ResponseConstructor<SimpleCMObjectResponse> CONSTRUCTOR =
             new ResponseConstructor<SimpleCMObjectResponse>() {
@@ -51,6 +52,11 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse {
         } else {
             objectMap = Collections.emptyMap();
         }
+    }
+
+    @Override
+    public ObjectLoadCode getResponseCode() {
+        return ObjectLoadCode.codeForStatus(getStatusCode());
     }
 
     /**

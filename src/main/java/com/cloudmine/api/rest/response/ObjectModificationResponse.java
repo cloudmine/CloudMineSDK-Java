@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.rest.response.code.ObjectModificationCode;
 import org.apache.http.HttpResponse;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.concurrent.Future;
  * Lets you check whether a specific object was updated/created/deleted/modified
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class ObjectModificationResponse extends SuccessErrorResponse{
+public class ObjectModificationResponse extends SuccessErrorResponse<ObjectModificationCode>{
 
     public static final ResponseConstructor<ObjectModificationResponse> CONSTRUCTOR = new ResponseConstructor<ObjectModificationResponse>() {
         @Override
@@ -35,6 +36,11 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
 
     protected ObjectModificationResponse(String messageBody, int statusCode) {
         super(messageBody, statusCode);
+    }
+
+    @Override
+    public ObjectModificationCode getResponseCode() {
+        return ObjectModificationCode.codeForStatus(getStatusCode());
     }
 
     /**

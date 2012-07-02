@@ -980,7 +980,7 @@ public class CMWebService {
         return executeCommand(message, cmResponseConstructor());
     }
 
-    private <T extends CMResponse> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) throws NetworkException{
+    private <T extends ResponseBase> T executeCommand(HttpUriRequest message, ResponseConstructor<T> constructor) throws NetworkException{
         HttpResponse response = null;
         try {
             response = httpClient.execute(message);
@@ -1190,10 +1190,6 @@ public class CMWebService {
 
     protected ResponseConstructor<FileLoadResponse> fileLoadResponseResponseConstructor(String key) {
         return FileLoadResponse.constructor(key);
-    }
-
-    protected ResponseConstructor<CMFile> cmFileConstructor(String key) {
-        return CMFile.constructor(key);
     }
 
     protected ResponseConstructor<LoginResponse> logInResponseConstructor() {

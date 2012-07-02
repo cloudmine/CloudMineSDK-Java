@@ -7,8 +7,6 @@ import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.response.CMResponse;
-import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -19,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.Future;
 
 /**
  * A binary file that can be stored in CloudMine. Consists of a file name, content type, and the file
@@ -39,28 +36,6 @@ public class CMFile implements Json, Savable {
      */
     public static CMFile CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
         return new CMFile(contents, fileName, contentType);
-    }
-
-    public static class Constructor implements ResponseConstructor<CMFile> {
-        private final String key;
-        public Constructor(String key) {
-            super();
-            this.key = key;
-        }
-
-        @Override
-        public CMFile construct(HttpResponse response) throws CreationException {
-            return CMFile(response, key);
-        }
-
-        @Override
-        public Future<CMFile> constructFuture(Future<HttpResponse> futureResponse) {
-            return CMResponse.createFutureResponse(futureResponse, this);
-        }
-    };
-
-    public static ResponseConstructor<CMFile> constructor(String key) {
-        return new Constructor(key);
     }
 
     /**
