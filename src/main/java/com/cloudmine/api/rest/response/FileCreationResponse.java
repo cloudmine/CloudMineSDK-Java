@@ -3,8 +3,6 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.rest.response.code.FileCreationCode;
 import org.apache.http.HttpResponse;
 
-import java.util.concurrent.Future;
-
 /**
  * Returned by the CloudMine service in response to file creation requests. Contains the fileName
  * for the created file
@@ -16,11 +14,6 @@ public class FileCreationResponse extends ResponseBase<FileCreationCode> {
         @Override
         public FileCreationResponse construct(HttpResponse response) {
             return new FileCreationResponse(response);
-        }
-
-        @Override
-        public Future<FileCreationResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return createFutureResponse(futureResponse, this);
         }
     };
 

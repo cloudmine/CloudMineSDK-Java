@@ -6,14 +6,12 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback;
-import com.cloudmine.api.rest.response.FileLoadResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.SimpleCMObjectResponse;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 
 /**
  * The main class for interacting with the CloudMine API. Stores can operate on both the user or application level
@@ -194,7 +192,6 @@ public class CMStore {
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
      * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteObject(SimpleCMObject object, Callback callback) throws CreationException {
@@ -224,36 +221,32 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     * Retrieve all the application level objects; they will be added to this Store after load
      */
-    public Future<SimpleCMObjectResponse> loadAllApplicationObjects() {
-        return loadAllApplicationObjects(Callback.DO_NOTHING);
+    public void loadAllApplicationObjects() {
+        loadAllApplicationObjects(Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve all the application level objects and pass the results into the given callback.
+     * Retrieve all the application level objects and pass the results into the given callback. They will be added to this Store after load
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback) {
-        return loadAllApplicationObjects(callback, CMRequestOptions.NONE);
+    public void loadAllApplicationObjects(Callback callback) {
+        loadAllApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve all the application level objects and pass the results into the given callback.
+     * Retrieve all the application level objects and pass the results into the given callback. They will be added to this Store after load
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT),
+    public void loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT),
                 options);
     }
 
     /**
-     * Retrieve all the application level objects
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     * Retrieve all the application level objects; they will be added to this Store after load
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadAllUserObjects() throws CreationException {
@@ -261,7 +254,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects and pass the results into the given callback.
+     * Retrieve all the user level objects and pass the results into the given callback; they will be added to this Store after load
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
@@ -270,7 +263,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects and pass the results into the given callback.
+     * Retrieve all the user level objects and pass the results into the given callback; they will be added to this Store after load
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws CreationException if this CMStore does not have a CMUser associated with it
@@ -284,65 +277,59 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds) {
-        return loadApplicationObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
+    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds) {
+        loadApplicationObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback) {
-        return loadApplicationObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
+    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback) {
+        loadApplicationObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectId the top level objectIds of the objects to retrieve
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId) {
-        return loadApplicationObjectWithObjectId(objectId, Callback.DO_NOTHING);
+    public void loadApplicationObjectWithObjectId(String objectId) {
+        loadApplicationObjectWithObjectId(objectId, Callback.DO_NOTHING);
     }
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectId the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId, Callback callback) {
-        return loadApplicationObjectWithObjectId(objectId, callback, CMRequestOptions.NONE);
+    public void loadApplicationObjectWithObjectId(String objectId, Callback callback) {
+        loadApplicationObjectWithObjectId(objectId, callback, CMRequestOptions.NONE);
     }
     /**
-     * Retrieve all the application level objects with the given objectIds
+     * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectId the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectWithObjectId(String objectId, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    public void loadApplicationObjectWithObjectId(String objectId, Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
-     * Retrieve all the user level objects with the given objectIds
+     * Retrieve all the user level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
@@ -351,7 +338,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects with the given objectIds
+     * Retrieve all the user level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @throws CreationException if this CMStore does not have a CMUser associated with it
@@ -361,7 +348,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects with the given objectIds
+     * Retrieve all the user level objects with the given objectIds; they will be added to this Store after load
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
@@ -376,7 +363,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects that match the given search
+     * Retrieve all the user level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
@@ -385,7 +372,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects that match the given search
+     * Retrieve all the user level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
@@ -395,7 +382,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects that match the given search
+     * Retrieve all the user level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
@@ -411,38 +398,35 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects that match the given search
+     * Retrieve all the application level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search) {
-        return loadApplicationObjectsSearch(search, Callback.DO_NOTHING);
+    public void loadApplicationObjectsSearch(String search) {
+        loadApplicationObjectsSearch(search, Callback.DO_NOTHING);
     }
 
     /**
-     * Retrieve all the application level objects that match the given search
+     * Retrieve all the application level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback) {
-        return loadApplicationObjectsSearch(search, callback, CMRequestOptions.NONE);
+    public void loadApplicationObjectsSearch(String search, Callback callback) {
+        loadApplicationObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve all the application level objects that match the given search
+     * Retrieve all the application level objects that match the given search; they will be added to this Store after load
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    public void loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
+        applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
      * Retrieve all the user level objects that are of the specified class. Class values are set using
-     * {@link SimpleCMObject#setClass(String)}
+     * {@link SimpleCMObject#setClass(String)}. retrieved objects will be added to this Store after load
      * @param klass the class type to load
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
@@ -451,7 +435,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects that are of the specified class. Class values are set using
+     * Retrieve all the user level objects that are of the specified class; they will be added to this Store after load. Class values are set using
      * {@link SimpleCMObject#setClass(String)}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
@@ -462,7 +446,7 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the user level objects that are of the specified class. Class values are set using
+     * Retrieve all the user level objects that are of the specified class; they will be added to this Store after load. Class values are set using
      * {@link SimpleCMObject#setClass(String)}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
@@ -479,26 +463,24 @@ public class CMStore {
     }
 
     /**
-     * Retrieve all the application level objects that are of the specified class. Class values are set using
+     * Retrieve all the application level objects that are of the specified class; they will be added to this Store after load. Class values are set using
      * {@link SimpleCMObject#setClass(String)}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsOfClass(String klass, Callback callback) {
-        return loadApplicationObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    public void loadApplicationObjectsOfClass(String klass, Callback callback) {
+        loadApplicationObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve all the application level objects that are of the specified class. Class values are set using
+     * Retrieve all the application level objects that are of the specified class; they will be added to this Store after load. Class values are set using
      * {@link SimpleCMObject#setClass(String)}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    public void loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
     /**
@@ -644,41 +626,6 @@ public class CMStore {
         saveStoreObjects(callback, callback, options);
     }
 
-//    public void saveStoreObjects(final Callback callback) {
-//        //TODO this is a messy implementation. Basically do both inserts and start a thread that waits for the result
-//        //there is a much better way to do it but I don't have time to figure it out right now #excuses #shipit
-//        final CountDownLatch latch = new CountDownLatch(2);
-//        final List<ObjectModificationResponse> responses = new ArrayList<ObjectModificationResponse>();
-//        ObjectModificationResponseCallback countDownCallback = new ObjectModificationResponseCallback() {
-//            public void onCompletion(ObjectModificationResponse response) {
-//                responses.add(response);
-//                latch.countDown();
-//            }
-//        };
-//        saveStoreUserObjects(countDownCallback);
-//        saveStoreApplicationObjects(countDownCallback);
-//        Runnable toRun = new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                ObjectModificationResponse response = null;
-//                try {
-//                    latch.await();
-//                    response = ObjectModificationResponse.merge(responses);
-//
-//                } catch (InterruptedException e) {
-//                } finally {
-//                    if(response == null) {
-//                        response = new ObjectModificationResponse(EMPTY_SUCCESS_RESPONSE, 408);
-//                    }
-//                    callback.onCompletion(response);
-//                }
-//
-//            }
-//        };
-//        new Thread(toRun).start();
-//    }
-
     private Collection<SimpleCMObject> getStoreObjectsOfType(ObjectLevel level) {
         List<SimpleCMObject> storeObjects = new ArrayList<SimpleCMObject>();
         for(SimpleCMObject object : objects.values()) {
@@ -799,20 +746,18 @@ public class CMStore {
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> loadApplicationFile(String fileName) {
-        return loadApplicationFile(fileName, Callback.DO_NOTHING);
+    public void loadApplicationFile(String fileName) {
+        loadApplicationFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback) {
-        return loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
+    public void loadApplicationFile(String fileName, Callback callback) {
+        loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -820,10 +765,9 @@ public class CMStore {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncLoadFile(fileName, callback, options);
+    public void loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadFile(fileName, callback, options);
     }
 
     /**
@@ -863,20 +807,18 @@ public class CMStore {
     /**
      * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName) {
-        return deleteApplicationFile(fileName, Callback.DO_NOTHING);
+    public void deleteApplicationFile(String fileName) {
+        deleteApplicationFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName, Callback callback) {
-        return deleteApplicationFile(fileName, callback, CMRequestOptions.NONE);
+    public void deleteApplicationFile(String fileName, Callback callback) {
+        deleteApplicationFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -884,10 +826,9 @@ public class CMStore {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> deleteApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
-        return applicationService.asyncDeleteFile(fileName, callback, options);
+    public void deleteApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
+        applicationService.asyncDeleteFile(fileName, callback, options);
     }
 
     /**
@@ -930,11 +871,12 @@ public class CMStore {
     }
 
     /**
-     * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store
+     * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store.
      * @param user the user to log in
-     * @return a Future containing the {@link LoginResponse}
+     * @return whether the user was set for this store; if false, the user has already been set
+     * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public Future<LoginResponse> login(CMUser user) {
+    public boolean login(CMUser user) throws CreationException {
         return login(user, Callback.DO_NOTHING);
     }
 
@@ -942,11 +884,12 @@ public class CMStore {
      * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store
      * @param user the user to log in
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
-     * @return a Future containing the {@link LoginResponse}
+     * @return whether the user was set for this store; if false, the user has already been set
+     * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public Future<LoginResponse> login(CMUser user, Callback callback) {
-        setUser(user);
-        return user.login(callback);
+    public boolean login(CMUser user, Callback callback) throws CreationException {
+        user.login(callback);
+        return setUser(user);
     }
 
     /**

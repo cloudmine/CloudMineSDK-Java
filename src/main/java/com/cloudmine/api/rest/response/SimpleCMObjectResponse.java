@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  *  Returned by the CloudMine service in response to object fetch requests. Provides access to the
@@ -25,11 +24,6 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse<ObjectLoadCode>
                 @Override
                 public SimpleCMObjectResponse construct(HttpResponse response) {
                     return new SimpleCMObjectResponse(response);
-                }
-
-                @Override
-                public Future<SimpleCMObjectResponse> constructFuture(Future<HttpResponse> futureResponse) {
-                    return createFutureResponse(futureResponse, this);
                 }
             };
     public static final String COUNT_KEY = "count";

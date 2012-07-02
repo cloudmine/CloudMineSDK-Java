@@ -3,6 +3,8 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,6 +20,7 @@ import java.util.Map;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMSessionToken implements Json {
+    private static final Logger LOG = LoggerFactory.getLogger(CMSessionToken.class);
     private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     private static final Date EXPIRED_DATE = new Date(0);
     public static final String INVALID_TOKEN = "invalidToken";

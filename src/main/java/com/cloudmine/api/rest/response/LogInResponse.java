@@ -7,8 +7,6 @@ import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Future;
-
 /**
  * Returned by the CloudMine service in response to log in requests. Includes the sessionToken used by
  * services that operate at the user level.
@@ -20,11 +18,6 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         @Override
         public LoginResponse construct(HttpResponse response) {
             return new LoginResponse(response);
-        }
-
-        @Override
-        public Future<LoginResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return createFutureResponse(futureResponse, CONSTRUCTOR);
         }
     };
 

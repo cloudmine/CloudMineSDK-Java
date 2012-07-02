@@ -7,8 +7,6 @@ import org.apache.http.Header;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 
-import java.util.concurrent.Future;
-
 /**
  * A {@link CMWebService} that does all its operations at the user level
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
@@ -56,20 +54,18 @@ public class UserCMWebService extends CMWebService {
     /**
      * Log the user associated with this service out of the system. Any future calls to any methods will fail for lack of
      * authentication
-     * @return A Future containing the response to the log out request
      */
-    public Future<CMResponse> asyncLogout() {
-        return asyncLogout(Callback.DO_NOTHING);
+    public void asyncLogout() {
+        asyncLogout(Callback.DO_NOTHING);
     }
 
     /**
      * Log the user associated with this service out of the system. Any future calls to any methods will fail for lack of
      * authentication
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
-     * @return A Future containing the response to the log out request
      */
-    public Future<CMResponse> asyncLogout(Callback callback) {
-        return asyncLogout(sessionToken, callback);
+    public void asyncLogout(Callback callback) {
+        asyncLogout(sessionToken, callback);
     }
 
     @Override

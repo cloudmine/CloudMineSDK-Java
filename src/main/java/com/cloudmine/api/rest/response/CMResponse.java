@@ -6,8 +6,6 @@ import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Future;
-
 /**
  * The base response returned by requests to the cloudmine web service. Consists of the JSON response,
  * if any, and the status code.
@@ -20,18 +18,7 @@ public class CMResponse extends ResponseBase<CMResponseCode> implements Json {
         public CMResponse construct(HttpResponse response) {
             return new CMResponse(response);
         }
-
-        public Future<CMResponse> constructFuture(Future<HttpResponse> response) {
-            return createFutureResponse(response);
-        }
     };
-
-
-
-    public static Future<CMResponse> createFutureResponse(Future<HttpResponse> response) {
-        return createFutureResponse(response, CONSTRUCTOR);
-    }
-
 
     /**
      * Construct a CMResponse from an {@link HttpResponse}. It is unlikely you should be calling this

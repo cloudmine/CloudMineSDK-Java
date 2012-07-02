@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * Provides direct access to the CloudMine API. Useful if you don't need all the bookkeeping of a {@link CMStore}. Also
@@ -175,20 +174,18 @@ public class CMWebService {
     /**
      * Load all of the objects of the specified class
      * @param klass the class of the objects to load; you must call {@link SimpleCMObject#setClass(String)} before persisting for this property to exist on your objects
-     * @return a Future containing the SimpleCMObjectResponse that will provide access to the loaded objects
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass) {
-        return asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
+    public void asyncLoadObjectsOfClass(String klass) {
+        asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
     }
 
     /**
      * Load all of the objects of the specified class
      * @param klass the class of the objects to load; you must call {@link SimpleCMObject#setClass(String)} before persisting for this property to exist on your objects
      * @param callback
-     * @return a Future containing the SimpleCMObjectResponse that will provide access to the loaded objects
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, Callback callback) {
-        return asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    public void asyncLoadObjectsOfClass(String klass, Callback callback) {
+        asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -196,31 +193,28 @@ public class CMWebService {
      * {@link SimpleCMObject#setClass(String)}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
+    public void asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]", options);
-        return executeAsyncCommand(search,
+        executeAsyncCommand(search,
                 callback, simpleCMObjectResponseConstructor());
     }
 
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object) {
-        return asyncDeleteObject(object, Callback.DO_NOTHING);
+    public void asyncDeleteObject(SimpleCMObject object) {
+        asyncDeleteObject(object, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, Callback callback) {
-        return asyncDeleteObject(object, callback, CMRequestOptions.NONE);
+    public void asyncDeleteObject(SimpleCMObject object, Callback callback) {
+        asyncDeleteObject(object, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -228,29 +222,26 @@ public class CMWebService {
      * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) {
-        return asyncDeleteObjects(Collections.singletonList(object), callback, options);
+    public void asyncDeleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) {
+        asyncDeleteObjects(Collections.singletonList(object), callback, options);
     }
 
     /**
      * Delete the given objects from CloudMine.
      * @param objects to delete; this is done based on the object ids, values are ignored
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects) {
-        return asyncDeleteObjects(objects, Callback.DO_NOTHING);
+    public void asyncDeleteObjects(Collection<SimpleCMObject> objects) {
+        asyncDeleteObjects(objects, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the given objects from CloudMine.
      * @param objects to delete; this is done based on the object ids, values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback) {
-        return asyncDeleteObjects(objects, callback, CMRequestOptions.NONE);
+    public void asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback) {
+        asyncDeleteObjects(objects, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -258,34 +249,31 @@ public class CMWebService {
      * @param objects to delete; this is done based on the object ids, values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback, CMRequestOptions options) {
+    public void asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback, CMRequestOptions options) {
         int size = objects.size();
         Collection<String> keys = new ArrayList<String>(size);
         for(SimpleCMObject object : objects) {
             keys.add(object.getObjectId());
         }
-        return asyncDelete(keys, callback, options);
+        asyncDelete(keys, callback, options);
     }
 
     /**
      * Delete the given object from CloudMine.
      * @param objectId to delete; this is done based on the object id
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(String objectId) {
-        return asyncDelete(objectId, Callback.DO_NOTHING);
+    public void asyncDelete(String objectId) {
+        asyncDelete(objectId, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the given object from CloudMine.
      * @param objectId to delete; this is done based on the object id
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(String objectId, Callback callback) {
-        return asyncDelete(objectId, callback, CMRequestOptions.NONE);
+    public void asyncDelete(String objectId, Callback callback) {
+        asyncDelete(objectId, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -293,29 +281,26 @@ public class CMWebService {
      * @param objectId to delete; this is done based on the object id
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(String objectId, Callback callback, CMRequestOptions options) {
-        return asyncDelete(Collections.singletonList(objectId), callback, options);
+    public void asyncDelete(String objectId, Callback callback, CMRequestOptions options) {
+        asyncDelete(Collections.singletonList(objectId), callback, options);
     }
 
     /**
      * Delete the given objects from CloudMine.
      * @param objectIds to delete; this is done based on the object ids
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds) {
-        return asyncDelete(objectIds, Callback.DO_NOTHING);
+    public void asyncDelete(Collection<String> objectIds) {
+        asyncDelete(objectIds, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the given objects from CloudMine.
      * @param objectIds to delete; this is done based on the object ids
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds, Callback callback) {
-        return asyncDelete(objectIds, callback, CMRequestOptions.NONE);
+    public void asyncDelete(Collection<String> objectIds, Callback callback) {
+        asyncDelete(objectIds, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -323,88 +308,79 @@ public class CMWebService {
      * @param objectIds to delete; this is done based on the object ids
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDelete(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(createDelete(objectIds, options),
+    public void asyncDelete(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createDelete(objectIds, options),
                 callback, objectModificationResponseConstructor());
     }
 
     /**
      * This will delete ALL the objects associated with this API key. Be careful...
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @returna Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteAll(Callback callback) {
-        return executeAsyncCommand(createDeleteAll(), callback, objectModificationResponseConstructor());
+    public void asyncDeleteAll(Callback callback) {
+        executeAsyncCommand(createDeleteAll(), callback, objectModificationResponseConstructor());
     }
 
     /**
      * This will delete ALL the objects associated with this API key. Be careful...
-     * @returna Future containing the {@link ObjectModificationResponse} which can be queried to check the success of this operation
      */
-    public Future<ObjectModificationResponse> asyncDeleteAll() {
-        return asyncDeleteAll(Callback.DO_NOTHING);
+    public void asyncDeleteAll() {
+        asyncDeleteAll(Callback.DO_NOTHING);
     }
 
     /**
      * Delete the CMFile
      * @param file the file to delete
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file) {
-        return asyncDeleteFile(file, Callback.DO_NOTHING);
+    public void asyncDeleteFile(CMFile file) {
+        asyncDeleteFile(file, Callback.DO_NOTHING);
     }
     /**
      * Delete the CMFile
      * @param file the file to delete
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFile(CMFile file, Callback callback) {
-        return asyncDelete(file.getFileName(), callback);
+    public void asyncDeleteFile(CMFile file, Callback callback) {
+        asyncDelete(file.getFileName(), callback);
     }
 
     /**
      * Delete all the given CMFiles
      * @param files the files to delete
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files) {
-        return asyncDeleteFiles(files, Callback.DO_NOTHING);
+    public void asyncDeleteFiles(Collection<CMFile> files) {
+        asyncDeleteFiles(files, Callback.DO_NOTHING);
     }
 
     /**
      * Delete all the given CMFiles
      * @param files the files to delete
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFiles(Collection<CMFile> files, Callback callback) {
+    public void asyncDeleteFiles(Collection<CMFile> files, Callback callback) {
         Collection<String> keys = new ArrayList<String>(files.size());
         for(CMFile file : files) {
             keys.add(file.getFileName());
         }
-        return asyncDelete(keys, callback);
+        asyncDelete(keys, callback);
     }
 
     /**
      * Delete the {@link CMFile} with the specified fileName
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName) {
-        return asyncDeleteFile(fileName, Callback.DO_NOTHING);
+    public void asyncDeleteFile(String fileName) {
+        asyncDeleteFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
      * Delete the {@link CMFile} with the specified fileName
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, Callback callback) {
-        return asyncDeleteFile(fileName, callback, CMRequestOptions.NONE);
+    public void asyncDeleteFile(String fileName, Callback callback) {
+        asyncDeleteFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -412,48 +388,43 @@ public class CMWebService {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse}
      */
-    public Future<ObjectModificationResponse> asyncDeleteFile(String fileName, Callback callback, CMRequestOptions options) {
-        return asyncDelete(fileName, callback, options);
+    public void asyncDeleteFile(String fileName, Callback callback, CMRequestOptions options) {
+        asyncDelete(fileName, callback, options);
     }
 
     /**
      * Add the given file to CloudMine
      * @param file the file to add
-     * @return a Future containing the FileCreationResponse that the server will return
      */
-    public Future<FileCreationResponse> asyncUpload(CMFile file) {
-        return asyncUpload(file, Callback.DO_NOTHING);
+    public void asyncUpload(CMFile file) {
+        asyncUpload(file, Callback.DO_NOTHING);
     }
 
     /**
      * Add the given file to CloudMine
      * @param file the file to add
      * @param callback a {@link Callback} that expects a {@link FileCreationResponse}. It is recommended that you pass in a {@link com.cloudmine.api.rest.callbacks.FileCreationResponseCallback}
-     * @return a Future containing the FileCreationResponse that the server will return
      */
-    public Future<FileCreationResponse> asyncUpload(CMFile file, Callback callback) {
-        return executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
+    public void asyncUpload(CMFile file, Callback callback) {
+        executeAsyncCommand(createPut(file), callback, fileCreationResponseConstructor());
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> asyncLoadFile(String fileName) {
-        return asyncLoadFile(fileName, Callback.DO_NOTHING);
+    public void asyncLoadFile(String fileName) {
+        asyncLoadFile(fileName, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve the {@link CMFile} with the specified fileName, if it exists
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> asyncLoadFile(String fileName, Callback callback) {
-        return asyncLoadFile(fileName, callback, CMRequestOptions.NONE);
+    public void asyncLoadFile(String fileName, Callback callback) {
+        asyncLoadFile(fileName, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -461,57 +432,51 @@ public class CMWebService {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link FileLoadResponse}
      */
-    public Future<FileLoadResponse> asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(createGetFile(fileName, options),
+    public void asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createGetFile(fileName, options),
                 callback, fileLoadResponseResponseConstructor(fileName));
     }
 
     /**
      * Retrieve all the objects
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects() {
-        return asyncLoadObjects(Callback.DO_NOTHING);
+    public void asyncLoadObjects() {
+        asyncLoadObjects(Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve all the objects
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Callback callback) {
-        return asyncLoadObjects(callback, CMRequestOptions.NONE);
+    public void asyncLoadObjects(Callback callback) {
+        asyncLoadObjects(callback, CMRequestOptions.NONE);
     }
 
     /**
      * Retrieve all the objects
      * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Callback callback, CMRequestOptions options) {
-        return asyncLoadObjects(Collections.<String>emptyList(), callback, options);
+    public void asyncLoadObjects(Callback callback, CMRequestOptions options) {
+        asyncLoadObjects(Collections.<String>emptyList(), callback, options);
     }
 
     /**
      * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId) {
-        return asyncLoadObject(objectId, Callback.DO_NOTHING);
+    public void asyncLoadObject(String objectId) {
+        asyncLoadObject(objectId, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId, Callback callback) {
-        return asyncLoadObjects(Collections.<String>singleton(objectId), callback);
+    public void asyncLoadObject(String objectId, Callback callback) {
+        asyncLoadObjects(Collections.<String>singleton(objectId), callback);
     }
 
     /**
@@ -519,29 +484,26 @@ public class CMWebService {
      * @param objectId the top level objectId of the object to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObject(String objectId, Callback callback, CMRequestOptions options) {
-        return asyncLoadObjects(Collections.<String>singleton(objectId), callback, options);
+    public void asyncLoadObject(String objectId, Callback callback, CMRequestOptions options) {
+        asyncLoadObjects(Collections.<String>singleton(objectId), callback, options);
     }
 
     /**
      * Retrieve all the objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds) {
-        return asyncLoadObjects(objectIds, Callback.DO_NOTHING);
+    public void asyncLoadObjects(Collection<String> objectIds) {
+        asyncLoadObjects(objectIds, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve all the objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds, Callback callback) {
-        return asyncLoadObjects(objectIds, callback, CMRequestOptions.NONE);
+    public void asyncLoadObjects(Collection<String> objectIds, Callback callback) {
+        asyncLoadObjects(objectIds, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -549,30 +511,27 @@ public class CMWebService {
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncLoadObjects(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(createGetObjects(objectIds, options),
+    public void asyncLoadObjects(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createGetObjects(objectIds, options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
     /**
      * Retrieve all the objects that match the given search
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncSearch(String searchString) {
-        return asyncSearch(searchString, Callback.DO_NOTHING);
+    public void asyncSearch(String searchString) {
+        asyncSearch(searchString, Callback.DO_NOTHING);
     }
 
     /**
      * Retrieve all the objects that match the given search
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, Callback callback) {
-        return asyncSearch(searchString, callback, CMRequestOptions.NONE);
+    public void asyncSearch(String searchString, Callback callback) {
+        asyncSearch(searchString, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -580,32 +539,29 @@ public class CMWebService {
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @return a Future containing the {@link SimpleCMObjectResponse} containing the retrieved objects.
      */
-    public Future<SimpleCMObjectResponse> asyncSearch(String searchString, Callback callback, CMRequestOptions options) {
-        return executeAsyncCommand(createSearch(searchString, options),
+    public void asyncSearch(String searchString, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createSearch(searchString, options),
                 callback, simpleCMObjectResponseConstructor());
     }
 
     /**
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate) throws JsonConversionException {
-        return asyncInsert(toCreate, Callback.DO_NOTHING);
+    public void asyncInsert(SimpleCMObject toCreate) throws JsonConversionException {
+        asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, Callback callback) throws JsonConversionException {
-        return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
+    public void asyncInsert(SimpleCMObject toCreate, Callback callback) throws JsonConversionException {
+        asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -613,11 +569,10 @@ public class CMWebService {
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(SimpleCMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
-        return executeAsyncCommand(
+    public void asyncInsert(SimpleCMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+        executeAsyncCommand(
                 createPut(toCreate.asJson(), options),
                 callback, objectModificationResponseConstructor());
     }
@@ -625,22 +580,20 @@ public class CMWebService {
     /**
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate) throws JsonConversionException {
-        return asyncInsert(toCreate, Callback.DO_NOTHING);
+    public void asyncInsert(Collection<SimpleCMObject> toCreate) throws JsonConversionException {
+        asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback) throws JsonConversionException {
-        return asyncInsert(toCreate, callback, CMRequestOptions.NONE);
+    public void asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback) throws JsonConversionException {
+        asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
     /**
@@ -648,10 +601,9 @@ public class CMWebService {
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(SimpleCMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
@@ -659,49 +611,45 @@ public class CMWebService {
         String jsonStringsCollection = JsonUtilities.jsonCollection(
                 jsons.toArray(new Json[jsons.size()])
         ).asJson();
-        return executeAsyncCommand(createPut(jsonStringsCollection, options),
+        executeAsyncCommand(createPut(jsonStringsCollection, options),
                 callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate) throws JsonConversionException {
-        return asyncUpdate(toUpdate, Callback.DO_NOTHING);
+    public void asyncUpdate(SimpleCMObject toUpdate) throws JsonConversionException {
+        asyncUpdate(toUpdate, Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncUpdate(SimpleCMObject toUpdate, Callback callback) throws JsonConversionException {
-        return executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
+    public void asyncUpdate(SimpleCMObject toUpdate, Callback callback) throws JsonConversionException {
+        executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects) throws JsonConversionException {
-        return asyncUpdate(objects, Callback.DO_NOTHING);
+    public void asyncUpdate(Collection<SimpleCMObject> objects) throws JsonConversionException {
+        asyncUpdate(objects, Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
      * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
      */
-    public Future<ObjectModificationResponse> asyncUpdate(Collection<SimpleCMObject> objects, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(Collection<SimpleCMObject> objects, Callback callback) throws JsonConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
         for(SimpleCMObject cmObject : objects) {
@@ -709,36 +657,33 @@ public class CMWebService {
             i++;
         }
         String json = JsonUtilities.jsonCollection(jsonStrings).asJson();
-        return executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
+        executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
     /**
      * Create a new user
      * @param user the user to create
-     * @return a CMResponse that indicates success or failure
      */
-    public Future<CMResponse> asyncCreateUser(CMUser user)  {
-        return executeAsyncCommand(createPut(user));
+    public void asyncCreateUser(CMUser user)  {
+        executeAsyncCommand(createPut(user));
     }
 
     /**
      * Create a new user
      * @param user the user to create
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
-     * @return a CMResponse that indicates success or failure
      */
-    public Future<CMResponse> asyncCreateUser(CMUser user, Callback callback) {
-        return executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
+    public void asyncCreateUser(CMUser user, Callback callback) {
+        executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
     }
 
     /**
      * Change the given user's password to newPassword
      * @param user the user whose password is to be changed
      * @param newPassword the new password
-     * @return a CMResponse that indicates success or failure
      */
-    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword) {
-        return asyncChangePassword(user, newPassword, Callback.DO_NOTHING);
+    public void asyncChangePassword(CMUser user, String newPassword) {
+        asyncChangePassword(user, newPassword, Callback.DO_NOTHING);
     }
 
     /**
@@ -746,39 +691,35 @@ public class CMWebService {
      * @param user the user whose password is to be changed
      * @param newPassword the new password
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
-     * @return a CMResponse that indicates success or failure
      */
-    public Future<CMResponse> asyncChangePassword(CMUser user, String newPassword, Callback callback) {
-        return executeAsyncCommand(createChangePassword(user, newPassword), callback);
+    public void asyncChangePassword(CMUser user, String newPassword, Callback callback) {
+        executeAsyncCommand(createChangePassword(user, newPassword), callback);
     }
 
     /**
      * Asynchronously Request that the user with the given e-mail address's password is reset. This will generate a password reset e-mail that will be sent to the user
      * @param email the e-mail address of the user
-     * @return a Future containing the {@link CMResponse} generated by this request
      */
-    public Future<CMResponse> asyncResetPasswordRequest(String email) {
-        return asyncResetPasswordRequest(email, Callback.DO_NOTHING);
+    public void asyncResetPasswordRequest(String email) {
+        asyncResetPasswordRequest(email, Callback.DO_NOTHING);
     }
 
     /**
      * Asynchronously Request that the user with the given e-mail address's password is reset. This will generate a password reset e-mail that will be sent to the user
      * @param email the e-mail address of the user
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
-     * @return a Future containing the {@link CMResponse} generated by this request
      */
-    public Future<CMResponse> asyncResetPasswordRequest(String email, Callback callback) {
-        return executeAsyncCommand(createResetPassword(email), callback);
+    public void asyncResetPasswordRequest(String email, Callback callback) {
+        executeAsyncCommand(createResetPassword(email), callback);
     }
 
     /**
      * Asynchronously confirm that a users password should be reset. Requires the token sent to the user's email address
      * @param token from the e-mail sent to the user
      * @param newPassword the new password
-     * @return a Future containing the {@link CMResponse} generated by this request
      */
-    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword) {
-        return asyncResetPasswordConfirmation(token, newPassword, Callback.DO_NOTHING);
+    public void asyncResetPasswordConfirmation(String token, String newPassword) {
+        asyncResetPasswordConfirmation(token, newPassword, Callback.DO_NOTHING);
     }
 
     /**
@@ -786,19 +727,17 @@ public class CMWebService {
      * @param token from the e-mail sent to the user
      * @param newPassword the new password
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
-     * @return a Future containing the {@link CMResponse} generated by this request
      */
-    public Future<CMResponse> asyncResetPasswordConfirmation(String token, String newPassword, Callback callback) {
-        return executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
+    public void asyncResetPasswordConfirmation(String token, String newPassword, Callback callback) {
+        executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
     /**
      * Asynchronously log in this user
      * @param user the user to log in
-     * @return A Future containing the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store
      */
-    public Future<LoginResponse> asyncLogin(CMUser user) {
-        return asyncLogin(user, Callback.DO_NOTHING);
+    public void asyncLogin(CMUser user) {
+        asyncLogin(user, Callback.DO_NOTHING);
     }
 
     /**
@@ -807,29 +746,26 @@ public class CMWebService {
      * as it will set the user's CMSessionToken properly
      * @param user the user to log in
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
-     * @return A Future containing the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store
      */
-    public Future<LoginResponse> asyncLogin(CMUser user, Callback callback) {
-        return executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
+    public void asyncLogin(CMUser user, Callback callback) {
+        executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
     }
 
     /**
      * Invalidate the given session token. Note that if other session tokens exist for this user, they will still be valid
      * @param token the token to invalidate
-     * @return a Future containing the CMResponse containing success and failure information
      */
-    public Future<CMResponse> asyncLogout(CMSessionToken token) {
-        return asyncLogout(token, Callback.DO_NOTHING);
+    public void asyncLogout(CMSessionToken token) {
+        asyncLogout(token, Callback.DO_NOTHING);
     }
 
     /**
      * Invalidate the given session token. Note that if other session tokens exist for this user, they will still be valid
      * @param token the token to invalidate
      * @param callback a {@link Callback} that expects a {@link CMResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is used here
-     * @return a Future containing the CMResponse containing success and failure information
      */
-    public Future<CMResponse> asyncLogout(CMSessionToken token, Callback callback) {
-        return executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
+    public void asyncLogout(CMSessionToken token, Callback callback) {
+        executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
     /**
@@ -964,16 +900,16 @@ public class CMWebService {
         return executeCommand(createLogoutPost(sessionToken));
     }
 
-    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message) {
-        return executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
+    private void executeAsyncCommand(HttpUriRequest message) {
+        executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
     }
 
-    private Future<CMResponse> executeAsyncCommand(HttpUriRequest message, Callback callback) {
-        return executeAsyncCommand(message, callback, cmResponseConstructor());
+    private void executeAsyncCommand(HttpUriRequest message, Callback callback) {
+        executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    private <T> Future<T> executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
-        return asyncHttpClient.executeCommand(message, callback, constructor);
+    private <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
+        asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
     private CMResponse executeCommand(HttpUriRequest message) throws NetworkException {

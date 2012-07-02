@@ -10,10 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * The base class for different types of responses.
@@ -28,49 +24,10 @@ public class ResponseBase<CODE> implements Json {
     private final Map<String, Object> baseMap;
     private final int statusCode;
 
-    protected static <T> Future<T> createFutureResponse(final Future<HttpResponse> response, final ResponseConstructor<T> constructor) {
-        return new Future<T>() {
-            T cachedResponse;
-            @Override
-            public boolean cancel(boolean b) {
-                return response.cancel(b);
-            }
-
-            @Override
-            public boolean isCancelled() {
-                return response.isCancelled();
-            }
-
-            @Override
-            public boolean isDone() {
-                return response.isDone();
-            }
-
-            @Override
-            public T get() throws InterruptedException, ExecutionException {
-                if(cachedResponse == null) {
-                    cachedResponse = constructor.construct(response.get());
-                }
-                return cachedResponse;
-            }
-
-            @Override
-            public T get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-                if(cachedResponse == null) {
-                    cachedResponse = constructor.construct(response.get(l, timeUnit));
-                }
-                return cachedResponse;
-            }
-        };
-    }
 
     public static final ResponseConstructor<ResponseBase> CONSTRUCTOR = new ResponseConstructor<ResponseBase>() {
         public ResponseBase construct(HttpResponse response) {
             return new CMResponse(response);
-        }
-
-        public Future<ResponseBase> constructFuture(Future<HttpResponse> response) {
-            return createFutureResponse(response, this);
         }
     };
 

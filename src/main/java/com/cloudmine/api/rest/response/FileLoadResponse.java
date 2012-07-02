@@ -5,8 +5,6 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.response.code.FileLoadCode;
 import org.apache.http.HttpResponse;
 
-import java.util.concurrent.Future;
-
 /**
  * Return in response to a file load request. If the request was successful, contains the {@link CMFile} requested
  * <br>
@@ -24,11 +22,6 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
         @Override
         public FileLoadResponse construct(HttpResponse response) throws CreationException {
             return new FileLoadResponse(response, key);
-        }
-
-        @Override
-        public Future<FileLoadResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return CMResponse.createFutureResponse(futureResponse, this);
         }
     };
 
