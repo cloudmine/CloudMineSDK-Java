@@ -1,10 +1,11 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.rest.*;
-import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.CMStore;
+import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonString;
+import com.cloudmine.api.rest.JsonUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +29,10 @@ import java.util.*;
  *
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SimpleCMObject implements Json, Savable {
+public class SimpleCMObject extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObject.class);
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
-    private final String objectId;
-    private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
 
     /**
@@ -95,7 +94,7 @@ public class SimpleCMObject implements Json, Savable {
     }
 
     SimpleCMObject() throws CreationException {
-        this(generateUniqueObjectId());
+        this(CMObject.generateUniqueObjectId());
     }
 
     SimpleCMObject(String objectId) throws CreationException {
@@ -122,18 +121,16 @@ public class SimpleCMObject implements Json, Savable {
      * @param objectMap
      */
     SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
-
+        super(extractObjectId(objectMap));
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
-            objectId = generateUniqueObjectId();
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
-            topLevelMap.put(objectId, contents);
+            topLevelMap.put(getObjectId(), contents);
         } else {
-            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
             this.topLevelMap = objectMap;
+            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
             Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
-            objectId = contentsEntry.getKey();
 
             try {
                 contents = (Map<String, Object>)contentsEntry.getValue();
@@ -141,112 +138,21 @@ public class SimpleCMObject implements Json, Savable {
                 throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
             }
         }
-        add(JsonUtilities.OBJECT_ID_KEY, objectId);
+        add(JsonUtilities.OBJECT_ID_KEY, getObjectId());
     }
 
-    public boolean setSaveWith(StoreIdentifier identifier) {
-        LOG.debug("StoreId is current: " + storeId + " and if unset will be set to " + identifier);
-        return storeId.setValue(identifier);
-    }
+    private static String extractObjectId(Map<String, Object> objectMap) {
+        String objectId;
 
-    /**
-     * Set that this object should be saved at the User level, and should be saved using the given CMSessionToken.
-     * @param user the user to save this SimpleCMObject with
-     * @return true if the value was set; false if it has already been set OR null was passed in
-     */
-    public boolean setSaveWith(CMUser user) {
-        try {
-            return setSaveWith(new StoreIdentifier(user));
-        } catch(CreationException e) {
-            LOG.error("CreationException thrown, setSaveWith not set", e);
-            return false;
+        if(objectMap.size() != 1 ||
+                isMappedToAnotherMap(objectMap) == false) {
+            objectId = CMObject.generateUniqueObjectId();
+        } else {
+            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
+            Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
+            objectId = contentsEntry.getKey();
         }
-    }
-
-    /**
-     * Gets the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
-     * @return the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
-     */
-    public StoreIdentifier getSavedWith() {
-        return storeId.value(StoreIdentifier.DEFAULT);
-    }
-
-    /**
-     * Check whether this SimpleCMObject saves to a particular level
-     * @param level the level to check
-     * @return true if this saves with the given level
-     */
-    public boolean isOnLevel(ObjectLevel level) {
-        return getSavedWith().isLevel(level);
-    }
-
-    @Override
-    public boolean isUserLevel() {
-        return isOnLevel(ObjectLevel.USER);
-    }
-
-    @Override
-    public boolean isApplicationLevel() {
-        return isOnLevel(ObjectLevel.APPLICATION);
-    }
-
-    /**
-     * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
-     * then it saves to the APPLICATION store. Once a SimpleCMObject has been saved, it cannot be saved to a
-     * different
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
-     * @throws CreationException if CMApiCredentials has not been initialized properly
-     */
-    public void save() throws JsonConversionException, CreationException {
-        save(Callback.DO_NOTHING);
-    }
-    /**
-     * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
-     * then it saves to the APPLICATION store. Once a SimpleCMObject has been saved, it cannot be saved to a
-     * different
-     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
-     * @throws CreationException if CMApiCredentials has not been initialized properly
-     */
-    public void save(Callback callback) throws CreationException, JsonConversionException {
-        store().saveObject(this, callback);
-    }
-
-    public void saveWithUser(CMUser user) throws CreationException, JsonConversionException {
-        saveWithUser(user, Callback.DO_NOTHING);
-    }
-    /**
-     * Save this object in in the given CMUser's store. If {@link #setSaveWith(StoreIdentifier)} has already been called
-     * Once a SimpleCMObject has been saved, it cannot be saved to a
-     * different
-     * @param user the user to save this object with
-     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
-     * @throws CreationException if CMApiCredentials has not been initialized properly
-     * @throws AccessException if setSaveWith has already been set
-     */
-    public void saveWithUser(CMUser user, Callback callback) throws CreationException, AccessException, JsonConversionException{
-        boolean wasAlreadySet = !setSaveWith(user);
-        boolean notSameUser = wasAlreadySet && //skip the check if it wasn't already set; still check below in if statement for clarity
-                                !user.equals(getUser());
-        if(wasAlreadySet &&
-                notSameUser) {
-            throw new AccessException("Cannot save with user if saveWith has already been set");
-        }
-        save(callback);
-    }
-
-    @Override
-    public CMUser getUser() {
-        return getSavedWith().getUser();
-    }
-
-    private CMStore store() throws CreationException {
-        return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
-    }
-
-    protected static String generateUniqueObjectId() {
-        return UUID.randomUUID().toString();
+        return objectId;
     }
 
     private static boolean isMappedToAnotherMap(Map<String, Object> objectMap) {
@@ -266,7 +172,7 @@ public class SimpleCMObject implements Json, Savable {
      * Objects, but may just be a single value
      */
     public Object getValue() {
-        return topLevelMap.get(objectId);
+        return topLevelMap.get(getObjectId());
     }
 
     /**
@@ -583,18 +489,13 @@ public class SimpleCMObject implements Json, Savable {
         return contents.remove(key);
     }
 
-    @Override
-    public String getObjectId() {
-        return objectId;
-    }
-
     /**
      * Get a representation of this SimpleCMObject in the form "objectId":{contents}
      * @return a representation of this SimpleCMObject in the form "objectId":{contents}
      * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
      */
     public String asKeyedObject() throws JsonConversionException {
-        return JsonUtilities.addQuotes(objectId) + ":" + asUnkeyedObject();
+        return JsonUtilities.addQuotes(getObjectId()) + ":" + asUnkeyedObject();
     }
 
     /**

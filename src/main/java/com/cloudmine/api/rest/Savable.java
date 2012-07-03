@@ -11,7 +11,7 @@ import com.cloudmine.api.rest.callbacks.Callback;
  * A common interface that can be shared between different objects that can be saved to cloudmine
  * Copyright CloudMine LLC
  */
-public interface Savable {
+public interface Savable extends Json {
 
     /**
      * Set what store to save this object with. If this is not set, it is assumed to be saved with
@@ -24,20 +24,20 @@ public interface Savable {
 
     /**
      * Set that this object should be saved at the User level, and should be saved using the given CMUser
-     * @param user the user to save this SimpleCMObject with
+     * @param user the user to save this object with
      * @return true if the value was set; false if it has already been set OR null was passed in
      * @throws com.cloudmine.api.exceptions.CreationException if user is null
      */
     public boolean setSaveWith(CMUser user);
 
     /**
-     * Gets the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
-     * @return the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
+     * Gets the StoreIdentifier which defines where this object will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
+     * @return the StoreIdentifier which defines where this object will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
      */
     public StoreIdentifier getSavedWith();
 
     /**
-     * Check whether this SimpleCMObject saves to a particular level
+     * Check whether this object saves to a particular level
      * @param level the level to check
      * @return true if this saves with the given level
      */
@@ -83,4 +83,5 @@ public interface Savable {
      * @return the objectId that uniquely identifies this object
      */
     public String getObjectId();
+
 }

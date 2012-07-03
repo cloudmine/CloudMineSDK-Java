@@ -107,7 +107,7 @@ public class CMFile implements Json, Savable {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
         this.fileName = fileName == null ?
-                SimpleCMObject.generateUniqueObjectId() :
+                CMObject.generateUniqueObjectId() :
                 fileName;
         this.contentType = contentType == null ?
                 DEFAULT_CONTENT_TYPE :
@@ -218,6 +218,7 @@ public class CMFile implements Json, Savable {
         return getFileName();
     }
 
+
     /**
      * The MIME type for this file
      * @return The MIME type for this file; if it was not specified, "application/octet-stream" is assumed
@@ -283,7 +284,6 @@ public class CMFile implements Json, Savable {
         }
         return string.toString();
     }
-
 
     @Override
     public String asJson() throws JsonConversionException {

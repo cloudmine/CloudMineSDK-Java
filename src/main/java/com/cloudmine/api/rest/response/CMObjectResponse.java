@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
@@ -13,33 +13,33 @@ import java.util.Map;
 
 /**
  *  Returned by the CloudMine service in response to object fetch requests. Provides access to the
- *  {@link SimpleCMObject}s returned by the request
+ *  {@link CMObject}s returned by the request
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SimpleCMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObjectResponse.class);
-    public static final ResponseConstructor<SimpleCMObjectResponse> CONSTRUCTOR =
-            new ResponseConstructor<SimpleCMObjectResponse>() {
+public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
+    private static final Logger LOG = LoggerFactory.getLogger(CMObjectResponse.class);
+    public static final ResponseConstructor<CMObjectResponse> CONSTRUCTOR =
+            new ResponseConstructor<CMObjectResponse>() {
 
                 @Override
-                public SimpleCMObjectResponse construct(HttpResponse response) {
-                    return new SimpleCMObjectResponse(response);
+                public CMObjectResponse construct(HttpResponse response) {
+                    return new CMObjectResponse(response);
                 }
             };
     public static final String COUNT_KEY = "count";
     public static final int NO_COUNT = -1;
 
-    private final Map<String, SimpleCMObject> objectMap;
+    private final Map<String, ? extends CMObject> objectMap;
 
     /**
-     * Instantiate a new SimpleCMObjectResponse. You probably should not be calling this yourself.
+     * Instantiate a new CMObjectResponse. You probably should not be calling this yourself.
      * @param response a response to an object fetch request
      */
-    public SimpleCMObjectResponse(HttpResponse response) {
+    public CMObjectResponse(HttpResponse response) {
         super(response);
         if(hasSuccess()) {
-            Map<String, SimpleCMObject> tempMap = new HashMap<String, SimpleCMObject>();
-            for(SimpleCMObject object : getSuccessObjects()) {
+            Map<String, CMObject> tempMap = new HashMap<String, CMObject>();
+            for(CMObject object : getSuccessObjects()) {
                 tempMap.put(object.getObjectId(), object);
             }
             objectMap = Collections.unmodifiableMap(tempMap);
@@ -54,10 +54,10 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse<ObjectLoadCode>
     }
 
     /**
-     * Returns a List of all the SimpleCMObjects fetched by the request
-     * @return
+     * Returns a List of all the CMObjects fetched by the request
+     * @return a List of all the CMObjects fetched by the request
      */
-    public List<SimpleCMObject> getObjects() {
+    public List<CMObject> getObjects() {
         return getSuccessObjects();
     }
 
@@ -66,7 +66,7 @@ public class SimpleCMObjectResponse extends SuccessErrorResponse<ObjectLoadCode>
      * @param objectId the objectId for the object
      * @return the object, or null if it was not retrieved
      */
-    public SimpleCMObject getSimpleCMObject(String objectId) {
+    public CMObject getCMObject(String objectId) {
         return objectMap.get(objectId);
     }
 

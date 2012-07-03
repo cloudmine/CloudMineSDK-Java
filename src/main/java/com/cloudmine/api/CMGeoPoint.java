@@ -5,10 +5,11 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 
 /**
- * A SimpleCMObject that has location information associated with it. This allows you to perform
+ * A CMObject that has location information associated with it. This allows you to perform
  * geographic searches for this data. For more information, including search information, view the
  * <a href="https://cloudmine.me/docs/object-storage#query_geof">CloudMine geo query documentation</a>
- * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * <br>Copyright CloudMine LLC. All rights reserved<br>
+ *     See LICENSE file included with SDK for details.
  */
 public class CMGeoPoint extends SimpleCMObject {
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};
@@ -58,7 +59,7 @@ public class CMGeoPoint extends SimpleCMObject {
     }
 
     CMGeoPoint(double longitude, double latitude) throws CreationException {
-        this(longitude, latitude, generateUniqueObjectId());
+        this(longitude, latitude, CMObject.generateUniqueObjectId());
     }
 
     CMGeoPoint(double longitude, double latitude, String key) {

@@ -173,7 +173,7 @@ public class CMWebService {
 
     /**
      * Load all of the objects of the specified class
-     * @param klass the class of the objects to load; you must call {@link SimpleCMObject#setClass(String)} before persisting for this property to exist on your objects
+     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link CMObject#getClassName}
      */
     public void asyncLoadObjectsOfClass(String klass) {
         asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
@@ -181,7 +181,7 @@ public class CMWebService {
 
     /**
      * Load all of the objects of the specified class
-     * @param klass the class of the objects to load; you must call {@link SimpleCMObject#setClass(String)} before persisting for this property to exist on your objects
+     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link CMObject#getClassName}
      * @param callback
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback) {
@@ -189,22 +189,21 @@ public class CMWebService {
     }
 
     /**
-     * Retrieve all the objects that are of the specified class. Class values are set using
-     * {@link SimpleCMObject#setClass(String)}
+     * Retrieve all the objects that are of the specified class. Class values are either inferred directly or you can override {@link CMObject#getClassName}
      * @param klass the class type to load
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]", options);
         executeAsyncCommand(search,
-                callback, simpleCMObjectResponseConstructor());
+                callback, cmObjectResponseConstructor());
     }
 
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
      */
-    public void asyncDeleteObject(SimpleCMObject object) {
+    public void asyncDeleteObject(CMObject object) {
         asyncDeleteObject(object, Callback.DO_NOTHING);
     }
 
@@ -213,7 +212,7 @@ public class CMWebService {
      * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      */
-    public void asyncDeleteObject(SimpleCMObject object, Callback callback) {
+    public void asyncDeleteObject(CMObject object, Callback callback) {
         asyncDeleteObject(object, callback, CMRequestOptions.NONE);
     }
 
@@ -223,7 +222,7 @@ public class CMWebService {
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void asyncDeleteObject(SimpleCMObject object, Callback callback, CMRequestOptions options) {
+    public void asyncDeleteObject(CMObject object, Callback callback, CMRequestOptions options) {
         asyncDeleteObjects(Collections.singletonList(object), callback, options);
     }
 
@@ -231,7 +230,7 @@ public class CMWebService {
      * Delete the given objects from CloudMine.
      * @param objects to delete; this is done based on the object ids, values are ignored
      */
-    public void asyncDeleteObjects(Collection<SimpleCMObject> objects) {
+    public void asyncDeleteObjects(Collection<? extends CMObject> objects) {
         asyncDeleteObjects(objects, Callback.DO_NOTHING);
     }
 
@@ -240,7 +239,7 @@ public class CMWebService {
      * @param objects to delete; this is done based on the object ids, values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      */
-    public void asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback) {
+    public void asyncDeleteObjects(Collection<? extends CMObject> objects, Callback callback) {
         asyncDeleteObjects(objects, callback, CMRequestOptions.NONE);
     }
 
@@ -250,10 +249,10 @@ public class CMWebService {
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void asyncDeleteObjects(Collection<SimpleCMObject> objects, Callback callback, CMRequestOptions options) {
+    public void asyncDeleteObjects(Collection<? extends CMObject> objects, Callback callback, CMRequestOptions options) {
         int size = objects.size();
         Collection<String> keys = new ArrayList<String>(size);
-        for(SimpleCMObject object : objects) {
+        for(CMObject object : objects) {
             keys.add(object.getObjectId());
         }
         asyncDelete(keys, callback, options);
@@ -447,7 +446,7 @@ public class CMWebService {
 
     /**
      * Retrieve all the objects
-     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      */
     public void asyncLoadObjects(Callback callback) {
         asyncLoadObjects(callback, CMRequestOptions.NONE);
@@ -455,7 +454,7 @@ public class CMWebService {
 
     /**
      * Retrieve all the objects
-     * @param callback a Callback that expects a {@link SimpleCMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used
+     * @param callback a Callback that expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
     public void asyncLoadObjects(Callback callback, CMRequestOptions options) {
@@ -473,7 +472,7 @@ public class CMWebService {
     /**
      * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObject(String objectId, Callback callback) {
         asyncLoadObjects(Collections.<String>singleton(objectId), callback);
@@ -482,7 +481,7 @@ public class CMWebService {
     /**
      * Retrieve the object with the given objectId
      * @param objectId the top level objectId of the object to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
     public void asyncLoadObject(String objectId, Callback callback, CMRequestOptions options) {
@@ -500,7 +499,7 @@ public class CMWebService {
     /**
      * Retrieve all the objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObjects(Collection<String> objectIds, Callback callback) {
         asyncLoadObjects(objectIds, callback, CMRequestOptions.NONE);
@@ -509,12 +508,12 @@ public class CMWebService {
     /**
      * Retrieve all the objects with the given objectIds
      * @param objectIds the top level objectIds of the objects to retrieve
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
     public void asyncLoadObjects(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
         executeAsyncCommand(createGetObjects(objectIds, options),
-                callback, simpleCMObjectResponseConstructor());
+                callback, cmObjectResponseConstructor());
     }
 
     /**
@@ -528,7 +527,7 @@ public class CMWebService {
     /**
      * Retrieve all the objects that match the given search
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncSearch(String searchString, Callback callback) {
         asyncSearch(searchString, callback, CMRequestOptions.NONE);
@@ -537,20 +536,20 @@ public class CMWebService {
     /**
      * Retrieve all the objects that match the given search
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
-     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.SimpleCMObjectResponseCallback} is used here
+     * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
     public void asyncSearch(String searchString, Callback callback, CMRequestOptions options) {
         executeAsyncCommand(createSearch(searchString, options),
-                callback, simpleCMObjectResponseConstructor());
+                callback, cmObjectResponseConstructor());
     }
 
     /**
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(SimpleCMObject toCreate) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate) throws JsonConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -558,9 +557,9 @@ public class CMWebService {
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(SimpleCMObject toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback) throws JsonConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -569,9 +568,9 @@ public class CMWebService {
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(SimpleCMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         executeAsyncCommand(
                 createPut(toCreate.asJson(), options),
                 callback, objectModificationResponseConstructor());
@@ -580,9 +579,9 @@ public class CMWebService {
     /**
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<SimpleCMObject> toCreate) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate) throws JsonConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -590,9 +589,9 @@ public class CMWebService {
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback) throws JsonConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -601,11 +600,11 @@ public class CMWebService {
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<SimpleCMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
-        for(SimpleCMObject object : toCreate) {
+        for(CMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
         }
         String jsonStringsCollection = JsonUtilities.jsonCollection(
@@ -618,9 +617,9 @@ public class CMWebService {
     /**
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(SimpleCMObject toUpdate) throws JsonConversionException {
+    public void asyncUpdate(CMObject toUpdate) throws JsonConversionException {
         asyncUpdate(toUpdate, Callback.DO_NOTHING);
     }
 
@@ -628,18 +627,18 @@ public class CMWebService {
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(SimpleCMObject toUpdate, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(CMObject toUpdate, Callback callback) throws JsonConversionException {
         executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<SimpleCMObject> objects) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects) throws JsonConversionException {
         asyncUpdate(objects, Callback.DO_NOTHING);
     }
 
@@ -647,12 +646,12 @@ public class CMWebService {
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the SimpleCMObject to json. This ordinarily should not occur
+     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<SimpleCMObject> objects, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects, Callback callback) throws JsonConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
-        for(SimpleCMObject cmObject : objects) {
+        for(CMObject cmObject : objects) {
             jsonStrings[i] = cmObject.asKeyedObject();
             i++;
         }
@@ -771,31 +770,31 @@ public class CMWebService {
     /**
      * Make a blocking call to load the object associated with the given objectId
      * @param objectId of the object to load
-     * @return a SimpleCMObjectResponse containing success or failure, and the loaded object if it exists and the call was a success
+     * @return a CMObjectResponse containing success or failure, and the loaded object if it exists and the call was a success
      * @throws NetworkException if unable to perform the request
      *
      */
-    public SimpleCMObjectResponse loadObject(String objectId) throws NetworkException {
+    public CMObjectResponse loadObject(String objectId) throws NetworkException {
         return loadObjects(Collections.singletonList(objectId));
     }
 
     /**
      * Make a blocking call to load all of the objects associated with the given objectIds
      * @param objectIds of the objects to load
-     * @return a SimpleCMObjectResponse containing success or failure, and the loaded objects if they exist and the call was a success
+     * @return a CMObjectResponse containing success or failure, and the loaded objects if they exist and the call was a success
      * @throws NetworkException if unable to perform the request
      */
-    public SimpleCMObjectResponse loadObjects(Collection<String> objectIds) throws NetworkException{
-        return executeCommand(createGetObjects(objectIds), simpleCMObjectResponseConstructor());
+    public CMObjectResponse loadObjects(Collection<String> objectIds) throws NetworkException{
+        return executeCommand(createGetObjects(objectIds), cmObjectResponseConstructor());
     }
 
     /**
      * Make a blocking call to load all of the objects
-     * @return a SimpleCMObjectResponse containing success or failure, and the loaded objects if they exist and the call was a success
+     * @return a CMObjectResponse containing success or failure, and the loaded objects if they exist and the call was a success
      * @throws NetworkException if unable to perform the request
      */
-    public SimpleCMObjectResponse loadAllObjects() throws NetworkException {
-        return executeCommand(createGet(), simpleCMObjectResponseConstructor());
+    public CMObjectResponse loadAllObjects() throws NetworkException {
+        return executeCommand(createGet(), cmObjectResponseConstructor());
     }
 
     /**
@@ -818,12 +817,12 @@ public class CMWebService {
     /**
      * Make a blocking call to search for CloudMine objects.
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
-     * @return  the {@link SimpleCMObjectResponse} containing the retrieved objects.
+     * @return  the {@link com.cloudmine.api.rest.response.CMObjectResponse} containing the retrieved objects.
      * @throws NetworkException if unable to perform the network call
      */
-    public SimpleCMObjectResponse loadSearch(String searchString) throws NetworkException {
+    public CMObjectResponse loadSearch(String searchString) throws NetworkException {
         HttpGet get = createSearch(searchString);
-        return executeCommand(get, simpleCMObjectResponseConstructor());
+        return executeCommand(get, cmObjectResponseConstructor());
     }
 
     /**
@@ -1132,8 +1131,8 @@ public class CMWebService {
         return LoginResponse.CONSTRUCTOR;
     }
 
-    private ResponseConstructor<SimpleCMObjectResponse> simpleCMObjectResponseConstructor() {
-        return SimpleCMObjectResponse.CONSTRUCTOR;
+    private ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
+        return CMObjectResponse.CONSTRUCTOR;
     }
 
     @Override
