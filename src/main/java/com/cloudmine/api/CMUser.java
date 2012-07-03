@@ -114,6 +114,7 @@ public class CMUser {
         if(isLoggedIn()) {
             LoginResponse fakeResponse = new LoginResponse(getSessionToken().asJson());
             callback.onCompletion(fakeResponse);
+            return;
         }
         CMWebService.getService().asyncLogin(this, setLoggedInUserCallback(callback));
     }

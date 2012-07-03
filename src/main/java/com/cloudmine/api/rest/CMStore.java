@@ -888,8 +888,9 @@ public class CMStore {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public boolean login(CMUser user, Callback callback) throws CreationException {
+        boolean userSet = setUser(user);
         user.login(callback);
-        return setUser(user);
+        return userSet;
     }
 
     /**
