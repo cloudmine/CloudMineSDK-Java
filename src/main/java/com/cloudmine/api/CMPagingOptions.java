@@ -61,4 +61,27 @@ public class CMPagingOptions implements BaseURL {
         return asUrlString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMPagingOptions that = (CMPagingOptions) o;
+
+        if (includeCount != that.includeCount) return false;
+        if (limit != that.limit) return false;
+        if (skipFirst != that.skipFirst) return false;
+        if (urlString != null ? !urlString.equals(that.urlString) : that.urlString != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = limit;
+        result = 31 * result + skipFirst;
+        result = 31 * result + (includeCount ? 1 : 0);
+        result = 31 * result + (urlString != null ? urlString.hashCode() : 0);
+        return result;
+    }
 }

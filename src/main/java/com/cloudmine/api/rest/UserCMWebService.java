@@ -72,4 +72,26 @@ public class UserCMWebService extends CMWebService {
     public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        UserCMWebService that = (UserCMWebService) o;
+
+        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
+        if (userHeader != null ? !userHeader.equals(that.userHeader) : that.userHeader != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        result = 31 * result + (userHeader != null ? userHeader.hashCode() : 0);
+        return result;
+    }
 }

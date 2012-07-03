@@ -65,4 +65,28 @@ public class CMRequestOptions implements BaseURL{
         }
         builder.append(url.asUrlString());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMRequestOptions that = (CMRequestOptions) o;
+
+        if (pagingOptions != null ? !pagingOptions.equals(that.pagingOptions) : that.pagingOptions != null)
+            return false;
+        if (serverFunction != null ? !serverFunction.equals(that.serverFunction) : that.serverFunction != null)
+            return false;
+        if (sortOptions != null ? !sortOptions.equals(that.sortOptions) : that.sortOptions != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pagingOptions != null ? pagingOptions.hashCode() : 0;
+        result = 31 * result + (serverFunction != null ? serverFunction.hashCode() : 0);
+        result = 31 * result + (sortOptions != null ? sortOptions.hashCode() : 0);
+        return result;
+    }
 }

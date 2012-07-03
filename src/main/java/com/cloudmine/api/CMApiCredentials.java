@@ -82,4 +82,5 @@ public class CMApiCredentials {
     public static Header getCloudMineHeader() {
         return new BasicHeader(HEADER_KEY, getApplicationApiKey());
     }
+
 }

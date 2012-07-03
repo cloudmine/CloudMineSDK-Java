@@ -49,4 +49,26 @@ public class CMSortOptions implements BaseURL{
     public String asUrlString() {//TODO figure out how this is represented
         return urlString.value();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMSortOptions that = (CMSortOptions) o;
+
+        if (direction != that.direction) return false;
+        if (sortByField != null ? !sortByField.equals(that.sortByField) : that.sortByField != null) return false;
+        if (urlString != null ? !urlString.equals(that.urlString) : that.urlString != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = direction != null ? direction.hashCode() : 0;
+        result = 31 * result + (sortByField != null ? sortByField.hashCode() : 0);
+        result = 31 * result + (urlString != null ? urlString.hashCode() : 0);
+        return result;
+    }
 }

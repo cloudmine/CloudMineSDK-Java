@@ -1135,4 +1135,32 @@ public class CMWebService {
     private ResponseConstructor<SimpleCMObjectResponse> simpleCMObjectResponseConstructor() {
         return SimpleCMObjectResponse.CONSTRUCTOR;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMWebService that = (CMWebService) o;
+
+        if (!asyncHttpClient.equals(that.asyncHttpClient)) return false;
+        if (!baseUrl.equals(that.baseUrl)) return false;
+        if (!httpClient.equals(that.httpClient)) return false;
+        if (loggedInSessionToken != null ? !loggedInSessionToken.equals(that.loggedInSessionToken) : that.loggedInSessionToken != null)
+            return false;
+        if (loggedInUserServices != null ? !loggedInUserServices.equals(that.loggedInUserServices) : that.loggedInUserServices != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = baseUrl.hashCode();
+        result = 31 * result + httpClient.hashCode();
+        result = 31 * result + asyncHttpClient.hashCode();
+        result = 31 * result + (loggedInSessionToken != null ? loggedInSessionToken.hashCode() : 0);
+        result = 31 * result + (loggedInUserServices != null ? loggedInUserServices.hashCode() : 0);
+        return result;
+    }
 }

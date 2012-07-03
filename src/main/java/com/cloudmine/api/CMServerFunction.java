@@ -93,4 +93,31 @@ public class CMServerFunction implements BaseURL{
         }
         return urlString.value();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMServerFunction that = (CMServerFunction) o;
+
+        if (isAsynchronous != that.isAsynchronous) return false;
+        if (resultsOnly != that.resultsOnly) return false;
+        if (extraParameters != null ? !extraParameters.equals(that.extraParameters) : that.extraParameters != null)
+            return false;
+        if (snippetName != null ? !snippetName.equals(that.snippetName) : that.snippetName != null) return false;
+        if (urlString != null ? !urlString.equals(that.urlString) : that.urlString != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = snippetName != null ? snippetName.hashCode() : 0;
+        result = 31 * result + (resultsOnly ? 1 : 0);
+        result = 31 * result + (isAsynchronous ? 1 : 0);
+        result = 31 * result + (extraParameters != null ? extraParameters.hashCode() : 0);
+        result = 31 * result + (urlString != null ? urlString.hashCode() : 0);
+        return result;
+    }
 }

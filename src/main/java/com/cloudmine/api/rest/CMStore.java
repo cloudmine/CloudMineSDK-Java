@@ -903,4 +903,25 @@ public class CMStore {
         return this.user.setValue(user);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMStore cmStore = (CMStore) o;
+
+        if (!applicationService.equals(cmStore.applicationService)) return false;
+        if (objects != null ? !objects.equals(cmStore.objects) : cmStore.objects != null) return false;
+        if (!user.equals(cmStore.user)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = applicationService.hashCode();
+        result = 31 * result + user.hashCode();
+        result = 31 * result + (objects != null ? objects.hashCode() : 0);
+        return result;
+    }
 }

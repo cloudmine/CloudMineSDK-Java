@@ -118,4 +118,23 @@ public class CMSessionToken implements Json {
                 expires.after(new Date());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMSessionToken that = (CMSessionToken) o;
+
+        if (expires != null ? !expires.equals(that.expires) : that.expires != null) return false;
+        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = sessionToken != null ? sessionToken.hashCode() : 0;
+        result = 31 * result + (expires != null ? expires.hashCode() : 0);
+        return result;
+    }
 }

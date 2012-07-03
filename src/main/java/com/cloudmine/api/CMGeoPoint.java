@@ -128,4 +128,6 @@ public class CMGeoPoint extends SimpleCMObject {
     public String getLocationString() throws JsonConversionException {
         return getLongitude() + ", " + getLatitude();
     }
+
+
 }

@@ -231,11 +231,6 @@ public class CMUser {
         }
     }
 
-    @Override
-    public String toString() {
-        return email + ":" + password;
-    }
-
 
     private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
         return new LoginResponseCallback() {
@@ -264,5 +259,33 @@ public class CMUser {
                 }
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        return email + ":" + password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMUser cmUser = (CMUser) o;
+
+        if (email != null ? !email.equals(cmUser.email) : cmUser.email != null) return false;
+        if (password != null ? !password.equals(cmUser.password) : cmUser.password != null) return false;
+        if (sessionToken != null ? !sessionToken.equals(cmUser.sessionToken) : cmUser.sessionToken != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = email != null ? email.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        return result;
     }
 }

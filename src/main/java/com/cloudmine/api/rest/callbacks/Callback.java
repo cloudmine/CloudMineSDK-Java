@@ -17,6 +17,11 @@ public interface Callback<T> {
         public void onCompletion(Object response) {
 
         }
+
+        @Override
+        public String toString() {
+            return "DO_NOTHING callback";
+        }
     };
 
     /**
