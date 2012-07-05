@@ -5,20 +5,29 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
+ *
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+
     private final String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
@@ -38,7 +47,7 @@ public class CMObject implements Json, Savable {
 
     @Override
     public String asJson() throws JsonConversionException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return JsonUtilities.objectsToJson(this);
     }
 
 
@@ -51,7 +60,7 @@ public class CMObject implements Json, Savable {
         return null;
     }
 
-
+    @JsonIgnore
     public boolean setSaveWith(StoreIdentifier identifier) {
         LOG.debug("StoreId is current: " + storeId + " and if unset will be set to " + identifier);
         return storeId.setValue(identifier);
@@ -62,6 +71,7 @@ public class CMObject implements Json, Savable {
      * @param user the user to save this CMObject with
      * @return true if the value was set; false if it has already been set OR null was passed in
      */
+    @JsonIgnore
     public boolean setSaveWith(CMUser user) {
         try {
             return setSaveWith(new StoreIdentifier(user));
@@ -75,6 +85,7 @@ public class CMObject implements Json, Savable {
      * Gets the StoreIdentifier which defines where this CMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
      * @return the StoreIdentifier which defines where this CMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
      */
+    @JsonIgnore
     public StoreIdentifier getSavedWith() {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
@@ -89,11 +100,13 @@ public class CMObject implements Json, Savable {
     }
 
     @Override
+    @JsonIgnore
     public boolean isUserLevel() {
         return isOnLevel(ObjectLevel.USER);
     }
 
     @Override
+    @JsonIgnore
     public boolean isApplicationLevel() {
         return isOnLevel(ObjectLevel.APPLICATION);
     }
@@ -144,41 +157,45 @@ public class CMObject implements Json, Savable {
         save(callback);
     }
 
+    /**
+     * This method should be used to check date equality when overriding {@link #equals(Object)}, as
+     * serialized dates are stored in seconds.
+     * @param firstDate a null possible date
+     * @param secondDate a null possible date
+     * @return true if the two dates represent the same second in time
+     */
+    public static boolean dateEquals(Date firstDate, Date secondDate) {
+        if((firstDate == null && secondDate != null) ||
+                (firstDate != null && secondDate == null)) {
+            return false;
+        }
+        if(firstDate == null && secondDate == null) {
+            return true;
+        }
+
+        int firstSeconds = firstDate.getSeconds();
+        int secondSeconds = secondDate.getSeconds();
+        return firstSeconds == secondSeconds;
+    }
+
     @Override
+    @JsonIgnore
     public CMUser getUser() {
         return getSavedWith().getUser();
     }
 
     @Override
+    @JsonProperty("__id__")
     public String getObjectId() {
         return objectId;
     }
 
+    @JsonProperty("__class__")
     public String getClassName() {
-        return null;
+        return getClass().getSimpleName();
     }
 
     private CMStore store() throws CreationException {
         return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CMObject cmObject = (CMObject) o;
-
-        if (!objectId.equals(cmObject.objectId)) return false;
-        if (!storeId.equals(cmObject.storeId)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = objectId.hashCode();
-        result = 31 * result + storeId.hashCode();
-        return result;
     }
 }

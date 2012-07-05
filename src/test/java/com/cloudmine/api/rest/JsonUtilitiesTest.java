@@ -1,7 +1,9 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMGeoPoint;
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.test.ExtendedCMObject;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -161,6 +163,26 @@ public class JsonUtilitiesTest {
         Map<String, Object> jsonMap = JsonUtilities.jsonToMap(COMPLEX_JSON_OBJECT);
 
         assertEquals(createComplexObjectMap(), jsonMap);
+    }
+
+    @Test
+    public void testExtendedCMObjectConversion() {
+        String name = "fred";
+        Date date = new Date();
+        int number = 5;
+        CMObject convertableObject = new ExtendedCMObject(name, date, number);
+        SimpleCMObject simpleObject = SimpleCMObject.SimpleCMObject(convertableObject.getObjectId());
+        simpleObject.add("name", name);
+        simpleObject.add("date", date);
+        simpleObject.add("number", number);
+        simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
+        simpleObject.setClass("ExtendedCMObject");
+        String json = JsonUtilities.objectsToJson(convertableObject);
+        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
+
+        Map<String, ExtendedCMObject> map = JsonUtilities.jsonToMap(json, ExtendedCMObject.class);
+
+        assertEquals(convertableObject, map.get(convertableObject.getObjectId()));
     }
 
 
