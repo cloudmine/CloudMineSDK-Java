@@ -3,6 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
@@ -111,7 +112,7 @@ public class CMStore {
             public void onCompletion(CMObjectResponse response) {
                 try {
                     if(response.wasSuccess()) {
-                        List<CMObject> cmObjects = response.getSuccessObjects();
+                        List<CMObject> cmObjects = response.getObjects();
                         addObjects(cmObjects);
                         for(CMObject object : cmObjects) {
                             object.setSaveWith(identifier);

@@ -143,7 +143,9 @@ public class SimpleCMObject extends CMObject {
 
     private static String extractObjectId(Map<String, Object> objectMap) {
         String objectId;
-
+        if(objectMap.containsKey(JsonUtilities.OBJECT_ID_KEY)) {
+            return objectMap.get(JsonUtilities.OBJECT_ID_KEY).toString();
+        }
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
             objectId = CMObject.generateUniqueObjectId();

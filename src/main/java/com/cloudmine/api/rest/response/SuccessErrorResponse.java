@@ -1,6 +1,5 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.CMObject;
 import com.cloudmine.api.Immutable;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.CreationException;
@@ -16,11 +15,11 @@ import java.util.*;
  */
 public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
     private static final Logger LOG = LoggerFactory.getLogger(SuccessErrorResponse.class);
-    private static final String SUCCESS = "success";
+    protected static final String SUCCESS = "success";
     private static final String ERRORS = "errors";
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
-    private final Immutable<List<? extends CMObject>> successObjects = new Immutable<List<? extends CMObject>>();
+    private final Immutable<List<SimpleCMObject>> successObjects = new Immutable<List<SimpleCMObject>>();
 
     /**
      * Instantiate a new SuccessErrorResponse. You probably shouldn't be calling this yourself
@@ -86,31 +85,31 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
      * @return the error response as a collection of CMObjects
      * @throws CreationException if the error response contained improperly formed json
      */
-    public List<CMObject> getErrorObjects() throws CreationException {
+    public List<SimpleCMObject> getErrorObjects() throws CreationException {
         return getObjects(errorResponse);
     }
 
     /**
-     * Get the success response json objects as a collection of CMObjects
-     * @return the success response as a collection of CMObjects
+     * Get the success response json objects as a collection of SimpleCMObjects
+     * @return the success response as a collection of SimpleCMObjects
      * @throws CreationException if the success response contained improperly formed json
      */
-    public List<CMObject> getSuccessObjects() throws CreationException {
-        List<? extends CMObject> objects = successObjects.value();
+    public List<SimpleCMObject> getSuccessObjects() throws CreationException {
+        List<SimpleCMObject> objects = successObjects.value();
         boolean isNotSet = objects == null;
         if(isNotSet) {
             objects = getObjects(successResponse);
             successObjects.setValue(objects);
         }
-        return new ArrayList<CMObject>(objects);
+        return new ArrayList<SimpleCMObject>(objects);
     }
 
-    private List<CMObject> getObjects(Map<String, Object> objectMap) throws CreationException {
+    private List<SimpleCMObject> getObjects(Map<String, Object> objectMap) throws CreationException {
         if(objectMap == null || objectMap.isEmpty()) {
             LOG.info("Null or non empty response object, empty list returned for getObjects");
             return Collections.emptyList();
         }
-        List<CMObject> successObjects = new ArrayList<CMObject>();
+        List<SimpleCMObject> successObjects = new ArrayList<SimpleCMObject>();
         for(Map.Entry<String, Object> successEntry : objectMap.entrySet()) {
             String successName = successEntry.getKey();
             Map<String, Object> successMap = convertToMap(successEntry.getValue());

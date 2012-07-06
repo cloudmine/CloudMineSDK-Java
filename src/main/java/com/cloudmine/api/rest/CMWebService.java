@@ -4,6 +4,7 @@ import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
@@ -173,7 +174,7 @@ public class CMWebService {
 
     /**
      * Load all of the objects of the specified class
-     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link CMObject#getClassName}
+     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link com.cloudmine.api.CMObject#getClassName}
      */
     public void asyncLoadObjectsOfClass(String klass) {
         asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
@@ -181,7 +182,7 @@ public class CMWebService {
 
     /**
      * Load all of the objects of the specified class
-     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link CMObject#getClassName}
+     * @param klass the class of the objects to load; this is either inferred directly or you can override {@link com.cloudmine.api.CMObject#getClassName}
      * @param callback
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback) {
@@ -189,7 +190,7 @@ public class CMWebService {
     }
 
     /**
-     * Retrieve all the objects that are of the specified class. Class values are either inferred directly or you can override {@link CMObject#getClassName}
+     * Retrieve all the objects that are of the specified class. Class values are either inferred directly or you can override {@link com.cloudmine.api.CMObject#getClassName}
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */

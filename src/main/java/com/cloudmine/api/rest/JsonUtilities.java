@@ -1,17 +1,21 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.type.MapType;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.util.Collection;
@@ -116,6 +120,18 @@ public class JsonUtilities {
                 betweenBraces + //everything between the first place and the last closing brace
                 postClose; //everything after the last closing brace
         return unwrappedJson;
+    }
+
+    /**
+     * Add a leading and trailing "{" and "}" to the given string
+     * @param json
+     * @return
+     */
+    public static String wrap(String json) {
+        if(json == null) {
+            return EMPTY_JSON;
+        }
+        return new StringBuilder("{").append(json).append("}").toString();
     }
 
     /**
@@ -238,14 +254,33 @@ public class JsonUtilities {
         }
     }
 
-    public static <CMO> CMO jsonToClass(String json, Class<CMO> klass) {
+    /**
+     * Convert the given JSON to the given klass. If unable to convert, throws JsonConversionException
+     * @param json JSON representing
+     * @param klass
+     * @param <CMO>
+     * @return
+     * @throws JsonConversionException
+     */
+    public static <CMO> CMO jsonToClass(String json, Class<CMO> klass) throws JsonConversionException {
         try {
             CMO object = jsonMapper.readValue(json, klass);
+            return object;
         }catch (IOException e) {
             LOG.error("Trouble reading json", e);
             throw new JsonConversionException("JSON: " + json, e);
         }
-        return null;
+    }
+
+    public static CMObject jsonToClass(String json) throws JsonConversionException {
+        Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
+        Object klassString = jsonMap.get(CLASS_KEY);
+        if(klassString == null ||
+                ClassNameRegistry.isRegistered(klassString.toString()) == false) {
+            return SimpleCMObject.SimpleCMObject(new JsonString(json));
+        }
+        Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
+        return jsonToClass(json, klass);
     }
 
     /**
@@ -267,7 +302,7 @@ public class JsonUtilities {
      * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
      */
     public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
-        Map<String, Object> jsonMap = jsonToMap(json, Object.class);
+        Map<String, Object> jsonMap = jsonToClassMap(json, Object.class);
         convertDateClassesToDates(jsonMap);
         return jsonMap;
     }
@@ -281,15 +316,82 @@ public class JsonUtilities {
      * @return
      * @throws JsonConversionException
      */
-    public static <CMO> Map<String, CMO> jsonToMap(String json, Class<CMO> klass) throws JsonConversionException {
+    public static <CMO> Map<String, CMO> jsonToClassMap(String json, Class<CMO> klass) throws JsonConversionException {
         try {
-            Map<String, CMO> jsonMap = jsonMapper.readValue(json, jsonMapper.getTypeFactory().constructMapType(Map.class, String.class, klass));
+            MapType mapType = jsonMapper.getTypeFactory().constructMapType(Map.class, String.class, klass);
+            Map<String, CMO> jsonMap = jsonMapper.readValue(json, mapType);
             return jsonMap;
         } catch (IOException e) {
             LOG.error("Trouble reading json", e);
             throw new JsonConversionException("JSON: " + json, e);
         }
+    }
 
+    public static Map<String, CMObject> jsonToClassMap(String json) {
+        Map<String, String> simpleMap = jsonMapToKeyMap(json);
+        Map<String, CMObject> objectMap = new HashMap<String, CMObject>();
+        for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
+            objectMap.put(entry.getKey(), jsonToClass(entry.getValue()));
+        }
+        return objectMap;
+    }
+
+    public static Map<String, String> jsonMapToKeyMap(String json) {
+        //TODO this method is big and kinda gross
+        try {
+            StringReader reader = new StringReader(json);
+            int readInt;
+            int open = 0;
+            boolean inString = false;
+            Map<String, String> jsonMap = new HashMap<String, String>();
+            StringBuilder keyBuilder = new StringBuilder();
+            StringBuilder contentsBuilder = new StringBuilder();
+
+            while((readInt = reader.read()) != -1) {
+                char read = (char)readInt;
+                switch(read) {
+                    case '{':
+                        if(!inString)
+                            open++;
+                        break;
+                    case '}':
+                        if(!inString) {
+                            open--;
+                            if(open == 1) { //we closed a full block
+                                //finish off the recording
+                                contentsBuilder.append(read);
+                                //get the key
+                                String key = keyBuilder.toString();
+                                String[] splitKey = key.split("\"");
+                                if(splitKey.length < 1) {
+                                    throw new JsonConversionException("Missing key at: " + key);
+                                }
+                                String parsedKey = splitKey[1];
+                                //get the contents
+                                String contents = contentsBuilder.toString();
+                                jsonMap.put(parsedKey, contents);
+                                //reset
+                                keyBuilder = new StringBuilder();
+                                contentsBuilder = new StringBuilder();
+                                continue;
+                            }
+                        }
+                        break;
+                    case '\"':
+                        inString = !inString;
+
+                }
+                if(open == 1) {
+                    keyBuilder.append(read);
+                }else if(open > 1) {
+                    contentsBuilder.append(read);
+                }
+            }
+            return jsonMap;
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new JsonConversionException("Trouble reading JSON: " + e);
+        }
     }
 
     /**

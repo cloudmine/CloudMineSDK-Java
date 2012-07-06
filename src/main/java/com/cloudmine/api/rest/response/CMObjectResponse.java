@@ -1,15 +1,13 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *  Returned by the CloudMine service in response to object fetch requests. Provides access to the
@@ -38,11 +36,8 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     public CMObjectResponse(HttpResponse response) {
         super(response);
         if(hasSuccess()) {
-            Map<String, CMObject> tempMap = new HashMap<String, CMObject>();
-            for(CMObject object : getSuccessObjects()) {
-                tempMap.put(object.getObjectId(), object);
-            }
-            objectMap = Collections.unmodifiableMap(tempMap);
+            String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
+            objectMap = JsonUtilities.jsonToClassMap(success);
         } else {
             objectMap = Collections.emptyMap();
         }
@@ -58,7 +53,7 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      * @return a List of all the CMObjects fetched by the request
      */
     public List<CMObject> getObjects() {
-        return getSuccessObjects();
+        return new ArrayList<CMObject>(objectMap.values());
     }
 
     /**

@@ -32,7 +32,7 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
     private final CMFile file;
 
     public FileLoadResponse(HttpResponse response, String fileName) {
-        super(response);
+        super(response, false);
         file = CMFile.CMFile(response, fileName);
     }
 

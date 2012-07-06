@@ -3,11 +3,14 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +26,7 @@ public class ResponseBase<CODE> implements Json {
 
     private final Map<String, Object> baseMap;
     private final int statusCode;
+    private final String messageBody;
 
 
     public static final ResponseConstructor<ResponseBase> CONSTRUCTOR = new ResponseConstructor<ResponseBase>() {
@@ -32,13 +36,31 @@ public class ResponseBase<CODE> implements Json {
     };
 
     protected ResponseBase(HttpResponse response)  {
+        this(response, true);
+    }
+    protected ResponseBase(HttpResponse response, boolean readMessageBody)  {
         if(response != null &&
                 response.getStatusLine() != null) {
             statusCode = response.getStatusLine().getStatusCode();
         } else {
             statusCode = NO_RESPONSE_CODE;
         }
-        baseMap = extractResponseMap(response);
+        if(readMessageBody) {
+            InputStream jsonStream = null;
+            StringWriter writer = new StringWriter();
+            try {
+                jsonStream = response.getEntity().getContent();
+                IOUtils.copy(jsonStream, writer, JsonUtilities.ENCODING);
+            } catch (IOException e) {
+                LOG.error("Exception thrown", e);
+            }
+            messageBody = writer.toString();
+
+            baseMap = extractResponseMap(response, messageBody);
+        } else {
+            messageBody = "";
+            baseMap = new HashMap<String, Object>();
+        }
     }
 
     protected ResponseBase(String messageBody, int statusCode) {
@@ -51,10 +73,14 @@ public class ResponseBase<CODE> implements Json {
         }
         baseMap = tempNode;
         this.statusCode = statusCode;
+        this.messageBody = messageBody;
     }
 
+    protected String getMessageBody() {
+        return messageBody;
+    }
 
-    protected Map<String, Object> extractResponseMap(HttpResponse response) {
+    protected Map<String, Object> extractResponseMap(HttpResponse response, String json) {
         Map<String, Object> responseMap = null;
         if(response == null ||
                 statusCode > 202 ||
@@ -62,9 +88,7 @@ public class ResponseBase<CODE> implements Json {
             LOG.info("Received null, error, or none json response");
         }else {
             try {
-                responseMap = JsonUtilities.jsonToMap(response.getEntity().getContent());
-            } catch (IOException e) {
-                LOG.error("Failed parsing response entity content: ", e);
+                responseMap = JsonUtilities.jsonToMap(json);
             } catch (JsonConversionException e) {
                 LOG.error("Failed converting response content to json", e);
             }
