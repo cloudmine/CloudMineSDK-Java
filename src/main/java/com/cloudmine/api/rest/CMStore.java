@@ -127,6 +127,19 @@ public class CMStore {
 
     /*****************************OBJECTS********************************/
 
+    public void saveAccessList(CMAccessList list) {
+        saveAccessList(list, Callback.DO_NOTHING);
+    }
+
+    public void saveAccessList(final CMAccessList list, final Callback callback) {
+        list.getUser().login(new LoginResponseCallback() {
+
+            public void onCompletion(LoginResponse response) {
+                userService().asyncInsert(list, callback);
+            }
+        });
+    }
+
     /**
      * Asynchronously save the object based on the StoreIdentifier associated with it. If no StoreIdentifier is
      * present, default (app level) is used; however, the object's StoreIdentifier is not updated.

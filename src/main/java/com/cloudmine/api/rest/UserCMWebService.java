@@ -1,9 +1,11 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.CMAccessList;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 
@@ -68,9 +70,20 @@ public class UserCMWebService extends CMWebService {
         asyncLogout(sessionToken, callback);
     }
 
+    public void asyncInsert(CMAccessList list, Callback callback) {
+        executeAsyncCommand(createAccessListPost(list), callback, objectModificationResponseConstructor());
+    }
+
     @Override
     public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
+    }
+
+    private HttpPost createAccessListPost(CMAccessList list) {
+        HttpPost post = new HttpPost(baseUrl.access().asUrlString());
+        addCloudMineHeader(post);
+        addJson(post, list.asJson());
+        return post;
     }
 
     @Override

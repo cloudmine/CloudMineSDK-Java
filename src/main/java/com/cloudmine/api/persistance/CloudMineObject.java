@@ -11,5 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CloudMineObject {
     public static final String DEFAULT_VALUE = "Unset";
-    String className() default DEFAULT_VALUE;
+
+    String value() default DEFAULT_VALUE;
 }

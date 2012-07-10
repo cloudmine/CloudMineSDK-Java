@@ -197,6 +197,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return this.removeAction(USER);
     }
 
+    public CMURLBuilder access() {
+        return this.addAction("access");
+    }
+
     public CMURLBuilder account() {
         return this.notUser().addAction("account");
     }

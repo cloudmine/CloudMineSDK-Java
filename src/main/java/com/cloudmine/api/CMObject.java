@@ -196,13 +196,13 @@ public class CMObject implements Json, Savable {
         if(annotation == null) {
             throw new RuntimeException("All classes that extend CMObject must be annotated with @CloudMineObject");
         }
-        if(CloudMineObject.DEFAULT_VALUE.equals(annotation.className()))
+        if(CloudMineObject.DEFAULT_VALUE.equals(annotation.value()))
             return getClass().getName();
         else
-            return annotation.className();
+            return annotation.value();
     }
 
-    private CMStore store() throws CreationException {
+    protected CMStore store() throws CreationException {
         return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
     }
 }

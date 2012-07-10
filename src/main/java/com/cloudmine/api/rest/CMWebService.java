@@ -908,7 +908,7 @@ public class CMWebService {
         executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    private <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
+    <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
         asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
@@ -1082,7 +1082,7 @@ public class CMWebService {
         return post;
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, String json) {
+    protected void addJson(HttpEntityEnclosingRequestBase message, String json) {
         if(json == null)
             json = JsonUtilities.EMPTY_JSON;
         if(!message.containsHeader(JSON_HEADER.getName())) {
@@ -1099,7 +1099,7 @@ public class CMWebService {
         addJson(message, json.asJson());
     }
 
-    private void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
+    protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
         post.addHeader(AUTHORIZATION_KEY, "Basic " + user.encode());
     }
 

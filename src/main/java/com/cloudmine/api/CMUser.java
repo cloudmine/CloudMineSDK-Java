@@ -22,7 +22,7 @@ import java.util.Map;
  * function, as platform specific implementations may be necessary.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMUser {
+public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
     public static final String EMAIL_KEY = "email";

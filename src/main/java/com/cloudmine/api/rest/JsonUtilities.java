@@ -254,6 +254,10 @@ public class JsonUtilities {
         }
     }
 
+    public static String objectToJson(CMObject object) throws JsonConversionException {
+        return null;
+    }
+
     /**
      * Convert the given JSON to the given klass. If unable to convert, throws JsonConversionException
      * @param json JSON representing
