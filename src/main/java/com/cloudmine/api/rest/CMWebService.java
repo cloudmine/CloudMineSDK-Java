@@ -200,6 +200,10 @@ public class CMWebService {
                 callback, cmObjectResponseConstructor());
     }
 
+    public void asyncLoadAllUserProfiles(Callback callback) {
+        executeAsyncCommand(createGetAllUsers(), callback, cmObjectResponseConstructor());
+    }
+
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
@@ -904,11 +908,11 @@ public class CMWebService {
         executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
     }
 
-    private void executeAsyncCommand(HttpUriRequest message, Callback callback) {
+    void executeAsyncCommand(HttpUriRequest message, Callback callback) {
         executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    private <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
+    <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
         asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
@@ -1023,12 +1027,24 @@ public class CMWebService {
         return get;
     }
 
+    HttpGet createGet(String url) {
+        HttpGet get = new HttpGet(url);
+        addCloudMineHeader(get);
+        return get;
+    }
+
     private HttpGet createGetFile(String key) {
         return createGetFile(key, CMRequestOptions.NONE);
     }
 
     private HttpGet createGetFile(String key, CMRequestOptions options) {
         HttpGet get = new HttpGet(baseUrl.binary(key).options(options).asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private HttpGet createGetAllUsers() {
+        HttpGet get = new HttpGet(baseUrl.account().asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -1132,7 +1148,7 @@ public class CMWebService {
         return LoginResponse.CONSTRUCTOR;
     }
 
-    private ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
+    protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
     }
 

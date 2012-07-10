@@ -201,6 +201,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return this.notUser().addAction("account");
     }
 
+    public CMURLBuilder mine() {
+        return this.addAction("mine");
+    }
+
     public CMURLBuilder reset() {
         return this.addAction("reset");
     }

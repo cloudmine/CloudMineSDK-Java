@@ -4,6 +4,7 @@ import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 
@@ -29,7 +30,11 @@ public class UserCMWebService extends CMWebService {
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.sessionToken = token;
-        userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.getSessionToken());
+        userHeader = createSessionToken(token);
+    }
+
+    private BasicHeader createSessionToken(CMSessionToken token) {
+        return new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.getSessionToken());
     }
 
     /**
@@ -66,6 +71,11 @@ public class UserCMWebService extends CMWebService {
      */
     public void asyncLogout(Callback callback) {
         asyncLogout(sessionToken, callback);
+    }
+
+    public void asyncLoadLoggedInUserProfile(Callback callback) {
+        HttpGet get = createGet(baseUrl.account().mine().asUrlString());
+        executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
     @Override
