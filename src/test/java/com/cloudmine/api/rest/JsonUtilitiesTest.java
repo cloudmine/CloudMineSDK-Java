@@ -167,7 +167,7 @@ public class JsonUtilitiesTest {
     }
 
     @Test
-    public void testExtendedCMObjectConversion() {
+    public void testExtendedCMObjectConversionToObjectIdMappedCollection() {
         String name = "fred";
         Date date = new Date();
         int number = 5;

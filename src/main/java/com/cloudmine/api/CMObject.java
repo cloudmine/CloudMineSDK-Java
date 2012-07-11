@@ -11,7 +11,6 @@ import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +26,10 @@ import java.util.UUID;
  */
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String MISSING_OBJECT_ID = "";
 
 
-    private final String objectId;
+    private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
     protected static String generateUniqueObjectId() {
@@ -42,7 +41,12 @@ public class CMObject implements Json, Savable {
     }
 
     protected CMObject(String objectId) {
-        this.objectId = objectId;
+        this.objectId= objectId;
+    }
+
+    protected CMObject(boolean autogenerateObjectId) {
+        if(autogenerateObjectId)
+            this.objectId = generateUniqueObjectId();
     }
 
     @Override
@@ -57,7 +61,7 @@ public class CMObject implements Json, Savable {
      * @throws JsonConversionException if this object cannot be converted to JSON
      */
     public String asKeyedObject() throws JsonConversionException {
-        return null;
+        return null; //TODO this shouldn't return null I'm thinking
     }
 
     @JsonIgnore
@@ -186,8 +190,23 @@ public class CMObject implements Json, Savable {
 
     @Override
     @JsonProperty(JsonUtilities.OBJECT_ID_KEY)
+    /**
+     * Get the objectId for this CMObject. In certain cases this may not be set; for example, CMUsers do not have an
+     * object id until they have been persisted. In this case, {@link #MISSING_OBJECT_ID} is returned. You can also
+     * check for the existence of an objectId by calling {@link #hasObjectId()}
+     * @return The unique objectId for this object, or {@link #MISSING_OBJECT_ID} if {@link #hasObjectId()} returns false
+     */
     public String getObjectId() {
-        return objectId;
+        return objectId == null ? MISSING_OBJECT_ID : objectId;
+    }
+
+    void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    @JsonIgnore
+    public boolean hasObjectId() {
+        return objectId == null;
     }
 
     @JsonProperty("__class__")

@@ -6,8 +6,10 @@ import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ import java.util.Map;
  * function, as platform specific implementations may be necessary.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMUser {
+public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
     public static final String EMAIL_KEY = "email";
@@ -49,6 +51,7 @@ public class CMUser {
      * @throws CreationException
      */
     CMUser(String email, String password) throws CreationException {
+        super(false);
         if(email == null) {
             throw new CreationException("User cannot have null email");
         }
@@ -136,7 +139,7 @@ public class CMUser {
 
     /**
      * Asynchronously create this user
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.CreationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is passed in
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
      */
@@ -145,9 +148,7 @@ public class CMUser {
     }
 
     /**
-     * Asynchronously create this user
-     * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
-     * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
+     * Equivalent to {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} with no callback
      */
     public void createUser() throws CreationException, JsonConversionException {
         createUser(Callback.DO_NOTHING);
@@ -231,6 +232,26 @@ public class CMUser {
         }
     }
 
+    /**
+     * This wraps the given callback in a {@link CreationResponseCallback} that will set this CMUser's object id on
+     * success, and then call {@link Callback#onCompletion(Object)} passing in the {@link CreationResponse}
+     * You probably don't need to be calling this ever
+     * @param callback
+     * @return
+     */
+    public final CreationResponseCallback setObjectIdOnCreation(final Callback callback) {
+        return new CreationResponseCallback() {
+            public void onCompletion(CreationResponse response) {
+                try {
+                    if(response.wasSuccess()) {
+                        setObjectId(response.getObjectId());
+                    }
+                } finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
+    }
 
     private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
         return new LoginResponseCallback() {

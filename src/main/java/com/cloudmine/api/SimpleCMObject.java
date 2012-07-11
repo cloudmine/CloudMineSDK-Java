@@ -461,7 +461,7 @@ public class SimpleCMObject extends CMObject {
     }
 
     /**
-     * Add a property to this SimpleCMObject. The value can be anything, but if it is not a Map, Number, String, Boolean, array, or Collection
+     * Add a property to this SimpleCMObject. The value can be anything, but if it is not a CMObject, Map, Number, String, Boolean, array, or Collection
      * it will not be deserialized properly and may cause issues later on.
      * @param key to associate with the value
      * @param value the property
@@ -477,7 +477,7 @@ public class SimpleCMObject extends CMObject {
      * @param value a SimpleCMObject
      * @return this
      */
-    public SimpleCMObject add(SimpleCMObject value) {
+    public SimpleCMObject add(CMObject value) {
         add(value.getObjectId(), value);
         return this;
     }

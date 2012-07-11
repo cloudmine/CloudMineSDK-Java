@@ -665,8 +665,7 @@ public class CMWebService {
     }
 
     /**
-     * Create a new user
-     * @param user the user to create
+     * See {@link #asyncCreateUser(com.cloudmine.api.CMUser, com.cloudmine.api.rest.callbacks.Callback)}
      */
     public void asyncCreateUser(CMUser user)  {
         executeAsyncCommand(createPut(user));
@@ -675,10 +674,10 @@ public class CMWebService {
     /**
      * Create a new user
      * @param user the user to create
-     * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
+     * @param callback a Callback that expects a {@link CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is given here
      */
     public void asyncCreateUser(CMUser user, Callback callback) {
-        executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
+        executeAsyncCommand(createPut(user), user.setObjectIdOnCreation(callback), creationResponseConstructor());
     }
 
     /**
@@ -1134,6 +1133,10 @@ public class CMWebService {
 
     protected ResponseConstructor<ObjectModificationResponse> objectModificationResponseConstructor() {
         return ObjectModificationResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<CreationResponse> creationResponseConstructor() {
+        return CreationResponse.CONSTRUCTOR;
     }
 
     protected ResponseConstructor<CMResponse> cmResponseConstructor() {

@@ -87,4 +87,9 @@ public class ExtendedCMObject extends CMObject {
         result = 31 * result + number;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return asJson();
+    }
 }
