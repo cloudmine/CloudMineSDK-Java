@@ -1,9 +1,12 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMObject;
-import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.CMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.persistance.CMJacksonModule;
+import com.cloudmine.api.persistance.CMUserConstructorMixIn;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,6 +68,12 @@ public class JsonUtilities {
         return new StringBuilder(createJsonProperty(CLASS_KEY, DATE_CLASS)).append(",\n")
                 .append(createJsonProperty(TIME_KEY, secondsTime)).toString();
 
+    }
+
+    public static void addCMUserMixinsTo(Class klass) {
+        if(CMUser.class.isAssignableFrom(klass)) {
+            jsonMapper.addMixInAnnotations(klass, CMUserConstructorMixIn.class);
+        }
     }
 
     /**
@@ -254,6 +263,17 @@ public class JsonUtilities {
         }
     }
 
+    public static String objectToJson(CMObject object) throws JsonConversionException {
+        StringWriter writer = new StringWriter();
+        try {
+            jsonMapper.writeValue(writer, object);
+            return writer.toString();
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new JsonConversionException(e);
+        }
+    }
+
     /**
      * Convert the given JSON to the given klass. If unable to convert, throws JsonConversionException
      * @param json JSON representing
@@ -391,6 +411,15 @@ public class JsonUtilities {
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
             throw new JsonConversionException("Trouble reading JSON: " + e);
+        }
+    }
+
+    public static void mergeJsonUpdates(CMObject objectToUpdate, String json) throws JsonConversionException {
+        try {
+            jsonMapper.readerForUpdating(objectToUpdate).readValue(json);
+        } catch (IOException e) {
+            LOG.error("Exception thrown while merging json update: " + json, e);
+            throw new JsonConversionException(e);
         }
     }
 

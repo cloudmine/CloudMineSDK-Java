@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
-    private static final String MISSING_OBJECT_ID = "";
+    public static final String MISSING_OBJECT_ID = "";
 
 
     private String objectId;

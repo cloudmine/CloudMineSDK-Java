@@ -2,19 +2,20 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.Base64Encoder;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.callbacks.CMResponseCallback;
-import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
-import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.callbacks.*;
+import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,11 +28,12 @@ import java.util.Map;
 public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
+    public static final String MISSING_VALUE = "unset";
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
 
-    private final String email;
-    private final String password;
+    private final Immutable<String> email = new Immutable<String>();
+    private final Immutable<String> password = new Immutable<String>();
     private CMSessionToken sessionToken;
     /**
      * Instantiate a new CMUser instance with the given email and password
@@ -41,50 +43,73 @@ public class CMUser extends CMObject {
      * @throws CreationException if email or password are null
      */
     public static CMUser CMUser(String email, String password) throws CreationException {
-        return new AndroidCMUser(email, password);
+        return new CMUser(email, password);
     }
 
+
+    protected CMUser() {
+        this("unset", "unset");
+    }
     /**
      * Don't call this, use the static constructor instead
      * @param email
      * @param password
      * @throws CreationException
      */
-    CMUser(String email, String password) throws CreationException {
+    protected CMUser(String email, String password) throws CreationException {
         super(false);
-        if(email == null) {
-            throw new CreationException("User cannot have null email");
-        }
-        if(password == null) {
-            throw new CreationException("User cannot have null password");
-        }
-        this.email = email;
-        this.password = password;
+        this.email.setValue(email);
+        this.password.setValue(password);
     }
 
     public String asJson() throws JsonConversionException {
         Map<String, Object> jsonMap = new HashMap<String, Object>(); //TODO switch this to a more manual process to reduce number of objects created
-        jsonMap.put(EMAIL_KEY, email);
-        jsonMap.put(PASSWORD_KEY, password);
+        jsonMap.put(EMAIL_KEY, getEmail());
+        jsonMap.put(PASSWORD_KEY, getPassword());
         return JsonUtilities.mapToJson(jsonMap);
+    }
+
+    public String profileTransportRepresentation() throws JsonConversionException {
+        return JsonUtilities.objectToJson(this);
     }
 
     /**
      * The users email address
      * @return The users email address
      */
+    @JsonIgnore
     public String getEmail() {
-        return email;
+        return email.value(MISSING_VALUE);
     }
 
     /**
      * The users password
      * @return The users password
      */
+    @JsonIgnore
     public String getPassword() {
-        return password;
+        return password.value(MISSING_VALUE);
     }
 
+    /**
+     * Set the password value; password can only be set once. The value will not be set if given null
+     * @param password the new email value
+     * @return true if the value was updated; false otherwise
+     */
+    public boolean setPassword(String password) {
+        return this.password.setValue(password);
+    }
+
+    /**
+     * Set the e-mail value; email can only be set once. The value will not be set if given null
+     * @param email the new email value
+     * @return true if the value was updated; false otherwise
+     */
+    public boolean setEmail(String email) {
+        return this.email.setValue(email);
+    }
+
+    @JsonIgnore
     public CMSessionToken getSessionToken() {
         if(sessionToken == null) {
             return CMSessionToken.FAILED;
@@ -92,12 +117,23 @@ public class CMUser extends CMObject {
         return sessionToken;
     }
 
+    @Override
+    @JsonIgnore
+    public String getObjectId() {
+        return super.getObjectId();
+    }
+
     /**
      * Check whether this user is logged in
      * @return true if the user is logged in successfully; false otherwise
      */
+    @JsonIgnore
     public boolean isLoggedIn() {
         return sessionToken != null && sessionToken.isValid();
+    }
+
+    private boolean isCreated() {
+        return getObjectId().equals(MISSING_OBJECT_ID);
     }
 
     /**
@@ -137,6 +173,42 @@ public class CMUser extends CMObject {
         CMWebService.getService().asyncLogout(getSessionToken(), setLoggedOutUserCallback(callback));
     }
 
+    public void loadProfile() {
+        loadProfile(Callback.DO_NOTHING);
+    }
+
+    public void loadProfile(final Callback callback) {
+        if(isLoggedIn()) {
+            loadAndMergeProfileUpdatesThenCallback(callback);
+        } else {
+            login(new LoginResponseCallback() {
+                @Override
+                public void onCompletion(LoginResponse response) {
+                    loadAndMergeProfileUpdatesThenCallback(callback);
+                }
+            });
+        }
+    }
+
+    private void loadAndMergeProfileUpdatesThenCallback(final Callback callback) {
+        CMWebService.getService().getUserWebService(getSessionToken()).asyncLoadLoggedInUserProfile(new CMObjectResponseCallback() {
+            @Override
+            public void onCompletion(CMObjectResponse response) {
+                try {
+                    List<CMObject> loadedObjects = response.getObjects();
+                    if(loadedObjects.size() == 1) {
+                        CMObject thisUser = loadedObjects.get(0);
+                        if(thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
+                            JsonUtilities.mergeJsonUpdates(CMUser.this, ((CMUser)thisUser).profileTransportRepresentation());
+                        }
+                    }
+                }finally {
+                    callback.onCompletion(response);
+                }
+            }
+        });
+    }
+
     /**
      * Asynchronously create this user
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.CreationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is passed in
@@ -152,6 +224,54 @@ public class CMUser extends CMObject {
      */
     public void createUser() throws CreationException, JsonConversionException {
         createUser(Callback.DO_NOTHING);
+    }
+
+    /**
+     * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    @Override
+    public void save() throws CreationException, JsonConversionException {
+        save(Callback.DO_NOTHING);
+    }
+
+    /**
+     * If this has not been created,
+     */
+    @Override
+    public void save(Callback callback) throws CreationException, JsonConversionException {
+        if(isCreated()) {
+            saveProfile(callback);
+        } else {
+            createUser(callback);
+        }
+    }
+
+    private void saveProfile(final Callback callback) {
+        if(isLoggedIn()) {
+            CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(this, callback);
+        } else {
+            login(new LoginResponseCallback() {
+                public void onCompletion(LoginResponse response) {
+                    CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(CMUser.this, callback);
+                }
+            });
+        }
+    }
+
+    /**
+     * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    @Override
+    public void saveWithUser(CMUser ignored) throws CreationException, JsonConversionException{
+        saveWithUser(ignored, Callback.DO_NOTHING);
+    }
+
+    /**
+     * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    @Override
+    public void saveWithUser(CMUser ignored, Callback callback) throws CreationException, JsonConversionException {
+        save(callback);
     }
 
     /**
@@ -216,20 +336,8 @@ public class CMUser extends CMObject {
      * @return a Base64 representation of this user
      */
     public String encode() {
-        String userString = email + ":" + password;
-        String encodedString = encodeString(userString);
-        return encodedString;
-    }
-
-    protected String encodeString(String toEncode) {
-        try {
-            return null; //This is cool cause we're always returning AndroidCMUser
-//            return javax.xml.bind.DatatypeConverter.printBase64Binary(toEncode.getBytes());
-        }catch(NoClassDefFoundError ncdfe) {
-            LOG.error("Do not instantiate CMUser objects on Android! You must use AndroidCMUser, as " +
-                    "android does not provide an implementation for DataTypeConverter", ncdfe);
-            throw ncdfe;
-        }
+        String userString = getEmail() + ":" + getPassword();
+        return Base64Encoder.encode(userString);
     }
 
     /**
@@ -284,7 +392,7 @@ public class CMUser extends CMObject {
 
     @Override
     public String toString() {
-        return email + ":" + password;
+        return getEmail() + ":" + getPassword();
     }
 
     @Override

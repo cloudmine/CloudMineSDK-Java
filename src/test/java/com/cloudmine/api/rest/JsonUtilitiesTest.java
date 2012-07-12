@@ -5,6 +5,8 @@ import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.test.ExtendedCMObject;
+import com.cloudmine.test.ExtendedCMUser;
+import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -190,6 +192,26 @@ public class JsonUtilitiesTest {
     }
 
     @Test
+    public void testExtendedCMObjectConversionToJson() {
+        String name = "fred";
+        Date date = new Date();
+        int number = 5;
+        CMObject convertableObject = new ExtendedCMObject(name, date, number);
+        ClassNameRegistry.register(ExtendedCMObject.class.getName(), ExtendedCMObject.class);//this happens automatically if initialize has been called
+        String dateJson = JsonUtilities.convertDateToJsonClass(date);
+        String expectedJson = "\n" +
+                "{\n" +
+                "\"otherExtendedObjects\":{}," +
+                "\"name\":\"fred\",\n" +
+                "\"date\":" + dateJson + ",\n" +
+                "\"number\":5,\n" +
+                "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
+                JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMObject.class.getName()) +
+                "}";
+        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, JsonUtilities.objectToJson(convertableObject)));
+    }
+
+    @Test
     public void testJsonMapToKeyMap() {
         Map<String, String> expected = new HashMap<String, String>();
 
@@ -215,6 +237,23 @@ public class JsonUtilitiesTest {
         assertTrue(JsonUtilities.isJsonEquivalent(thirdObjectJson, conversion.get("allScrunch")));
     }
 
+    @Test
+    public void testMergeCMObjectUpdate() {
+        SimpleExtendedCMObject cmo = new SimpleExtendedCMObject(1, "face");
+        String updateJson = "{\"number\":20}";
+        JsonUtilities.mergeJsonUpdates(cmo, updateJson);
+        assertEquals(20, cmo.getNumber());
+    }
+
+    @Test
+    public void testMergeCMUserUpdate() {
+        ExtendedCMUser user = new ExtendedCMUser("daemail@email.com", "pw");
+        assertNotSame("here", user.getAddress());
+
+        String profileUpdateJson = "{\"address\":\"here\"}";
+        JsonUtilities.mergeJsonUpdates(user, profileUpdateJson);
+        assertEquals("here", user.getAddress());
+    }
 
     public static Map<String, Object> createComplexObjectMap() {
 

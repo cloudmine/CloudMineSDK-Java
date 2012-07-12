@@ -1,5 +1,6 @@
 package com.cloudmine.api.persistance;
 
+import com.cloudmine.api.rest.JsonUtilities;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,8 @@ public class CloudMineObjectAnnotationListener implements ClassAnnotationDiscove
     public void discovered(String className, String annotationName) {
         try {
             Class klass = Class.forName(className);
+
+            JsonUtilities.addCMUserMixinsTo(klass);
 
             CloudMineObject annotation = (CloudMineObject)klass.getAnnotation(CloudMineObject.class);
             boolean useDefault = CloudMineObject.DEFAULT_VALUE.equals(annotation.className());

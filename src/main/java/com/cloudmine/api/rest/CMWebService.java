@@ -1097,7 +1097,7 @@ public class CMWebService {
         return post;
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, String json) {
+    protected void addJson(HttpEntityEnclosingRequestBase message, String json) {
         if(json == null)
             json = JsonUtilities.EMPTY_JSON;
         if(!message.containsHeader(JSON_HEADER.getName())) {

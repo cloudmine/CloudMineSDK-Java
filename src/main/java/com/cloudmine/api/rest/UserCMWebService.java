@@ -1,10 +1,12 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 
@@ -73,14 +75,30 @@ public class UserCMWebService extends CMWebService {
         asyncLogout(sessionToken, callback);
     }
 
+    /**
+     *
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
+     */
     public void asyncLoadLoggedInUserProfile(Callback callback) {
         HttpGet get = createGet(baseUrl.account().mine().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
+    public void asyncInsertUserProfile(CMUser user, Callback callback) {
+        HttpPut put = createProfilePut(user);
+        executeAsyncCommand(put, callback, creationResponseConstructor());
+    }
+
     @Override
     public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
+    }
+
+    private HttpPut createProfilePut(CMUser user) {
+        HttpPut put = new HttpPut(baseUrl.account().asUrlString());
+        addCloudMineHeader(put);
+        addJson(put, user.profileTransportRepresentation());
+        return put;
     }
 
     @Override

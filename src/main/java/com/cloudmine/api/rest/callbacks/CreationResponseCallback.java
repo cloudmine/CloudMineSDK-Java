@@ -10,6 +10,6 @@ import com.cloudmine.api.rest.response.CreationResponse;
 public class CreationResponseCallback extends CMCallback<CreationResponse> {
 
     public CreationResponseCallback() {
-        super(null);
+        super(CreationResponse.CONSTRUCTOR);
     }
 }
