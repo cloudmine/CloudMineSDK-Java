@@ -204,6 +204,10 @@ public class CMWebService {
         executeAsyncCommand(createGetAllUsers(), callback, cmObjectResponseConstructor());
     }
 
+    public void asyncSearchUserProfiles(String searchString, Callback callback) {
+        executeAsyncCommand(createProfileSearch(searchString), callback, cmObjectResponseConstructor());
+    }
+
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
@@ -1053,6 +1057,10 @@ public class CMWebService {
         HttpGet get = new HttpGet(baseUrl.account().asUrlString());
         addCloudMineHeader(get);
         return get;
+    }
+
+    private HttpGet createProfileSearch(String searchString) {
+        return createGet(baseUrl.account().search(searchString, "p").asUrlString());
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {

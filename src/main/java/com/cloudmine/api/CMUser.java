@@ -31,6 +31,8 @@ public class CMUser extends CMObject {
     public static final String MISSING_VALUE = "unset";
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
+    public static final String CREDENTIALS_KEY = "credentials";
+    public static final String PROFILE_KEY = "profile";
 
     private String email;
     private String password;
@@ -63,10 +65,12 @@ public class CMUser extends CMObject {
     }
 
     public String asJson() throws JsonConversionException {
-        Map<String, Object> jsonMap = new HashMap<String, Object>(); //TODO switch this to a more manual process to reduce number of objects created
-        jsonMap.put(EMAIL_KEY, getEmail());
-        jsonMap.put(PASSWORD_KEY, getPassword());
-        return JsonUtilities.mapToJson(jsonMap);
+        String credentialsJson = JsonUtilities.jsonCollection(
+                                        JsonUtilities.createJsonProperty(EMAIL_KEY, getEmail()),
+                                        JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).asJson();
+        return JsonUtilities.jsonCollection(
+                JsonUtilities.createJsonPropertyToJson(CREDENTIALS_KEY, credentialsJson),
+                JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).asJson();
     }
 
     public String profileTransportRepresentation() throws JsonConversionException {
@@ -131,7 +135,7 @@ public class CMUser extends CMObject {
     }
 
     private boolean isCreated() {
-        return getObjectId().equals(MISSING_OBJECT_ID);
+        return getObjectId().equals(MISSING_OBJECT_ID) == false;
     }
 
     /**

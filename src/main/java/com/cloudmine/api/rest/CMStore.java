@@ -802,9 +802,9 @@ public class CMStore {
      */
     public void loadUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new LoginResponseCallback() {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadFile(fileName, callback, options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadFile(fileName, callback, options);
+            }
         });
     }
 
@@ -878,10 +878,26 @@ public class CMStore {
         }
     }
 
-    public void loadAllUsers() {
+    public void loadUserProfilesSearch(String searchString) {
+        loadUserProfilesSearch(searchString, Callback.DO_NOTHING);
+    }
+
+    public void loadUserProfilesSearch(String searchString, Callback callback) {
+        applicationService.asyncSearchUserProfiles(searchString, callback);
+    }
+
+    /**
+     * See {@link #loadAllUserProfiles(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    public void loadAllUserProfiles() {
         loadAllUserProfiles(Callback.DO_NOTHING);
     }
 
+    /**
+     * Load all the user profiles for this application. User profiles include the user id and any profile information,
+     * but not the user's e-mail address (unless e-mail address is an additional field added to profile).
+     * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
+     */
     public void loadAllUserProfiles(Callback callback) {
         applicationService.asyncLoadAllUserProfiles(callback);
     }

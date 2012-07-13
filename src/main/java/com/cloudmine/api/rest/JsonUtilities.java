@@ -96,6 +96,10 @@ public class JsonUtilities {
         return new StringBuilder(addQuotes(key)).append(":").append(addQuotes(value)).toString();
     }
 
+    public static String createJsonPropertyToJson(String key, String value) {
+        return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
+    }
+
     /**
      * Convert a key and value to oits JSON representation
      * @param key the JSON key
