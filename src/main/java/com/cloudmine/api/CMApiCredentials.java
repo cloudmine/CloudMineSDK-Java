@@ -1,9 +1,6 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.persistance.CloudMineObjectAnnotationListener;
-import com.impetus.annovention.ClasspathDiscoverer;
-import com.impetus.annovention.Discoverer;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -49,9 +46,8 @@ public class CMApiCredentials {
     }
 
     private static void runAnnotationDiscoverer() {
-        Discoverer discoverer = new ClasspathDiscoverer();
-        discoverer.addAnnotationListener(new CloudMineObjectAnnotationListener());
-        discoverer.discover();
+        System.getProperty("java.class.path");
+
     }
 
     private CMApiCredentials(String id, String apiKey) {

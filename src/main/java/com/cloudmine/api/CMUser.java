@@ -208,7 +208,7 @@ public class CMUser extends CMObject {
                     if(loadedObjects.size() == 1) {
                         CMObject thisUser = loadedObjects.get(0);
                         if(thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
-                            JsonUtilities.mergeJsonUpdates(CMUser.this, ((CMUser)thisUser).profileTransportRepresentation());
+                            mergeProfilesUpdates(((CMUser)thisUser).profileTransportRepresentation());
                         }
                     }
                 }finally {
@@ -216,6 +216,10 @@ public class CMUser extends CMObject {
                 }
             }
         });
+    }
+
+    private void mergeProfilesUpdates(String profileTransportRepresentation) {
+        JsonUtilities.mergeJsonUpdates(this, profileTransportRepresentation);
     }
 
     /**
@@ -385,6 +389,7 @@ public class CMUser extends CMObject {
                     if(response.wasSuccess() &&
                             response.getSessionToken().isValid()) {
                         sessionToken = response.getSessionToken();
+                        mergeProfilesUpdates(response.getProfileTransportRepresentation());
                     }
                 }finally {
                     callback.onCompletion(response);
