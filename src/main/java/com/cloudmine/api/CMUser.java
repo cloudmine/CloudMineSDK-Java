@@ -32,8 +32,8 @@ public class CMUser extends CMObject {
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
 
-    private final Immutable<String> email = new Immutable<String>();
-    private final Immutable<String> password = new Immutable<String>();
+    private String email;
+    private String password;
     private CMSessionToken sessionToken;
     /**
      * Instantiate a new CMUser instance with the given email and password
@@ -58,8 +58,8 @@ public class CMUser extends CMObject {
      */
     protected CMUser(String email, String password) throws CreationException {
         super(false);
-        this.email.setValue(email);
-        this.password.setValue(password);
+        this.email = email;
+        this.password = password;
     }
 
     public String asJson() throws JsonConversionException {
@@ -74,39 +74,37 @@ public class CMUser extends CMObject {
     }
 
     /**
-     * The users email address
+     * The users email address. Can be null
      * @return The users email address
      */
     @JsonIgnore
     public String getEmail() {
-        return email.value(MISSING_VALUE);
+        return email;
     }
 
     /**
-     * The users password
+     * The users password. Can be null, and if the user has been logged in, it will be
      * @return The users password
      */
     @JsonIgnore
     public String getPassword() {
-        return password.value(MISSING_VALUE);
+        return password;
     }
 
     /**
-     * Set the password value; password can only be set once. The value will not be set if given null
+     * Set the password value
      * @param password the new email value
-     * @return true if the value was updated; false otherwise
      */
-    public boolean setPassword(String password) {
-        return this.password.setValue(password);
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**
-     * Set the e-mail value; email can only be set once. The value will not be set if given null
+     * Set the e-mail value
      * @param email the new email value
-     * @return true if the value was updated; false otherwise
      */
-    public boolean setEmail(String email) {
-        return this.email.setValue(email);
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @JsonIgnore
@@ -151,11 +149,15 @@ public class CMUser extends CMObject {
      */
     public void login(Callback callback) throws CreationException {
         if(isLoggedIn()) {
-            LoginResponse fakeResponse = new LoginResponse(getSessionToken().asJson());
+            LoginResponse fakeResponse = createFakeLoginResponse();
             callback.onCompletion(fakeResponse);
             return;
         }
         CMWebService.getService().asyncLogin(this, setLoggedInUserCallback(callback));
+    }
+
+    public LoginResponse createFakeLoginResponse() {
+        return new LoginResponse(getSessionToken().asJson());
     }
 
     /**
@@ -365,6 +367,7 @@ public class CMUser extends CMObject {
         return new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
                 try {
+                    clearPassword();
                     if(response.wasSuccess() &&
                             response.getSessionToken().isValid()) {
                         sessionToken = response.getSessionToken();
@@ -374,6 +377,10 @@ public class CMUser extends CMObject {
                 }
             }
         };
+    }
+
+    private void clearPassword() {
+        password = null;
     }
 
     private final CMResponseCallback setLoggedOutUserCallback(final Callback callback) {

@@ -751,7 +751,11 @@ public class CMWebService {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      */
     public void asyncLogin(CMUser user, Callback callback) {
-        executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
+        if(user.isLoggedIn()) {
+            callback.onCompletion(user.createFakeLoginResponse());
+        } else {
+            executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
+        }
     }
 
     /**
@@ -890,6 +894,9 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      */
     public LoginResponse login(CMUser user) throws NetworkException {
+        if(user.isLoggedIn()) {
+            return user.createFakeLoginResponse();
+        }
         return executeCommand(createLoginPost(user), logInResponseConstructor());
     }
 
