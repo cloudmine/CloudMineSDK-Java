@@ -872,16 +872,26 @@ public class CMStore {
     /*********************************USERS*******************************/
     private UserCMWebService userService() throws CreationException {
         try {
-        return applicationService.getUserWebService(user().getSessionToken());
+            return applicationService.getUserWebService(user().getSessionToken());
         }catch(AccessException ae) {
             throw new CreationException("Cannot get the user service when there is no logged in user associated with this store", ae);
         }
     }
 
+    /**
+     * see {@link #loadUserProfilesSearch(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param searchString
+     */
     public void loadUserProfilesSearch(String searchString) {
         loadUserProfilesSearch(searchString, Callback.DO_NOTHING);
     }
 
+    /**
+     * Search the user profiles for the given string. For more information on the format, see <a href="https://cloudmine.me/docs/object-storage#object_search">the CloudMine documentation on search</a> <br>
+     * For example, to search for all users with the field age, where age is > 30, the searchString=[age>30]
+     * @param searchString what to search for
+     * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
+     */
     public void loadUserProfilesSearch(String searchString, Callback callback) {
         applicationService.asyncSearchUserProfiles(searchString, callback);
     }
@@ -902,7 +912,11 @@ public class CMStore {
         applicationService.asyncLoadAllUserProfiles(callback);
     }
 
-    public void loadLoggedInUserProfile(Callback callback) {
+    /**
+     * Get the profile for the user associated with this store. If there is no user associated with this store, throws a CreationException
+     * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
+     */
+    public void loadLoggedInUserProfile(Callback callback) throws CreationException{
         userService().asyncLoadLoggedInUserProfile(callback);
     }
 
