@@ -5,9 +5,7 @@
 *.orig
 .#*
 *.class
-.idea
 .history
-*.iml
 reports
 # Package Files #
 *.jar

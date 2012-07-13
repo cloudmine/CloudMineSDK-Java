@@ -84,6 +84,11 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
+    /**
+     * Update a user's profile. The user must be logged in for this to work
+     * @param user
+     * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
+     */
     public void asyncInsertUserProfile(CMUser user, Callback callback) {
         HttpPut put = createProfilePut(user);
         executeAsyncCommand(put, callback, creationResponseConstructor());

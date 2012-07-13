@@ -4,7 +4,6 @@ import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.test.ExtendedCMUser;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -14,11 +13,6 @@ import static junit.framework.Assert.assertTrue;
  */
 public class CloudMineUserTest {
 
-    @Test
-    public void testJson() {
-        CMUser user = CMUser.CMUser("jake@cloudmine.me", "12345");
-        assertEquals("{\"email\":\"jake@cloudmine.me\",\"password\":\"12345\"}", user.asJson());
-    }
 
     @Test
     public void testProfileJson() {

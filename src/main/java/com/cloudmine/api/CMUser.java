@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.Base64Encoder;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -25,6 +26,7 @@ import java.util.Map;
  * function, as platform specific implementations may be necessary.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
+@CloudMineObject
 public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
@@ -135,7 +137,8 @@ public class CMUser extends CMObject {
     }
 
     private boolean isCreated() {
-        return getObjectId().equals(MISSING_OBJECT_ID) == false;
+        return getObjectId().equals(MISSING_OBJECT_ID) == false ||
+                isLoggedIn();
     }
 
     /**
@@ -241,7 +244,12 @@ public class CMUser extends CMObject {
     }
 
     /**
-     * If this has not been created,
+     * If this has not been created, create the user. Otherwise, update the profile. If a user already exists on the
+     * server, but it was not this instance that created it, and the user is not logged in, then this will attempt to
+     * create the user and it will fail.<br>
+     * In general, it is recommended that you either use {@link #saveProfile(com.cloudmine.api.rest.callbacks.Callback)}
+     * or {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} instead of this method, so you can be explicit
+     * about what you would like.
      */
     @Override
     public void save(Callback callback) throws CreationException, JsonConversionException {
@@ -251,6 +259,8 @@ public class CMUser extends CMObject {
             createUser(callback);
         }
     }
+
+
 
     private void saveProfile(final Callback callback) {
         if(isLoggedIn()) {

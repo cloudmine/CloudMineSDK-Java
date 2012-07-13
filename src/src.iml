@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../cloudmine-android/src/gen">
+      <sourceFolder url="file://$MODULE_DIR$/../../cloudmine-android/src/gen" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../cloudmine-android/src/test/integration">
+      <sourceFolder url="file://$MODULE_DIR$/../../cloudmine-android/src/test/integration" isTestSource="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../cloudmine-android/src/test/java" />
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120524.165515-86-jar-with-dependencies.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120524.165515-86-jar-with-dependencies.jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/robolectric-1.2-20120606.170613-93-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120606.170613-93-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120606.170613-93-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120606.170613-93-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/test/robolectric-1.2-20120606.170613-93-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/test/junit-4.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../lib/junit-4.10-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="jdk" jdkName="Android 2.3.3 Google APIs" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="android" level="project" />
+    <orderEntry type="module" module-name="Cloudmine-android" />
+    <orderEntry type="module" module-name="cloudmine-javasdk" />
+  </component>
+</module>
+
