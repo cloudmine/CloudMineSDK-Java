@@ -1,14 +1,12 @@
 package com.cloudmine.test;
 
 import com.cloudmine.api.CMObject;
-import com.cloudmine.api.persistance.CloudMineObject;
 
 /**
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-@CloudMineObject
 public class SimpleExtendedCMObject extends CMObject {
 
     private int number;

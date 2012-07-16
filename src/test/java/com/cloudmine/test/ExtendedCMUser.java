@@ -2,20 +2,21 @@ package com.cloudmine.test;
 
 import com.cloudmine.api.CMUser;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.persistance.CloudMineObject;
 
 /**
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-@CloudMineObject
 public class ExtendedCMUser extends CMUser {
 
     private String address;
     private int age;
     private boolean isPaid;
 
+    public ExtendedCMUser() {
+        super();
+    }
 
     public ExtendedCMUser(String email, String password) throws CreationException {
         super(email, password);

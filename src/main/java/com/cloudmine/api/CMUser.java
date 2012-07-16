@@ -2,7 +2,6 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.Base64Encoder;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -15,18 +14,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A CMUser consists of an email and a password. When logged in, objects can be specified to be saved
  * at the {@link ObjectLevel.USER}, in which case they must be loaded and saved using the {@link CMSessionToken}
  * obtained by logging in as their associated CMUser. CMUser objects should be instantiated through the static {@link #CMUser(String, String)}
- * function, as platform specific implementations may be necessary.
+ * function, as platform specific implementations may be necessary.<BR>
+ * If you extend CMUser (to allow for profile information), you must provide a no args constructor.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-@CloudMineObject
 public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 

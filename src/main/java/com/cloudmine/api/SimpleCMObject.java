@@ -31,6 +31,7 @@ import java.util.*;
  */
 public class SimpleCMObject extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObject.class);
+
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
 

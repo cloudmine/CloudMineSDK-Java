@@ -170,17 +170,18 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testExtendedCMObjectConversionToObjectIdMappedCollection() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
         String name = "fred";
         Date date = new Date();
         int number = 5;
         CMObject convertableObject = new ExtendedCMObject(name, date, number);
-        ClassNameRegistry.register(ExtendedCMObject.class.getName(), ExtendedCMObject.class);//this happens automatically if initialize has been called
+
         SimpleCMObject simpleObject = SimpleCMObject.SimpleCMObject(convertableObject.getObjectId());
         simpleObject.add("name", name);
         simpleObject.add("date", date);
         simpleObject.add("number", number);
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
-        simpleObject.setClass(ExtendedCMObject.class.getName());
+        simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.objectsToJson(convertableObject);
         assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
 
@@ -193,11 +194,12 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testExtendedCMObjectConversionToJson() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
         String name = "fred";
         Date date = new Date();
         int number = 5;
         CMObject convertableObject = new ExtendedCMObject(name, date, number);
-        ClassNameRegistry.register(ExtendedCMObject.class.getName(), ExtendedCMObject.class);//this happens automatically if initialize has been called
+
         String dateJson = JsonUtilities.convertDateToJsonClass(date);
         String expectedJson = "\n" +
                 "{\n" +
@@ -206,7 +208,7 @@ public class JsonUtilitiesTest {
                 "\"date\":" + dateJson + ",\n" +
                 "\"number\":5,\n" +
                 "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
-                JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMObject.class.getName()) +
+                JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, convertableObject.getClassName()) +
                 "}";
         assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, JsonUtilities.objectToJson(convertableObject)));
     }

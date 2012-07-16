@@ -3,7 +3,6 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -18,8 +17,10 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Can be subclassed to allow for persisting POJOs to CloudMine. Child classes must be annotated with
- * {@link CloudMineObject}, which has an optional parameter that allows for specifying the class name.
+ * Can be subclassed to allow for persisting POJOs to CloudMine. If you would like to specify a custom class name
+ * (for example, for interoperability with existing iOS CMObjects), you may override getClassName(). If you do this,
+ * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} before any loads
+ * or persistance occurs.
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
@@ -210,15 +211,8 @@ public class CMObject implements Json, Savable {
     }
 
     @JsonProperty("__class__")
-    protected final String getClassName() {
-        CloudMineObject annotation = getClass().getAnnotation(CloudMineObject.class);
-        if(annotation == null) {
-            throw new RuntimeException("All classes that extend CMObject must be annotated with @CloudMineObject");
-        }
-        if(CloudMineObject.DEFAULT_VALUE.equals(annotation.className()))
-            return getClass().getName();
-        else
-            return annotation.className();
+    public String getClassName() {
+        return getClass().getName();
     }
 
     private CMStore store() throws CreationException {
