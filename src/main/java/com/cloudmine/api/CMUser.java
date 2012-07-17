@@ -39,7 +39,7 @@ public class CMUser extends CMObject {
      * @param searchString what to search for
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
-    public static void loadUserProfilesSearch(String searchString, Callback callback) {
+    public static void searchUserProfiles(String searchString, Callback callback) {
         CMWebService.getService().asyncSearchUserProfiles(searchString, callback);
     }
 
