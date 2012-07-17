@@ -26,8 +26,6 @@ public class CMApiCredentials {
      * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
-        //okay this is unrelated to initializing the api credentials but needs to happen before the API can be used so lets set it up
-        runAnnotationDiscoverer();
 
         if(id == null || apiKey == null) {
             throw new CreationException("Illegal null argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
@@ -43,11 +41,6 @@ public class CMApiCredentials {
         }
         credentials.setValue(new CMApiCredentials(id, apiKey));
         return credentials.value();
-    }
-
-    private static void runAnnotationDiscoverer() {
-        System.getProperty("java.class.path");
-
     }
 
     private CMApiCredentials(String id, String apiKey) {

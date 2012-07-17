@@ -49,7 +49,7 @@ public class CMUser extends CMObject {
 
 
     protected CMUser() {
-        this("unset", "unset");
+        this(MISSING_VALUE, MISSING_VALUE);
     }
     /**
      * Don't call this, use the static constructor instead
@@ -262,8 +262,12 @@ public class CMUser extends CMObject {
     }
 
 
-
-    private void saveProfile(final Callback callback) {
+    /**
+     * Save the profile of this user; this should be used instead of {@link #save()} if you know the user has already
+     * been created. Will log the user in if the user is not already logged in
+     * @param callback expects a {@link CreationResponse}. It is recommended a {@link CreationResponseCallback} is used here
+     */
+    public void saveProfile(final Callback callback) {
         if(isLoggedIn()) {
             CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(this, callback);
         } else {
