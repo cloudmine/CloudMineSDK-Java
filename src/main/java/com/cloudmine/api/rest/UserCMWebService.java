@@ -77,8 +77,13 @@ public class UserCMWebService extends CMWebService {
         asyncLogout(sessionToken, callback);
     }
 
+    /**
+     * Create or save the given CMAccessList
+     * @param list
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
+     */
     public void asyncInsert(CMAccessList list, Callback callback) {
-        executeAsyncCommand(createAccessListPost(list), callback, objectModificationResponseConstructor());
+        executeAsyncCommand(createAccessListPost(list), callback, creationResponseConstructor());
     }
 
     /**

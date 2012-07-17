@@ -6,6 +6,7 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;

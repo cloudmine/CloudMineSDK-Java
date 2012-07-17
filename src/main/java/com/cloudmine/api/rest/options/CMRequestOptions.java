@@ -1,4 +1,4 @@
-package com.cloudmine.api;
+package com.cloudmine.api.rest.options;
 
 import com.cloudmine.api.rest.BaseURL;
 
@@ -12,6 +12,7 @@ public class CMRequestOptions implements BaseURL{
     private final CMPagingOptions pagingOptions;
     private final CMServerFunction serverFunction;
     private final CMSortOptions sortOptions;
+    private final CMSharedDataOptions sharedDataOptions;
 
     /**
      * Instantiate a CMRequestOptions with the specified individual options. If you do not want to specify
@@ -36,22 +37,24 @@ public class CMRequestOptions implements BaseURL{
         return new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, sortOptions);
     }
 
-    CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
+    public CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions, CMSharedDataOptions sharedDataOptions) {
         this.pagingOptions = pagingOptions;
         this.serverFunction = serverFunction;
         this.sortOptions = sortOptions;
+        this.sharedDataOptions = sharedDataOptions;
+    }
+
+    CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
+        this(pagingOptions, serverFunction, sortOptions, CMSharedDataOptions.NO_OPTIONS);
     }
 
     @Override
     public String asUrlString() {
         StringBuilder urlBuilder = new StringBuilder();
-        boolean hasPaging = !CMPagingOptions.NONE.equals(pagingOptions);
         addIfExists(urlBuilder, pagingOptions);
         addIfExists(urlBuilder, serverFunction);
         addIfExists(urlBuilder, sortOptions);
-//        urlBuilder.append("?").append(pagingOptions.asUrlString());
-//        urlBuilder.append("&").append(serverFunction.asUrlString()); //TODO this is broke for NONE
-//        urlBuilder.append("&").append(sortOptions.asUrlString());
+        addIfExists(urlBuilder, sharedDataOptions);
         return urlBuilder.toString();
     }
 
@@ -79,6 +82,8 @@ public class CMRequestOptions implements BaseURL{
             return false;
         if (sortOptions != null ? !sortOptions.equals(that.sortOptions) : that.sortOptions != null) return false;
 
+        if(sharedDataOptions != null ? !sharedDataOptions.equals(that.sharedDataOptions) : that.sharedDataOptions != null) return false;
+
         return true;
     }
 
@@ -87,6 +92,7 @@ public class CMRequestOptions implements BaseURL{
         int result = pagingOptions != null ? pagingOptions.hashCode() : 0;
         result = 31 * result + (serverFunction != null ? serverFunction.hashCode() : 0);
         result = 31 * result + (sortOptions != null ? sortOptions.hashCode() : 0);
+        result = 31 * result + (sharedDataOptions != null ? sharedDataOptions.hashCode() : 0);
         return result;
     }
 }

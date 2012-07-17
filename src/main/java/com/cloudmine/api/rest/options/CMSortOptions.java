@@ -1,5 +1,6 @@
-package com.cloudmine.api;
+package com.cloudmine.api.rest.options;
 
+import com.cloudmine.api.Immutable;
 import com.cloudmine.api.rest.BaseURL;
 
 /**
@@ -10,7 +11,17 @@ public class CMSortOptions implements BaseURL{
 
     public static final CMSortOptions NONE = new CMSortOptions("");
 
-    enum SortDirection { ASCENDING, DESCENDING };
+    enum SortDirection { ASCENDING("asc"), DESCENDING("desc");
+        private final String representation;
+        private SortDirection(String representation) {
+            this.representation = representation;
+        }
+
+        @Override
+        public String toString() {
+            return representation;
+        }
+    };
 
     private final SortDirection direction;
     private final String sortByField;
@@ -34,7 +45,12 @@ public class CMSortOptions implements BaseURL{
         return new CMSortOptions(asString);
     }
 
-    CMSortOptions(String sortByField, SortDirection direction) {
+    /**
+     * Instantiate a new CMSortOptions for the specified field, in the specified direction
+     * @param sortByField the field on the object to sort by
+     * @param direction the direction of the field, ASCENDING or DESCENDING
+     */
+    public CMSortOptions(String sortByField, SortDirection direction) {
         this.direction = direction;
         this.sortByField = sortByField;
     }
@@ -46,7 +62,12 @@ public class CMSortOptions implements BaseURL{
     }
 
     @Override
-    public String asUrlString() {//TODO figure out how this is represented
+    public String asUrlString() {
+        if(!urlString.isSet()) {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append("sort=").append(sortByField).append(":").append(direction);
+            urlString.setValue(urlBuilder.toString());
+        }
         return urlString.value();
     }
 

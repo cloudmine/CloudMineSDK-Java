@@ -262,8 +262,12 @@ public class CMUser extends CMObject {
     }
 
 
-
-    private void saveProfile(final Callback callback) {
+    /**
+     * Save the profile of this user; this should be used instead of {@link #save()} if you know the user has already
+     * been created. Will log the user in if the user is not already logged in
+     * @param callback expects a {@link CreationResponse}. It is recommended a {@link CreationResponseCallback} is used here
+     */
+    public void saveProfile(final Callback callback) {
         if(isLoggedIn()) {
             CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(this, callback);
         } else {
@@ -355,27 +359,6 @@ public class CMUser extends CMObject {
     public String encode() {
         String userString = getEmail() + ":" + getPassword();
         return Base64Encoder.encode(userString);
-    }
-
-    /**
-     * This wraps the given callback in a {@link CreationResponseCallback} that will set this CMUser's object id on
-     * success, and then call {@link Callback#onCompletion(Object)} passing in the {@link CreationResponse}
-     * You probably don't need to be calling this ever
-     * @param callback
-     * @return
-     */
-    public final CreationResponseCallback setObjectIdOnCreation(final Callback callback) {
-        return new CreationResponseCallback() {
-            public void onCompletion(CreationResponse response) {
-                try {
-                    if(response.wasSuccess()) {
-                        setObjectId(response.getObjectId());
-                    }
-                } finally {
-                    callback.onCompletion(response);
-                }
-            }
-        };
     }
 
     private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {

@@ -18,9 +18,12 @@ public class CMAccessListTest {
     @Test
     public void testAddUser() {
         CMUser owner = CMUser.CMUser("name@w.com", "t");
+        owner.setObjectId(CMObject.generateUniqueObjectId());
         CMAccessList list = CMAccessList.CMAccessList(owner);
         CMUser userToAddDirectly = CMUser.CMUser("user@u.com", "pw");
+        userToAddDirectly.setObjectId(CMObject.generateUniqueObjectId());
         CMUser userToAddById = CMUser.CMUser("another@u.com", "pw");
+        userToAddById.setObjectId(CMObject.generateUniqueObjectId());
 
         list.grantAccessTo(userToAddDirectly);
         list.grantAccessTo(userToAddById.getObjectId());

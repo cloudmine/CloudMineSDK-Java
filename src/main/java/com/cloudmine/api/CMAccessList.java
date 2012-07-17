@@ -3,11 +3,9 @@ package com.cloudmine.api;
 import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Allows for other users to access another user's user level data. Instantiate a new access list, specify the permissions,
@@ -20,8 +18,8 @@ import java.util.Set;
 @CloudMineObject("acl")
 public class CMAccessList extends CMObject {
 
-    private final Set<String> userObjectIds = new HashSet<String>();
-    private final Set<CMAccessPermission> accessPermissions = EnumSet.noneOf(CMAccessPermission.class);
+    private Set<String> userObjectIds = new HashSet<String>();
+    private Set<CMAccessPermission> accessPermissions = EnumSet.noneOf(CMAccessPermission.class);
     /**
      * Create a new CMAccessList that grants no privileges and contains no users
      * @return
@@ -32,6 +30,10 @@ public class CMAccessList extends CMObject {
 
     public static CMAccessList CMAccessList(CMUser owner, CMAccessPermission... permissions) {
         return new CMAccessList(owner, permissions);
+    }
+
+    private CMAccessList() {
+        super();
     }
 
     protected CMAccessList(CMUser owner) {
@@ -83,6 +85,43 @@ public class CMAccessList extends CMObject {
     }
 
     /**
+     * Get an unmodifiable copy of the permissions this list grants
+     * @return
+     */
+    public Set<CMAccessPermission> getPermissions() {
+        return Collections.unmodifiableSet(accessPermissions);
+    }
+
+    /**
+     * Grant the specified permissions; any previous permissions are overwritten
+     * @param permissions
+     */
+    public void setPermissions(Set<CMAccessPermission> permissions) {
+        if(permissions == null)
+            permissions = new HashSet<CMAccessPermission>();
+        accessPermissions = permissions;
+    }
+
+    /**
+     * Get an unmodifiable copy of the users this list grants permissions to
+     * @return
+     */
+    @JsonProperty("members")
+    public Set<String> getUserObjectIdsWithAccess() {
+        return Collections.unmodifiableSet(userObjectIds);
+    }
+
+    /**
+     * Grant the specified user ids access; any previously granted users will be overwritten
+     * @param userObjectIds
+     */
+    public void setUserObjectsWithAccess(Set<String> userObjectIds) {
+        if(userObjectIds == null)
+            userObjectIds = new HashSet<String>();
+        this.userObjectIds = userObjectIds;
+    }
+
+    /**
      * Check whether this access list grants access for the given user
      * @param user the user to check
      * @return true if the specified user has access, false otherwise
@@ -122,7 +161,9 @@ public class CMAccessList extends CMObject {
      * @return true if this access list was created attached to the given user
      */
     public boolean isOwnedBy(CMUser user) {
-        return getUser().equals(user);
+        if(user == null)
+            return false;
+        return user.equals(getUser());
     }
 
     @Override
@@ -156,4 +197,24 @@ public class CMAccessList extends CMObject {
         return JsonUtilities.objectToJson(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMAccessList that = (CMAccessList) o;
+
+        if (!accessPermissions.equals(that.accessPermissions)) return false;
+        if (!userObjectIds.equals(that.userObjectIds)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userObjectIds.hashCode();
+        result = 31 * result + accessPermissions.hashCode();
+
+        return result;
+    }
 }

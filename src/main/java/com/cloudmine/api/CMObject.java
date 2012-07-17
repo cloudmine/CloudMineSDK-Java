@@ -8,12 +8,16 @@ import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
+import com.cloudmine.api.rest.response.CreationResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -32,6 +36,7 @@ public class CMObject implements Json, Savable {
 
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
+    private Set<String> accessListIds = new HashSet<String>();
 
     protected static String generateUniqueObjectId() {
         return UUID.randomUUID().toString();
@@ -213,6 +218,27 @@ public class CMObject implements Json, Savable {
     @JsonProperty("__class__")
     public String getClassName() {
         return getClass().getName();
+    }
+
+    /**
+     * This wraps the given callback in a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} that will set this CMUser's object id on
+     * success, and then call {@link Callback#onCompletion(Object)} passing in the {@link com.cloudmine.api.rest.response.CreationResponse}
+     * You probably don't need to be calling this ever
+     * @param callback
+     * @return
+     */
+    public final CreationResponseCallback setObjectIdOnCreation(final Callback callback) {
+        return new CreationResponseCallback() {
+            public void onCompletion(CreationResponse response) {
+                try {
+                    if(response.wasSuccess()) {
+                        setObjectId(response.getObjectId());
+                    }
+                } finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
     }
 
     protected CMStore store() throws CreationException {
