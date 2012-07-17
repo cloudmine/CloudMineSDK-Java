@@ -20,7 +20,7 @@ import java.util.Map;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class ResponseBase<CODE> implements Json {
+public abstract class ResponseBase<CODE> implements Json {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseBase.class);
     private static final int NO_RESPONSE_CODE = 204;
 
@@ -76,7 +76,7 @@ public class ResponseBase<CODE> implements Json {
         this.messageBody = messageBody;
     }
 
-    protected String getMessageBody() {
+    public String getMessageBody() {
         return messageBody;
     }
 
@@ -86,13 +86,13 @@ public class ResponseBase<CODE> implements Json {
                 statusCode > 202 ||
                 !response.getEntity().getContentType().getValue().contains("json")) {
             LOG.info("Received null, error, or none json response");
-        }else {
+        }
             try {
                 responseMap = JsonUtilities.jsonToMap(json);
             } catch (JsonConversionException e) {
                 LOG.error("Failed converting response content to json", e);
             }
-        }
+
         return responseMap == null ?
                 new HashMap<String, Object>() :
                 responseMap;
@@ -146,9 +146,7 @@ public class ResponseBase<CODE> implements Json {
      * Get the response value for this request as an enum
      * @return the response value for this request as an enum
      */
-    public CODE getResponseCode() {
-        return null;
-    }
+    public abstract CODE getResponseCode();
 
     /**
      * True if we got a success HTTP response code (2xx)

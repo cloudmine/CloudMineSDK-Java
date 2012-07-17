@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.CMObject;
@@ -814,9 +815,9 @@ public class CMStore {
      */
     public void loadUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new LoginResponseCallback() {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadFile(fileName, callback, options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadFile(fileName, callback, options);
+            }
         });
     }
 
@@ -883,7 +884,53 @@ public class CMStore {
 
     /*********************************USERS*******************************/
     private UserCMWebService userService() throws CreationException {
-        return applicationService.getUserWebService(user().getSessionToken());
+        try {
+            return applicationService.getUserWebService(user().getSessionToken());
+        }catch(AccessException ae) {
+            throw new CreationException("Cannot get the user service when there is no logged in user associated with this store", ae);
+        }
+    }
+
+    /**
+     * see {@link #loadUserProfilesSearch(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param searchString
+     */
+    public void loadUserProfilesSearch(String searchString) {
+        loadUserProfilesSearch(searchString, Callback.DO_NOTHING);
+    }
+
+    /**
+     * Search the user profiles for the given string. For more information on the format, see <a href="https://cloudmine.me/docs/object-storage#object_search">the CloudMine documentation on search</a> <br>
+     * For example, to search for all users with the field age, where age is > 30, the searchString=[age>30]
+     * @param searchString what to search for
+     * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
+     */
+    public void loadUserProfilesSearch(String searchString, Callback callback) {
+        applicationService.asyncSearchUserProfiles(searchString, callback);
+    }
+
+    /**
+     * See {@link #loadAllUserProfiles(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    public void loadAllUserProfiles() {
+        loadAllUserProfiles(Callback.DO_NOTHING);
+    }
+
+    /**
+     * Load all the user profiles for this application. User profiles include the user id and any profile information,
+     * but not the user's e-mail address (unless e-mail address is an additional field added to profile).
+     * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
+     */
+    public void loadAllUserProfiles(Callback callback) {
+        applicationService.asyncLoadAllUserProfiles(callback);
+    }
+
+    /**
+     * Get the profile for the user associated with this store. If there is no user associated with this store, throws a CreationException
+     * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
+     */
+    public void loadLoggedInUserProfile(Callback callback) throws CreationException{
+        userService().asyncLoadLoggedInUserProfile(callback);
     }
 
     /**

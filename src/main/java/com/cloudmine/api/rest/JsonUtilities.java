@@ -1,9 +1,12 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMObject;
-import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.CMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.persistance.CMJacksonModule;
+import com.cloudmine.api.persistance.CMUserConstructorMixIn;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +70,12 @@ public class JsonUtilities {
 
     }
 
+    public static void addCMUserMixinsTo(Class klass) {
+        if(CMUser.class.isAssignableFrom(klass)) {
+            jsonMapper.addMixInAnnotations(klass, CMUserConstructorMixIn.class);
+        }
+    }
+
     /**
      * Convert a {@link Date} to a CloudMine date object
      * @param date the Date to convert. If null, a wrapped empty string {\n""\n} is returned
@@ -85,6 +94,10 @@ public class JsonUtilities {
      */
     public static String createJsonProperty(String key, String value) {
         return new StringBuilder(addQuotes(key)).append(":").append(addQuotes(value)).toString();
+    }
+
+    public static String createJsonPropertyToJson(String key, String value) {
+        return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
     }
 
     /**
@@ -255,7 +268,14 @@ public class JsonUtilities {
     }
 
     public static String objectToJson(CMObject object) throws JsonConversionException {
-        return null;
+        StringWriter writer = new StringWriter();
+        try {
+            jsonMapper.writeValue(writer, object);
+            return writer.toString();
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new JsonConversionException(e);
+        }
     }
 
     /**
@@ -395,6 +415,15 @@ public class JsonUtilities {
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
             throw new JsonConversionException("Trouble reading JSON: " + e);
+        }
+    }
+
+    public static void mergeJsonUpdates(CMObject objectToUpdate, String json) throws JsonConversionException {
+        try {
+            jsonMapper.readerForUpdating(objectToUpdate).readValue(json);
+        } catch (IOException e) {
+            LOG.error("Exception thrown while merging json update: " + json, e);
+            throw new JsonConversionException(e);
         }
     }
 
