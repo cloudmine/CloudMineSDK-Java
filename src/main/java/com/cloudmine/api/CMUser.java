@@ -217,11 +217,11 @@ public class CMUser extends CMObject {
         CMWebService.getService().asyncLogout(getSessionToken(), setLoggedOutUserCallback(callback));
     }
 
-    public void loadProfile() {
+    private void loadProfile() {
         loadProfile(Callback.DO_NOTHING);
     }
 
-    public void loadProfile(final Callback callback) {
+    private void loadProfile(final Callback callback) {
         if(isLoggedIn()) {
             loadAndMergeProfileUpdatesThenCallback(callback);
         } else {
