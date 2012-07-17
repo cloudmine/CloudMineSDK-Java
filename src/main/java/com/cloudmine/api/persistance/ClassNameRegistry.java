@@ -17,9 +17,6 @@ public class ClassNameRegistry {
 
     private final Map<String, Class> registryMap = new HashMap<String, Class>();
 
-    static {
-
-    }
 
     public static void register(String name, Class klass) {
         registry.registryMap.put(name, klass);
