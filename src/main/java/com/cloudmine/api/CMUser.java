@@ -40,7 +40,16 @@ public class CMUser extends CMObject {
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
     public static void searchUserProfiles(String searchString, Callback callback) {
-        CMWebService.getService().asyncSearchUserProfiles(searchString, callback);
+        searchUserProfiles(searchString, CMRequestOptions.NONE, callback);
+    }
+    /**
+     * Search the user profiles for the given string. For more information on the format, see <a href="https://cloudmine.me/docs/object-storage#object_search">the CloudMine documentation on search</a> <br>
+     * For example, to search for all users with the field age, where age is > 30, the searchString=[age>30]
+     * @param searchString what to search for
+     * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
+     */
+    public static void searchUserProfiles(String searchString, CMRequestOptions options, Callback callback) {
+        CMWebService.getService().asyncSearchUserProfiles(searchString, options, callback);
     }
 
     /**
