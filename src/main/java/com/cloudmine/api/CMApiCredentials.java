@@ -1,9 +1,6 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.persistance.CloudMineObjectAnnotationListener;
-import com.impetus.annovention.ClasspathDiscoverer;
-import com.impetus.annovention.Discoverer;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -29,8 +26,6 @@ public class CMApiCredentials {
      * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
-        //okay this is unrelated to initializing the api credentials but needs to happen before the API can be used so lets set it up
-        runAnnotationDiscoverer();
 
         if(id == null || apiKey == null) {
             throw new CreationException("Illegal null argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
@@ -46,12 +41,6 @@ public class CMApiCredentials {
         }
         credentials.setValue(new CMApiCredentials(id, apiKey));
         return credentials.value();
-    }
-
-    private static void runAnnotationDiscoverer() {
-        Discoverer discoverer = new ClasspathDiscoverer();
-        discoverer.addAnnotationListener(new CloudMineObjectAnnotationListener());
-        discoverer.discover();
     }
 
     private CMApiCredentials(String id, String apiKey) {

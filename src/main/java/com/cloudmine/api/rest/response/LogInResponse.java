@@ -1,11 +1,15 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Returned by the CloudMine service in response to log in requests. Includes the sessionToken used by
@@ -42,6 +46,22 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         return LoginCode.codeForStatus(getStatusCode());
     }
 
+    public String getProfileTransportRepresentation() {
+        Object profile = getObject(CMUser.PROFILE_KEY);
+        if(profile instanceof Map) {
+            return JsonUtilities.mapToJson((Map<String, ? extends Object>) profile);
+        }
+        return JsonUtilities.EMPTY_JSON;
+    }
+
+    /**
+     * the token used to authenticate this session with the server. If the request failed, it will be equal to {@link com.cloudmine.api.CMSessionToken#FAILED}
+     * @return the token used to authenticate this session with the server
+     */
+    public CMSessionToken getSessionToken() {
+        return sessionToken;
+    }
+
     private CMSessionToken readInToken() {
         CMSessionToken tempToken;
         if(wasSuccess()) {
@@ -55,14 +75,6 @@ public class LoginResponse extends ResponseBase<LoginCode> {
             tempToken = CMSessionToken.FAILED;
         }
         return tempToken;
-    }
-
-    /**
-     * the token used to authenticate this session with the server. If the request failed, it will be equal to {@link com.cloudmine.api.CMSessionToken#FAILED}
-     * @return the token used to authenticate this session with the server
-     */
-    public CMSessionToken getSessionToken() {
-        return sessionToken;
     }
 
 }

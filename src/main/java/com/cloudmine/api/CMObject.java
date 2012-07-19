@@ -3,7 +3,6 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -11,7 +10,6 @@ import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +17,20 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Can be subclassed to allow for persisting POJOs to CloudMine. Child classes must be annotated with
- * {@link CloudMineObject}, which has an optional parameter that allows for specifying the class name.
+ * Can be subclassed to allow for persisting POJOs to CloudMine. If you would like to specify a custom class name
+ * (for example, for interoperability with existing iOS CMObjects), you may override getClassName(). If you do this,
+ * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} before any loads
+ * or persistance occurs.
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+    public static final String MISSING_OBJECT_ID = "";
 
 
-    private final String objectId;
+    private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
     protected static String generateUniqueObjectId() {
@@ -42,7 +42,12 @@ public class CMObject implements Json, Savable {
     }
 
     protected CMObject(String objectId) {
-        this.objectId = objectId;
+        this.objectId= objectId;
+    }
+
+    protected CMObject(boolean autogenerateObjectId) {
+        if(autogenerateObjectId)
+            this.objectId = generateUniqueObjectId();
     }
 
     @Override
@@ -57,7 +62,7 @@ public class CMObject implements Json, Savable {
      * @throws JsonConversionException if this object cannot be converted to JSON
      */
     public String asKeyedObject() throws JsonConversionException {
-        return null;
+        return null; //TODO this shouldn't return null I'm thinking
     }
 
     @JsonIgnore
@@ -186,20 +191,28 @@ public class CMObject implements Json, Savable {
 
     @Override
     @JsonProperty(JsonUtilities.OBJECT_ID_KEY)
+    /**
+     * Get the objectId for this CMObject. In certain cases this may not be set; for example, CMUsers do not have an
+     * object id until they have been persisted. In this case, {@link #MISSING_OBJECT_ID} is returned. You can also
+     * check for the existence of an objectId by calling {@link #hasObjectId()}
+     * @return The unique objectId for this object, or {@link #MISSING_OBJECT_ID} if {@link #hasObjectId()} returns false
+     */
     public String getObjectId() {
-        return objectId;
+        return objectId == null ? MISSING_OBJECT_ID : objectId;
+    }
+
+    void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    @JsonIgnore
+    public boolean hasObjectId() {
+        return objectId == null;
     }
 
     @JsonProperty("__class__")
-    protected final String getClassName() {
-        CloudMineObject annotation = getClass().getAnnotation(CloudMineObject.class);
-        if(annotation == null) {
-            throw new RuntimeException("All classes that extend CMObject must be annotated with @CloudMineObject");
-        }
-        if(CloudMineObject.DEFAULT_VALUE.equals(annotation.className()))
-            return getClass().getName();
-        else
-            return annotation.className();
+    public String getClassName() {
+        return getClass().getName();
     }
 
     private CMStore store() throws CreationException {

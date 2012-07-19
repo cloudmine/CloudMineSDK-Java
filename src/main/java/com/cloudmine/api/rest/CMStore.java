@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.CMObject;
@@ -801,9 +802,9 @@ public class CMStore {
      */
     public void loadUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new LoginResponseCallback() {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadFile(fileName, callback, options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadFile(fileName, callback, options);
+            }
         });
     }
 
@@ -870,8 +871,13 @@ public class CMStore {
 
     /*********************************USERS*******************************/
     private UserCMWebService userService() throws CreationException {
-        return applicationService.getUserWebService(user().getSessionToken());
+        try {
+            return applicationService.getUserWebService(user().getSessionToken());
+        }catch(AccessException ae) {
+            throw new CreationException("Cannot get the user service when there is no logged in user associated with this store", ae);
+        }
     }
+
 
     /**
      * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store.

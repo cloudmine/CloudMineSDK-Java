@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import org.apache.http.HttpResponse;
@@ -37,7 +38,14 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         super(response);
         if(hasSuccess()) {
             String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
-            objectMap = JsonUtilities.jsonToClassMap(success);
+            Map<String, ? extends CMObject> tempMap;
+            try {
+                tempMap = JsonUtilities.jsonToClassMap(success);
+            }catch(JsonConversionException jce) {
+                tempMap = Collections.emptyMap();
+                LOG.error("Trouble converting: " + success + ", using empty map");
+            }
+            objectMap = tempMap;
         } else {
             objectMap = Collections.emptyMap();
         }

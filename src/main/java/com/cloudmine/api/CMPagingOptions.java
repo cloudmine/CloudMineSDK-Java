@@ -9,6 +9,7 @@ import com.cloudmine.api.rest.BaseURL;
  */
 public class CMPagingOptions implements BaseURL {
     public static final CMPagingOptions NONE = new CMPagingOptions("");
+    public static final CMPagingOptions ALL_RESULTS = CMPagingOptions.CMPagingOptions(-1, 0, false);
     public static final int NO_LIMIT = -1;
     public static final int DEFAULT_LIMIT = 50;
     public static final String COUNT_KEY = "count";
