@@ -83,6 +83,9 @@ public class CMUser extends CMObject {
     private String email;
     private String password;
     private CMSessionToken sessionToken;
+
+
+
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -405,7 +408,7 @@ public class CMUser extends CMObject {
      */
     public String encode() {
         String userString = getEmail() + ":" + getPassword();
-        return Base64Encoder.encode(userString);
+        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(userString);
     }
 
     /**

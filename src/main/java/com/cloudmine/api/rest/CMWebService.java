@@ -31,20 +31,20 @@ import java.util.*;
  * This base class performs all operations at the Application level. To perform operations at the User level, use a
  * {@link UserCMWebService}<br>
  * Preconditions for use:<br>
- * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
+ * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context, if developing on Android<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
 
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMWebService {
-
+    private static final CMWebService service = new CMWebService(CMApiCredentials.getApplicationIdentifier(), LibrarySpecificClassCreator.getCreator().getAsynchronousHttpClient());
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
     public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
-    public static final String AGENT_HEADER_KEY = "X-CloudMine-Agent";
+
     public static final String PASSWORD_KEY = "password";
     public static final String JSON_ENCODING = "UTF-8";
     public static final String AUTHORIZATION_KEY = "Authorization";
-    public static final String CLOUD_MINE_AGENT = "javasdk 1.0";
+
     public static final String EMAIL_KEY = "email";
 
 
@@ -62,7 +62,7 @@ public class CMWebService {
      * @throws CreationException if CMApiCredentials.initialize has not yet been called
      */
     public static CMWebService getService() throws CreationException {
-        return AndroidCMWebService.getService(); //This will be returned for the android library
+        return service;
     }
 
     protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
@@ -1138,13 +1138,11 @@ public class CMWebService {
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
-        message.addHeader(CMApiCredentials.getCloudMineHeader());
-        message.addHeader(new BasicHeader(AGENT_HEADER_KEY, getCloudMineAgent()));
+        for(Header header : LibrarySpecificClassCreator.getCreator().getHeaderFactory().getCloudMineHeaders()) {
+            message.addHeader(header);
+        }
     }
 
-    protected String getCloudMineAgent() {
-        return CLOUD_MINE_AGENT;
-    }
     //**********************RESPONSE CONSTRUCTORS******************************
     protected ResponseConstructor<FileCreationResponse> fileCreationResponseConstructor() {
         return FileCreationResponse.CONSTRUCTOR;
