@@ -26,6 +26,7 @@ public class CloudMineUserTest {
                 "\"age\":5,\n" +
                 "\"address\":\"whatever\",\n" +
                 "\"paid\":false,\n" +
+                "\"__access__\":[]," +
                  JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMUser.class.getName()) +
                 "}";
         assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, user.profileTransportRepresentation()));

@@ -141,7 +141,8 @@ public class SimpleCMObject extends CMObject {
         }
         add(JsonUtilities.OBJECT_ID_KEY, getObjectId());
         if(this.hasField(CMObject.ACCESS_KEY)) {
-            setAccessListIds(new HashSet<String>(this.<String>getList(ACCESS_KEY)));
+            Object accessObject = get(ACCESS_KEY);
+            setAccessListIds(new HashSet<String>((Collection<? extends String>) accessObject));
         }
         add(CMObject.ACCESS_KEY, getAccessListIds());
     }
