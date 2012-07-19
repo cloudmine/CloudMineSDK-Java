@@ -200,6 +200,18 @@ public class CMWebService {
                 callback, cmObjectResponseConstructor());
     }
 
+    public void asyncLoadAllUserProfiles(Callback callback) {
+        executeAsyncCommand(createGetAllUsers(), callback, cmObjectResponseConstructor());
+    }
+
+    public void asyncSearchUserProfiles(String searchString, Callback callback) {
+        asyncSearchUserProfiles(searchString, CMRequestOptions.NONE, callback);
+    }
+
+    public void asyncSearchUserProfiles(String searchString, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createProfileSearch(searchString, options), callback, cmObjectResponseConstructor());
+    }
+
     /**
      * Delete the given object from CloudMine.
      * @param object to delete; this is done based on the object id, its values are ignored
@@ -661,8 +673,7 @@ public class CMWebService {
     }
 
     /**
-     * Create a new user
-     * @param user the user to create
+     * See {@link #asyncCreateUser(com.cloudmine.api.CMUser, com.cloudmine.api.rest.callbacks.Callback)}
      */
     public void asyncCreateUser(CMUser user)  {
         executeAsyncCommand(createPut(user));
@@ -671,10 +682,10 @@ public class CMWebService {
     /**
      * Create a new user
      * @param user the user to create
-     * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
+     * @param callback a Callback that expects a {@link CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is given here
      */
     public void asyncCreateUser(CMUser user, Callback callback) {
-        executeAsyncCommand(createPut(user), callback, cmResponseConstructor());
+        executeAsyncCommand(createPut(user), user.setObjectIdOnCreation(callback), creationResponseConstructor());
     }
 
     /**
@@ -748,7 +759,11 @@ public class CMWebService {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      */
     public void asyncLogin(CMUser user, Callback callback) {
-        executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
+        if(user.isLoggedIn()) {
+            callback.onCompletion(user.createFakeLoginResponse());
+        } else {
+            executeAsyncCommand(createLoginPost(user), callback, logInResponseConstructor());
+        }
     }
 
     /**
@@ -887,6 +902,9 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      */
     public LoginResponse login(CMUser user) throws NetworkException {
+        if(user.isLoggedIn()) {
+            return user.createFakeLoginResponse();
+        }
         return executeCommand(createLoginPost(user), logInResponseConstructor());
     }
 
@@ -904,11 +922,11 @@ public class CMWebService {
         executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
     }
 
-    private void executeAsyncCommand(HttpUriRequest message, Callback callback) {
+    void executeAsyncCommand(HttpUriRequest message, Callback callback) {
         executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    private <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
+    <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
         asyncHttpClient.executeCommand(message, callback, constructor);
     }
 
@@ -1023,6 +1041,12 @@ public class CMWebService {
         return get;
     }
 
+    HttpGet createGet(String url) {
+        HttpGet get = new HttpGet(url);
+        addCloudMineHeader(get);
+        return get;
+    }
+
     private HttpGet createGetFile(String key) {
         return createGetFile(key, CMRequestOptions.NONE);
     }
@@ -1031,6 +1055,16 @@ public class CMWebService {
         HttpGet get = new HttpGet(baseUrl.binary(key).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
+    }
+
+    private HttpGet createGetAllUsers() {
+        HttpGet get = new HttpGet(baseUrl.account().asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private HttpGet createProfileSearch(String searchString, CMRequestOptions options) {
+        return createGet(baseUrl.account().search(searchString, "p").options(options).asUrlString());
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
@@ -1082,7 +1116,7 @@ public class CMWebService {
         return post;
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, String json) {
+    protected void addJson(HttpEntityEnclosingRequestBase message, String json) {
         if(json == null)
             json = JsonUtilities.EMPTY_JSON;
         if(!message.containsHeader(JSON_HEADER.getName())) {
@@ -1120,6 +1154,10 @@ public class CMWebService {
         return ObjectModificationResponse.CONSTRUCTOR;
     }
 
+    protected ResponseConstructor<CreationResponse> creationResponseConstructor() {
+        return CreationResponse.CONSTRUCTOR;
+    }
+
     protected ResponseConstructor<CMResponse> cmResponseConstructor() {
         return CMResponse.CONSTRUCTOR;
     }
@@ -1132,7 +1170,7 @@ public class CMWebService {
         return LoginResponse.CONSTRUCTOR;
     }
 
-    private ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
+    protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
     }
 

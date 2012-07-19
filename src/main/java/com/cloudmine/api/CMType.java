@@ -9,7 +9,7 @@ import com.cloudmine.api.rest.JsonUtilities;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public enum CMType implements Json {
-    GEO_POINT("geopoint"), FILE("file"), NONE("");
+    GEO_POINT("geopoint"), FILE("file"), USER("user"), NONE("");
 
     private final String typeId;
 

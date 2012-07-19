@@ -1,10 +1,13 @@
-package com.cloudmine.api.rest;
+package com.cloudmine.api.persistance;
 
 import com.cloudmine.api.CMFile;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMType;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.JsonString;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.ResponseBase;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -91,6 +94,7 @@ public class CMJacksonModule extends SimpleModule {
         addSerializer(jsonSerializerForType(CMType.class));
         addSerializer(jsonSerializerForType(JsonString.class));
         addSerializer(jsonSerializerForType(ResponseBase.class));
+
     }
 
     private static <JSON extends Json> JsonSerializer<JSON> jsonSerializerForType(final Class<JSON> type) {

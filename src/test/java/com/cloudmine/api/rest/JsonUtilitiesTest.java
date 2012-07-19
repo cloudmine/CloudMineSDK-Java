@@ -5,6 +5,8 @@ import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.test.ExtendedCMObject;
+import com.cloudmine.test.ExtendedCMUser;
+import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -167,18 +169,19 @@ public class JsonUtilitiesTest {
     }
 
     @Test
-    public void testExtendedCMObjectConversion() {
+    public void testExtendedCMObjectConversionToObjectIdMappedCollection() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
         String name = "fred";
         Date date = new Date();
         int number = 5;
         CMObject convertableObject = new ExtendedCMObject(name, date, number);
-        ClassNameRegistry.register(ExtendedCMObject.class.getName(), ExtendedCMObject.class);//this happens automatically if initialize has been called
+
         SimpleCMObject simpleObject = SimpleCMObject.SimpleCMObject(convertableObject.getObjectId());
         simpleObject.add("name", name);
         simpleObject.add("date", date);
         simpleObject.add("number", number);
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
-        simpleObject.setClass(ExtendedCMObject.class.getName());
+        simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.objectsToJson(convertableObject);
         assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
 
@@ -187,6 +190,27 @@ public class JsonUtilitiesTest {
 
         Map<String, CMObject> objectMap = JsonUtilities.jsonToClassMap(json);
         assertEquals(convertableObject, objectMap.get(convertableObject.getObjectId()));
+    }
+
+    @Test
+    public void testExtendedCMObjectConversionToJson() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
+        String name = "fred";
+        Date date = new Date();
+        int number = 5;
+        CMObject convertableObject = new ExtendedCMObject(name, date, number);
+
+        String dateJson = JsonUtilities.convertDateToJsonClass(date);
+        String expectedJson = "\n" +
+                "{\n" +
+                "\"otherExtendedObjects\":{}," +
+                "\"name\":\"fred\",\n" +
+                "\"date\":" + dateJson + ",\n" +
+                "\"number\":5,\n" +
+                "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
+                JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, convertableObject.getClassName()) +
+                "}";
+        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, JsonUtilities.objectToJson(convertableObject)));
     }
 
     @Test
@@ -215,6 +239,23 @@ public class JsonUtilitiesTest {
         assertTrue(JsonUtilities.isJsonEquivalent(thirdObjectJson, conversion.get("allScrunch")));
     }
 
+    @Test
+    public void testMergeCMObjectUpdate() {
+        SimpleExtendedCMObject cmo = new SimpleExtendedCMObject(1, "face");
+        String updateJson = "{\"number\":20}";
+        JsonUtilities.mergeJsonUpdates(cmo, updateJson);
+        assertEquals(20, cmo.getNumber());
+    }
+
+    @Test
+    public void testMergeCMUserUpdate() {
+        ExtendedCMUser user = new ExtendedCMUser("daemail@email.com", "pw");
+        assertNotSame("here", user.getAddress());
+
+        String profileUpdateJson = "{\"address\":\"here\"}";
+        JsonUtilities.mergeJsonUpdates(user, profileUpdateJson);
+        assertEquals("here", user.getAddress());
+    }
 
     public static Map<String, Object> createComplexObjectMap() {
 
