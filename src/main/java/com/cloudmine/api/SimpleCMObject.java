@@ -140,6 +140,10 @@ public class SimpleCMObject extends CMObject {
             }
         }
         add(JsonUtilities.OBJECT_ID_KEY, getObjectId());
+        if(this.hasField(CMObject.ACCESS_KEY)) {
+            setAccessListIds(new HashSet<String>(this.<String>getList(ACCESS_KEY)));
+        }
+        add(CMObject.ACCESS_KEY, getAccessListIds());
     }
 
     private static String extractObjectId(Map<String, Object> objectMap) {
@@ -176,6 +180,15 @@ public class SimpleCMObject extends CMObject {
      */
     public Object getValue() {
         return topLevelMap.get(getObjectId());
+    }
+
+    /**
+     * Check whether this has the specified field at the top level
+     * @param key
+     * @return
+     */
+    public boolean hasField(String key) {
+        return contents.containsKey(key);
     }
 
     /**

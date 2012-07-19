@@ -2,17 +2,15 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.rest.Base64Encoder;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,19 +199,43 @@ public class CMUser extends CMObject {
         }
     }
 
+    public void loadAccessLists() {
+        loadAccessLists(Callback.DO_NOTHING);
+    }
+
+    /**
+     * Load the {@link CMAccessList} that  belong to this user. If this user is not logged in, they will be.
+     * @param callback expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is passed in here
+     */
+    public void loadAccessLists(final Callback callback) {
+        if(isLoggedIn()) {
+            getUserService().asyncLoadAccessLists(callback);
+        } else {
+            login(new LoginResponseCallback() {
+                public void onCompletion(LoginResponse response) {
+                    getUserService().asyncLoadAccessLists(callback);
+                }
+            });
+        }
+    }
+
+    private UserCMWebService getUserService() {
+        return CMWebService.getService().getUserWebService(getSessionToken());
+    }
+
     private void loadAndMergeProfileUpdatesThenCallback(final Callback callback) {
-        CMWebService.getService().getUserWebService(getSessionToken()).asyncLoadLoggedInUserProfile(new CMObjectResponseCallback() {
+        getUserService().asyncLoadLoggedInUserProfile(new CMObjectResponseCallback() {
             @Override
             public void onCompletion(CMObjectResponse response) {
                 try {
                     List<CMObject> loadedObjects = response.getObjects();
-                    if(loadedObjects.size() == 1) {
+                    if (loadedObjects.size() == 1) {
                         CMObject thisUser = loadedObjects.get(0);
-                        if(thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
-                            mergeProfilesUpdates(((CMUser)thisUser).profileTransportRepresentation());
+                        if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
+                            mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
                         }
                     }
-                }finally {
+                } finally {
                     callback.onCompletion(response);
                 }
             }
@@ -274,11 +296,11 @@ public class CMUser extends CMObject {
      */
     public void saveProfile(final Callback callback) {
         if(isLoggedIn()) {
-            CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(this, callback);
+            getUserService().asyncInsertUserProfile(this, callback);
         } else {
             login(new LoginResponseCallback() {
                 public void onCompletion(LoginResponse response) {
-                    CMWebService.getService().getUserWebService(getSessionToken()).asyncInsertUserProfile(CMUser.this, callback);
+                    getUserService().asyncInsertUserProfile(CMUser.this, callback);
                 }
             });
         }

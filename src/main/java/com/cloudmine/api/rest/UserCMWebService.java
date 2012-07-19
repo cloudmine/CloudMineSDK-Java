@@ -91,12 +91,21 @@ public class UserCMWebService extends CMWebService {
 
     /**
      * Update a user's profile. The user must be logged in for this to work
-     * @param user
+     * @param user the users profile to update; note that the user associated with this UserCMWebService will always be the one updated, even if the passed in user is different
      * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
     public void asyncInsertUserProfile(CMUser user, Callback callback) {
         HttpPut put = createProfilePut(user);
         executeAsyncCommand(put, callback, creationResponseConstructor());
+    }
+
+    /**
+     * Load the access lists belonging to the user associated with this object
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, it is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
+     */
+    public void asyncLoadAccessLists(Callback callback) {
+        HttpGet get = createGet(baseUrl.access().asUrlString());
+        executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
     @Override

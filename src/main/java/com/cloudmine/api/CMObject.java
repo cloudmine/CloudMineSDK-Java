@@ -32,7 +32,7 @@ import java.util.UUID;
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
     public static final String MISSING_OBJECT_ID = "";
-
+    public static final String ACCESS_KEY = "__access__";
 
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
@@ -119,6 +119,26 @@ public class CMObject implements Json, Savable {
     @JsonIgnore
     public boolean isApplicationLevel() {
         return isOnLevel(ObjectLevel.APPLICATION);
+    }
+
+    /**
+     * Allow the user's associated with the given list access to this object. The access they get depends on the
+     * permissions defined by the list. The given list must have an object id
+     * @param list
+     */
+    public void grantAccess(CMAccessList list) {
+        if(list == null)
+            return;
+        accessListIds.add(list.getObjectId());
+    }
+
+    public void setAccessListIds(Set<String> accessListIds) {
+        this.accessListIds = accessListIds;
+    }
+
+    @JsonProperty(ACCESS_KEY)
+    public Set<String> getAccessListIds() {
+        return accessListIds;
     }
 
     /**

@@ -51,7 +51,8 @@ public class CMAccessList extends CMObject {
     }
 
     /**
-     * Add this user to this access list, giving them the specified permissions of this list
+     * Add this user to this access list, giving them the specified permissions of this list. The user's object id must
+     * be set
      * @param user
      */
     public void grantAccessTo(CMUser user) {
@@ -85,30 +86,39 @@ public class CMAccessList extends CMObject {
     }
 
     /**
-     * Get an unmodifiable copy of the permissions this list grants
+     * Returns a String representation of the permissions; this is used for serialization and should probably be ignored
+     * in favor of {@link #doesGrantPermissions(CMAccessPermission...)}
      * @return
      */
-    public Set<CMAccessPermission> getPermissions() {
-        return Collections.unmodifiableSet(accessPermissions);
+    public Set<String> getPermissions() {
+        Set<String> permissions = new HashSet<String>();
+        for(CMAccessPermission permission : accessPermissions) {
+            permissions.add(permission.serverRepresentation());
+        }
+        return permissions;
     }
 
     /**
-     * Grant the specified permissions; any previous permissions are overwritten
+     * Grant the specified permissions; any previous permissions are overwritten. Used for deserialization and should
+     * probably be ignored in favor of {@link #grantPermissions(CMAccessPermission...)}
      * @param permissions
      */
-    public void setPermissions(Set<CMAccessPermission> permissions) {
+    public void setPermissions(Set<String> permissions) {
         if(permissions == null)
-            permissions = new HashSet<CMAccessPermission>();
-        accessPermissions = permissions;
+            permissions = new HashSet<String>();
+        accessPermissions = new HashSet<CMAccessPermission>();
+        for(String permissionAsString : permissions) {
+            accessPermissions.add(CMAccessPermission.fromServerRepresentation(permissionAsString));
+        }
     }
 
     /**
-     * Get an unmodifiable copy of the users this list grants permissions to
+     * Get the users this list grants permissions to
      * @return
      */
     @JsonProperty("members")
     public Set<String> getUserObjectIdsWithAccess() {
-        return Collections.unmodifiableSet(userObjectIds);
+        return userObjectIds;
     }
 
     /**

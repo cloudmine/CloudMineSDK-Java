@@ -1,12 +1,12 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import java.util.List;
+import java.util.Map;
+
+import static junit.framework.Assert.*;
 
 /**
  * <br>
@@ -56,13 +56,18 @@ public class CMAccessListTest {
 
     @Test
     public void testAsJson() {
-        ClassNameRegistry.register(CMAccessList.class.getName(), CMAccessList.class);
+
         CMUser owner = CMUser.CMUser("bobdole@bobdole.com", "imbobdole");
         CMAccessList list = CMAccessList.CMAccessList(owner);
-
+        list.grantPermissions(CMAccessPermission.CREATE);
         String json = list.asJson();
 
         CMAccessList convertedList = JsonUtilities.jsonToClass(json, CMAccessList.class);
         assertEquals(convertedList,  list);
+
+        Map<String, Object> asMap = JsonUtilities.jsonToMap(json);
+        List permissions = (List)asMap.get("permissions");
+        assertEquals(1, permissions.size());
+        assertEquals("c", permissions.get(0));
     }
 }

@@ -37,6 +37,10 @@ public class CMRequestOptions implements BaseURL{
         return new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, sortOptions);
     }
 
+    public static CMRequestOptions CMRequestOptions(CMSharedDataOptions sharedDataOptions) {
+        return new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, CMSortOptions.NONE, sharedDataOptions);
+    }
+
     public CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions, CMSharedDataOptions sharedDataOptions) {
         this.pagingOptions = pagingOptions;
         this.serverFunction = serverFunction;
