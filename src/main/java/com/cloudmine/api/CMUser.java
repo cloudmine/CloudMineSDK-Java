@@ -11,6 +11,8 @@ import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,9 @@ public class CMUser extends CMObject {
     private String email;
     private String password;
     private CMSessionToken sessionToken;
+
+
+
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -358,7 +363,7 @@ public class CMUser extends CMObject {
      */
     public String encode() {
         String userString = getEmail() + ":" + getPassword();
-        return Base64Encoder.encode(userString);
+        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(userString);
     }
 
     /**

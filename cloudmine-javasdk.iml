@@ -39,7 +39,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="Cloudmine-android" />
   </component>
 </module>
 
