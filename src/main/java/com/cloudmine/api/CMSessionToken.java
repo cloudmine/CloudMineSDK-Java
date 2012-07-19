@@ -3,6 +3,8 @@ package com.cloudmine.api;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,6 +20,7 @@ import java.util.Map;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMSessionToken implements Json {
+    private static final Logger LOG = LoggerFactory.getLogger(CMSessionToken.class);
     private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     private static final Date EXPIRED_DATE = new Date(0);
     public static final String INVALID_TOKEN = "invalidToken";
@@ -54,12 +57,21 @@ public class CMSessionToken implements Json {
                 throw new JsonConversionException("Can't create CMSessionToken from json missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
-            String dateString = objectMap.get(EXPIRES_KEY).toString();
-            try {
-                expires = LOGIN_EXPIRES_FORMAT.parse(dateString);
-            } catch (ParseException e) {
-                throw new JsonConversionException(e);
+            Object dateObject = objectMap.get(EXPIRES_KEY);
+            Date tempDate;
+            if(dateObject instanceof Date) {
+                tempDate = (Date) dateObject;
+            } else if(dateObject != null) {
+                String dateString = dateObject.toString();
+                try {
+                    tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
+                } catch (ParseException e) {
+                    throw new JsonConversionException(e);
+                }
+            } else {
+                tempDate = EXPIRED_DATE;
             }
+            expires = tempDate;
         }
     }
 
@@ -102,7 +114,27 @@ public class CMSessionToken implements Json {
      * @return false if it has expired, true otherwise
      */
     public boolean isValid() {
-        return expires.after(new Date());
+        return FAILED != this &&
+                expires.after(new Date());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CMSessionToken that = (CMSessionToken) o;
+
+        if (expires != null ? !expires.equals(that.expires) : that.expires != null) return false;
+        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = sessionToken != null ? sessionToken.hashCode() : 0;
+        result = 31 * result + (expires != null ? expires.hashCode() : 0);
+        return result;
+    }
 }

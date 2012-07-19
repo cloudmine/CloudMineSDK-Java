@@ -8,7 +8,6 @@ package com.cloudmine.api.rest.callbacks;
  */
 public interface Callback<T> {
     public static final Callback DO_NOTHING = new Callback() {
-
         @Override
         public void onFailure(Throwable error, String message) {
 
@@ -17,6 +16,11 @@ public interface Callback<T> {
         @Override
         public void onCompletion(Object response) {
 
+        }
+
+        @Override
+        public String toString() {
+            return "DO_NOTHING callback";
         }
     };
 

@@ -19,13 +19,14 @@ public class CMApiCredentials {
 
     /**
      * Sets the application id and api key. Can be called multiple times, but only the first call will modify the credentials value.
-     * It is an error
+     * It is an error to call this multiple times with different values
      * @param id the application id from your CloudMine dashboard
      * @param apiKey the API key from your CloudMine dashboard
      * @throws CreationException if you try to initialize twice with different values, or null values were passed in
      * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
+
         if(id == null || apiKey == null) {
             throw new CreationException("Illegal null argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
         }
@@ -82,4 +83,5 @@ public class CMApiCredentials {
     public static Header getCloudMineHeader() {
         return new BasicHeader(HEADER_KEY, getApplicationApiKey());
     }
+
 }

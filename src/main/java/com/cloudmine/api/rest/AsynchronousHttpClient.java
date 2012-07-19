@@ -4,8 +4,6 @@ import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import java.util.concurrent.Future;
-
 /**
  * Defines the methods that must be implemented by any http client that will be used for asynchronous requests
  * to the CloudMine API
@@ -20,7 +18,6 @@ public interface AsynchronousHttpClient {
      * @param callback will be called on completion or failure
      * @param constructor converts an HttpResponse to the type expected by callback
      * @param <T> the type expected by callback
-     * @return a Future that provides synchronous access to the results of a command.
      */
-    public <T> Future<T> executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor);
+    public <T> void executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor);
 }

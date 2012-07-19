@@ -6,11 +6,10 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * An object that can be inserted, updated, deleted, and retrieved from CloudMine. Has a non optional
@@ -19,23 +18,22 @@ import java.util.concurrent.Future;
  * which allows the object to be modified on the CloudMine platform.
  * Values can be added to the object through the use of the add method. In general, values will be converted
  * to JSON based on the rules defined in the <a href="www.json.org">JSON specification.</a> The special cases are
- * as follows:
- * Map<String, Object> are treated as JSON objects
- * Dates are converted into JSON objects
- * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects
+ * as follows:<br>
+ * Map<String, Object> are treated as JSON objects<br>
+ * Dates are converted into JSON objects<br>
+ * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects<br>
  * SimpleCMObjects have 2 optional properties: class and type. Class is used for loading all similar objects, for
- * example through {@link CMStore#loadUserObjectsOfClass(String)}
+ * example through {@link CMStore#loadUserObjectsOfClass(String)}<br>
  * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
- * to set this type yourself
+ * to set this type yourself<br>
  *
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SimpleCMObject implements Json {
+public class SimpleCMObject extends CMObject {
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleCMObject.class);
 
     private final Map<String, Object> contents;
     private final Map<String, Object> topLevelMap;
-    private final String objectId;
-    private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
 
     /**
@@ -97,7 +95,7 @@ public class SimpleCMObject implements Json {
     }
 
     SimpleCMObject() throws CreationException {
-        this(generateUniqueObjectId());
+        this(CMObject.generateUniqueObjectId());
     }
 
     SimpleCMObject(String objectId) throws CreationException {
@@ -124,18 +122,16 @@ public class SimpleCMObject implements Json {
      * @param objectMap
      */
     SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
-
+        super(extractObjectId(objectMap));
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
-            objectId = generateUniqueObjectId();
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
-            topLevelMap.put(objectId, contents);
+            topLevelMap.put(getObjectId(), contents);
         } else {
-            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
             this.topLevelMap = objectMap;
+            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
             Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
-            objectId = contentsEntry.getKey();
 
             try {
                 contents = (Map<String, Object>)contentsEntry.getValue();
@@ -143,77 +139,23 @@ public class SimpleCMObject implements Json {
                 throw new CreationException("Passed a topLevelMap that does not contain a Map<String, Object>", e);
             }
         }
-        add(JsonUtilities.OBJECT_ID_KEY, objectId);
+        add(JsonUtilities.OBJECT_ID_KEY, getObjectId());
     }
 
-    /**
-     * Set what store to save this object with. If this is not set, it is assumed to be saved with
-     * the default, app level store. If you are saving the object to a user level store, the user must
-     * be logged in when save is called. Once the StoreIdentifier is set, it cannot be changed.
-     * @param identifier the identifier for the store this should be saved with. calling setSaveWith(null)
-     *                   is the same as not calling setSaveWith, and false will be returned
-     * @return true if the value was set; false if it has already been set OR null was passed in
-     */
-    public boolean setSaveWith(StoreIdentifier identifier) {
-        return storeId.setValue(identifier);
-    }
-
-    /**
-     * Set that this object should be saved at the User level, and should be saved using the given CMSessionToken.
-     * @param session the session of the user to save this SimpleCMObject with
-     * @return true if the value was set; false if it has already been set OR null was passed in
-     * @throws CreationException if session is null
-     */
-    public boolean setSaveWith(CMSessionToken session) throws CreationException {
-        return setSaveWith(new StoreIdentifier(session));
-    }
-
-    /**
-     * Gets the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
-     * @return the StoreIdentifier which defines where this SimpleCMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
-     */
-    public StoreIdentifier getSavedWith() {
-        return storeId.value(StoreIdentifier.DEFAULT);
-    }
-
-    /**
-     * Check whether this SimpleCMObject saves to a particular level
-     * @param level the level to check
-     * @return true if this saves with the given level
-     */
-    public boolean isOnLevel(ObjectLevel level) {
-        return getSavedWith().isLevel(level);
-    }
-
-    /**
-     * Asynchronously save this object to its store. If no store has been set, it saves to the app
-     * level store.
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
-     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
-     */
-    public Future<ObjectModificationResponse> save() throws JsonConversionException, CreationException {
-        return save(Callback.DO_NOTHING);
-    }
-
-    /**
-     * Asynchronously save this object to its store. If no store has been set, it saves to the app
-     * level store.
-     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @return a Future containing the {@link ObjectModificationResponse}
-     * @throws JsonConversionException if unable to convert this object to JSON; should not happen
-     * @throws CreationException if {@link CMApiCredentials#initialize(String, String)} has not been called
-     */
-    public Future<ObjectModificationResponse> save(Callback callback) throws CreationException, JsonConversionException {
-        return store().saveObject(this, callback);
-    }
-
-    private CMStore store() throws CreationException {
-        return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
-    }
-
-    protected static String generateUniqueObjectId() {
-        return UUID.randomUUID().toString();
+    private static String extractObjectId(Map<String, Object> objectMap) {
+        String objectId;
+        if(objectMap.containsKey(JsonUtilities.OBJECT_ID_KEY)) {
+            return objectMap.get(JsonUtilities.OBJECT_ID_KEY).toString();
+        }
+        if(objectMap.size() != 1 ||
+                isMappedToAnotherMap(objectMap) == false) {
+            objectId = CMObject.generateUniqueObjectId();
+        } else {
+            Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
+            Map.Entry<String, Object> contentsEntry = contentSet.iterator().next();
+            objectId = contentsEntry.getKey();
+        }
+        return objectId;
     }
 
     private static boolean isMappedToAnotherMap(Map<String, Object> objectMap) {
@@ -233,7 +175,7 @@ public class SimpleCMObject implements Json {
      * Objects, but may just be a single value
      */
     public Object getValue() {
-        return topLevelMap.get(objectId);
+        return topLevelMap.get(getObjectId());
     }
 
     /**
@@ -520,7 +462,7 @@ public class SimpleCMObject implements Json {
     }
 
     /**
-     * Add a property to this SimpleCMObject. The value can be anything, but if it is not a Map, Number, String, Boolean, array, or Collection
+     * Add a property to this SimpleCMObject. The value can be anything, but if it is not a CMObject, Map, Number, String, Boolean, array, or Collection
      * it will not be deserialized properly and may cause issues later on.
      * @param key to associate with the value
      * @param value the property
@@ -536,7 +478,7 @@ public class SimpleCMObject implements Json {
      * @param value a SimpleCMObject
      * @return this
      */
-    public SimpleCMObject add(SimpleCMObject value) {
+    public SimpleCMObject add(CMObject value) {
         add(value.getObjectId(), value);
         return this;
     }
@@ -551,20 +493,12 @@ public class SimpleCMObject implements Json {
     }
 
     /**
-     * Get the objectId that uniquely identifies this SimpleCMObject
-     * @return the objectId that uniquely identifies this SimpleCMObject
-     */
-    public String getObjectId() {
-        return objectId;
-    }
-
-    /**
      * Get a representation of this SimpleCMObject in the form "objectId":{contents}
      * @return a representation of this SimpleCMObject in the form "objectId":{contents}
      * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
      */
     public String asKeyedObject() throws JsonConversionException {
-        return JsonUtilities.addQuotes(objectId) + ":" + asUnkeyedObject();
+        return JsonUtilities.addQuotes(getObjectId()) + ":" + asUnkeyedObject();
     }
 
     /**

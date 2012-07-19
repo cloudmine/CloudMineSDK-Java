@@ -1,27 +1,22 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.rest.response.code.ObjectModificationCode;
 import org.apache.http.HttpResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * Response returned whenever objects are added, updated, or deleted on the CloudMine platform.
  * Lets you check whether a specific object was updated/created/deleted/modified
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class ObjectModificationResponse extends SuccessErrorResponse{
+public class ObjectModificationResponse extends SuccessErrorResponse<ObjectModificationCode>{
 
     public static final ResponseConstructor<ObjectModificationResponse> CONSTRUCTOR = new ResponseConstructor<ObjectModificationResponse>() {
         @Override
         public ObjectModificationResponse construct(HttpResponse response) {
             return new ObjectModificationResponse(response);
-        }
-
-        @Override
-        public Future<ObjectModificationResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return createFutureResponse(futureResponse, this);
         }
     };
 
@@ -35,6 +30,11 @@ public class ObjectModificationResponse extends SuccessErrorResponse{
 
     protected ObjectModificationResponse(String messageBody, int statusCode) {
         super(messageBody, statusCode);
+    }
+
+    @Override
+    public ObjectModificationCode getResponseCode() {
+        return ObjectModificationCode.codeForStatus(getStatusCode());
     }
 
     /**

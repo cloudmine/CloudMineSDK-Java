@@ -1,5 +1,7 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.exceptions.AccessException;
+
 /**
  * A field that can only be set to a non null value once
  *
@@ -25,10 +27,19 @@ public class Immutable<T>
 
     public T value() { return value; }
 
+    public T valueOrThrow() throws AccessException {
+        T value = value();
+        if(value == null) {
+            throw new AccessException("Value has not yet been set");
+        }
+        return value;
+    }
+
     public T value(T alternative) {
-        return value() == null ?
+        T value = value();
+        return value == null ?
                 alternative :
-                value();
+                value;
     }
     /**
      * Set the value. Returns true if the value was set, false otherwise

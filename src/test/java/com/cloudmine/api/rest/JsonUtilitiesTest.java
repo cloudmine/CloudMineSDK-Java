@@ -1,7 +1,12 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMGeoPoint;
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.test.ExtendedCMObject;
+import com.cloudmine.test.ExtendedCMUser;
+import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -163,6 +168,94 @@ public class JsonUtilitiesTest {
         assertEquals(createComplexObjectMap(), jsonMap);
     }
 
+    @Test
+    public void testExtendedCMObjectConversionToObjectIdMappedCollection() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
+        String name = "fred";
+        Date date = new Date();
+        int number = 5;
+        CMObject convertableObject = new ExtendedCMObject(name, date, number);
+
+        SimpleCMObject simpleObject = SimpleCMObject.SimpleCMObject(convertableObject.getObjectId());
+        simpleObject.add("name", name);
+        simpleObject.add("date", date);
+        simpleObject.add("number", number);
+        simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
+        simpleObject.setClass(convertableObject.getClassName());
+        String json = JsonUtilities.objectsToJson(convertableObject);
+        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
+
+        Map<String, ExtendedCMObject> map = JsonUtilities.jsonToClassMap(json, ExtendedCMObject.class);
+        assertEquals(convertableObject, map.get(convertableObject.getObjectId()));
+
+        Map<String, CMObject> objectMap = JsonUtilities.jsonToClassMap(json);
+        assertEquals(convertableObject, objectMap.get(convertableObject.getObjectId()));
+    }
+
+    @Test
+    public void testExtendedCMObjectConversionToJson() {
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
+        String name = "fred";
+        Date date = new Date();
+        int number = 5;
+        CMObject convertableObject = new ExtendedCMObject(name, date, number);
+
+        String dateJson = JsonUtilities.convertDateToJsonClass(date);
+        String expectedJson = "\n" +
+                "{\n" +
+                "\"otherExtendedObjects\":{}," +
+                "\"name\":\"fred\",\n" +
+                "\"date\":" + dateJson + ",\n" +
+                "\"number\":5,\n" +
+                "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
+                JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, convertableObject.getClassName()) +
+                "}";
+        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, JsonUtilities.objectToJson(convertableObject)));
+    }
+
+    @Test
+    public void testJsonMapToKeyMap() {
+        Map<String, String> expected = new HashMap<String, String>();
+
+        assertEquals(expected, JsonUtilities.jsonMapToKeyMap(JsonUtilities.EMPTY_JSON));
+
+
+        expected.put("key", COMPLEX_JSON_OBJECT);
+        assertEquals(expected, JsonUtilities.jsonMapToKeyMap(
+                JsonUtilities.wrap(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT)));
+
+        String firstObjectJson = "{ \"int\":5, \"anotherObject\":{ \"bool\":false }}";
+        String secondObjectJson = "{ \"with\":\"spaces\"     \n" +
+                "}";
+        String thirdObjectJson = "{}";
+        String json = "\n" +
+                "{ \"aKey\":" + firstObjectJson + ",\n" +
+                "\"another\"       :  " + secondObjectJson + ",\"allScrunch\":" + thirdObjectJson + "\n" +
+                "}";
+        Map<String, String> conversion = JsonUtilities.jsonMapToKeyMap(json);
+        assertEquals(3, conversion.size());
+        assertTrue(JsonUtilities.isJsonEquivalent(firstObjectJson, conversion.get("aKey")));
+        assertTrue(JsonUtilities.isJsonEquivalent(secondObjectJson, conversion.get("another")));
+        assertTrue(JsonUtilities.isJsonEquivalent(thirdObjectJson, conversion.get("allScrunch")));
+    }
+
+    @Test
+    public void testMergeCMObjectUpdate() {
+        SimpleExtendedCMObject cmo = new SimpleExtendedCMObject(1, "face");
+        String updateJson = "{\"number\":20}";
+        JsonUtilities.mergeJsonUpdates(cmo, updateJson);
+        assertEquals(20, cmo.getNumber());
+    }
+
+    @Test
+    public void testMergeCMUserUpdate() {
+        ExtendedCMUser user = new ExtendedCMUser("daemail@email.com", "pw");
+        assertNotSame("here", user.getAddress());
+
+        String profileUpdateJson = "{\"address\":\"here\"}";
+        JsonUtilities.mergeJsonUpdates(user, profileUpdateJson);
+        assertEquals("here", user.getAddress());
+    }
 
     public static Map<String, Object> createComplexObjectMap() {
 

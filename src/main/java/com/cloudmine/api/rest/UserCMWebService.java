@@ -1,21 +1,20 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.message.BasicHeader;
-
-import java.util.concurrent.Future;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class UserCMWebService extends CMWebService {
-
-    private static final String SESSION_TOKEN_HEADER_KEY = "X-CloudMine-SessionToken";
 
 
     protected final CMSessionToken sessionToken;
@@ -31,7 +30,7 @@ public class UserCMWebService extends CMWebService {
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.sessionToken = token;
-        userHeader = new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.getSessionToken());
+        userHeader = LibrarySpecificClassCreator.getCreator().getHeaderFactory().getUserCloudMineHeader(token);
     }
 
     /**
@@ -56,24 +55,70 @@ public class UserCMWebService extends CMWebService {
     /**
      * Log the user associated with this service out of the system. Any future calls to any methods will fail for lack of
      * authentication
-     * @return A Future containing the response to the log out request
      */
-    public Future<CMResponse> asyncLogout() {
-        return asyncLogout(Callback.DO_NOTHING);
+    public void asyncLogout() {
+        asyncLogout(Callback.DO_NOTHING);
     }
 
     /**
      * Log the user associated with this service out of the system. Any future calls to any methods will fail for lack of
      * authentication
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
-     * @return A Future containing the response to the log out request
      */
-    public Future<CMResponse> asyncLogout(Callback callback) {
-        return asyncLogout(sessionToken, callback);
+    public void asyncLogout(Callback callback) {
+        asyncLogout(sessionToken, callback);
+    }
+
+    /**
+     *
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
+     */
+    public void asyncLoadLoggedInUserProfile(Callback callback) {
+        HttpGet get = createGet(baseUrl.account().mine().asUrlString());
+        executeAsyncCommand(get, callback, cmObjectResponseConstructor());
+    }
+
+    /**
+     * Update a user's profile. The user must be logged in for this to work
+     * @param user
+     * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
+     */
+    public void asyncInsertUserProfile(CMUser user, Callback callback) {
+        HttpPut put = createProfilePut(user);
+        executeAsyncCommand(put, callback, creationResponseConstructor());
     }
 
     @Override
     public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
+    }
+
+    private HttpPut createProfilePut(CMUser user) {
+        HttpPut put = new HttpPut(baseUrl.account().asUrlString());
+        addCloudMineHeader(put);
+        addJson(put, user.profileTransportRepresentation());
+        return put;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        UserCMWebService that = (UserCMWebService) o;
+
+        if (sessionToken != null ? !sessionToken.equals(that.sessionToken) : that.sessionToken != null) return false;
+        if (userHeader != null ? !userHeader.equals(that.userHeader) : that.userHeader != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        result = 31 * result + (userHeader != null ? userHeader.hashCode() : 0);
+        return result;
     }
 }

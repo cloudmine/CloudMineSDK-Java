@@ -13,9 +13,9 @@ import java.util.*;
  * Parent class for CMResponses that include a "success" and "errors" key mapped to a JSON object, or collection of JSON objects
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class SuccessErrorResponse extends CMResponse {
+public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
     private static final Logger LOG = LoggerFactory.getLogger(SuccessErrorResponse.class);
-    private static final String SUCCESS = "success";
+    protected static final String SUCCESS = "success";
     private static final String ERRORS = "errors";
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
@@ -81,8 +81,8 @@ public class SuccessErrorResponse extends CMResponse {
     }
 
     /**
-     * Get the error response json objects as a collection of SimpleCMObjects
-     * @return the error response as a collection of SimpleCMObjects
+     * Get the error response json objects as a collection of CMObjects
+     * @return the error response as a collection of CMObjects
      * @throws CreationException if the error response contained improperly formed json
      */
     public List<SimpleCMObject> getErrorObjects() throws CreationException {
@@ -101,7 +101,7 @@ public class SuccessErrorResponse extends CMResponse {
             objects = getObjects(successResponse);
             successObjects.setValue(objects);
         }
-        return objects;
+        return new ArrayList<SimpleCMObject>(objects);
     }
 
     private List<SimpleCMObject> getObjects(Map<String, Object> objectMap) throws CreationException {

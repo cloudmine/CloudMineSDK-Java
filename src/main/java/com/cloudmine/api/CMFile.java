@@ -2,10 +2,11 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.response.CMResponse;
-import com.cloudmine.api.rest.response.ResponseConstructor;
+import com.cloudmine.api.rest.Savable;
+import com.cloudmine.api.rest.callbacks.Callback;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -16,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.Future;
 
 /**
  * A binary file that can be stored in CloudMine. Consists of a file name, content type, and the file
@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
  * The JSON representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMFile implements Json {
+public class CMFile implements Json, Savable {
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
@@ -36,28 +36,6 @@ public class CMFile implements Json {
      */
     public static CMFile CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
         return new CMFile(contents, fileName, contentType);
-    }
-
-    public static class Constructor implements ResponseConstructor<CMFile> {
-        private final String key;
-        public Constructor(String key) {
-            super();
-            this.key = key;
-        }
-
-        @Override
-        public CMFile construct(HttpResponse response) throws CreationException {
-            return CMFile(response, key);
-        }
-
-        @Override
-        public Future<CMFile> constructFuture(Future<HttpResponse> futureResponse) {
-            return CMResponse.createFutureResponse(futureResponse, this);
-        }
-    };
-
-    public static ResponseConstructor<CMFile> constructor(String key) {
-        return new Constructor(key);
     }
 
     /**
@@ -77,6 +55,7 @@ public class CMFile implements Json {
     private final String fileName;
     private final String contentType;
     private final byte[] fileContents;
+    private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
@@ -128,7 +107,7 @@ public class CMFile implements Json {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
         this.fileName = fileName == null ?
-                SimpleCMObject.generateUniqueObjectId() :
+                CMObject.generateUniqueObjectId() :
                 fileName;
         this.contentType = contentType == null ?
                 DEFAULT_CONTENT_TYPE :
@@ -160,6 +139,56 @@ public class CMFile implements Json {
         }
     }
 
+
+    @Override
+    public boolean setSaveWith(StoreIdentifier identifier) {
+        return storeId.setValue(identifier);
+    }
+
+    @Override
+    public boolean setSaveWith(CMUser user) {
+        return setSaveWith(StoreIdentifier.StoreIdentifier(user));
+    }
+
+    @Override
+    public StoreIdentifier getSavedWith() {
+        return storeId.value(StoreIdentifier.DEFAULT);
+    }
+
+    @Override
+    public boolean isOnLevel(ObjectLevel level) {
+        return getSavedWith().isLevel(level);
+    }
+
+    @Override
+    public boolean isUserLevel() {
+        return isOnLevel(ObjectLevel.USER);
+    }
+
+    @Override
+    public boolean isApplicationLevel() {
+        return isOnLevel(ObjectLevel.APPLICATION);
+    }
+
+    @Override
+    public void save() throws JsonConversionException, CreationException {
+        save(Callback.DO_NOTHING);
+    }
+
+    @Override
+    public void save(Callback callback) throws CreationException, JsonConversionException {
+        store().saveFile(this, callback);
+    }
+
+    @Override
+    public CMUser getUser() {
+        return getSavedWith().getUser();
+    }
+
+    private CMStore store() throws CreationException {
+        return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
+    }
+
     /**
      * Get the byte contents of the file
      * @return the byte contents of the file
@@ -184,12 +213,29 @@ public class CMFile implements Json {
         return fileName;
     }
 
+    @Override
+    public String getObjectId() {
+        return getFileName();
+    }
+
+
     /**
      * The MIME type for this file
-     * @return The MIME type for this file
+     * @return The MIME type for this file; if it was not specified, "application/octet-stream" is assumed
      */
-    public String getContentType() {
+    public String getMimeType() {
         return contentType;
+    }
+
+
+    /**
+     * The MIME type for this file
+     * @return The MIME type for this file; if it was not specified, "application/octet-stream" is assumed
+     * @deprecated in favor of the more accurately named getMimeType
+     */
+    @Deprecated
+    public String getContentType() {
+        return getMimeType();
     }
 
     private static String extractContentType(HttpResponse response) {
@@ -222,7 +268,7 @@ public class CMFile implements Json {
     public final boolean equals(Object other) {
         if(other instanceof CMFile) {
             CMFile otherFile = (CMFile)other;
-            return otherFile.getContentType().equals(getContentType()) &&
+            return otherFile.getMimeType().equals(getMimeType()) &&
                     otherFile.getFileName().equals(getFileName()) &&
                     Arrays.equals(otherFile.getFileContents(), getFileContents());
         }
@@ -238,7 +284,6 @@ public class CMFile implements Json {
         }
         return string.toString();
     }
-
 
     @Override
     public String asJson() throws JsonConversionException {

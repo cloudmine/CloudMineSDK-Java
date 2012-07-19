@@ -27,4 +27,21 @@ public class JsonString implements Json {
     public String toString() {
         return asJson();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JsonString that = (JsonString) o;
+
+        if (json != null ? !json.equals(that.json) : that.json != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return json != null ? json.hashCode() : 0;
+    }
 }

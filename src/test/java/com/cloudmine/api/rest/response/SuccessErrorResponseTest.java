@@ -43,7 +43,7 @@ public class SuccessErrorResponseTest {
 
     @Test
     public void successHasKey() {
-        SuccessErrorResponse response = new SuccessErrorResponse(JSON_RESPONSE, 200);
+        SuccessErrorResponse response = new ObjectModificationResponse(JSON_RESPONSE, 200);
 
         assertTrue(response.hasSuccess());
         assertTrue(response.hasSuccessKey("someOtherKey"));
@@ -52,7 +52,7 @@ public class SuccessErrorResponseTest {
 
     @Test
     public void testGetSuccessObjects() {
-        SuccessErrorResponse response = new SuccessErrorResponse(SET_RESPONSE, 200);
+        SuccessErrorResponse response = new ObjectModificationResponse(SET_RESPONSE, 200);
 
         Collection<SimpleCMObject> successObjects = response.getSuccessObjects();
 

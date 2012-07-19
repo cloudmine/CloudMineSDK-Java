@@ -1,25 +1,19 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.rest.response.code.FileCreationCode;
 import org.apache.http.HttpResponse;
-
-import java.util.concurrent.Future;
 
 /**
  * Returned by the CloudMine service in response to file creation requests. Contains the fileName
  * for the created file
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class FileCreationResponse extends CMResponse {
+public class FileCreationResponse extends ResponseBase<FileCreationCode> {
 
     public static final ResponseConstructor<FileCreationResponse> CONSTRUCTOR = new ResponseConstructor<FileCreationResponse>() {
         @Override
         public FileCreationResponse construct(HttpResponse response) {
             return new FileCreationResponse(response);
-        }
-
-        @Override
-        public Future<FileCreationResponse> constructFuture(Future<HttpResponse> futureResponse) {
-            return createFutureResponse(futureResponse, this);
         }
     };
 
@@ -29,6 +23,11 @@ public class FileCreationResponse extends CMResponse {
      */
     public FileCreationResponse(HttpResponse response) {
         super(response);
+    }
+
+    @Override
+    public FileCreationCode getResponseCode() {
+        return FileCreationCode.codeForStatus(getStatusCode());
     }
 
     /**

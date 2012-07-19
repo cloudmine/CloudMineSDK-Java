@@ -107,9 +107,13 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      * @return a new CMURLBuilder with the given search query
      */
     public CMURLBuilder search(String search) {
+        return search(search, "q");
+    }
+
+    public CMURLBuilder search(String search, String paramKey) {
         String encodedSearch;
         encodedSearch = encode(search);
-        return addAction("search").addQuery("q", encodedSearch);
+        return addAction("search").addQuery(paramKey, encodedSearch);
     }
 
     public static String encode(String url) {
@@ -201,6 +205,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return this.notUser().addAction("account");
     }
 
+    public CMURLBuilder mine() {
+        return this.addAction("mine");
+    }
+
     public CMURLBuilder reset() {
         return this.addAction("reset");
     }
@@ -252,4 +260,5 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         }
         return this;
     }
+
 }
