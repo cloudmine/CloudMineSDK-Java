@@ -1,9 +1,9 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMPagingOptions;
-import com.cloudmine.api.CMRequestOptions;
-import com.cloudmine.api.CMServerFunction;
-import com.cloudmine.api.CMSortOptions;
+import com.cloudmine.api.rest.options.CMPagingOptions;
+import com.cloudmine.api.rest.options.CMRequestOptions;
+import com.cloudmine.api.rest.options.CMServerFunction;
+import com.cloudmine.api.rest.options.CMSortOptions;
 import org.junit.Test;
 
 import java.util.Arrays;

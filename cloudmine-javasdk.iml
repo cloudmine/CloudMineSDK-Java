@@ -39,7 +39,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="Cloudmine-android" />
     <orderEntry type="module" module-name="httpcomponents-asyncclient" />
     <orderEntry type="module" module-name="httpasyncclient" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.2-beta1" level="project" />

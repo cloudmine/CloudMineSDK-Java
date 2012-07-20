@@ -1,22 +1,22 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.CMAccessList;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.message.BasicHeader;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class UserCMWebService extends CMWebService {
-
-    private static final String SESSION_TOKEN_HEADER_KEY = "X-CloudMine-SessionToken";
 
 
     protected final CMSessionToken sessionToken;
@@ -32,11 +32,7 @@ public class UserCMWebService extends CMWebService {
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
         super(baseUrl, asynchronousHttpClient);
         this.sessionToken = token;
-        userHeader = createSessionToken(token);
-    }
-
-    private BasicHeader createSessionToken(CMSessionToken token) {
-        return new BasicHeader(SESSION_TOKEN_HEADER_KEY, token.getSessionToken());
+        userHeader = LibrarySpecificClassCreator.getCreator().getHeaderFactory().getUserCloudMineHeader(token);
     }
 
     /**
@@ -76,6 +72,15 @@ public class UserCMWebService extends CMWebService {
     }
 
     /**
+     * Create or save the given CMAccessList
+     * @param list
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
+     */
+    public void asyncInsert(CMAccessList list, Callback callback) {
+        executeAsyncCommand(createAccessListPost(list), callback, creationResponseConstructor());
+    }
+
+    /**
      *
      * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      */
@@ -86,7 +91,7 @@ public class UserCMWebService extends CMWebService {
 
     /**
      * Update a user's profile. The user must be logged in for this to work
-     * @param user
+     * @param user the users profile to update; note that the user associated with this UserCMWebService will always be the one updated, even if the passed in user is different
      * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
     public void asyncInsertUserProfile(CMUser user, Callback callback) {
@@ -94,9 +99,25 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(put, callback, creationResponseConstructor());
     }
 
+    /**
+     * Load the access lists belonging to the user associated with this object
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, it is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
+     */
+    public void asyncLoadAccessLists(Callback callback) {
+        HttpGet get = createGet(baseUrl.access().asUrlString());
+        executeAsyncCommand(get, callback, cmObjectResponseConstructor());
+    }
+
     @Override
     public UserCMWebService getUserWebService(CMSessionToken token) {
         return this;
+    }
+
+    private HttpPost createAccessListPost(CMAccessList list) {
+        HttpPost post = new HttpPost(baseUrl.access().asUrlString());
+        addCloudMineHeader(post);
+        addJson(post, list.asJson());
+        return post;
     }
 
     private HttpPut createProfilePut(CMUser user) {

@@ -3,6 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.CMGeoPoint;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.SimpleCMObjectTest;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
@@ -206,6 +207,7 @@ public class JsonUtilitiesTest {
                 "\"otherExtendedObjects\":{}," +
                 "\"name\":\"fred\",\n" +
                 "\"date\":" + dateJson + ",\n" +
+                SimpleCMObjectTest.EMPTY_ACCESS_JSON +
                 "\"number\":5,\n" +
                 "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
                 JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, convertableObject.getClassName()) +
