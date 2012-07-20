@@ -13,7 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
     </content>
-    <orderEntry type="jdk" jdkName="Android 2.3.3 Google APIs" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="junit:junit:4.10" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.core:jackson-databind:2.0.0-RC2" level="project" />
@@ -39,9 +39,25 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="httpcomponents-asyncclient" />
-    <orderEntry type="module" module-name="httpasyncclient" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.2-beta1" level="project" />
+    <orderEntry type="library" name="httpasyncclient-4.0-beta1" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/httpcore-4.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/httpcore-nio-4.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 
