@@ -20,7 +20,6 @@
     <orderEntry type="library" name="org.slf4j:slf4j-api:1.6.4" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.3" level="project" />
     <orderEntry type="library" name="joda-time:joda-time:2.1" level="project" />
-    <orderEntry type="library" name="httpasyncclient-4.0-beta1" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -50,8 +49,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="httpcore-4.0-beta3" level="project" />
-    <orderEntry type="library" name="httpclient-4.0-beta2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="httpcore-4.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="httpclient-4.2" level="project" />
   </component>
 </module>
 

@@ -3,8 +3,13 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.SyncBasicHttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +22,17 @@ import java.io.IOException;
  */
 public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
     private static final Logger LOG = LoggerFactory.getLogger(ApacheThreadedHttpClient.class);
+    private static final int RETRY_REQUEST_COUNT = 4;
+
+
+    private HttpContext httpContext = new SyncBasicHttpContext(new BasicHttpContext());
+
     private ThreadLocal<DefaultHttpClient> client = new ThreadLocal<DefaultHttpClient>() {
-//        private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
-//        @Override
-//        public DefaultHttpClient initialValue() {
-//            return new DefaultHttpClient(connectionManager);
-//        }
+        private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
+        @Override
+        public DefaultHttpClient initialValue() {
+            return new DefaultHttpClient(connectionManager);
+        }
     };
     @Override
     public <T> void executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor) {
@@ -30,6 +40,7 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
     }
 
     public class RequestRunnable<T>implements Runnable {
+
         private final Callback<T> callback;
         private final ResponseConstructor<T> constructor;
         private RequestRunnable(HttpUriRequest request, Callback<T> callback, ResponseConstructor<T> constructor) {
@@ -41,13 +52,31 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
 
         @Override
         public void run() {
-            try {
-                HttpResponse response = client.get().execute(request);
-                callback.onCompletion(constructor.construct(response));
-            } catch (IOException e) {
-                LOG.error("Exception thrown", e);
-                callback.onFailure(e, "Failed");
+            boolean retry = true;
+            IOException cause = null;
+            int requestCounter = 0;
+            HttpRequestRetryHandler retryHandler = client.get().getHttpRequestRetryHandler();
+            while(retry) {
+                try {
+                    makeRequest();
+                    return;
+                } catch (IOException e) {
+                    LOG.error("Exception thrown", e);
+                    cause = e;
+                    requestCounter++;
+                    retry = retryHandler.retryRequest(cause, requestCounter, httpContext);
+
+                } catch(Exception e) {
+                    callback.onFailure(cause, "Failed");
+                    return;
+                }
             }
+            callback.onFailure(cause, "Failed");
+        }
+
+        private void makeRequest() throws IOException {
+            HttpResponse response = client.get().execute(request);
+            callback.onCompletion(constructor.construct(response));
         }
     }
 }

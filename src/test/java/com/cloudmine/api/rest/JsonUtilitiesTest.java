@@ -194,6 +194,20 @@ public class JsonUtilitiesTest {
     }
 
     @Test
+    public void testJsonToClass() {
+        String objectId = "65c30a95d00b40b9b45fc99f072ab063";
+        String extendedCMUser = "{\"address\":\"123 Real St, Philadelphia, PA 19123\"," +
+                "\"age\":20," +
+                "\"paid\":false," +
+                "\"__access__\":[]," +
+                "\"__class__\":\"com.cloudmine.test.ExtendedCMUser\"," +
+                "\"__type__\":\"user\"," +
+                "\"__id__\":\"" + objectId + "\"}";
+        ExtendedCMUser user = JsonUtilities.jsonToClass(extendedCMUser, ExtendedCMUser.class);
+        assertEquals(objectId, user.getObjectId());
+    }
+
+    @Test
     public void testExtendedCMObjectConversionToJson() {
         ClassNameRegistry.register("govna", ExtendedCMObject.class);
         String name = "fred";

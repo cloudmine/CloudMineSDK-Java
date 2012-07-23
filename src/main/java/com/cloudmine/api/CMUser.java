@@ -12,6 +12,7 @@ import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +174,12 @@ public class CMUser extends CMObject {
     @JsonIgnore
     public String getObjectId() {
         return super.getObjectId();
+    }
+
+    @Override
+    @JsonProperty(JsonUtilities.OBJECT_ID_KEY)
+    public void setObjectId(String objectId) {
+        super.setObjectId(objectId);
     }
 
     /**

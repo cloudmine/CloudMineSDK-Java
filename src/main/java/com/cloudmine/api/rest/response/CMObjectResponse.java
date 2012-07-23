@@ -51,6 +51,23 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         }
     }
 
+    protected CMObjectResponse(String response, int code) {
+        super(response, code); //TODO this is copy pasta code from above :( thats bad
+        if(hasSuccess()) {
+            String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
+            Map<String, ? extends CMObject> tempMap;
+            try {
+                tempMap = JsonUtilities.jsonToClassMap(success);
+            }catch(JsonConversionException jce) {
+                tempMap = Collections.emptyMap();
+                LOG.error("Trouble converting: " + success + ", using empty map");
+            }
+            objectMap = tempMap;
+        } else {
+            objectMap = Collections.emptyMap();
+        }
+    }
+
     @Override
     public ObjectLoadCode getResponseCode() {
         return ObjectLoadCode.codeForStatus(getStatusCode());

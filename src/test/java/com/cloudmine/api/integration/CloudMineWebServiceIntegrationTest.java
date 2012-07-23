@@ -278,7 +278,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
         service.insert(COMPLEX_JSON);
         service.asyncLoadObjects(TestServiceCallback.testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
-                Assert.assertEquals(2, response.getObjects().size());
+                Assert.assertTrue(response.getObjects().size() >= 2);
                 CMObject object = response.getCMObject("deepKeyed");
                 Assert.assertEquals(Integer.valueOf(45), ((SimpleCMObject)object).getInteger("innerKeyToNumber"));
             }

@@ -10,8 +10,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 /**
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
@@ -25,10 +23,9 @@ public class SynchronousHttpClient implements AsynchronousHttpClient {
         try {
             HttpResponse response = httpClient.execute(command);
             callback.onCompletion(constructor.construct(response));
-        } catch (IOException e) {
-            LOG.error("Exception thrown while executing http command", e);
-            callback.onFailure(e, e.getMessage());
+        } catch (Throwable throwable) {
+            LOG.error("Exception thrown while executing http command", throwable);
+            callback.onFailure(throwable, throwable.getMessage());
         }
-
     }
 }

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class JsonUtilities {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
 
     public static final String EMPTY_JSON = "{ }";
-    public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CMDateFormat();
+
     static {
         SimpleModule customModule = new CMJacksonModule();
 
