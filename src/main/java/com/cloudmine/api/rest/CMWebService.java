@@ -206,12 +206,13 @@ public class CMWebService {
     }
 
     public void asyncSearchUserProfiles(String searchString, Callback callback) {
-        executeAsyncCommand(createProfileSearch(searchString), callback, cmObjectResponseConstructor());
+        asyncSearchUserProfiles(searchString, CMRequestOptions.NONE, callback);
     }
 
     public void asyncSearchUserProfiles(String searchString, CMRequestOptions options, Callback callback) {
-        executeAsyncCommand(createProfileSearch(searchString), callback, cmObjectResponseConstructor());
+        executeAsyncCommand(createProfileSearch(searchString, options), callback, cmObjectResponseConstructor());
     }
+
 
     /**
      * Delete the given object from CloudMine.
