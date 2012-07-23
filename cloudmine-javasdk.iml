@@ -33,16 +33,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/httpcore-4.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="httpclient-4.2" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/../lib/httpcore-nio-4.2.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -55,6 +45,16 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../lib/slf4j-simple-1.6.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="httpclient-4.2" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/httpcore-4.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

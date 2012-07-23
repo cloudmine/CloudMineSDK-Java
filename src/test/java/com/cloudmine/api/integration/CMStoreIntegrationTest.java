@@ -155,14 +155,13 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         store.loadAllUserObjects(testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
-                assertEquals(userObjects.size(), response.getObjects().size());
                 for (SimpleCMObject object : userObjects) {
                     SimpleCMObject responseObject = (SimpleCMObject)response.getCMObject(object.getObjectId());
                     assertEquals(StoreIdentifier.StoreIdentifier(user), responseObject.getSavedWith());
                     assertEquals(object, responseObject);
                 }
             }
-        }));
+        }), new CMRequestOptions(CMPagingOptions.ALL_RESULTS));
         waitThenAssertTestResults();
     }
 
@@ -200,7 +199,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         assertEquals(3, expectedLoadedUsers.size());
         waitThenAssertTestResults();
 
-        store.loadUserProfilesSearch("[age < 30]", testCallback(new CMObjectResponseCallback() {
+        store.loadUserProfilesSearch("[age < 30]", new CMRequestOptions(CMPagingOptions.ALL_RESULTS), testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 for (CMObject expectedUser : expectedLoadedUsers) {

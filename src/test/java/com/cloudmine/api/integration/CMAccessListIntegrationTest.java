@@ -32,6 +32,8 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         final CMUser user = user();
+        user.createUser(TestServiceCallback.testCallback());
+        waitThenAssertTestResults();
         user.login(hasSuccess);
         waitThenAssertTestResults();
 
