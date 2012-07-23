@@ -911,7 +911,12 @@ public class CMStore {
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
     public void loadUserProfilesSearch(String searchString, Callback callback) {
-        applicationService.asyncSearchUserProfiles(searchString, callback);
+        loadUserProfilesSearch(searchString, CMRequestOptions.NONE, callback);
+    }
+
+
+    public void loadUserProfilesSearch(String searchString, CMRequestOptions options, Callback callback) {
+        applicationService.asyncSearchUserProfiles(searchString, options, callback);
     }
 
     /**
