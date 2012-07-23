@@ -362,6 +362,9 @@ public class JsonUtilities {
 
     public static Map<String, String> jsonMapToKeyMap(String json) {
         //TODO this method is big and kinda gross
+        if(json == null) {
+            return new HashMap<String, String>();
+        }
         try {
             StringReader reader = new StringReader(json);
             int readInt;

@@ -264,11 +264,19 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     @Test
     public void testInvalidCredentialsUserOperation() {
         store.setUser(CMUser.CMUser("xnnxNOEXISTMANxnxnx@hotmail.com", "t"));
-        store.loadUserObjectsOfClass("whatever", new CMObjectResponseCallback() {
+        final Immutable<Boolean> wasEntered = new Immutable<Boolean>();
+        store.loadUserObjectsOfClass("whatever", testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertEquals(ObjectLoadCode.MISSING_OR_INVALID_CREDENTIALS, response.getResponseCode());
             }
-        });
+
+            @Override
+            public void onFailure(Throwable t, String message) {
+                wasEntered.setValue(Boolean.TRUE);
+            }
+        }));
+        waitThenAssertTestResults();
+        assertTrue(wasEntered.value());
     }
 
     @Test
@@ -382,7 +390,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 assertTrue(loadResponse.wasSuccess());
 
                 assertEquals(2, loadResponse.getObjects().size());
-                assertEquals(5, loadResponse.getCount());
+                assertTrue(loadResponse.getCount() >= 5);
             }
         }), options);
         waitThenAssertTestResults();

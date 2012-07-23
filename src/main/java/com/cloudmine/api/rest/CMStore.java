@@ -7,6 +7,7 @@ import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
@@ -109,8 +110,8 @@ public class CMStore {
         return user.valueOrThrow();
     }
 
-    private final CMObjectResponseCallback objectLoadUpdateStoreCallback(final Callback callback, final StoreIdentifier identifier) {
-        return new CMObjectResponseCallback() {
+    private final Callback<CMObjectResponse> objectLoadUpdateStoreCallback(final Callback callback, final StoreIdentifier identifier) {
+        return new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
             public void onCompletion(CMObjectResponse response) {
                 try {
                     if(response.wasSuccess()) {
@@ -139,7 +140,7 @@ public class CMStore {
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
     public void saveAccessList(final CMAccessList list, final Callback callback) {
-        list.getUser().login(new LoginResponseCallback() {
+        list.getUser().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncInsert(list, callback);
             }
@@ -184,7 +185,7 @@ public class CMStore {
     public void saveObject(final CMObject object, final Callback callback, final CMRequestOptions options) throws JsonConversionException, CreationException {
         addObject(object);
         if(object.isOnLevel(ObjectLevel.USER)) {
-            user().login(new LoginResponseCallback() {
+            user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                public void onCompletion(LoginResponse ignoredResponse) {
                    userService().asyncInsert(object, callback, options);
                }
@@ -230,7 +231,7 @@ public class CMStore {
     public void deleteObject(final CMObject object, final Callback callback, final CMRequestOptions options) throws CreationException {
         removeObject(object);
         if(object.isOnLevel(ObjectLevel.USER)) {
-            user().login(new LoginResponseCallback() {
+            user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
                     userService().asyncDeleteObject(object, callback, options);
                 }
@@ -289,7 +290,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
     public void loadAllUserObjects(final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
            }
@@ -375,7 +376,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
     public void loadUserObjectsWithObjectIds(final Collection<String> objectIds, final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
            }
@@ -409,7 +410,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsSearch(final String search, final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
                 userService().asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -474,7 +475,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsOfClass(final String klass, final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
            }
@@ -571,7 +572,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects(final Callback callback, final CMRequestOptions options) throws JsonConversionException, CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback, options);
            }
@@ -753,7 +754,7 @@ public class CMStore {
      */
     public void saveFile(final CMFile file, final Callback callback) throws CreationException {
         if(file.isOnLevel(ObjectLevel.USER)) {
-            login(user(), new LoginResponseCallback() {
+            login(user(), new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 @Override
                 public void onCompletion(LoginResponse response) {
                     userService().asyncUpload(file, callback);
@@ -819,7 +820,8 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            @Override
             public void onCompletion(LoginResponse response) {
                 userService().asyncLoadFile(fileName, callback, options);
             }
@@ -880,7 +882,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
-        user().login(new LoginResponseCallback() {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncDeleteFile(fileName, callback, options);
             }

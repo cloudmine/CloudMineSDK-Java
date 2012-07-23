@@ -19,7 +19,7 @@ public class LibrarySpecificClassCreator {
         if(creator == null) {
             creator = new LibrarySpecificClassCreator(new Base64EncoderStandardImpl(),
                     new HeaderFactoryStandardImpl(),
-                    new ApacheThreadedHttpClient());
+                    new SynchronousHttpClient());
         }
         return creator;
     }

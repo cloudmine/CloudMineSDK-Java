@@ -5,7 +5,6 @@ import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +18,11 @@ import java.io.IOException;
 public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
     private static final Logger LOG = LoggerFactory.getLogger(ApacheThreadedHttpClient.class);
     private ThreadLocal<DefaultHttpClient> client = new ThreadLocal<DefaultHttpClient>() {
-        private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
-        @Override
-        public DefaultHttpClient initialValue() {
-            return new DefaultHttpClient(connectionManager);
-        }
+//        private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
+//        @Override
+//        public DefaultHttpClient initialValue() {
+//            return new DefaultHttpClient(connectionManager);
+//        }
     };
     @Override
     public <T> void executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor) {

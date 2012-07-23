@@ -50,16 +50,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="httpclient-4.2" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/httpcore-4.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="httpcore-4.0-beta3" level="project" />
+    <orderEntry type="library" name="httpclient-4.0-beta2" level="project" />
   </component>
 </module>
 
