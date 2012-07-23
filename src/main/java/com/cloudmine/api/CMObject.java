@@ -2,7 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -56,7 +56,7 @@ public class CMObject implements Json, Savable {
     }
 
     @Override
-    public String asJson() throws JsonConversionException {
+    public String asJson() throws ConversionException {
         return JsonUtilities.objectsToJson(this);
     }
 
@@ -64,9 +64,9 @@ public class CMObject implements Json, Savable {
     /**
      * Get a representation of this object in the form "objectId":{contents}
      * @return a representation of this object in the form "objectId":{contents}
-     * @throws JsonConversionException if this object cannot be converted to JSON
+     * @throws ConversionException if this object cannot be converted to JSON
      */
-    public String asKeyedObject() throws JsonConversionException {
+    public String asKeyedObject() throws ConversionException {
         return null; //TODO this shouldn't return null I'm thinking
     }
 
@@ -145,10 +145,10 @@ public class CMObject implements Json, Savable {
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
      * then it saves to the APPLICATION store. Once a CMObject has been saved, it cannot be saved to a
      * different
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
-    public void save() throws JsonConversionException, CreationException {
+    public void save() throws ConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
     /**
@@ -156,14 +156,14 @@ public class CMObject implements Json, Savable {
      * then it saves to the APPLICATION store. Once a CMObject has been saved, it cannot be saved to a
      * different
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
-    public void save(Callback callback) throws CreationException, JsonConversionException {
+    public void save(Callback callback) throws CreationException, ConversionException {
         store().saveObject(this, callback);
     }
 
-    public void saveWithUser(CMUser user) throws CreationException, JsonConversionException {
+    public void saveWithUser(CMUser user) throws CreationException, ConversionException {
         saveWithUser(user, Callback.DO_NOTHING);
     }
     /**
@@ -172,11 +172,11 @@ public class CMObject implements Json, Savable {
      * different
      * @param user the user to save this object with
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
      * @throws CreationException if CMApiCredentials has not been initialized properly
      * @throws com.cloudmine.api.exceptions.AccessException if setSaveWith has already been set
      */
-    public void saveWithUser(CMUser user, Callback callback) throws CreationException, AccessException, JsonConversionException{
+    public void saveWithUser(CMUser user, Callback callback) throws CreationException, AccessException, ConversionException{
         boolean wasAlreadySet = !setSaveWith(user);
         boolean notSameUser = wasAlreadySet && //skip the check if it wasn't already set; still check below in if statement for clarity
                 !user.equals(getUser());

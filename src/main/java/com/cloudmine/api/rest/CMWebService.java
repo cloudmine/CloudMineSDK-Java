@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -562,9 +562,9 @@ public class CMWebService {
     /**
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate) throws ConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -572,9 +572,9 @@ public class CMWebService {
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback) throws ConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -583,9 +583,9 @@ public class CMWebService {
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback, CMRequestOptions options) throws ConversionException {
         executeAsyncCommand(
                 createPut(toCreate.asJson(), options),
                 callback, objectModificationResponseConstructor());
@@ -594,9 +594,9 @@ public class CMWebService {
     /**
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate) throws ConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -604,9 +604,9 @@ public class CMWebService {
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback) throws ConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -615,9 +615,9 @@ public class CMWebService {
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback, CMRequestOptions options) throws ConversionException {
         List<Json> jsons = new ArrayList<Json>(toCreate.size());
         for(CMObject object : toCreate) {
             jsons.add(new JsonString(object.asKeyedObject()));
@@ -632,9 +632,9 @@ public class CMWebService {
     /**
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(CMObject toUpdate) throws JsonConversionException {
+    public void asyncUpdate(CMObject toUpdate) throws ConversionException {
         asyncUpdate(toUpdate, Callback.DO_NOTHING);
     }
 
@@ -642,18 +642,18 @@ public class CMWebService {
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(CMObject toUpdate, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(CMObject toUpdate, Callback callback) throws ConversionException {
         executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<? extends CMObject> objects) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects) throws ConversionException {
         asyncUpdate(objects, Callback.DO_NOTHING);
     }
 
@@ -661,9 +661,9 @@ public class CMWebService {
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert the CMObject to json. This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<? extends CMObject> objects, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects, Callback callback) throws ConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
         for(CMObject cmObject : objects) {
@@ -891,9 +891,9 @@ public class CMWebService {
      * Make a blocking call to create this user
      * @return  the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store
      * @throws NetworkException if unable to perform the network call
-     * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
+     * @throws ConversionException if unable to convert this user to JSON. This should never happen
      */
-    public CMResponse insert(CMUser user) throws NetworkException, JsonConversionException {
+    public CMResponse insert(CMUser user) throws NetworkException, ConversionException {
         return executeCommand(createPut(user));
     }
 
@@ -998,7 +998,7 @@ public class CMWebService {
         return put;
     }
 
-    private HttpPut createPut(CMUser user) throws JsonConversionException {
+    private HttpPut createPut(CMUser user) throws ConversionException {
         HttpPut put = new HttpPut(baseUrl.account().create().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.asJson());
@@ -1090,7 +1090,7 @@ public class CMWebService {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)
             ));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create jsoncollection", e); //this should not happen ever so we swallow
         }
         return post;
@@ -1103,7 +1103,7 @@ public class CMWebService {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(EMAIL_KEY, email)
             ));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create json collection from email key", e); //this should never happen
         }
         return post;
@@ -1116,7 +1116,7 @@ public class CMWebService {
         try {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create json collection from property", e); //this should never happen
         }
         return post;
@@ -1135,7 +1135,7 @@ public class CMWebService {
         }
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, Json json) throws JsonConversionException {
+    private void addJson(HttpEntityEnclosingRequestBase message, Json json) throws ConversionException {
         addJson(message, json.asJson());
     }
 

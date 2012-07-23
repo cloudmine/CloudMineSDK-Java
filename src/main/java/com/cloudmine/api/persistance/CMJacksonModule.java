@@ -4,7 +4,7 @@ import com.cloudmine.api.CMFile;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMType;
 import com.cloudmine.api.SimpleCMObject;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -75,7 +75,7 @@ public class CMJacksonModule extends SimpleModule {
                 String json = null;
                 try {
                     json = value.asUnkeyedObject();
-                } catch (JsonConversionException e) {
+                } catch (ConversionException e) {
                     LOG.error("Error while serializing, sending empty json", e);
                     json = JsonUtilities.EMPTY_JSON;
                 }
@@ -105,7 +105,7 @@ public class CMJacksonModule extends SimpleModule {
                 String json;
                 try {
                     json = value.asJson();
-                } catch (JsonConversionException e) {
+                } catch (ConversionException e) {
                     LOG.error("Error while serializing, sending empty json", e);
                     json = JsonUtilities.EMPTY_JSON;
                 }

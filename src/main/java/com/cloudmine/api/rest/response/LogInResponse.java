@@ -2,7 +2,7 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import org.apache.http.HttpResponse;
@@ -67,7 +67,7 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         if(wasSuccess()) {
             try {
                 tempToken = CMSessionToken.CMSessionToken(asJson());
-            } catch (JsonConversionException e) {
+            } catch (ConversionException e) {
                 LOG.error("Unable to parse json", e);
                 tempToken = CMSessionToken.FAILED;
             }

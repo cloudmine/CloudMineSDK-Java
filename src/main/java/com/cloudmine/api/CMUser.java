@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -114,7 +114,7 @@ public class CMUser extends CMObject {
         this.password = password;
     }
 
-    public String asJson() throws JsonConversionException {
+    public String asJson() throws ConversionException {
         String credentialsJson = JsonUtilities.jsonCollection(
                                         JsonUtilities.createJsonProperty(EMAIL_KEY, getEmail()),
                                         JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).asJson();
@@ -123,7 +123,7 @@ public class CMUser extends CMObject {
                 JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).asJson();
     }
 
-    public String profileTransportRepresentation() throws JsonConversionException {
+    public String profileTransportRepresentation() throws ConversionException {
         return JsonUtilities.objectToJson(this);
     }
 
@@ -298,16 +298,16 @@ public class CMUser extends CMObject {
      * Asynchronously create this user
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.CreationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is passed in
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
-     * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
+     * @throws ConversionException if unable to convert this user to JSON. This should never happen
      */
-    public void createUser(Callback callback) throws CreationException, JsonConversionException {
+    public void createUser(Callback callback) throws CreationException, ConversionException {
         CMWebService.getService().asyncCreateUser(this, callback);
     }
 
     /**
      * Equivalent to {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} with no callback
      */
-    public void createUser() throws CreationException, JsonConversionException {
+    public void createUser() throws CreationException, ConversionException {
         createUser(Callback.DO_NOTHING);
     }
 
@@ -315,7 +315,7 @@ public class CMUser extends CMObject {
      * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
-    public void save() throws CreationException, JsonConversionException {
+    public void save() throws CreationException, ConversionException {
         save(Callback.DO_NOTHING);
     }
 
@@ -328,7 +328,7 @@ public class CMUser extends CMObject {
      * about what you would like.
      */
     @Override
-    public void save(Callback callback) throws CreationException, JsonConversionException {
+    public void save(Callback callback) throws CreationException, ConversionException {
         if(isCreated()) {
             saveProfile(callback);
         } else {
@@ -358,7 +358,7 @@ public class CMUser extends CMObject {
      * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
-    public void saveWithUser(CMUser ignored) throws CreationException, JsonConversionException{
+    public void saveWithUser(CMUser ignored) throws CreationException, ConversionException{
         saveWithUser(ignored, Callback.DO_NOTHING);
     }
 
@@ -366,7 +366,7 @@ public class CMUser extends CMObject {
      * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
-    public void saveWithUser(CMUser ignored, Callback callback) throws CreationException, JsonConversionException {
+    public void saveWithUser(CMUser ignored, Callback callback) throws CreationException, ConversionException {
         save(callback);
     }
 

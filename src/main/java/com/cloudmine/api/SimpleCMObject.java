@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonString;
@@ -65,7 +65,7 @@ public class SimpleCMObject extends CMObject {
     public static SimpleCMObject SimpleCMObject(Json json) throws CreationException {
         try {
             return new SimpleCMObject(json);
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             throw new CreationException(e);
         }
     }
@@ -102,7 +102,7 @@ public class SimpleCMObject extends CMObject {
         this(objectId, new HashMap<String, Object>());
     }
 
-    SimpleCMObject(Json json) throws JsonConversionException, CreationException {
+    SimpleCMObject(Json json) throws ConversionException, CreationException {
         this(JsonUtilities.jsonToMap(json));
     }
 
@@ -205,9 +205,9 @@ public class SimpleCMObject extends CMObject {
      * Get a SimpleCMObject associated with the given objectId
      * @param objectId the objectId of the SimpleCMObject
      * @return the SimpleCMObject associated with the given objectId, or null if it is not a part of this SimpleCMObject
-     * @throws JsonConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
+     * @throws ConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
      */
-    public SimpleCMObject getSimpleCMObject(String objectId) throws JsonConversionException {
+    public SimpleCMObject getSimpleCMObject(String objectId) throws ConversionException {
         return getValue(objectId, SimpleCMObject.class);
     }
 
@@ -216,9 +216,9 @@ public class SimpleCMObject extends CMObject {
      * @param objectId the objectId of the SimpleCMObject
      * @param alternative will be returned instead of null if there is nothing associated with the given objectId
      * @return the SimpleCMObject associated with the given objectId, or the alternative if it is not a part of this SimpleCMObject
-     * @throws JsonConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
+     * @throws ConversionException if there is a value associated with the given objectId, but it is not representable as a SimpleCMObject
      */
-    public SimpleCMObject getSimpleCMObject(String objectId, SimpleCMObject alternative) throws JsonConversionException {
+    public SimpleCMObject getSimpleCMObject(String objectId, SimpleCMObject alternative) throws ConversionException {
         SimpleCMObject value = getSimpleCMObject(objectId);
         return value == null ?
                 alternative :
@@ -367,7 +367,7 @@ public class SimpleCMObject extends CMObject {
      * @return the CMGeoPoint value associated with the given key, or null if it doesn't exist
      * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
      */
-    public CMGeoPoint getGeoPoint(String objectId) throws JsonConversionException {
+    public CMGeoPoint getGeoPoint(String objectId) throws ConversionException {
         return getValue(objectId, CMGeoPoint.class);
     }
 
@@ -378,7 +378,7 @@ public class SimpleCMObject extends CMObject {
      * @return the Date value associated with the given key, or the alternative if it doesn't exist
      * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
      */
-    public CMGeoPoint getGeoPoint(String objectId, CMGeoPoint alternative) throws JsonConversionException {
+    public CMGeoPoint getGeoPoint(String objectId, CMGeoPoint alternative) throws ConversionException {
         CMGeoPoint point = getGeoPoint(objectId);
         return point == null ?
                 alternative :
@@ -393,7 +393,7 @@ public class SimpleCMObject extends CMObject {
      * @param <T>
      * @return
      */
-    private <T> T getValue(String key, Class<T> klass) throws JsonConversionException {
+    private <T> T getValue(String key, Class<T> klass) throws ConversionException {
         Object value = contents.get(key);
         if(key == null || klass == null || value == null) {
             return null;
@@ -412,7 +412,7 @@ public class SimpleCMObject extends CMObject {
             try {
                 return newFromJson(valueString, klass);
             } catch (CreationException e) {
-                throw new JsonConversionException(e);
+                throw new ConversionException(e);
             }
         }
         if(value != null && klass.isAssignableFrom(valueClass)) {
@@ -509,29 +509,29 @@ public class SimpleCMObject extends CMObject {
     /**
      * Get a representation of this SimpleCMObject in the form "objectId":{contents}
      * @return a representation of this SimpleCMObject in the form "objectId":{contents}
-     * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
+     * @throws ConversionException if this SimpleCMObject cannot be converted to JSON
      */
-    public String asKeyedObject() throws JsonConversionException {
+    public String asKeyedObject() throws ConversionException {
         return JsonUtilities.addQuotes(getObjectId()) + ":" + asUnkeyedObject();
     }
 
     /**
      * Get a JSON representation of this SimpleCMObject in the form of {contents}
      * @return a JSON representation of this SimpleCMObject in the form of {contents}
-     * @throws JsonConversionException if this SimpleCMObject cannot be converted to JSON
+     * @throws ConversionException if this SimpleCMObject cannot be converted to JSON
      */
-    public String asUnkeyedObject() throws JsonConversionException {
+    public String asUnkeyedObject() throws ConversionException {
         return JsonUtilities.mapToJson(contents);
     }
 
-    public String asJson() throws JsonConversionException {
+    public String asJson() throws ConversionException {
         return JsonUtilities.mapToJson(topLevelMap);
     }
 
     public String toString() {
         try {
             return asJson();
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             return "Invalid json: " + e.getMessage();
         }
     }

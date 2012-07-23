@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 
 /**
  * Anything that can be converted to JSON should implement this interface
@@ -10,7 +11,7 @@ public interface Json {
     /**
      * Convert this object to a json representation
      * @return this object as json
-     * @throws JsonConversionException if unable to convert to valid json
+     * @throws ConversionException if unable to convert to valid json
      */
-    public String asJson() throws JsonConversionException;
+    public String asJson() throws ConversionException;
 }

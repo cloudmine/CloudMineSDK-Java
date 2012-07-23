@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.apache.commons.io.IOUtils;
@@ -67,7 +67,7 @@ public abstract class ResponseBase<CODE> implements Json {
         Map<String, Object> tempNode;
         try {
             tempNode = JsonUtilities.jsonToMap(messageBody);
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Exception parsing message body: " + messageBody, e);
             tempNode = new HashMap<String, Object>();
         }
@@ -89,7 +89,7 @@ public abstract class ResponseBase<CODE> implements Json {
         }
             try {
                 responseMap = JsonUtilities.jsonToMap(json);
-            } catch (JsonConversionException e) {
+            } catch (ConversionException e) {
                 LOG.error("Failed converting response content to json", e);
             }
 
@@ -163,7 +163,7 @@ public abstract class ResponseBase<CODE> implements Json {
     public String toString() {
         try {
             return asJson();
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             return "Unable to convert json: " + e.getMessage();
         }
     }
@@ -171,7 +171,7 @@ public abstract class ResponseBase<CODE> implements Json {
     private String asJsonString;
 
     @Override
-    public String asJson() throws JsonConversionException {
+    public String asJson() throws ConversionException {
 //        if(asJsonString == null) {
 //            asJsonString = JsonUtilities.mapToJson(baseMap);
 //        }

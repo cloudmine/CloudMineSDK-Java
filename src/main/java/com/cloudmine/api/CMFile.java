@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -171,12 +171,12 @@ public class CMFile implements Json, Savable {
     }
 
     @Override
-    public void save() throws JsonConversionException, CreationException {
+    public void save() throws ConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
 
     @Override
-    public void save(Callback callback) throws CreationException, JsonConversionException {
+    public void save(Callback callback) throws CreationException, ConversionException {
         store().saveFile(this, callback);
     }
 
@@ -286,7 +286,7 @@ public class CMFile implements Json, Savable {
     }
 
     @Override
-    public String asJson() throws JsonConversionException {
+    public String asJson() throws ConversionException {
         return
              JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonProperty("key", fileName),
