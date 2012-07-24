@@ -14,7 +14,6 @@ public class CMRequestOptions implements BaseURL{
     private final CMSortOptions sortOptions;
     private final CMSharedDataOptions sharedDataOptions;
 
-
     public CMRequestOptions(CMPagingOptions allResults) {
         this(allResults, CMServerFunction.NONE, CMSortOptions.NONE);
     }
