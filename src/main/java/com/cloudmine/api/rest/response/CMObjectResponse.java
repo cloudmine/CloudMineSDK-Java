@@ -74,7 +74,7 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     }
 
     /**
-     * If this load was made with count=true (specified by using {@link com.cloudmine.api.CMPagingOptions})
+     * If this load was made with count=true (specified by using {@link com.cloudmine.api.rest.options.CMPagingOptions})
      * then this will return the number of entries for the query that was made, regardless of how many results
      * were returned.
      * @return the number of entries for the query that was made, or {@link #NO_COUNT} if count=true wasn't requested, or if unable to parse the count property as an Integer

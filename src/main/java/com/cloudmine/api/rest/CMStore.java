@@ -8,6 +8,7 @@ import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
@@ -127,6 +128,23 @@ public class CMStore {
     }
 
     /*****************************OBJECTS********************************/
+
+    public void saveAccessList(CMAccessList list) {
+        saveAccessList(list, Callback.DO_NOTHING);
+    }
+
+    /**
+     *
+     * @param list the list to save
+     * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
+     */
+    public void saveAccessList(final CMAccessList list, final Callback callback) {
+        list.getUser().login(new LoginResponseCallback() {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncInsert(list, callback);
+            }
+        });
+    }
 
     /**
      * Asynchronously save the object based on the StoreIdentifier associated with it. If no StoreIdentifier is

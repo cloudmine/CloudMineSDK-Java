@@ -26,7 +26,6 @@ public class CMApiCredentials {
      * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
-
         if(id == null || apiKey == null) {
             throw new CreationException("Illegal null argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
         }

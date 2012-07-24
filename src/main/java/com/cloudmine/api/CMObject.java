@@ -8,12 +8,16 @@ import com.cloudmine.api.rest.Json;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
+import com.cloudmine.api.rest.response.CreationResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -28,10 +32,11 @@ import java.util.UUID;
 public class CMObject implements Json, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
     public static final String MISSING_OBJECT_ID = "";
-
+    public static final String ACCESS_KEY = "__access__";
 
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
+    private Set<String> accessListIds = new HashSet<String>();
 
     protected static String generateUniqueObjectId() {
         return UUID.randomUUID().toString();
@@ -114,6 +119,26 @@ public class CMObject implements Json, Savable {
     @JsonIgnore
     public boolean isApplicationLevel() {
         return isOnLevel(ObjectLevel.APPLICATION);
+    }
+
+    /**
+     * Allow the user's associated with the given list access to this object. The access they get depends on the
+     * permissions defined by the list. The given list must have an object id
+     * @param list
+     */
+    public void grantAccess(CMAccessList list) {
+        if(list == null)
+            return;
+        accessListIds.add(list.getObjectId());
+    }
+
+    public void setAccessListIds(Set<String> accessListIds) {
+        this.accessListIds = accessListIds;
+    }
+
+    @JsonProperty(ACCESS_KEY)
+    public Set<String> getAccessListIds() {
+        return accessListIds;
     }
 
     /**
@@ -215,7 +240,28 @@ public class CMObject implements Json, Savable {
         return getClass().getName();
     }
 
-    private CMStore store() throws CreationException {
+    /**
+     * This wraps the given callback in a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} that will set this CMUser's object id on
+     * success, and then call {@link Callback#onCompletion(Object)} passing in the {@link com.cloudmine.api.rest.response.CreationResponse}
+     * You probably don't need to be calling this ever
+     * @param callback
+     * @return
+     */
+    public final CreationResponseCallback setObjectIdOnCreation(final Callback callback) {
+        return new CreationResponseCallback() {
+            public void onCompletion(CreationResponse response) {
+                try {
+                    if(response.wasSuccess()) {
+                        setObjectId(response.getObjectId());
+                    }
+                } finally {
+                    callback.onCompletion(response);
+                }
+            }
+        };
+    }
+
+    protected CMStore store() throws CreationException {
         return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
     }
 }
