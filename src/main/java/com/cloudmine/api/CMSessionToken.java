@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.exceptions.JsonConversionException;
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Obtained by calling login, either directly on a {@link CMUser} object, or by passing a CMUser into {@link com.cloudmine.api.rest.CMStore#login(CMUser)} or {@link com.cloudmine.api.rest.CMWebService#asyncLogin(CMUser)}
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMSessionToken implements Json {
+public class CMSessionToken implements Transportable {
     private static final Logger LOG = LoggerFactory.getLogger(CMSessionToken.class);
     private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     private static final Date EXPIRED_DATE = new Date(0);
@@ -35,16 +35,16 @@ public class CMSessionToken implements Json {
     private final Date expires;
 
     /**
-     * Instantiates a new CMSessionToken based on a JSON string returned from a login request
-     * @param json A JSON string returned from a login request
+     * Instantiates a new CMSessionToken based on a transportable string returned from a login request
+     * @param transportString A transport string returned from a login request
      * @return a new CMSessionToken
-     * @throws JsonConversionException if invalid JSON is passed in
+     * @throws ConversionException if invalid transport representation is passed in
      */
-    public static CMSessionToken CMSessionToken(String json) throws JsonConversionException {
-        return new CMSessionToken(json);
+    public static CMSessionToken CMSessionToken(String transportString) throws ConversionException {
+        return new CMSessionToken(transportString);
     }
 
-    private CMSessionToken(String json) throws JsonConversionException {
+    private CMSessionToken(String json) throws ConversionException {
         boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
         if(jsonIsEmpty) {
             sessionToken = INVALID_TOKEN;
@@ -54,7 +54,7 @@ public class CMSessionToken implements Json {
             boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
                     !objectMap.containsKey(EXPIRES_KEY);
             if(isMissingKey) {
-                throw new JsonConversionException("Can't create CMSessionToken from json missing field");
+                throw new ConversionException("Can't create CMSessionToken from json missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
             Object dateObject = objectMap.get(EXPIRES_KEY);
@@ -66,7 +66,7 @@ public class CMSessionToken implements Json {
                 try {
                     tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
                 } catch (ParseException e) {
-                    throw new JsonConversionException(e);
+                    throw new ConversionException(e);
                 }
             } else {
                 tempDate = EXPIRED_DATE;
@@ -90,7 +90,7 @@ public class CMSessionToken implements Json {
         return new CMSessionToken(sessionToken, expires);
     }
 
-    public String asJson() throws JsonConversionException {
+    public String transportableRepresentation() throws ConversionException {
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         jsonMap.put(SESSION_KEY, sessionToken);
         jsonMap.put(EXPIRES_KEY, expires);

@@ -1,6 +1,6 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 
 /**
@@ -8,7 +8,7 @@ import com.cloudmine.api.rest.JsonUtilities;
  * be set automatically.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public enum CMType implements Json {
+public enum CMType implements Transportable {
     GEO_POINT("geopoint"), FILE("file"), USER("user"), NONE("");
 
     private final String typeId;
@@ -43,7 +43,7 @@ public enum CMType implements Json {
     }
 
     @Override
-    public String asJson() {
+    public String transportableRepresentation() {
         return JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, getTypeId());
     }
 }

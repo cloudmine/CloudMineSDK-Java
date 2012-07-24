@@ -1,6 +1,6 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.rest.JsonString;
+import com.cloudmine.api.rest.TransportableString;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -18,7 +18,7 @@ public class CMGeoPointTest {
 
         assertEquals(100.1, point.getLatitude());
 
-        point = CMGeoPoint.CMGeoPoint(new JsonString("{\"location\": {\n" +
+        point = CMGeoPoint.CMGeoPoint(new TransportableString("{\"location\": {\n" +
                 "            \"__type__\": \"geopoint\",\n" +
                 "            \"x\": 45.5,\n" +
                 "            \"lat\": -70.2\n" +

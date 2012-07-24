@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class CMDateFormat extends DateFormat {
         Map<String, Object> asMap = null;
         try {
             asMap = JsonUtilities.jsonToMap(dateString);
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to parse string as json");
             asMap = Collections.emptyMap();
         }

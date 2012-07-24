@@ -3,7 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMUser;
 import com.cloudmine.api.SimpleCMObject;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.persistance.CMJacksonModule;
 import com.cloudmine.api.persistance.CMUserConstructorMixIn;
 import com.cloudmine.api.persistance.ClassNameRegistry;
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class JsonUtilities {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
 
     public static final String EMPTY_JSON = "{ }";
-    public static final DateFormat CLOUDMINE_DATE_FORMATTER = new CMDateFormat();
+
     static {
         SimpleModule customModule = new CMJacksonModule();
 
@@ -162,10 +161,10 @@ public class JsonUtilities {
     /**
      * Enclose all the passed in jsonEntities in a JSON collection
      * @param jsonEntities to put into the collection
-     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     * @return { jsonEntities[0].transportableRepresentation, jsonEntities[1].transportableRepresentation, ...}
      */
-    public static Json jsonCollection(Collection<? extends Json> jsonEntities) {
-        return jsonCollection(jsonEntities.toArray(new Json[jsonEntities.size()]));
+    public static Transportable jsonCollection(Collection<? extends Transportable> jsonEntities) {
+        return jsonCollection(jsonEntities.toArray(new Transportable[jsonEntities.size()]));
     }
 
     /**
@@ -173,19 +172,19 @@ public class JsonUtilities {
      * @param jsonEntities JSON strings to put in the collection
      * @return { jsonEntities[0], jsonEntities[1], ...}
      */
-    public static Json jsonStringsCollection(Collection<String> jsonEntities) {
+    public static Transportable jsonStringsCollection(Collection<String> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
     }
 
     /**
-     * Enclose all the passed in jsonEntities in a JSON collection
-     * @param jsonEntities to put into the collection
-     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     * Enclose all the passed in transportableEntities in a JSON collection
+     * @param transportableEntities to put into the collection
+     * @return { transportableEntities[0].transportableRepresentation, transportableEntities[1].transportableRepresentation, ...}
      */
-    public static Json jsonCollection(Json... jsonEntities) {
-        String[] jsonStrings = new String[jsonEntities.length];
-        for(int i = 0; i < jsonEntities.length; i++) {
-            jsonStrings[i] = jsonEntities[i].asJson();
+    public static Transportable jsonCollection(Transportable... transportableEntities) {
+        String[] jsonStrings = new String[transportableEntities.length];
+        for(int i = 0; i < transportableEntities.length; i++) {
+            jsonStrings[i] = transportableEntities[i].transportableRepresentation();
         }
         return jsonCollection(jsonStrings);
     }
@@ -195,7 +194,7 @@ public class JsonUtilities {
      * @param jsonEntities JSON strings to put in the collection
      * @return { jsonEntities[0], jsonEntities[1], ...}
      */
-    public static Json jsonCollection(String... jsonEntities) {
+    public static Transportable jsonCollection(String... jsonEntities) {
         StringBuilder json = new StringBuilder("{\n");
         String comma = "";
         for(String jsonEntity : jsonEntities) {
@@ -205,16 +204,16 @@ public class JsonUtilities {
             comma = ",\n";
         }
         json.append("\n}");
-        return new JsonString(json.toString());
+        return new TransportableString(json.toString());
     }
 
     /**
      * Convert a Map to its representation as a JSON string.
      * @param map will be converted to its JSON representation
      * @return valid JSON that represents the passed in map. It should be true that map.equals(jsonToMap(mapToJson(map)))
-     * @throws JsonConversionException if unable to convert this Map to json. This should never happen
+     * @throws ConversionException if unable to convert this Map to json. This should never happen
      */
-    public static String mapToJson(Map<String, ? extends Object> map) throws JsonConversionException {
+    public static String mapToJson(Map<String, ? extends Object> map) throws ConversionException {
         if(map == null) {
             return EMPTY_JSON;
         }
@@ -224,7 +223,7 @@ public class JsonUtilities {
             return writer.toString();
         } catch (IOException e) {
             LOG.error("Trouble writing json", e);
-            throw new JsonConversionException(e);
+            throw new ConversionException(e);
         } finally {
             try {
                 writer.close();
@@ -238,9 +237,9 @@ public class JsonUtilities {
      * Convert a CMObject to its JSON representation
      * @param objects the objects to convert
      * @return valid JSON that represents the passed in objects as a collection of JSON
-     * @throws JsonConversionException if unable to convert this CMObject to json
+     * @throws ConversionException if unable to convert this CMObject to json
      */
-    public static String objectsToJson(CMObject... objects) throws JsonConversionException {
+    public static String objectsToJson(CMObject... objects) throws ConversionException {
         if(objects == null) {
             LOG.debug("Received null objects, returning empty json");
             return EMPTY_JSON;
@@ -257,7 +256,7 @@ public class JsonUtilities {
             return writer.toString();
         } catch(IOException e) {
             LOG.error("Trouble writing json", e);
-            throw new JsonConversionException(e);
+            throw new ConversionException(e);
         } finally {
             try {
                 writer.close();
@@ -267,65 +266,65 @@ public class JsonUtilities {
         }
     }
 
-    public static String objectToJson(CMObject object) throws JsonConversionException {
+    public static String objectToJson(CMObject object) throws ConversionException {
         StringWriter writer = new StringWriter();
         try {
             jsonMapper.writeValue(writer, object);
             return writer.toString();
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
-            throw new JsonConversionException(e);
+            throw new ConversionException(e);
         }
     }
 
     /**
-     * Convert the given JSON to the given klass. If unable to convert, throws JsonConversionException
+     * Convert the given JSON to the given klass. If unable to convert, throws ConversionException
      * @param json JSON representing
      * @param klass
      * @param <CMO>
      * @return
-     * @throws JsonConversionException
+     * @throws ConversionException
      */
-    public static <CMO> CMO jsonToClass(String json, Class<CMO> klass) throws JsonConversionException {
+    public static <CMO> CMO jsonToClass(String json, Class<CMO> klass) throws ConversionException {
         try {
             CMO object = jsonMapper.readValue(json, klass);
             return object;
         }catch (IOException e) {
             LOG.error("Trouble reading json", e);
-            throw new JsonConversionException("JSON: " + json, e);
+            throw new ConversionException("JSON: " + json, e);
         }
     }
 
-    public static CMObject jsonToClass(String json) throws JsonConversionException {
+    public static CMObject jsonToClass(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
         if(klassString == null ||
                 ClassNameRegistry.isRegistered(klassString.toString()) == false) {
-            return SimpleCMObject.SimpleCMObject(new JsonString(json));
+            return SimpleCMObject.SimpleCMObject(new TransportableString(json));
         }
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);
     }
 
     /**
-     * Convert a Json entity to a Map representation
-     * @param json valid JSON
-     * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * Convert a Transportable entity to a Map representation
+     * @param transportable valid JSON
+     * @return If transportable is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
+     * @throws ConversionException if unable to convert the given transportable to a map. Will happen if the transportableRepresentation call fails or if unable to represent the transportable as a map
      */
-    public static Map<String, Object> jsonToMap(Json json) throws JsonConversionException {
-        if(json == null)
+    public static Map<String, Object> jsonToMap(Transportable transportable) throws ConversionException {
+        if(transportable == null)
             return new HashMap<String, Object>();
-        return jsonToMap(json.asJson());
+        return jsonToMap(transportable.transportableRepresentation());
     }
 
     /**
      * Convert a JSON string to a Map representation
      * @param json valid JSON
      * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * @throws ConversionException if unable to convert the given json to a map. Will happen if the transportableRepresentation call fails or if unable to represent the json as a map
      */
-    public static Map<String, Object> jsonToMap(String json) throws JsonConversionException {
+    public static Map<String, Object> jsonToMap(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToClassMap(json, Object.class);
         convertDateClassesToDates(jsonMap);
         return jsonMap;
@@ -338,16 +337,16 @@ public class JsonUtilities {
      * @param klass the
      * @param <CMO>
      * @return
-     * @throws JsonConversionException
+     * @throws ConversionException
      */
-    public static <CMO> Map<String, CMO> jsonToClassMap(String json, Class<CMO> klass) throws JsonConversionException {
+    public static <CMO> Map<String, CMO> jsonToClassMap(String json, Class<CMO> klass) throws ConversionException {
         try {
             MapType mapType = jsonMapper.getTypeFactory().constructMapType(Map.class, String.class, klass);
             Map<String, CMO> jsonMap = jsonMapper.readValue(json, mapType);
             return jsonMap;
         } catch (IOException e) {
             LOG.error("Trouble reading json", e);
-            throw new JsonConversionException("JSON: " + json, e);
+            throw new ConversionException("JSON: " + json, e);
         }
     }
 
@@ -362,6 +361,9 @@ public class JsonUtilities {
 
     public static Map<String, String> jsonMapToKeyMap(String json) {
         //TODO this method is big and kinda gross
+        if(json == null) {
+            return new HashMap<String, String>();
+        }
         try {
             StringReader reader = new StringReader(json);
             int readInt;
@@ -388,7 +390,7 @@ public class JsonUtilities {
                                 String key = keyBuilder.toString();
                                 String[] splitKey = key.split("\"");
                                 if(splitKey.length < 1) {
-                                    throw new JsonConversionException("Missing key at: " + key);
+                                    throw new ConversionException("Missing key at: " + key);
                                 }
                                 String parsedKey = splitKey[1];
                                 //get the contents
@@ -414,16 +416,16 @@ public class JsonUtilities {
             return jsonMap;
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
-            throw new JsonConversionException("Trouble reading JSON: " + e);
+            throw new ConversionException("Trouble reading JSON: " + e);
         }
     }
 
-    public static void mergeJsonUpdates(CMObject objectToUpdate, String json) throws JsonConversionException {
+    public static void mergeJsonUpdates(CMObject objectToUpdate, String json) throws ConversionException {
         try {
             jsonMapper.readerForUpdating(objectToUpdate).readValue(json);
         } catch (IOException e) {
             LOG.error("Exception thrown while merging json update: " + json, e);
-            throw new JsonConversionException(e);
+            throw new ConversionException(e);
         }
     }
 
@@ -431,9 +433,9 @@ public class JsonUtilities {
      * Replaces any json datetime objects with dates. Modifies the passed in map
      * @param jsonMap
      * @return
-     * @throws JsonConversionException
+     * @throws ConversionException
      */
-    private static Object convertDateClassesToDates(Map<String, Object> jsonMap) throws JsonConversionException {
+    private static Object convertDateClassesToDates(Map<String, Object> jsonMap) throws ConversionException {
         if(jsonMap == null)
             return null;
         boolean isDateClass = jsonMap.containsKey(CLASS_KEY) &&
@@ -443,7 +445,7 @@ public class JsonUtilities {
             if(time instanceof Number) {
                 return CMDateFormat.fromNumber((Number) time); //replace Number with Date
             } else {
-                throw new JsonConversionException("Received non number time");
+                throw new ConversionException("Received non number time");
             }
         }
 
@@ -460,9 +462,9 @@ public class JsonUtilities {
      * Convert an InputStream containg JSON to a Map representation
      * @param inputJson a stream of valid JSON
      * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws JsonConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * @throws ConversionException if unable to convert the given json to a map. Will happen if the transportableRepresentation call fails or if unable to represent the json as a map
      */
-    public static Map<String, Object> jsonToMap(InputStream inputJson) throws JsonConversionException {
+    public static Map<String, Object> jsonToMap(InputStream inputJson) throws ConversionException {
         if(inputJson == null) {
             return new HashMap<String, Object>();
         }
@@ -471,7 +473,7 @@ public class JsonUtilities {
             IOUtils.copy(inputJson, writer, ENCODING);
             return jsonToMap(writer.toString());
         } catch (IOException e) {
-            throw new JsonConversionException("Couldn't read inputJson", e);
+            throw new ConversionException("Couldn't read inputJson", e);
         }
     }
 
@@ -481,10 +483,10 @@ public class JsonUtilities {
      * @param first
      * @param second
      * @return true if first and second are equivalent JSON objects
-     * @throws JsonConversionException if unable to convert Json to a JsonNode or if first or second cannot be converted to a JSON string
+     * @throws ConversionException if unable to convert Transportable to a JsonNode or if first or second cannot be converted to a JSON string
      */
-    public static boolean isJsonEquivalent(Json first, Json second) throws JsonConversionException {
-        return isJsonEquivalent(first.asJson(), second.asJson());
+    public static boolean isJsonEquivalent(Transportable first, Transportable second) throws ConversionException {
+        return isJsonEquivalent(first.transportableRepresentation(), second.transportableRepresentation());
     }
 
     /**
@@ -493,9 +495,9 @@ public class JsonUtilities {
      * @param first
      * @param second
      * @return true if first and second are equivalent JSON objects
-     * @throws JsonConversionException if unable to convert first or second to JsonNodes
+     * @throws ConversionException if unable to convert first or second to JsonNodes
      */
-    public static boolean isJsonEquivalent(String first, String second) throws JsonConversionException {
+    public static boolean isJsonEquivalent(String first, String second) throws ConversionException {
         if(first == null)
             return second == null;
         if(second == null)
@@ -506,10 +508,10 @@ public class JsonUtilities {
                 JsonNode secondNode = jsonMapper.readTree(second);
                 return firstNode.equals(secondNode);
             } catch (IOException e) {
-                throw new JsonConversionException("Couldn't convert second string to json: " + second, e);
+                throw new ConversionException("Couldn't convert second string to json: " + second, e);
             }
         } catch (IOException e) {
-            throw new JsonConversionException("Couldn't convert first string to json: " + first, e);
+            throw new ConversionException("Couldn't convert first string to json: " + first, e);
         }
     }
 }

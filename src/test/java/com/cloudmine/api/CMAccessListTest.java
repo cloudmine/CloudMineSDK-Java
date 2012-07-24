@@ -60,7 +60,8 @@ public class CMAccessListTest {
         CMUser owner = CMUser.CMUser("bobdole@bobdole.com", "imbobdole");
         CMAccessList list = CMAccessList.CMAccessList(owner);
         list.grantPermissions(CMAccessPermission.CREATE);
-        String json = list.asJson();
+
+        String json = list.transportableRepresentation();
 
         CMAccessList convertedList = JsonUtilities.jsonToClass(json, CMAccessList.class);
         assertEquals(convertedList,  list);

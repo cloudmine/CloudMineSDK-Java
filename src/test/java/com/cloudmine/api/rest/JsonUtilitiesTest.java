@@ -115,8 +115,8 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testJsonCollection() {
-        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT).asJson()));
-        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}").asJson();
+        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT).transportableRepresentation()));
+        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}").transportableRepresentation();
         Map<String, Object> jsonMap = JsonUtilities.jsonToMap(jsonCollectionString);
         assertEquals(2, jsonMap.size());
     }
@@ -155,7 +155,7 @@ public class JsonUtilitiesTest {
         pictureObject.add("location", CMGeoPoint.CMGeoPoint(50, 50));
         pictureObject.add("picture", "pictureKey");
         try {
-            pictureObject.asJson(); //this is an ugly test but it routes through mapToJson and this used to fail
+            pictureObject.transportableRepresentation(); //this is an ugly test but it routes through mapToJson and this used to fail
         }catch(Exception e) {
             e.printStackTrace();
             fail();
@@ -184,13 +184,27 @@ public class JsonUtilitiesTest {
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
         simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.objectsToJson(convertableObject);
-        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
+        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.transportableRepresentation()));
 
         Map<String, ExtendedCMObject> map = JsonUtilities.jsonToClassMap(json, ExtendedCMObject.class);
         assertEquals(convertableObject, map.get(convertableObject.getObjectId()));
 
         Map<String, CMObject> objectMap = JsonUtilities.jsonToClassMap(json);
         assertEquals(convertableObject, objectMap.get(convertableObject.getObjectId()));
+    }
+
+    @Test
+    public void testJsonToClass() {
+        String objectId = "65c30a95d00b40b9b45fc99f072ab063";
+        String extendedCMUser = "{\"address\":\"123 Real St, Philadelphia, PA 19123\"," +
+                "\"age\":20," +
+                "\"paid\":false," +
+                "\"__access__\":[]," +
+                "\"__class__\":\"com.cloudmine.test.ExtendedCMUser\"," +
+                "\"__type__\":\"user\"," +
+                "\"__id__\":\"" + objectId + "\"}";
+        ExtendedCMUser user = JsonUtilities.jsonToClass(extendedCMUser, ExtendedCMUser.class);
+        assertEquals(objectId, user.getObjectId());
     }
 
     @Test

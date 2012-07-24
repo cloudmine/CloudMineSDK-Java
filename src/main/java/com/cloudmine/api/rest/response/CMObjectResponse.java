@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
@@ -8,7 +9,10 @@ import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  Returned by the CloudMine service in response to object fetch requests. Provides access to the
@@ -41,13 +45,30 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
             Map<String, ? extends CMObject> tempMap;
             try {
                 tempMap = JsonUtilities.jsonToClassMap(success);
-            }catch(JsonConversionException jce) {
+            }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
             }
             objectMap = tempMap;
         } else {
             objectMap = Collections.emptyMap();
+        }
+    }
+
+    protected CMObjectResponse(String response, int code) {
+        super(response, code); //TODO this is copy pasta code from above :( thats bad
+        if(hasSuccess()) {
+            String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
+            Map<String, ? extends CMObject> tempMap;
+            try {
+                tempMap = JsonUtilities.jsonToClassMap(success);
+            }catch(JsonConversionException jce) {
+                tempMap = Collections.emptyMap();
+                LOG.error("Trouble converting: " + success + ", using empty map");
+            }
+            objectMap = tempMap;
+        } else {
+            objectMap = Collections.emptyMap(); 
         }
     }
 

@@ -9,13 +9,19 @@ import com.cloudmine.api.rest.*;
  */
 public class LibrarySpecificClassCreator {
 
-    private static LibrarySpecificClassCreator creator = new LibrarySpecificClassCreator(new Base64EncoderStandardImpl(), new HeaderFactoryStandardImpl(), null);
+    private static LibrarySpecificClassCreator creator;
 
     private Base64Encoder encoder;
     private HeaderFactory headerFactory;
     private AsynchronousHttpClient httpClient;
 
     public static LibrarySpecificClassCreator getCreator() {
+        if(creator == null) {
+            creator = new LibrarySpecificClassCreator(new Base64EncoderStandardImpl(),
+                    new HeaderFactoryStandardImpl(),
+                    new ApacheThreadedHttpClient());
+
+        }
         return creator;
     }
 

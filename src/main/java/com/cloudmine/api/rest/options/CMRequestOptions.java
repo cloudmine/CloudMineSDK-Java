@@ -14,6 +14,11 @@ public class CMRequestOptions implements BaseURL{
     private final CMSortOptions sortOptions;
     private final CMSharedDataOptions sharedDataOptions;
 
+
+    public CMRequestOptions(CMPagingOptions allResults) {
+        this(allResults, CMServerFunction.NONE, CMSortOptions.NONE);
+    }
+
     /**
      * Instantiate a CMRequestOptions with the specified individual options. If you do not want to specify
      * a specific option, you can pass in the NONE constant from the relevant class.
