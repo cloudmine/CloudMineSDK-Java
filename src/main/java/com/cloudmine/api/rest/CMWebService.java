@@ -343,6 +343,14 @@ public class CMWebService {
         asyncDeleteAll(Callback.DO_NOTHING);
     }
 
+    public void asyncDeleteUser(String userId) {
+        asyncDeleteUser(userId, Callback.DO_NOTHING);
+    }
+
+    public void asyncDeleteUser(String userId, Callback callback) {
+        executeAsyncCommand(createDeleteUser(userId), callback, objectModificationResponseConstructor());
+    }
+
     /**
      * Delete the CMFile
      * @param file the file to delete
@@ -959,6 +967,12 @@ public class CMWebService {
         HttpGet get = new HttpGet(baseUrl.search(search).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
+    }
+
+    private HttpDelete createDeleteUser(String userId) {
+        HttpDelete delete = new HttpDelete(baseUrl.account().addKey(userId).asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
     }
 
     private HttpDelete createDeleteAll() {

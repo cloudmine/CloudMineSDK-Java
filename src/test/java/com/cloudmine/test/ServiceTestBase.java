@@ -1,9 +1,6 @@
 package com.cloudmine.test;
 
-import com.cloudmine.api.CMApiCredentials;
-import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.*;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.Savable;
@@ -30,10 +27,10 @@ import static junit.framework.Assert.assertTrue;
  */
 public class ServiceTestBase {
     private static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
-    private static final String API_KEY = "3fc494b36d6d432d9afb051d819bdd72";
+    private static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
     protected static final String USER_PASSWORD = "test";
-//    private static final String APP_ID = "c96cd111bc1941bb9191443548305cff";
-//    private static final String API_KEY = "f9d4f1bc43984cc38fbefe08f39aa5ff";
+//    private static final String APP_ID = "94b48aea559b4bb6bd16e1d4a8469308";
+//    private static final String API_KEY = "08cb0266f47840d28044d0e122286779";
     private static final CMUser user = CMUser.CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
     public static final TestServiceCallback hasSuccess = testCallback(new ResponseBaseCallback() {
@@ -80,12 +77,13 @@ public class ServiceTestBase {
     @Before
     public void setUp() {
         ClassNameRegistry.register("govna", ExtendedCMObject.class);
+        CMApiCredentials.initialize(APP_ID, API_KEY);
+        service = CMWebService.getService();
 
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
         reset();
+
         user().setPassword(USER_PASSWORD);
-        CMApiCredentials.initialize(APP_ID, API_KEY);
-        service = CMWebService.getService();
         deleteAll();
     }
 
@@ -94,6 +92,27 @@ public class ServiceTestBase {
         CMUser user = user();
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
+    }
+
+    protected void deleteAllUsers() {
+        service.asyncLoadAllUserProfiles(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+                response.wasSuccess();
+                for(CMObject object : response.getObjects()) {
+                    if(object.hasObjectId()) {
+                        service.asyncDeleteUser(object.getObjectId(), new ObjectModificationResponseCallback() {
+                            public void onCompletion(ObjectModificationResponse response) {
+                                if(response.wasSuccess()) {
+                                    response.getDeletedObjectIds();
+                                } else {
+                                    response.getDeletedObjectIds();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     public CMUser user() {

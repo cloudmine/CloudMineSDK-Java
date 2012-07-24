@@ -232,7 +232,7 @@ public class CMObject implements Json, Savable {
 
     @JsonIgnore
     public boolean hasObjectId() {
-        return objectId == null;
+        return objectId != null;
     }
 
     @JsonProperty("__class__")

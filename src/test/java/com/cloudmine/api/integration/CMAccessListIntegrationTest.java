@@ -65,8 +65,6 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         service.getUserWebService(token).asyncLoadObject(anObject.getObjectId(), TestServiceCallback.testCallback(new CMObjectResponseCallback() {
             @Override
             public void onCompletion(CMObjectResponse response) {
-                anotherUser.getObjectId();
-                list.getObjectId();
                 assertTrue(response.hasSuccess());
                 assertEquals(1, response.getObjects().size());
                 CMObject loadedObject = response.getCMObject(anObject.getObjectId());

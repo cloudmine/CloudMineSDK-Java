@@ -12,6 +12,7 @@ import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class CMUser extends CMObject {
         if(user.isLoggedIn()) {
             CMWebService.getService().getUserWebService(user.getSessionToken()).asyncLoadLoggedInUserProfile(callback);
         } else {
-            user.login(new LoginResponseCallback() {
+            user.login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 @Override
                 public void onCompletion(LoginResponse response) {
                     CMWebService.getService().getUserWebService(response.getSessionToken()).asyncLoadLoggedInUserProfile(callback);
@@ -175,6 +176,12 @@ public class CMUser extends CMObject {
         return super.getObjectId();
     }
 
+    @Override
+    @JsonProperty(JsonUtilities.OBJECT_ID_KEY)
+    public void setObjectId(String objectId) {
+        super.setObjectId(objectId);
+    }
+
     /**
      * Check whether this user is logged in
      * @return true if the user is logged in successfully; false otherwise
@@ -238,7 +245,7 @@ public class CMUser extends CMObject {
         if(isLoggedIn()) {
             loadAndMergeProfileUpdatesThenCallback(callback);
         } else {
-            login(new LoginResponseCallback() {
+            login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 @Override
                 public void onCompletion(LoginResponse response) {
                     loadAndMergeProfileUpdatesThenCallback(callback);
@@ -259,7 +266,7 @@ public class CMUser extends CMObject {
         if(isLoggedIn()) {
             getUserService().asyncLoadAccessLists(callback);
         } else {
-            login(new LoginResponseCallback() {
+            login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
                     getUserService().asyncLoadAccessLists(callback);
                 }
@@ -272,7 +279,7 @@ public class CMUser extends CMObject {
     }
 
     private void loadAndMergeProfileUpdatesThenCallback(final Callback callback) {
-        getUserService().asyncLoadLoggedInUserProfile(new CMObjectResponseCallback() {
+        getUserService().asyncLoadLoggedInUserProfile(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
             @Override
             public void onCompletion(CMObjectResponse response) {
                 try {
@@ -346,7 +353,7 @@ public class CMUser extends CMObject {
         if(isLoggedIn()) {
             getUserService().asyncInsertUserProfile(this, callback);
         } else {
-            login(new LoginResponseCallback() {
+            login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
                     getUserService().asyncInsertUserProfile(CMUser.this, callback);
                 }
@@ -436,8 +443,9 @@ public class CMUser extends CMObject {
         return LibrarySpecificClassCreator.getCreator().getEncoder().encode(userString);
     }
 
-    private final LoginResponseCallback setLoggedInUserCallback(final Callback callback) {
-        return new LoginResponseCallback() {
+    private final Callback<LoginResponse> setLoggedInUserCallback(final Callback callback) {
+        return new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            @Override
             public void onCompletion(LoginResponse response) {
                 try {
                     clearPassword();
