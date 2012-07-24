@@ -1,17 +1,17 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The base response returned by requests to the cloudmine web service. Consists of the JSON response,
+ * The base response returned by requests to the cloudmine web service. Consists of the transportable string response,
  * if any, and the status code.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMResponse extends ResponseBase<CMResponseCode> implements Json {
+public class CMResponse extends ResponseBase<CMResponseCode> implements Transportable {
 
     private static final Logger LOG = LoggerFactory.getLogger(CMResponse.class);
     public static final ResponseConstructor<CMResponse> CONSTRUCTOR = new ResponseConstructor<CMResponse>() {

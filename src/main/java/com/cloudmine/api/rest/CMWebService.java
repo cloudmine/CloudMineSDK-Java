@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -570,9 +570,9 @@ public class CMWebService {
     /**
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate) throws ConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -580,9 +580,9 @@ public class CMWebService {
      * Asynchronously insert the object. If it already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback) throws ConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -591,20 +591,20 @@ public class CMWebService {
      * @param toCreate the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(CMObject toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
+    public void asyncInsert(CMObject toCreate, Callback callback, CMRequestOptions options) throws ConversionException {
         executeAsyncCommand(
-                createPut(toCreate.asJson(), options),
+                createPut(toCreate.transportableRepresentation(), options),
                 callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate) throws ConversionException {
         asyncInsert(toCreate, Callback.DO_NOTHING);
     }
 
@@ -612,9 +612,9 @@ public class CMWebService {
      * Asynchronously insert all of the objects. If any already exists in CloudMine, its contents will be replaced entirely
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback) throws JsonConversionException {
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback) throws ConversionException {
         asyncInsert(toCreate, callback, CMRequestOptions.NONE);
     }
 
@@ -623,16 +623,16 @@ public class CMWebService {
      * @param toCreate the objects to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback, CMRequestOptions options) throws JsonConversionException {
-        List<Json> jsons = new ArrayList<Json>(toCreate.size());
+    public void asyncInsert(Collection<? extends CMObject> toCreate, Callback callback, CMRequestOptions options) throws ConversionException {
+        List<Transportable> transportables = new ArrayList<Transportable>(toCreate.size());
         for(CMObject object : toCreate) {
-            jsons.add(new JsonString(object.asKeyedObject()));
+            transportables.add(new TransportableString(object.asKeyedObject()));
         }
         String jsonStringsCollection = JsonUtilities.jsonCollection(
-                jsons.toArray(new Json[jsons.size()])
-        ).asJson();
+                transportables.toArray(new Transportable[transportables.size()])
+        ).transportableRepresentation();
         executeAsyncCommand(createPut(jsonStringsCollection, options),
                 callback, objectModificationResponseConstructor());
     }
@@ -640,9 +640,9 @@ public class CMWebService {
     /**
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncUpdate(CMObject toUpdate) throws JsonConversionException {
+    public void asyncUpdate(CMObject toUpdate) throws ConversionException {
         asyncUpdate(toUpdate, Callback.DO_NOTHING);
     }
 
@@ -650,18 +650,18 @@ public class CMWebService {
      * Asynchronously update the object. If it already exists in CloudMine, its contents will be merged
      * @param toUpdate the object to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncUpdate(CMObject toUpdate, Callback callback) throws JsonConversionException {
-        executeAsyncCommand(createJsonPost(toUpdate.asJson()), callback, objectModificationResponseConstructor());
+    public void asyncUpdate(CMObject toUpdate, Callback callback) throws ConversionException {
+        executeAsyncCommand(createJsonPost(toUpdate.transportableRepresentation()), callback, objectModificationResponseConstructor());
     }
 
     /**
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<? extends CMObject> objects) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects) throws ConversionException {
         asyncUpdate(objects, Callback.DO_NOTHING);
     }
 
@@ -669,16 +669,16 @@ public class CMWebService {
      * Asynchronously update all of the objects. If any already exists in CloudMine, its contents will be merged
      * @param objects the objects to update
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws JsonConversionException if unable to convert the CMObject to json. This ordinarily should not occur
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
-    public void asyncUpdate(Collection<? extends CMObject> objects, Callback callback) throws JsonConversionException {
+    public void asyncUpdate(Collection<? extends CMObject> objects, Callback callback) throws ConversionException {
         String[] jsonStrings = new String[objects.size()];
         int i = 0;
         for(CMObject cmObject : objects) {
             jsonStrings[i] = cmObject.asKeyedObject();
             i++;
         }
-        String json = JsonUtilities.jsonCollection(jsonStrings).asJson();
+        String json = JsonUtilities.jsonCollection(jsonStrings).transportableRepresentation();
         executeAsyncCommand(createJsonPost(json), callback, objectModificationResponseConstructor());
     }
 
@@ -852,24 +852,24 @@ public class CMWebService {
     }
 
     /**
-     * Make a blocking call to directly insert JSON into CloudMine
-     * @param json a valid JSON representation of a CloudMine object
+     * Make a blocking call to directly insert a transportable representation into CloudMine
+     * @param transport a valid transportable representation of a CloudMine object
      * @return the ObjectModificationResponse containing success and error values
      * @throws NetworkException if unable to perform the network call
      */
-    public ObjectModificationResponse insert(String json) throws NetworkException {
-        HttpPut put = createPut(json);
+    public ObjectModificationResponse insert(String transport) throws NetworkException {
+        HttpPut put = createPut(transport);
         return executeCommand(put, objectModificationResponseConstructor());
     }
 
     /**
-     * Make a blocking call to directly update JSON in CloudMine. If the object already exists, its values will be updated; otherwise it will be inserted
-     * @param json a valid JSON representation of a CloudMine object
+     * Make a blocking call to directly update an object using a transportable representation in CloudMine. If the object already exists, its values will be updated; otherwise it will be inserted
+     * @param transport a valid transportable representation of a CloudMine object
      * @return the ObjectModificationResponse containing success and error values
      * @throws NetworkException if unable to perform the network call
      */
-    public ObjectModificationResponse update(String json) throws NetworkException {
-        HttpPost post = createJsonPost(json);
+    public ObjectModificationResponse update(String transport) throws NetworkException {
+        HttpPost post = createJsonPost(transport);
         return executeCommand(post, objectModificationResponseConstructor());
     }
 
@@ -899,9 +899,9 @@ public class CMWebService {
      * Make a blocking call to create this user
      * @return  the {@link LoginResponse} which will include the CMSessionToken that authenticates this user and provides access to the user level store
      * @throws NetworkException if unable to perform the network call
-     * @throws JsonConversionException if unable to convert this user to JSON. This should never happen
+     * @throws ConversionException if unable to convert this user to a transportable representation. This should never happen unless you have subclassed CMUser and overridden transportableRepresentation
      */
-    public CMResponse insert(CMUser user) throws NetworkException, JsonConversionException {
+    public CMResponse insert(CMUser user) throws NetworkException, ConversionException {
         return executeCommand(createPut(user));
     }
 
@@ -1012,10 +1012,10 @@ public class CMWebService {
         return put;
     }
 
-    private HttpPut createPut(CMUser user) throws JsonConversionException {
+    private HttpPut createPut(CMUser user) throws ConversionException {
         HttpPut put = new HttpPut(baseUrl.account().create().asUrlString());
         addCloudMineHeader(put);
-        addJson(put, user.asJson());
+        addJson(put, user.transportableRepresentation());
         return put;
     }
 
@@ -1104,7 +1104,7 @@ public class CMWebService {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)
             ));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create jsoncollection", e); //this should not happen ever so we swallow
         }
         return post;
@@ -1117,7 +1117,7 @@ public class CMWebService {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(EMAIL_KEY, email)
             ));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create json collection from email key", e); //this should never happen
         }
         return post;
@@ -1130,7 +1130,7 @@ public class CMWebService {
         try {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
-        } catch (JsonConversionException e) {
+        } catch (ConversionException e) {
             LOG.error("Unable to create json collection from property", e); //this should never happen
         }
         return post;
@@ -1149,8 +1149,8 @@ public class CMWebService {
         }
     }
 
-    private void addJson(HttpEntityEnclosingRequestBase message, Json json) throws JsonConversionException {
-        addJson(message, json.asJson());
+    private void addJson(HttpEntityEnclosingRequestBase message, Transportable transportable) throws ConversionException {
+        addJson(message, transportable.transportableRepresentation());
     }
 
     protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Parent class for CMResponses that include a "success" and "errors" key mapped to a JSON object, or collection of JSON objects
+ * Parent class for CMResponses that include a "success" and "errors" key mapped to a transportable object representation, or collection of them
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
@@ -47,8 +47,8 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
     }
 
     /**
-     * Returns a copy of the success json object, represented as a Map<String, Object></String,>
-     * @return a copy of the success json object, represented as a Map<String, Object></String,>
+     * Returns a copy of the success transport object, represented as a Map<String, Object></String,>
+     * @return a copy of the success transport object, represented as a Map<String, Object></String,>
      */
     public Map<String, Object> getSuccessMap() {
         return new HashMap<String, Object>(successResponse);
@@ -56,7 +56,7 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
 
     /**
      * Check whether any objects exist in the success response
-     * @return true if the success response json object was not empty; false otherwise
+     * @return true if the success response transport object was not empty; false otherwise
      */
     public boolean hasSuccess() {
         return isNotEmpty(successResponse);
@@ -64,14 +64,14 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
 
     /**
      * Check whether any objects exist in the errors response
-     * @return true if the errors response json object was not empty; false otherwise.
+     * @return true if the errors response transport object was not empty; false otherwise.
      */
     public boolean hasError() {
         return isNotEmpty(errorResponse);
     }
 
     /**
-     * Check whether the success response json object contains the specific key
+     * Check whether the success response transport object contains the specific key
      * @param key the key to check
      * @return true if the success response has the given key at the top level
      */
@@ -81,18 +81,18 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
     }
 
     /**
-     * Get the error response json objects as a collection of CMObjects
+     * Get the error response transport objects as a collection of CMObjects
      * @return the error response as a collection of CMObjects
-     * @throws CreationException if the error response contained improperly formed json
+     * @throws CreationException if the error response contained improperly formed transport
      */
     public List<SimpleCMObject> getErrorObjects() throws CreationException {
         return getObjects(errorResponse);
     }
 
     /**
-     * Get the success response json objects as a collection of SimpleCMObjects
+     * Get the success response transport objects as a collection of SimpleCMObjects
      * @return the success response as a collection of SimpleCMObjects
-     * @throws CreationException if the success response contained improperly formed json
+     * @throws CreationException if the success response contained improperly formed transport
      */
     public List<SimpleCMObject> getSuccessObjects() throws CreationException {
         List<SimpleCMObject> objects = successObjects.value();

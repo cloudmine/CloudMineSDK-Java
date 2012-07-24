@@ -1,9 +1,9 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.exceptions.JsonConversionException;
 import com.cloudmine.api.rest.CMStore;
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -21,10 +21,10 @@ import java.util.Arrays;
 /**
  * A binary file that can be stored in CloudMine. Consists of a file name, content type, and the file
  * contents as bytes. <BR>
- * The JSON representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
+ * The transportable representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMFile implements Json, Savable {
+public class CMFile implements Transportable, Savable {
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
@@ -171,12 +171,12 @@ public class CMFile implements Json, Savable {
     }
 
     @Override
-    public void save() throws JsonConversionException, CreationException {
+    public void save() throws ConversionException, CreationException {
         save(Callback.DO_NOTHING);
     }
 
     @Override
-    public void save(Callback callback) throws CreationException, JsonConversionException {
+    public void save(Callback callback) throws CreationException, ConversionException {
         store().saveFile(this, callback);
     }
 
@@ -286,12 +286,12 @@ public class CMFile implements Json, Savable {
     }
 
     @Override
-    public String asJson() throws JsonConversionException {
+    public String transportableRepresentation() throws ConversionException {
         return
              JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonProperty("key", fileName),
                 JsonUtilities.createJsonProperty("content_type", contentType),
-                JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, CMType.FILE.asJson())).asJson();
+                JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, CMType.FILE.transportableRepresentation())).transportableRepresentation();
 
     }
 }
