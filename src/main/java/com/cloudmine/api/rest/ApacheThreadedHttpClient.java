@@ -56,7 +56,9 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
             IOException cause = null;
             int requestCounter = 0;
             HttpRequestRetryHandler retryHandler = client.get().getHttpRequestRetryHandler();
-            while(retry) {
+
+            while(retry &&
+                    requestCounter < RETRY_REQUEST_COUNT) {
                 try {
                     makeRequest();
                     return;
@@ -65,7 +67,13 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
                     cause = e;
                     requestCounter++;
                     retry = retryHandler.retryRequest(cause, requestCounter, httpContext);
-
+                } catch(NullPointerException e) {
+                    // there's a bug in HttpClient 4.0.x that on some occasions causes
+                    // DefaultRequestExecutor to throw an NPE, see
+                    // http://code.google.com/p/android/issues/detail?id=5255
+                    cause = new IOException("NPE", e);
+                    requestCounter++;
+                    retry = retryHandler.retryRequest(cause, requestCounter, httpContext);
                 } catch(Exception e) {
                     callback.onFailure(cause, "Failed");
                     return;
