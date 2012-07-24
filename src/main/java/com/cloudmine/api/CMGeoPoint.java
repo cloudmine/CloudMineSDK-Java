@@ -2,7 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 
 /**
  * A CMObject that has location information associated with it. This allows you to perform
@@ -41,15 +41,15 @@ public class CMGeoPoint extends SimpleCMObject {
     }
 
     /**
-     * Instantiate a new CMGeoPoint based on the given JSON. The JSON must include a top level key, a "__type__":"geopoint" property,
+     * Instantiate a new CMGeoPoint based on the given transportable. The transportable must include a top level key, a "__type__":"geopoint" property,
      * and a latitude and longitude.
-     * @param json a valid JSON representation of a CMGeoPoint
+     * @param transportable a valid transportable representation of a CMGeoPoint
      * @return a new CMGeoPoint
-     * @throws CreationException if given improper JSON; either malformed or lacking a __type__, latitude, or longitude.
+     * @throws CreationException if given improperly formated transportable; either malformed or lacking a __type__, latitude, or longitude.
      */
-    public static CMGeoPoint CMGeoPoint(Json json) throws CreationException {
+    public static CMGeoPoint CMGeoPoint(Transportable transportable) throws CreationException {
         try {
-            return new CMGeoPoint(json);
+            return new CMGeoPoint(transportable);
         } catch (ConversionException e) {
             throw new CreationException(e);
         }
@@ -71,15 +71,15 @@ public class CMGeoPoint extends SimpleCMObject {
     }
 
     /**
-     * Constructs a geopoint from the given Json. Is assumed to be in the format { "key": {geopoint json}}
-     * @param json
+     * Constructs a geopoint from the given Transportable. Is assumed to be in the format { "key": {geopoint transportable}}
+     * @param transportable
      * @throws ConversionException
      */
-    CMGeoPoint(Json json) throws ConversionException, CreationException {
-        super(json);
+    CMGeoPoint(Transportable transportable) throws ConversionException, CreationException {
+        super(transportable);
         boolean isMissingAnything = !(isType(CMType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {
-            throw new ConversionException("Given non geopoint class to construct geopoint: " + json);
+            throw new ConversionException("Given non geopoint class to construct geopoint: " + transportable);
         }
         setClass(GEOPOINT_CLASS);
         setType(CMType.GEO_POINT);

@@ -152,7 +152,7 @@ public class CMStore {
      * present, default (app level) is used; however, the object's StoreIdentifier is not updated.
      * NOTE: No matter what user is associated with the object to save, the store always saves the object with the user associated with the store.
      * @param object the object to save
-     * @throws ConversionException if unable to convert the CMObject to json.
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveObject(CMObject object) throws ConversionException, CreationException {
@@ -165,7 +165,7 @@ public class CMStore {
      * NOTE: No matter what user is associated with the object to save, the store always saves the object with the user associated with the store.
      * @param object the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws ConversionException if unable to convert the CMObject to json.
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and this object is UserLevel
      */
     public void saveObject(CMObject object, Callback callback) throws ConversionException, CreationException {
@@ -179,7 +179,7 @@ public class CMStore {
      * @param object the object to save
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into
-     * @throws ConversionException if unable to convert the CMObject to json.
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveObject(final CMObject object, final Callback callback, final CMRequestOptions options) throws ConversionException, CreationException {
@@ -510,7 +510,7 @@ public class CMStore {
      * Saves all the application level objects that were added using {@link #addObject(com.cloudmine.api.CMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void saveStoreApplicationObjects() throws ConversionException {
         saveStoreApplicationObjects(Callback.DO_NOTHING);
@@ -521,7 +521,7 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void saveStoreApplicationObjects(Callback callback) throws ConversionException {
         saveStoreApplicationObjects(callback, CMRequestOptions.NONE);
@@ -533,7 +533,7 @@ public class CMStore {
      * modified, it will be saved using the new object level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @throws ConversionException If unable to convert one of the objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void saveStoreApplicationObjects(Callback callback, CMRequestOptions options) throws ConversionException {
         applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback, options);
@@ -543,7 +543,7 @@ public class CMStore {
      * Saves all the user level objects that were added using {@link #addObject(com.cloudmine.api.CMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
-     * @throws ConversionException If unable to convert one of the objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects() throws ConversionException, CreationException {
@@ -555,7 +555,7 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws ConversionException If unable to convert one of the objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects(Callback callback) throws ConversionException, CreationException {
@@ -565,10 +565,9 @@ public class CMStore {
     /**
      * Saves all the user level objects that were added using {@link #addObject(com.cloudmine.api.CMObject)}
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
-     * modified, it will be saved using the new object level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects(final Callback callback, final CMRequestOptions options) throws ConversionException, CreationException {
@@ -584,7 +583,7 @@ public class CMStore {
      * Note that the object level check occurs on save, not on insertion, so if an object is added and then the object level is
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects() throws ConversionException, CreationException {
@@ -598,7 +597,7 @@ public class CMStore {
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
      * @param appCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
      * @param userCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects(Callback appCallback, Callback userCallback) throws ConversionException, CreationException {
@@ -613,7 +612,7 @@ public class CMStore {
      * @param appCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the application level results
      * @param userCallback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will get the user level results
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects(Callback appCallback, Callback userCallback, CMRequestOptions options) throws ConversionException, CreationException {
@@ -628,7 +627,7 @@ public class CMStore {
      * modified, it will be saved using the new object level
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects(Callback callback) throws ConversionException, CreationException {
@@ -642,7 +641,7 @@ public class CMStore {
      * Note that this method makes two calls to the CloudMine API; once for application level, once for user level
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this. This will be called twice; once for the application results, once with the user results
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
-     * @throws ConversionException If unable to convert one of the application level objects to json; this should never happen through normal usage
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects(Callback callback, CMRequestOptions options) throws ConversionException, CreationException {

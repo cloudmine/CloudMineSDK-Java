@@ -115,13 +115,13 @@ public class CMUser extends CMObject {
         this.password = password;
     }
 
-    public String asJson() throws ConversionException {
+    public String transportableRepresentation() throws ConversionException {
         String credentialsJson = JsonUtilities.jsonCollection(
                                         JsonUtilities.createJsonProperty(EMAIL_KEY, getEmail()),
-                                        JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).asJson();
+                                        JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).transportableRepresentation();
         return JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonPropertyToJson(CREDENTIALS_KEY, credentialsJson),
-                JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).asJson();
+                JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).transportableRepresentation();
     }
 
     public String profileTransportRepresentation() throws ConversionException {
@@ -219,7 +219,7 @@ public class CMUser extends CMObject {
     }
 
     public LoginResponse createFakeLoginResponse() {
-        return new LoginResponse(getSessionToken().asJson());
+        return new LoginResponse(getSessionToken().transportableRepresentation());
     }
 
     /**
@@ -305,7 +305,7 @@ public class CMUser extends CMObject {
      * Asynchronously create this user
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.CreationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is passed in
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
-     * @throws ConversionException if unable to convert this user to JSON. This should never happen
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void createUser(Callback callback) throws CreationException, ConversionException {
         CMWebService.getService().asyncCreateUser(this, callback);

@@ -4,7 +4,7 @@ import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.CMStore;
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -29,7 +29,7 @@ import java.util.UUID;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class CMObject implements Json, Savable {
+public class CMObject implements Transportable, Savable {
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
     public static final String MISSING_OBJECT_ID = "";
     public static final String ACCESS_KEY = "__access__";
@@ -56,7 +56,7 @@ public class CMObject implements Json, Savable {
     }
 
     @Override
-    public String asJson() throws ConversionException {
+    public String transportableRepresentation() throws ConversionException {
         return JsonUtilities.objectsToJson(this);
     }
 
@@ -64,7 +64,7 @@ public class CMObject implements Json, Savable {
     /**
      * Get a representation of this object in the form "objectId":{contents}
      * @return a representation of this object in the form "objectId":{contents}
-     * @throws ConversionException if this object cannot be converted to JSON
+     * @throws ConversionException if this object cannot be converted to transportable
      */
     public String asKeyedObject() throws ConversionException {
         return null; //TODO this shouldn't return null I'm thinking
@@ -145,7 +145,7 @@ public class CMObject implements Json, Savable {
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
      * then it saves to the APPLICATION store. Once a CMObject has been saved, it cannot be saved to a
      * different
-     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
     public void save() throws ConversionException, CreationException {
@@ -155,8 +155,7 @@ public class CMObject implements Json, Savable {
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
      * then it saves to the APPLICATION store. Once a CMObject has been saved, it cannot be saved to a
      * different
-     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
     public void save(Callback callback) throws CreationException, ConversionException {
@@ -172,7 +171,7 @@ public class CMObject implements Json, Savable {
      * different
      * @param user the user to save this object with
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws ConversionException if unable to convert to JSON; this should not happen unless you are subclassing this and doing something you shouldn't be
+     * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if CMApiCredentials has not been initialized properly
      * @throws com.cloudmine.api.exceptions.AccessException if setSaveWith has already been set
      */

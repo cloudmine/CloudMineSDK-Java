@@ -11,7 +11,7 @@ import com.cloudmine.api.rest.callbacks.Callback;
  * A common interface that can be shared between different objects that can be saved to cloudmine
  * Copyright CloudMine LLC
  */
-public interface Savable extends Json {
+public interface Savable extends Transportable {
 
     /**
      * Set what store to save this object with. If this is not set, it is assumed to be saved with
@@ -58,7 +58,7 @@ public interface Savable extends Json {
     /**
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
-     * @throws com.cloudmine.api.exceptions.ConversionException if unable to convert this object to JSON; should not happen
+     * @throws com.cloudmine.api.exceptions.ConversionException if unable to convert this object to a transportable representation; should not happen unless you have overridden transportableRepresentation
      * @throws com.cloudmine.api.exceptions.CreationException if {@link com.cloudmine.api.CMApiCredentials#initialize(String, String)} has not been called
      */
     public void save() throws ConversionException, CreationException;
@@ -67,7 +67,7 @@ public interface Savable extends Json {
      * Asynchronously save this object to its store. If no store has been set, it saves to the app
      * level store.
      * @param callback a Callback that will be called once this request completes
-     * @throws ConversionException if unable to convert this object to JSON; should not happen
+     * @throws ConversionException if unable to convert this object to transportable representation; should not happen unless you have overridden transportableRepresentation
      * @throws CreationException if {@link com.cloudmine.api.CMApiCredentials#initialize(String, String)} has not been called
      */
     public void save(Callback callback) throws CreationException, ConversionException;

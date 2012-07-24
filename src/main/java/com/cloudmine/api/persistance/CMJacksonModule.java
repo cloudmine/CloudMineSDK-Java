@@ -5,8 +5,8 @@ import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMType;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.rest.Json;
-import com.cloudmine.api.rest.JsonString;
+import com.cloudmine.api.rest.Transportable;
+import com.cloudmine.api.rest.TransportableString;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.ResponseBase;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -92,19 +92,19 @@ public class CMJacksonModule extends SimpleModule {
         addSerializer(jsonSerializerForType(CMFile.class));
         addSerializer(jsonSerializerForType(CMSessionToken.class));
         addSerializer(jsonSerializerForType(CMType.class));
-        addSerializer(jsonSerializerForType(JsonString.class));
+        addSerializer(jsonSerializerForType(TransportableString.class));
         addSerializer(jsonSerializerForType(ResponseBase.class));
 
     }
 
-    private static <JSON extends Json> JsonSerializer<JSON> jsonSerializerForType(final Class<JSON> type) {
+    private static <JSON extends Transportable> JsonSerializer<JSON> jsonSerializerForType(final Class<JSON> type) {
         return new JsonSerializer<JSON>() {
             @Override
             public void serialize(JSON value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                 jgen.writeStartObject();
                 String json;
                 try {
-                    json = value.asJson();
+                    json = value.transportableRepresentation();
                 } catch (ConversionException e) {
                     LOG.error("Error while serializing, sending empty json", e);
                     json = JsonUtilities.EMPTY_JSON;

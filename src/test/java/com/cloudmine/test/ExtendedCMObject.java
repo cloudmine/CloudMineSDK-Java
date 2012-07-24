@@ -93,6 +93,6 @@ public class ExtendedCMObject extends CMObject {
 
     @Override
     public String toString() {
-        return asJson();
+        return transportableRepresentation();
     }
 }

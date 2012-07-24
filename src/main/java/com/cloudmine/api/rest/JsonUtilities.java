@@ -161,10 +161,10 @@ public class JsonUtilities {
     /**
      * Enclose all the passed in jsonEntities in a JSON collection
      * @param jsonEntities to put into the collection
-     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     * @return { jsonEntities[0].transportableRepresentation, jsonEntities[1].transportableRepresentation, ...}
      */
-    public static Json jsonCollection(Collection<? extends Json> jsonEntities) {
-        return jsonCollection(jsonEntities.toArray(new Json[jsonEntities.size()]));
+    public static Transportable jsonCollection(Collection<? extends Transportable> jsonEntities) {
+        return jsonCollection(jsonEntities.toArray(new Transportable[jsonEntities.size()]));
     }
 
     /**
@@ -172,19 +172,19 @@ public class JsonUtilities {
      * @param jsonEntities JSON strings to put in the collection
      * @return { jsonEntities[0], jsonEntities[1], ...}
      */
-    public static Json jsonStringsCollection(Collection<String> jsonEntities) {
+    public static Transportable jsonStringsCollection(Collection<String> jsonEntities) {
         return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
     }
 
     /**
-     * Enclose all the passed in jsonEntities in a JSON collection
-     * @param jsonEntities to put into the collection
-     * @return { jsonEntities[0].asJson, jsonEntities[1].asJson, ...}
+     * Enclose all the passed in transportableEntities in a JSON collection
+     * @param transportableEntities to put into the collection
+     * @return { transportableEntities[0].transportableRepresentation, transportableEntities[1].transportableRepresentation, ...}
      */
-    public static Json jsonCollection(Json... jsonEntities) {
-        String[] jsonStrings = new String[jsonEntities.length];
-        for(int i = 0; i < jsonEntities.length; i++) {
-            jsonStrings[i] = jsonEntities[i].asJson();
+    public static Transportable jsonCollection(Transportable... transportableEntities) {
+        String[] jsonStrings = new String[transportableEntities.length];
+        for(int i = 0; i < transportableEntities.length; i++) {
+            jsonStrings[i] = transportableEntities[i].transportableRepresentation();
         }
         return jsonCollection(jsonStrings);
     }
@@ -194,7 +194,7 @@ public class JsonUtilities {
      * @param jsonEntities JSON strings to put in the collection
      * @return { jsonEntities[0], jsonEntities[1], ...}
      */
-    public static Json jsonCollection(String... jsonEntities) {
+    public static Transportable jsonCollection(String... jsonEntities) {
         StringBuilder json = new StringBuilder("{\n");
         String comma = "";
         for(String jsonEntity : jsonEntities) {
@@ -204,7 +204,7 @@ public class JsonUtilities {
             comma = ",\n";
         }
         json.append("\n}");
-        return new JsonString(json.toString());
+        return new TransportableString(json.toString());
     }
 
     /**
@@ -300,29 +300,29 @@ public class JsonUtilities {
         Object klassString = jsonMap.get(CLASS_KEY);
         if(klassString == null ||
                 ClassNameRegistry.isRegistered(klassString.toString()) == false) {
-            return SimpleCMObject.SimpleCMObject(new JsonString(json));
+            return SimpleCMObject.SimpleCMObject(new TransportableString(json));
         }
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);
     }
 
     /**
-     * Convert a Json entity to a Map representation
-     * @param json valid JSON
-     * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws ConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * Convert a Transportable entity to a Map representation
+     * @param transportable valid JSON
+     * @return If transportable is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
+     * @throws ConversionException if unable to convert the given transportable to a map. Will happen if the transportableRepresentation call fails or if unable to represent the transportable as a map
      */
-    public static Map<String, Object> jsonToMap(Json json) throws ConversionException {
-        if(json == null)
+    public static Map<String, Object> jsonToMap(Transportable transportable) throws ConversionException {
+        if(transportable == null)
             return new HashMap<String, Object>();
-        return jsonToMap(json.asJson());
+        return jsonToMap(transportable.transportableRepresentation());
     }
 
     /**
      * Convert a JSON string to a Map representation
      * @param json valid JSON
      * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws ConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * @throws ConversionException if unable to convert the given json to a map. Will happen if the transportableRepresentation call fails or if unable to represent the json as a map
      */
     public static Map<String, Object> jsonToMap(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToClassMap(json, Object.class);
@@ -462,7 +462,7 @@ public class JsonUtilities {
      * Convert an InputStream containg JSON to a Map representation
      * @param inputJson a stream of valid JSON
      * @return If json is null, returns an empty Map. Otherwise, a Map whose keys are JSON Strings and whose values are JSON values
-     * @throws ConversionException if unable to convert the given json to a map. Will happen if the asJson call fails or if unable to represent the json as a map
+     * @throws ConversionException if unable to convert the given json to a map. Will happen if the transportableRepresentation call fails or if unable to represent the json as a map
      */
     public static Map<String, Object> jsonToMap(InputStream inputJson) throws ConversionException {
         if(inputJson == null) {
@@ -483,10 +483,10 @@ public class JsonUtilities {
      * @param first
      * @param second
      * @return true if first and second are equivalent JSON objects
-     * @throws ConversionException if unable to convert Json to a JsonNode or if first or second cannot be converted to a JSON string
+     * @throws ConversionException if unable to convert Transportable to a JsonNode or if first or second cannot be converted to a JSON string
      */
-    public static boolean isJsonEquivalent(Json first, Json second) throws ConversionException {
-        return isJsonEquivalent(first.asJson(), second.asJson());
+    public static boolean isJsonEquivalent(Transportable first, Transportable second) throws ConversionException {
+        return isJsonEquivalent(first.transportableRepresentation(), second.transportableRepresentation());
     }
 
     /**

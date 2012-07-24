@@ -1,7 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.rest.Json;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -20,7 +20,7 @@ import java.util.Map;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public abstract class ResponseBase<CODE> implements Json {
+public abstract class ResponseBase<CODE> implements Transportable {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseBase.class);
     private static final int NO_RESPONSE_CODE = 204;
 
@@ -162,20 +162,14 @@ public abstract class ResponseBase<CODE> implements Json {
 
     public String toString() {
         try {
-            return asJson();
+            return transportableRepresentation();
         } catch (ConversionException e) {
             return "Unable to convert json: " + e.getMessage();
         }
     }
 
-    private String asJsonString;
-
     @Override
-    public String asJson() throws ConversionException {
-//        if(asJsonString == null) {
-//            asJsonString = JsonUtilities.mapToJson(baseMap);
-//        }
-//        return asJsonString;
+    public String transportableRepresentation() throws ConversionException {
         return JsonUtilities.mapToJson(baseMap);
     }
 }

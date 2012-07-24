@@ -203,7 +203,7 @@ public class CMAccessList extends CMObject {
     }
 
     @Override
-    public String asJson() {
+    public String transportableRepresentation() {
         return JsonUtilities.objectToJson(this);
     }
 

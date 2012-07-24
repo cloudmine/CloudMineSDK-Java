@@ -2,10 +2,9 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.rest.CMStore;
-import com.cloudmine.api.rest.Json;
-import com.cloudmine.api.rest.JsonString;
-import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.*;
+import com.cloudmine.api.rest.TransportableString;
+import com.cloudmine.api.rest.Transportable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +16,11 @@ import java.util.*;
  * random id is generated. May be associated with a {@link CMStore} through the use of a {@link StoreIdentifier},
  * which allows the object to be modified on the CloudMine platform.
  * Values can be added to the object through the use of the add method. In general, values will be converted
- * to JSON based on the rules defined in the <a href="www.json.org">JSON specification.</a> The special cases are
+ * to transportable string representation based on the rules defined in the <a href="www.transportable string representation.org">transportable string representation specification.</a> The special cases are
  * as follows:<br>
- * Map<String, Object> are treated as JSON objects<br>
- * Dates are converted into JSON objects<br>
- * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to JSON objects<br>
+ * Map<String, Object> are treated as transportable string representation objects<br>
+ * Dates are converted into transportable string representation objects<br>
+ * CloudMine specific types ({@link CMGeoPoint} and {@link CMFile}) are converted to transportable string representation objects<br>
  * SimpleCMObjects have 2 optional properties: class and type. Class is used for loading all similar objects, for
  * example through {@link CMStore#loadUserObjectsOfClass(String)}<br>
  * Type is reserved for CloudMine specific types, such as geopoints or files. It is unlikely you will need
@@ -54,17 +53,17 @@ public class SimpleCMObject extends CMObject {
     }
 
     /**
-     * Instantiate a new SimpleCMObject based on the given JSON.
-     * If the JSON has only one entry, it is assumed to be the objectId mapped to the contents of the object, unless that single entry is not a JSON object.
-     * If the JSON has more than one top level key or consists of a single key mapped to a value instead of another JSON object,
-     * an objectId is generated and the given JSON is assumed to be the contents.
-     * @param json valid JSON
+     * Instantiate a new SimpleCMObject based on the given transportable string representation.
+     * If the transportable string representation has only one entry, it is assumed to be the objectId mapped to the contents of the object, unless that single entry is not a transportable string representation object.
+     * If the transportable string representation has more than one top level key or consists of a single key mapped to a value instead of another transportable string representation object,
+     * an objectId is generated and the given transportable string representation is assumed to be the contents.
+     * @param transportable valid transportable string representation
      * @return a new SimpleCMObject
-     * @throws CreationException if unable to parse the given JSON
+     * @throws CreationException if unable to parse the given transportable string representation
      */
-    public static SimpleCMObject SimpleCMObject(Json json) throws CreationException {
+    public static SimpleCMObject SimpleCMObject(Transportable transportable) throws CreationException {
         try {
-            return new SimpleCMObject(json);
+            return new SimpleCMObject(transportable);
         } catch (ConversionException e) {
             throw new CreationException(e);
         }
@@ -73,9 +72,9 @@ public class SimpleCMObject extends CMObject {
     /**
      * Instantiate a new SimpleCMObject with the given objectId and containing the given contents
      * @param objectId identifies the SimpleCMObject
-     * @param contents key value pairs that will be converted to JSON and persisted with the object
+     * @param contents key value pairs that will be converted to transportable string representation and persisted with the object
      * @return a SimpleCMObject containing the given contents with the given objectId
-     * @throws CreationException if unable to map the given contents to JSON
+     * @throws CreationException if unable to map the given contents to transportable string representation
      */
     public static SimpleCMObject SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         return new SimpleCMObject(objectId, contents);
@@ -88,7 +87,7 @@ public class SimpleCMObject extends CMObject {
      * a top level key is generated and the objectMap is assumed to be the contents.
      * @param objectMap see above
      * @return a new SimpleCMObject
-     * @throws CreationException if unable to map the given contents to JSON
+     * @throws CreationException if unable to map the given contents to transportable string representation
      */
     public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
         return new SimpleCMObject(objectMap);
@@ -102,8 +101,8 @@ public class SimpleCMObject extends CMObject {
         this(objectId, new HashMap<String, Object>());
     }
 
-    SimpleCMObject(Json json) throws ConversionException, CreationException {
-        this(JsonUtilities.jsonToMap(json));
+    SimpleCMObject(Transportable transportable) throws ConversionException, CreationException {
+        this(JsonUtilities.jsonToMap(transportable));
     }
 
     SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
@@ -226,8 +225,8 @@ public class SimpleCMObject extends CMObject {
     }
 
     /**
-     * Get the JSON array as a List associated with the given key
-     * @param key the key for the JSON array
+     * Get the transportable string representation array as a List associated with the given key
+     * @param key the key for the transportable string representation array
      * @param <T> the type of the list contents
      * @return a List of type T that is associated with the given key, or null if
      */
@@ -237,7 +236,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Get a number value as an Integer
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @param alternative a value to use if no Number exists for the given key
      * @return the Number associated with the key if it exists, or alternative
      */
@@ -250,7 +249,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Get a number value as an Integer
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @return the Number associated with the key if it exists, or null
      */
     public Integer getInteger(String key)  {
@@ -259,7 +258,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Get a number value as a Double
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @return the Number associated with the key if it exists, or null
      */
     public Double getDouble(String key)  {
@@ -283,7 +282,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Get a number value as a Double
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @param alternative will be returned if no Number value exists for the given key
      * @return the Number associated with the key if it exists, or alternative
      */
@@ -296,7 +295,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Get a boolean value
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @param alternative will be returned if no boolean value exists for the given key
      * @return the boolean associated with the key if it exists, or alternative
      */
@@ -309,7 +308,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns Boolean.TRUE, Boolean.FALSE, or null if the key does not exist
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @return the associated value, or null if the key doesn't exist, or if it does exist but isn't associated with a boolean value
      */
     public Boolean getBoolean(String key) {
@@ -318,7 +317,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the String value associated with the given key, or the alternative if it doesn't exist
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @param alternative an alternative to use if the value is not found
      * @return the String value associated with the given key, or the alternative if it doesn't exist
      */
@@ -331,7 +330,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the String value associated with the given key, or null if it doesn't exist
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @return the String value associated with the given key, or the alternative if it doesn't exist
      */
     public String getString(String key) {
@@ -340,7 +339,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the Date value associated with the given key, or the alternative if it doesn't exist
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @param alternative an alternative Date value to use if the given key does not exist
      * @return the Date value associated with the given key, or the alternative if it doesn't exist
      */
@@ -353,7 +352,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the Date value associated with the given key, null if it doesn't exist
-     * @param key the JSON key
+     * @param key the transportable string representation key
      * @return the Date value associated with the given key, or null if it doesn't exist
      */
     public Date getDate(String key) {
@@ -363,7 +362,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the CMGeoPoint value associated with the given key, or null if it doesn't exist
-     * @param objectId the JSON key
+     * @param objectId the transportable string representation key
      * @return the CMGeoPoint value associated with the given key, or null if it doesn't exist
      * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
      */
@@ -373,7 +372,7 @@ public class SimpleCMObject extends CMObject {
 
     /**
      * Returns the CMGeoPoint value associated with the given key, or the alternative if it doesn't exist
-     * @param objectId the JSON key
+     * @param objectId the transportable string representation key
      * @param alternative an alternative CMGeoPoint value to use if the given key does not exist
      * @return the Date value associated with the given key, or the alternative if it doesn't exist
      * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
@@ -402,11 +401,11 @@ public class SimpleCMObject extends CMObject {
         if(value != null &&
                 SimpleCMObject.class.isAssignableFrom(klass)) {
             boolean isMap = Map.class.isAssignableFrom(valueClass);
-            boolean isJson = Json.class.isAssignableFrom(valueClass);
+            boolean isJson = Transportable.class.isAssignableFrom(valueClass);
             String valueString = isMap ?
                                     JsonUtilities.mapToJson((Map)value) :
                                         isJson ?
-                                                ((Json)value).asJson() :
+                                                ((Transportable)value).transportableRepresentation() :
                                                     value.toString();
 
             try {
@@ -422,20 +421,20 @@ public class SimpleCMObject extends CMObject {
     }
 
     /**
-     * Returns null if json is null, klass is null, or klass isn't assignable from SimpleCMObject
-     * @param json
+     * Returns null if transportable string representation is null, klass is null, or klass isn't assignable from SimpleCMObject
+     * @param transportable
      * @param klass
      * @param <T>
      * @return
      */
-    private <T> T newFromJson(String json, Class<T> klass) throws CreationException {
-        if(json == null || klass == null)
+    private <T> T newFromJson(String transportable, Class<T> klass) throws CreationException {
+        if(transportable == null || klass == null)
             return null;
         //Need to start at the bottom of the inheritance chain and work up
         if(CMGeoPoint.class.isAssignableFrom(klass)) {
-            return (T) CMGeoPoint.CMGeoPoint(new JsonString(json));
+            return (T) CMGeoPoint.CMGeoPoint(new TransportableString(transportable));
         } else if(SimpleCMObject.class.isAssignableFrom(klass)) {
-            return (T) SimpleCMObject(new JsonString(json));
+            return (T) SimpleCMObject(new TransportableString(transportable));
         }
         return null;
     }
@@ -509,30 +508,30 @@ public class SimpleCMObject extends CMObject {
     /**
      * Get a representation of this SimpleCMObject in the form "objectId":{contents}
      * @return a representation of this SimpleCMObject in the form "objectId":{contents}
-     * @throws ConversionException if this SimpleCMObject cannot be converted to JSON
+     * @throws ConversionException if this SimpleCMObject cannot be converted to transportable string representation
      */
     public String asKeyedObject() throws ConversionException {
         return JsonUtilities.addQuotes(getObjectId()) + ":" + asUnkeyedObject();
     }
 
     /**
-     * Get a JSON representation of this SimpleCMObject in the form of {contents}
-     * @return a JSON representation of this SimpleCMObject in the form of {contents}
-     * @throws ConversionException if this SimpleCMObject cannot be converted to JSON
+     * Get a transportable string representation representation of this SimpleCMObject in the form of {contents}
+     * @return a transportable string representation representation of this SimpleCMObject in the form of {contents}
+     * @throws ConversionException if this SimpleCMObject cannot be converted to transportable string representation
      */
     public String asUnkeyedObject() throws ConversionException {
         return JsonUtilities.mapToJson(contents);
     }
 
-    public String asJson() throws ConversionException {
+    public String transportableRepresentation() throws ConversionException {
         return JsonUtilities.mapToJson(topLevelMap);
     }
 
     public String toString() {
         try {
-            return asJson();
+            return transportableRepresentation();
         } catch (ConversionException e) {
-            return "Invalid json: " + e.getMessage();
+            return "Invalid transportable string representation: " + e.getMessage();
         }
     }
 

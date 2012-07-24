@@ -116,7 +116,7 @@ public class UserCMWebService extends CMWebService {
     private HttpPost createAccessListPost(CMAccessList list) {
         HttpPost post = new HttpPost(baseUrl.access().asUrlString());
         addCloudMineHeader(post);
-        addJson(post, list.asJson());
+        addJson(post, list.transportableRepresentation());
         return post;
     }
 

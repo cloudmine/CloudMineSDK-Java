@@ -115,8 +115,8 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testJsonCollection() {
-        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT).asJson()));
-        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}").asJson();
+        assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_JSON_OBJECT).transportableRepresentation()));
+        String jsonCollectionString = JsonUtilities.jsonCollection(COMPLEX_UNWRAPPED_KEYED_JSON_OBJECT, "\"simple\":{\"key\":100}").transportableRepresentation();
         Map<String, Object> jsonMap = JsonUtilities.jsonToMap(jsonCollectionString);
         assertEquals(2, jsonMap.size());
     }
@@ -155,7 +155,7 @@ public class JsonUtilitiesTest {
         pictureObject.add("location", CMGeoPoint.CMGeoPoint(50, 50));
         pictureObject.add("picture", "pictureKey");
         try {
-            pictureObject.asJson(); //this is an ugly test but it routes through mapToJson and this used to fail
+            pictureObject.transportableRepresentation(); //this is an ugly test but it routes through mapToJson and this used to fail
         }catch(Exception e) {
             e.printStackTrace();
             fail();
@@ -184,7 +184,7 @@ public class JsonUtilitiesTest {
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
         simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.objectsToJson(convertableObject);
-        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.asJson()));
+        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.transportableRepresentation()));
 
         Map<String, ExtendedCMObject> map = JsonUtilities.jsonToClassMap(json, ExtendedCMObject.class);
         assertEquals(convertableObject, map.get(convertableObject.getObjectId()));

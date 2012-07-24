@@ -318,7 +318,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
         SimpleCMObject geoObject = SimpleCMObject.SimpleCMObject("location");
         geoObject.add("geoPoint", CMGeoPoint.CMGeoPoint(50, 50, "geo"));
 
-        service.insert(geoObject.asJson());
+        service.insert(geoObject.transportableRepresentation());
 
         service.asyncSearch("[geoPoint near (50, 50)]", TestServiceCallback.testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {

@@ -109,7 +109,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         CMUser user = user();
         service.insert(user);
         CMSessionToken token = service.login(user).getSessionToken();
-        service.getUserWebService(token).insert(SimpleCMObject.SimpleCMObject("key").add("k", "v").asJson());
+        service.getUserWebService(token).insert(SimpleCMObject.SimpleCMObject("key").add("k", "v").transportableRepresentation());
         reset(2);
         store.login(user, testCallback(new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
@@ -137,7 +137,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         appObject.add("SomeKey", "Value");
 
 
-        service.insert(appObject.asJson());
+        service.insert(appObject.transportableRepresentation());
 
         final CMUser user = user();
         service.insert(user);
@@ -149,7 +149,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             SimpleCMObject userObject = SimpleCMObject.SimpleCMObject();
             userObject.add("integer", i);
             userObjects.add(userObject);
-            userService.insert(userObject.asJson());
+            userService.insert(userObject.transportableRepresentation());
         }
         store.setUser(user);
         store.loadAllUserObjects(testCallback(new CMObjectResponseCallback() {
@@ -214,7 +214,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testDeleteObjects() {
         final SimpleCMObject appObject = SimpleCMObject.SimpleCMObject();
         appObject.add("SomeKey", "Value");
-        service.insert(appObject.asJson());
+        service.insert(appObject.transportableRepresentation());
 
         store.deleteObject(appObject, testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
