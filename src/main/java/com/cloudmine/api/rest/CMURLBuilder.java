@@ -1,7 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
-import com.cloudmine.api.CMRequestOptions;
+import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,6 +199,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder notUser() {
         return this.removeAction(USER);
+    }
+
+    public CMURLBuilder access() {
+        return this.addAction("access");
     }
 
     public CMURLBuilder account() {

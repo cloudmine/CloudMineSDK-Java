@@ -1,5 +1,6 @@
-package com.cloudmine.api;
+package com.cloudmine.api.rest.options;
 
+import com.cloudmine.api.Immutable;
 import com.cloudmine.api.rest.BaseURL;
 
 /**
