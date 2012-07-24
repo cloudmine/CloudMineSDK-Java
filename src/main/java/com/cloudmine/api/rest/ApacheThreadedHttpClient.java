@@ -26,14 +26,9 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
 
 
     private HttpContext httpContext = new SyncBasicHttpContext(new BasicHttpContext());
+    private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
+    private DefaultHttpClient client = new DefaultHttpClient(connectionManager);
 
-    private ThreadLocal<DefaultHttpClient> client = new ThreadLocal<DefaultHttpClient>() {
-        private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
-        @Override
-        public DefaultHttpClient initialValue() {
-            return new DefaultHttpClient(connectionManager);
-        }
-    };
     @Override
     public <T> void executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor) {
         new Thread(new RequestRunnable<T>(command, callback, constructor)).start();
@@ -55,7 +50,7 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
             boolean retry = true;
             IOException cause = null;
             int requestCounter = 0;
-            HttpRequestRetryHandler retryHandler = client.get().getHttpRequestRetryHandler();
+            HttpRequestRetryHandler retryHandler = client.getHttpRequestRetryHandler();
 
             while(retry &&
                     requestCounter < RETRY_REQUEST_COUNT) {
@@ -83,7 +78,7 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
         }
 
         private void makeRequest() throws IOException {
-            HttpResponse response = client.get().execute(request);
+            HttpResponse response = client.execute(request);
             callback.onCompletion(constructor.construct(response));
         }
     }
