@@ -206,7 +206,11 @@ public class CMWebService {
     }
 
     public void asyncSearchUserProfiles(String searchString, Callback callback) {
-        executeAsyncCommand(createProfileSearch(searchString), callback, cmObjectResponseConstructor());
+        asyncSearchUserProfiles(searchString, CMRequestOptions.NONE, callback);
+    }
+
+    public void asyncSearchUserProfiles(String searchString, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createProfileSearch(searchString, options), callback, cmObjectResponseConstructor());
     }
 
     /**
@@ -1060,8 +1064,8 @@ public class CMWebService {
         return get;
     }
 
-    private HttpGet createProfileSearch(String searchString) {
-        return createGet(baseUrl.account().search(searchString, "p").asUrlString());
+    private HttpGet createProfileSearch(String searchString, CMRequestOptions options) {
+        return createGet(baseUrl.account().search(searchString, "p").options(options).asUrlString());
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
