@@ -4,6 +4,14 @@ import com.cloudmine.api.*;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.response.*;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+import com.cloudmine.test.ExtendedCMObject;
+>>>>>>> Stashed changes
+=======
+import com.cloudmine.test.ExtendedCMObject;
+>>>>>>> Stashed changes
 import com.cloudmine.test.ServiceTestBase;
 import com.cloudmine.test.TestServiceCallback;
 import junit.framework.Assert;
@@ -495,7 +503,5 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
         Assert.assertNotNull(response);
         Assert.assertFalse(response.hasError());
         Assert.assertTrue(response.hasSuccess());
-
     }
-
 }
