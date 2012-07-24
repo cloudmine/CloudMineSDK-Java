@@ -68,7 +68,7 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
             }
             objectMap = tempMap;
         } else {
-            objectMap = Collections.emptyMap();
+            objectMap = Collections.emptyMap(); 
         }
     }
 
