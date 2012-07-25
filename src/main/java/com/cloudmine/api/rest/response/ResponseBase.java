@@ -82,9 +82,11 @@ public abstract class ResponseBase<CODE> implements Transportable {
 
     protected Map<String, Object> extractResponseMap(HttpResponse response, String json) {
         Map<String, Object> responseMap = null;
+        boolean noJson = (response == null || response.getEntity() == null || response.getEntity().getContentType() == null || response.getEntity().getContentType().getValue() == null ||
+                !response.getEntity().getContentType().getValue().contains("json"));
         if(response == null ||
                 statusCode > 202 ||
-                !response.getEntity().getContentType().getValue().contains("json")) {
+                noJson) {
             LOG.info("Received null, error, or none json response");
         }
             try {

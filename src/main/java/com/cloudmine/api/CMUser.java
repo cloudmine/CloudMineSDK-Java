@@ -201,7 +201,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void login() throws CreationException {
-        login(Callback.DO_NOTHING);
+        login(CMCallback.doNothing());
     }
 
     /**
@@ -226,7 +226,7 @@ public class CMUser extends CMObject {
      * Asynchronously log out this user
      */
     public void logout() {
-        logout(Callback.DO_NOTHING);
+        logout(CMCallback.doNothing());
     }
 
     /**
@@ -238,7 +238,7 @@ public class CMUser extends CMObject {
     }
 
     private void loadProfile() {
-        loadProfile(Callback.DO_NOTHING);
+        loadProfile(CMCallback.doNothing());
     }
 
     private void loadProfile(final Callback callback) {
@@ -255,7 +255,7 @@ public class CMUser extends CMObject {
     }
 
     public void loadAccessLists() {
-        loadAccessLists(Callback.DO_NOTHING);
+        loadAccessLists(CMCallback.doNothing());
     }
 
     /**
@@ -315,7 +315,7 @@ public class CMUser extends CMObject {
      * Equivalent to {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} with no callback
      */
     public void createUser() throws CreationException, ConversionException {
-        createUser(Callback.DO_NOTHING);
+        createUser(CMCallback.doNothing());
     }
 
     /**
@@ -323,7 +323,7 @@ public class CMUser extends CMObject {
      */
     @Override
     public void save() throws CreationException, ConversionException {
-        save(Callback.DO_NOTHING);
+        save(CMCallback.doNothing());
     }
 
     /**
@@ -366,7 +366,7 @@ public class CMUser extends CMObject {
      */
     @Override
     public void saveWithUser(CMUser ignored) throws CreationException, ConversionException{
-        saveWithUser(ignored, Callback.DO_NOTHING);
+        saveWithUser(ignored, CMCallback.doNothing());
     }
 
     /**
@@ -383,7 +383,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void changePassword(String newPassword) throws CreationException {
-        changePassword(newPassword, Callback.DO_NOTHING);
+        changePassword(newPassword, CMCallback.doNothing());
     }
 
     /**
@@ -401,7 +401,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void resetPasswordRequest() throws CreationException {
-        resetPasswordRequest(Callback.DO_NOTHING);
+        resetPasswordRequest(CMCallback.doNothing());
     }
 
     /**
@@ -420,7 +420,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void resetPasswordConfirmation(String emailToken, String newPassword) throws CreationException {
-        resetPasswordConfirmation(emailToken, newPassword, Callback.DO_NOTHING);
+        resetPasswordConfirmation(emailToken, newPassword, CMCallback.doNothing());
     }
 
     /**

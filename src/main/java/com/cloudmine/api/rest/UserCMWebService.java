@@ -4,6 +4,7 @@ import com.cloudmine.api.CMAccessList;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
 import com.cloudmine.api.LibrarySpecificClassCreator;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMResponse;
 import org.apache.http.Header;
@@ -59,7 +60,7 @@ public class UserCMWebService extends CMWebService {
      * authentication
      */
     public void asyncLogout() {
-        asyncLogout(Callback.DO_NOTHING);
+        asyncLogout(CMCallback.doNothing());
     }
 
     /**

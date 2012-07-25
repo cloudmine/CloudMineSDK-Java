@@ -7,6 +7,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.response.CreationResponse;
@@ -149,7 +150,7 @@ public class CMObject implements Transportable, Savable {
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
     public void save() throws ConversionException, CreationException {
-        save(Callback.DO_NOTHING);
+        save(CMCallback.doNothing());
     }
     /**
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
@@ -163,7 +164,7 @@ public class CMObject implements Transportable, Savable {
     }
 
     public void saveWithUser(CMUser user) throws CreationException, ConversionException {
-        saveWithUser(user, Callback.DO_NOTHING);
+        saveWithUser(user, CMCallback.doNothing());
     }
     /**
      * Save this object in in the given CMUser's store. If {@link #setSaveWith(StoreIdentifier)} has already been called
