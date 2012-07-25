@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
@@ -130,7 +131,7 @@ public class CMStore {
     /*****************************OBJECTS********************************/
 
     public void saveAccessList(CMAccessList list) {
-        saveAccessList(list, Callback.DO_NOTHING);
+        saveAccessList(list, CMCallback.doNothing());
     }
 
     /**
@@ -155,7 +156,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveObject(CMObject object) throws ConversionException, CreationException {
-        saveObject(object, Callback.DO_NOTHING);
+        saveObject(object, CMCallback.doNothing());
     }
 
     /**
@@ -203,7 +204,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteObject(CMObject object) throws CreationException {
-        deleteObject(object, Callback.DO_NOTHING);
+        deleteObject(object, CMCallback.doNothing());
     }
 
     /**
@@ -244,7 +245,7 @@ public class CMStore {
      * Retrieve all the application level objects; they will be added to this Store after load
      */
     public void loadAllApplicationObjects() {
-        loadAllApplicationObjects(Callback.DO_NOTHING);
+        loadAllApplicationObjects(CMCallback.doNothing());
     }
 
     /**
@@ -270,7 +271,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadAllUserObjects() throws CreationException {
-        loadAllUserObjects(Callback.DO_NOTHING);
+        loadAllUserObjects(CMCallback.doNothing());
     }
 
     /**
@@ -301,7 +302,7 @@ public class CMStore {
      * @param objectIds the top level objectIds of the objects to retrieve
      */
     public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds) {
-        loadApplicationObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
+        loadApplicationObjectsWithObjectIds(objectIds, CMCallback.doNothing());
     }
 
     /**
@@ -328,7 +329,7 @@ public class CMStore {
      * @param objectId the top level objectIds of the objects to retrieve
      */
     public void loadApplicationObjectWithObjectId(String objectId) {
-        loadApplicationObjectWithObjectId(objectId, Callback.DO_NOTHING);
+        loadApplicationObjectWithObjectId(objectId, CMCallback.doNothing());
     }
     /**
      * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
@@ -354,7 +355,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
     public void loadUserObjectsWithObjectIds(Collection<String> objectIds) throws CreationException {
-        loadUserObjectsWithObjectIds(objectIds, Callback.DO_NOTHING);
+        loadUserObjectsWithObjectIds(objectIds, CMCallback.doNothing());
     }
 
     /**
@@ -388,7 +389,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsSearch(String search) throws CreationException {
-        loadUserObjectsSearch(search, Callback.DO_NOTHING);
+        loadUserObjectsSearch(search, CMCallback.doNothing());
     }
 
     /**
@@ -422,7 +423,7 @@ public class CMStore {
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      */
     public void loadApplicationObjectsSearch(String search) {
-        loadApplicationObjectsSearch(search, Callback.DO_NOTHING);
+        loadApplicationObjectsSearch(search, CMCallback.doNothing());
     }
 
     /**
@@ -451,7 +452,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsOfClass(String klass) throws CreationException {
-        loadUserObjectsOfClass(klass, Callback.DO_NOTHING);
+        loadUserObjectsOfClass(klass, CMCallback.doNothing());
     }
 
     /**
@@ -512,7 +513,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void saveStoreApplicationObjects() throws ConversionException {
-        saveStoreApplicationObjects(Callback.DO_NOTHING);
+        saveStoreApplicationObjects(CMCallback.doNothing());
     }
 
     /**
@@ -546,7 +547,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects() throws ConversionException, CreationException {
-        saveStoreUserObjects(Callback.DO_NOTHING);
+        saveStoreUserObjects(CMCallback.doNothing());
     }
 
     /**
@@ -586,7 +587,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects() throws ConversionException, CreationException {
-        saveStoreObjects(Callback.DO_NOTHING);
+        saveStoreObjects(CMCallback.doNothing());
     }
 
     /**
@@ -741,7 +742,7 @@ public class CMStore {
      * @throws CreationException If this CMStore does not have a CMUser associated with it
      */
     public void saveFile(CMFile file) throws CreationException {
-        saveFile(file, Callback.DO_NOTHING);
+        saveFile(file, CMCallback.doNothing());
     }
 
     /**
@@ -769,7 +770,7 @@ public class CMStore {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void loadApplicationFile(String fileName) {
-        loadApplicationFile(fileName, Callback.DO_NOTHING);
+        loadApplicationFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -797,7 +798,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserFile(String fileName) throws CreationException {
-        loadUserFile(fileName, Callback.DO_NOTHING);
+        loadUserFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -831,7 +832,7 @@ public class CMStore {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void deleteApplicationFile(String fileName) {
-        deleteApplicationFile(fileName, Callback.DO_NOTHING);
+        deleteApplicationFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -859,7 +860,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteUserFile(String fileName) throws CreationException {
-        deleteUserFile(fileName, Callback.DO_NOTHING);
+        deleteUserFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -901,7 +902,7 @@ public class CMStore {
      * @param searchString
      */
     public void loadUserProfilesSearch(String searchString) {
-        loadUserProfilesSearch(searchString, Callback.DO_NOTHING);
+        loadUserProfilesSearch(searchString, CMCallback.doNothing());
     }
 
     /**
@@ -923,7 +924,7 @@ public class CMStore {
      * See {@link #loadAllUserProfiles(com.cloudmine.api.rest.callbacks.Callback)}
      */
     public void loadAllUserProfiles() {
-        loadAllUserProfiles(Callback.DO_NOTHING);
+        loadAllUserProfiles(CMCallback.doNothing());
     }
 
     /**
@@ -950,7 +951,7 @@ public class CMStore {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public boolean login(CMUser user) throws CreationException {
-        return login(user, Callback.DO_NOTHING);
+        return login(user, CMCallback.doNothing());
     }
 
     /**

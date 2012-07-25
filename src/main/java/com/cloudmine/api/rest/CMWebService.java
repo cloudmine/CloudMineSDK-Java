@@ -5,8 +5,8 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
@@ -179,7 +179,7 @@ public class CMWebService {
      * @param klass the class of the objects to load; this is either inferred directly or you can override {@link com.cloudmine.api.CMObject#getClassName}
      */
     public void asyncLoadObjectsOfClass(String klass) {
-        asyncLoadObjectsOfClass(klass, Callback.DO_NOTHING);
+        asyncLoadObjectsOfClass(klass, CMCallback.doNothing());
     }
 
     /**
@@ -220,7 +220,7 @@ public class CMWebService {
      * @param object to delete; this is done based on the object id, its values are ignored
      */
     public void asyncDeleteObject(CMObject object) {
-        asyncDeleteObject(object, Callback.DO_NOTHING);
+        asyncDeleteObject(object, CMCallback.doNothing());
     }
 
     /**
@@ -247,7 +247,7 @@ public class CMWebService {
      * @param objects to delete; this is done based on the object ids, values are ignored
      */
     public void asyncDeleteObjects(Collection<? extends CMObject> objects) {
-        asyncDeleteObjects(objects, Callback.DO_NOTHING);
+        asyncDeleteObjects(objects, CMCallback.doNothing());
     }
 
     /**
@@ -279,7 +279,7 @@ public class CMWebService {
      * @param objectId to delete; this is done based on the object id
      */
     public void asyncDelete(String objectId) {
-        asyncDelete(objectId, Callback.DO_NOTHING);
+        asyncDelete(objectId, CMCallback.doNothing());
     }
 
     /**
@@ -306,7 +306,7 @@ public class CMWebService {
      * @param objectIds to delete; this is done based on the object ids
      */
     public void asyncDelete(Collection<String> objectIds) {
-        asyncDelete(objectIds, Callback.DO_NOTHING);
+        asyncDelete(objectIds, CMCallback.doNothing());
     }
 
     /**
@@ -341,11 +341,11 @@ public class CMWebService {
      * This will delete ALL the objects associated with this API key. Be careful...
      */
     public void asyncDeleteAll() {
-        asyncDeleteAll(Callback.DO_NOTHING);
+        asyncDeleteAll(CMCallback.doNothing());
     }
 
     public void asyncDeleteUser(String userId) {
-        asyncDeleteUser(userId, Callback.DO_NOTHING);
+        asyncDeleteUser(userId, CMCallback.doNothing());
     }
 
     public void asyncDeleteUser(String userId, Callback callback) {
@@ -357,7 +357,7 @@ public class CMWebService {
      * @param file the file to delete
      */
     public void asyncDeleteFile(CMFile file) {
-        asyncDeleteFile(file, Callback.DO_NOTHING);
+        asyncDeleteFile(file, CMCallback.doNothing());
     }
     /**
      * Delete the CMFile
@@ -373,7 +373,7 @@ public class CMWebService {
      * @param files the files to delete
      */
     public void asyncDeleteFiles(Collection<CMFile> files) {
-        asyncDeleteFiles(files, Callback.DO_NOTHING);
+        asyncDeleteFiles(files, CMCallback.doNothing());
     }
 
     /**
@@ -394,7 +394,7 @@ public class CMWebService {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void asyncDeleteFile(String fileName) {
-        asyncDeleteFile(fileName, Callback.DO_NOTHING);
+        asyncDeleteFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -421,7 +421,7 @@ public class CMWebService {
      * @param file the file to add
      */
     public void asyncUpload(CMFile file) {
-        asyncUpload(file, Callback.DO_NOTHING);
+        asyncUpload(file, CMCallback.doNothing());
     }
 
     /**
@@ -438,7 +438,7 @@ public class CMWebService {
      * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void asyncLoadFile(String fileName) {
-        asyncLoadFile(fileName, Callback.DO_NOTHING);
+        asyncLoadFile(fileName, CMCallback.doNothing());
     }
 
     /**
@@ -465,7 +465,7 @@ public class CMWebService {
      * Retrieve all the objects
      */
     public void asyncLoadObjects() {
-        asyncLoadObjects(Callback.DO_NOTHING);
+        asyncLoadObjects(CMCallback.doNothing());
     }
 
     /**
@@ -490,7 +490,7 @@ public class CMWebService {
      * @param objectId the top level objectId of the object to retrieve
      */
     public void asyncLoadObject(String objectId) {
-        asyncLoadObject(objectId, Callback.DO_NOTHING);
+        asyncLoadObject(objectId, CMCallback.doNothing());
     }
 
     /**
@@ -517,7 +517,7 @@ public class CMWebService {
      * @param objectIds the top level objectIds of the objects to retrieve
      */
     public void asyncLoadObjects(Collection<String> objectIds) {
-        asyncLoadObjects(objectIds, Callback.DO_NOTHING);
+        asyncLoadObjects(objectIds, CMCallback.doNothing());
     }
 
     /**
@@ -545,7 +545,7 @@ public class CMWebService {
      * @param searchString the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      */
     public void asyncSearch(String searchString) {
-        asyncSearch(searchString, Callback.DO_NOTHING);
+        asyncSearch(searchString, CMCallback.doNothing());
     }
 
     /**
@@ -574,7 +574,7 @@ public class CMWebService {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
     public void asyncInsert(CMObject toCreate) throws ConversionException {
-        asyncInsert(toCreate, Callback.DO_NOTHING);
+        asyncInsert(toCreate, CMCallback.doNothing());
     }
 
     /**
@@ -606,7 +606,7 @@ public class CMWebService {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
     public void asyncInsert(Collection<? extends CMObject> toCreate) throws ConversionException {
-        asyncInsert(toCreate, Callback.DO_NOTHING);
+        asyncInsert(toCreate, CMCallback.doNothing());
     }
 
     /**
@@ -644,7 +644,7 @@ public class CMWebService {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
     public void asyncUpdate(CMObject toUpdate) throws ConversionException {
-        asyncUpdate(toUpdate, Callback.DO_NOTHING);
+        asyncUpdate(toUpdate, CMCallback.doNothing());
     }
 
     /**
@@ -663,7 +663,7 @@ public class CMWebService {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation This ordinarily should not occur
      */
     public void asyncUpdate(Collection<? extends CMObject> objects) throws ConversionException {
-        asyncUpdate(objects, Callback.DO_NOTHING);
+        asyncUpdate(objects, CMCallback.doNothing());
     }
 
     /**
@@ -705,7 +705,7 @@ public class CMWebService {
      * @param newPassword the new password
      */
     public void asyncChangePassword(CMUser user, String newPassword) {
-        asyncChangePassword(user, newPassword, Callback.DO_NOTHING);
+        asyncChangePassword(user, newPassword, CMCallback.doNothing());
     }
 
     /**
@@ -723,7 +723,7 @@ public class CMWebService {
      * @param email the e-mail address of the user
      */
     public void asyncResetPasswordRequest(String email) {
-        asyncResetPasswordRequest(email, Callback.DO_NOTHING);
+        asyncResetPasswordRequest(email, CMCallback.doNothing());
     }
 
     /**
@@ -741,7 +741,7 @@ public class CMWebService {
      * @param newPassword the new password
      */
     public void asyncResetPasswordConfirmation(String token, String newPassword) {
-        asyncResetPasswordConfirmation(token, newPassword, Callback.DO_NOTHING);
+        asyncResetPasswordConfirmation(token, newPassword, CMCallback.doNothing());
     }
 
     /**
@@ -759,7 +759,7 @@ public class CMWebService {
      * @param user the user to log in
      */
     public void asyncLogin(CMUser user) {
-        asyncLogin(user, Callback.DO_NOTHING);
+        asyncLogin(user, CMCallback.doNothing());
     }
 
     /**
@@ -782,7 +782,7 @@ public class CMWebService {
      * @param token the token to invalidate
      */
     public void asyncLogout(CMSessionToken token) {
-        asyncLogout(token, Callback.DO_NOTHING);
+        asyncLogout(token, CMCallback.doNothing());
     }
 
     /**
@@ -930,7 +930,7 @@ public class CMWebService {
     }
 
     private void executeAsyncCommand(HttpUriRequest message) {
-        executeAsyncCommand(message, Callback.DO_NOTHING, cmResponseConstructor());
+        executeAsyncCommand(message, CMCallback.doNothing(), cmResponseConstructor());
     }
 
     void executeAsyncCommand(HttpUriRequest message, Callback callback) {

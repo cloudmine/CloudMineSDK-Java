@@ -7,33 +7,6 @@ package com.cloudmine.api.rest.callbacks;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public interface Callback<T> {
-    public static final Callback DO_NOTHING = new Callback() { //TODO this doesn't work with startTime
-        private long startTime;
-        @Override
-        public void onFailure(Throwable error, String message) {
-
-        }
-
-        @Override
-        public void setStartTime(long startTime) {
-            this.startTime = startTime;
-        }
-
-        @Override
-        public long getStartTime() {
-            return startTime;
-        }
-
-        @Override
-        public void onCompletion(Object response) {
-
-        }
-
-        @Override
-        public String toString() {
-            return "DO_NOTHING callback";
-        }
-    };
 
     /**
      * Called when a response is received from cloudmine. Will be called even if the request failed

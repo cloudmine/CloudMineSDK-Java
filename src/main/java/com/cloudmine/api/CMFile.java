@@ -6,6 +6,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -172,7 +173,7 @@ public class CMFile implements Transportable, Savable {
 
     @Override
     public void save() throws ConversionException, CreationException {
-        save(Callback.DO_NOTHING);
+        save(CMCallback.doNothing());
     }
 
     @Override
