@@ -495,7 +495,5 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
         Assert.assertNotNull(response);
         Assert.assertFalse(response.hasError());
         Assert.assertTrue(response.hasSuccess());
-
     }
-
 }

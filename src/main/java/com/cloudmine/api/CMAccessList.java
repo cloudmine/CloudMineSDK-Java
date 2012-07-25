@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -178,7 +179,7 @@ public class CMAccessList extends CMObject {
 
     @Override
     public void save() {
-        save(Callback.DO_NOTHING);
+        save(CMCallback.doNothing());
     }
 
     @Override

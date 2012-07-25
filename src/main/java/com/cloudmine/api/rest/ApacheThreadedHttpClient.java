@@ -79,7 +79,11 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
 
         private void makeRequest() throws IOException {
             HttpResponse response = client.execute(request);
-            callback.onCompletion(constructor.construct(response));
+            try {
+                ResponseTimeDataStore.extractAndStoreResponseTimeInformation(callback, response);
+            }finally {
+                callback.onCompletion(constructor.construct(response));
+            }
         }
     }
 }
