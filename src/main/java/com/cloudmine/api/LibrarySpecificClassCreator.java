@@ -18,7 +18,7 @@ public class LibrarySpecificClassCreator {
     public static LibrarySpecificClassCreator getCreator() {
         if(creator == null) {
             creator = new LibrarySpecificClassCreator(new Base64EncoderStandardImpl(),
-                    new HeaderFactoryStandardImpl(),
+                    new JavaHeaderFactory(),
                     new ApacheThreadedHttpClient());
 
         }

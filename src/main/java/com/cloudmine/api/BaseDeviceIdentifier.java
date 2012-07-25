@@ -1,5 +1,6 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.rest.HeaderFactory;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -12,13 +13,12 @@ import java.util.UUID;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class DeviceIdentifier {
+public class BaseDeviceIdentifier {
 
     public static final String UNIQUE_ID_KEY = "uniqueId";
 
-    private static String uniqueId;
-    public static final String DEVICE_HEADER_KEY = "X-CloudMine-UT";
-    public static final String PROPERTIES_FILE = "properties";
+    private String uniqueId;
+    public static final String PROPERTIES_FILE = "cmPropertiesUUID";
 
 
     /**
@@ -33,7 +33,8 @@ public class DeviceIdentifier {
             uniqueId = properties.getProperty(UNIQUE_ID_KEY);
             if(uniqueId == null) {
                 uniqueId = generateUniqueDeviceIdentifier();
-
+                properties.setProperty(UNIQUE_ID_KEY, uniqueId);
+                savePropertiesFile(properties);
             }
 
         }
@@ -52,13 +53,25 @@ public class DeviceIdentifier {
         }
     }
 
+    private void savePropertiesFile(Properties toSave) {
+        File idFile = new File(PROPERTIES_FILE);
+        try {
+            FileOutputStream writer = new FileOutputStream(idFile);
+            toSave.store(writer, "");
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+    }
+
     /**
      * Get the header that should be included with any requests to cloudmine
      * @return the header that should be included with any requests to cloudmine
      * @throws RuntimeException if initialize has not been called
      */
     public Header getDeviceIdentifierHeader() throws RuntimeException {
-        return new BasicHeader(DEVICE_HEADER_KEY, getUniqueId());
+        return new BasicHeader(HeaderFactory.DEVICE_HEADER_KEY, getUniqueId());
     }
 
     private String generateUniqueDeviceIdentifier() {

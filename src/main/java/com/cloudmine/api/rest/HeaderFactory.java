@@ -13,7 +13,8 @@ import java.util.Set;
 public interface HeaderFactory {
     public static final String AGENT_HEADER_KEY = "X-CloudMine-Agent";
     public static final String SESSION_TOKEN_HEADER_KEY = "X-CloudMine-SessionToken";
-
+    public static final String DEVICE_HEADER_KEY = "X-CloudMine-UT";
+    public static final String REQUEST_ID_KEY = "X-Request-Id";
     Set<Header> getCloudMineHeaders();
     Header getUserCloudMineHeader(CMSessionToken token);
     String getCloudMineAgent();

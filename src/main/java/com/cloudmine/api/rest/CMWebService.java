@@ -6,6 +6,7 @@ import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.*;
 import org.apache.http.Header;
@@ -32,7 +33,7 @@ import java.util.*;
  * This base class performs all operations at the Application level. To perform operations at the User level, use a
  * {@link UserCMWebService}<br>
  * Preconditions for use:<br>
- * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context, if developing on Android<br>
+ * {@link com.cloudmine.api.BaseDeviceIdentifier#initialize(android.content.Context)} has been called with the activity context, if developing on Android<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
 
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
@@ -936,7 +937,9 @@ public class CMWebService {
         executeAsyncCommand(message, callback, cmResponseConstructor());
     }
 
-    <T> void executeAsyncCommand(HttpUriRequest message, Callback callback, ResponseConstructor<T> constructor) {
+    <T> void executeAsyncCommand(HttpUriRequest message, final Callback callback, ResponseConstructor<T> constructor) {
+        final long startTime = System.currentTimeMillis();
+        callback.setStartTime(startTime);
         asyncHttpClient.executeCommand(message, callback, constructor);
     }
 

@@ -7,10 +7,21 @@ package com.cloudmine.api.rest.callbacks;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public interface Callback<T> {
-    public static final Callback DO_NOTHING = new Callback() {
+    public static final Callback DO_NOTHING = new Callback() { //TODO this doesn't work with startTime
+        private long startTime;
         @Override
         public void onFailure(Throwable error, String message) {
 
+        }
+
+        @Override
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        @Override
+        public long getStartTime() {
+            return startTime;
         }
 
         @Override
@@ -36,4 +47,16 @@ public interface Callback<T> {
      * @param message an additional error message; will usually be blank
      */
     public void onFailure(Throwable error, String message);
+
+    /**
+     * Sets when the call was sent; you shouldn't be calling this
+     * @param startTime
+     */
+    public void setStartTime(long startTime);
+
+    /**
+     * Get when the call was sent; this is used to check performance
+     * @return
+     */
+    public long getStartTime();
 }

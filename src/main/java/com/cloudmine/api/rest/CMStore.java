@@ -8,7 +8,6 @@ import com.cloudmine.api.CMObject;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
-import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The main class for interacting with the CloudMine API. Stores can operate on both the user or application level
  * Preconditions for use:<br>
- * {@link DeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
+ * {@link com.cloudmine.api.BaseDeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
