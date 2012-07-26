@@ -1,12 +1,14 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.persistance.CloudMineObject;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Allows for other users to access another user's user level data. Instantiate a new access list, specify the permissions,
@@ -16,9 +18,9 @@ import java.util.*;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-@CloudMineObject("acl")
 public class CMAccessList extends CMObject {
 
+    public static final String CLASS_NAME = "acl";
     private Set<String> userObjectIds = new HashSet<String>();
     private Set<CMAccessPermission> accessPermissions = EnumSet.noneOf(CMAccessPermission.class);
     /**
@@ -201,6 +203,13 @@ public class CMAccessList extends CMObject {
     @Override
     public void saveWithUser(CMUser ignored, Callback callback) {
         save(callback);
+    }
+
+    @Override
+    public String getClassName() {
+        if(getClass() == CMAccessList.class) //this way if someone extends this, it will not say this is a CMAccessList, but whatever their subclass is
+            return CLASS_NAME;
+        return super.getClassName();
     }
 
     @Override

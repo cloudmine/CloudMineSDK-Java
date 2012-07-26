@@ -18,6 +18,7 @@ public class CMGeoPoint extends SimpleCMObject {
     public static final String GEOPOINT_CLASS = "CMGeoPoint";
     public static final String LONGITUDE_KEY = "longitude";
     public static final String LATITUDE_KEY = "latitude";
+    public static final String CLASS_NAME = "geopoint";
 
     /**
      * Instantiate a CMGeoPoint with the given latitude and longitude and a random unique objectId
@@ -127,5 +128,11 @@ public class CMGeoPoint extends SimpleCMObject {
         return getLongitude() + ", " + getLatitude();
     }
 
+    @Override
+    public String getClassName() {
+        if(getClass() == CMGeoPoint.class) //this way if someone extends this, it will not say this is a CMGeoPoint, but whatever their subclass is
+            return CLASS_NAME;
+        return super.getClassName();
+    }
 
 }

@@ -34,6 +34,7 @@ public class CMUser extends CMObject {
     public static final String PASSWORD_KEY = "password";
     public static final String CREDENTIALS_KEY = "credentials";
     public static final String PROFILE_KEY = "profile";
+    public static final String CLASS_NAME = "CMUser";
 
     /**
      * Search the user profiles for the given string. For more information on the format, see <a href="https://cloudmine.me/docs/object-storage#object_search">the CloudMine documentation on search</a> <br>
@@ -126,6 +127,13 @@ public class CMUser extends CMObject {
 
     public String profileTransportRepresentation() throws ConversionException {
         return JsonUtilities.objectToJson(this);
+    }
+
+    @Override
+    public String getClassName() {
+        if(getClass() == CMUser.class) //this way if someone extends this, it will not say this is a CMUser, but whatever their subclass is
+            return CLASS_NAME;
+        return super.getClassName();
     }
 
     /**

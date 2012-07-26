@@ -1,6 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -16,6 +17,13 @@ public class CMApiCredentials {
 
     private final String applicationIdentifier;
     private final String applicationApiKey;
+
+
+    static {
+        ClassNameRegistry.register(CMAccessList.CLASS_NAME, CMAccessList.class);
+        ClassNameRegistry.register(CMGeoPoint.CLASS_NAME, CMGeoPoint.class);
+        ClassNameRegistry.register(CMUser.CLASS_NAME, CMUser.class);
+    }
 
     /**
      * Sets the application id and api key. Can be called multiple times, but only the first call will modify the credentials value.

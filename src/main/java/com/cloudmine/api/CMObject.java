@@ -1,12 +1,12 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.AccessException;
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.CMStore;
-import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
+import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
@@ -31,6 +31,7 @@ import java.util.UUID;
  * See LICENSE file included with SDK for details.
  */
 public class CMObject implements Transportable, Savable {
+    //******SEE CMApiCredentials for static declaration of Class mapping*******
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
     public static final String MISSING_OBJECT_ID = "";
     public static final String ACCESS_KEY = "__access__";
