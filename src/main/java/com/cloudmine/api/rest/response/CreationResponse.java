@@ -24,7 +24,12 @@ public class CreationResponse extends ResponseBase<CMResponseCode> {
         super(response);
     }
 
-    protected CreationResponse(String body, int code) {
+    /**
+     * Internal use only
+     * @param body
+     * @param code
+     */
+    public CreationResponse(String body, int code) {
         super(body, code);
     }
 

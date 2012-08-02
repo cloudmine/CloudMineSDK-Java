@@ -266,7 +266,7 @@ public class JsonUtilities {
         }
     }
 
-    public static String objectToJson(CMObject object) throws ConversionException {
+    public static String objectToJson(Object object) throws ConversionException {
         StringWriter writer = new StringWriter();
         try {
             jsonMapper.writeValue(writer, object);
@@ -369,6 +369,7 @@ public class JsonUtilities {
             int readInt;
             int open = 0;
             boolean inString = false;
+            boolean escapeNext = false;
             Map<String, String> jsonMap = new HashMap<String, String>();
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder contentsBuilder = new StringBuilder();
@@ -404,7 +405,17 @@ public class JsonUtilities {
                         }
                         break;
                     case '\"':
-                        inString = !inString;
+                        if(escapeNext) {
+                            escapeNext = false;
+                        } else {
+                            inString = !inString;
+                        }
+                        break;
+                    case '\\':
+                        escapeNext = true;
+                        break;
+                    default:
+                        escapeNext = false; //only escape the next character
 
                 }
                 if(open == 1) {

@@ -28,7 +28,12 @@ public class ObjectModificationResponse extends SuccessErrorResponse<ObjectModif
         super(response);
     }
 
-    protected ObjectModificationResponse(String messageBody, int statusCode) {
+    /**
+     * Internal use only
+     * @param messageBody
+     * @param statusCode
+     */
+    public ObjectModificationResponse(String messageBody, int statusCode) {
         super(messageBody, statusCode);
     }
 

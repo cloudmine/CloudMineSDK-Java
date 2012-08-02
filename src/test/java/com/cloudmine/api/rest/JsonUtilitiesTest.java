@@ -253,6 +253,16 @@ public class JsonUtilitiesTest {
         assertTrue(JsonUtilities.isJsonEquivalent(firstObjectJson, conversion.get("aKey")));
         assertTrue(JsonUtilities.isJsonEquivalent(secondObjectJson, conversion.get("another")));
         assertTrue(JsonUtilities.isJsonEquivalent(thirdObjectJson, conversion.get("allScrunch")));
+
+
+        String saying = "say \\\"st}op that!\\\" or something";
+        String escapedStringObjectJson = "{ \"int\":5, \"someString\":\"" + saying + "\", \"anotherObject\":{ \"bool\":false }}";
+        json = "\n" +
+                "{ \"aKey\":" + escapedStringObjectJson + ",\n" +
+                "\"another\"       :  " + secondObjectJson + ",\"allScrunch\":" + thirdObjectJson + "\n" +
+                "}";
+        conversion = JsonUtilities.jsonMapToKeyMap(json);
+        assertTrue(JsonUtilities.isJsonEquivalent(escapedStringObjectJson, conversion.get("aKey")));
     }
 
     @Test

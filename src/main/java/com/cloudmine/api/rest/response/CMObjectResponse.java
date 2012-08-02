@@ -55,7 +55,12 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         }
     }
 
-    protected CMObjectResponse(String response, int code) {
+    /**
+     * Internal use only
+     * @param response
+     * @param code
+     */
+    public CMObjectResponse(String response, int code) {
         super(response, code); //TODO this is copy pasta code from above :( thats bad
         if(hasSuccess()) {
             String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
