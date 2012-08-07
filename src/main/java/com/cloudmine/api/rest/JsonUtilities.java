@@ -16,10 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -271,6 +268,15 @@ public class JsonUtilities {
         try {
             jsonMapper.writeValue(writer, object);
             return writer.toString();
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new ConversionException(e);
+        }
+    }
+
+    public static void writeObjectToJson(Object object, OutputStream stream) {
+        try {
+            jsonMapper.writeValue(stream, object);
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
             throw new ConversionException(e);
