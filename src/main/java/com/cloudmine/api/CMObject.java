@@ -16,10 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Can be subclassed to allow for persisting POJOs to CloudMine. If you would like to specify a custom class name
@@ -39,6 +36,40 @@ public class CMObject implements Transportable, Savable {
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
     private Set<String> accessListIds = new HashSet<String>();
+
+    /**
+     * Converts the given TransportableRepresentation to an object of the given class
+     * @param transportableRepresentation
+     * @param objectClass
+     * @param <T>
+     * @return
+     * @throws ConversionException
+     */
+    public static <T extends CMObject> T convertTransportableRepresentationToObject(String transportableRepresentation, Class<T> objectClass) throws ConversionException{
+        return JsonUtilities.jsonToClass(transportableRepresentation, objectClass);
+    }
+
+    /**
+     * Like {@link #convertTransportableCollectionToObjectMap} but untyped; should be used when you don't know the type,
+     * or when you have a collection of multiple types.
+     * @param transportableRepresentations
+     * @return
+     */
+    public static Map<String, CMObject> convertTransportableCollectionToObjectMap(String transportableRepresentations) {
+        return JsonUtilities.jsonToClassMap(transportableRepresentations);
+    }
+
+    /**
+     * Convert a transportable representation of a collection of objects keyed by their id's, to a Map of those keys to the objects
+     * @param transportableCollection a transportable representation containing only objects of type T
+     * @param objectClass the class of objects contained within the Transportable representation
+     * @param <T> the type of the objects contained in transportableCollection
+     * @return a Map from object ids to objects of type T
+     * @throws ConversionException  if unable to convert, either because the given representation is of a different class, or because it is malformed.
+     */
+    public static <T extends CMObject> Map<String, T> convertTransportableCollectionToObjectMap(String transportableCollection, Class<T> objectClass) throws ConversionException {
+        return JsonUtilities.jsonToClassMap(transportableCollection, objectClass);
+    }
 
     protected static String generateUniqueObjectId() {
         return UUID.randomUUID().toString();

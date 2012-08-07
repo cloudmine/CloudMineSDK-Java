@@ -37,7 +37,16 @@ public class LoginResponse extends ResponseBase<LoginCode> {
     }
 
     public LoginResponse(String json) {
-        super(json, 200);
+        this(json, 200);
+    }
+
+    /**
+     * Internal use only
+     * @param json
+     * @param responseCode
+     */
+    public LoginResponse(String json, int responseCode) {
+        super(json, responseCode);
         sessionToken = readInToken();
     }
 
