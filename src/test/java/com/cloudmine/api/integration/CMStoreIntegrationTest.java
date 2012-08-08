@@ -105,6 +105,11 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
+    public void testSearchObjects() {
+        SimpleCMObject object = new SimpleCMObject();
+    }
+
+    @Test
     public void testUserLogin() {
         CMUser user = user();
         service.insert(user);
