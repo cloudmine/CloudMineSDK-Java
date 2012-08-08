@@ -70,6 +70,12 @@
     <profiles>
         <profile>
             <id>android</id>
+            <activation>
+                <property>
+                    <name>buildFor</name>
+                    <value>android</value>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>com.cloudmine.api</groupId>
@@ -90,6 +96,9 @@
         </profile>
         <profile>
             <id>java</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.httpcomponents</groupId>
