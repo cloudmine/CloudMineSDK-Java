@@ -27,7 +27,7 @@ public class CMSessionToken implements Transportable {
     /**
      * Represents a failed log in attempt. Will be returned by {@link com.cloudmine.api.rest.response.LoginResponse#getSessionToken()} if the log in request fails
      */
-    public static final CMSessionToken FAILED = CMSessionToken.CMSessionToken(INVALID_TOKEN, EXPIRED_DATE);
+    public static final CMSessionToken FAILED = new CMSessionToken(INVALID_TOKEN, EXPIRED_DATE);
 
     public static final String SESSION_KEY = "session_token";
     public static final String EXPIRES_KEY = "expires";
@@ -40,21 +40,17 @@ public class CMSessionToken implements Transportable {
      * @return a new CMSessionToken
      * @throws ConversionException if invalid transport representation is passed in
      */
-    public static CMSessionToken CMSessionToken(String transportString) throws ConversionException {
-        return new CMSessionToken(transportString);
-    }
-
-    private CMSessionToken(String json) throws ConversionException {
-        boolean jsonIsEmpty = json == null || "null".equals(json) || "".equals(json);
+    public CMSessionToken(String transportString) throws ConversionException {
+        boolean jsonIsEmpty = transportString == null || "null".equals(transportString) || "".equals(transportString);
         if(jsonIsEmpty) {
             sessionToken = INVALID_TOKEN;
             expires = EXPIRED_DATE;
         } else {
-            Map<String, Object> objectMap = JsonUtilities.jsonToMap(json);
+            Map<String, Object> objectMap = JsonUtilities.jsonToMap(transportString);
             boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
                     !objectMap.containsKey(EXPIRES_KEY);
             if(isMissingKey) {
-                throw new ConversionException("Can't create CMSessionToken from json missing field");
+                throw new ConversionException("Can't create CMSessionToken from transportString missing field");
             }
             sessionToken = objectMap.get(SESSION_KEY).toString();
             Object dateObject = objectMap.get(EXPIRES_KEY);
@@ -75,7 +71,7 @@ public class CMSessionToken implements Transportable {
         }
     }
 
-    private CMSessionToken(String sessionToken, Date expires) {
+    public CMSessionToken(String sessionToken, Date expires) {
         this.sessionToken = sessionToken;
         this.expires = expires;
     }

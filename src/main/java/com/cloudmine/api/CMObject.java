@@ -75,15 +75,29 @@ public class CMObject implements Transportable, Savable {
         return UUID.randomUUID().toString();
     }
 
-    protected CMObject() {
+    /**
+     * Create a new CMObject with a randomly generated object id
+     */
+    public CMObject() {
         this(generateUniqueObjectId());
     }
 
-    protected CMObject(String objectId) {
+    /**
+     * Create a new CMObject with a specific object id
+     * @param objectId a non null object id for this CMObject
+     * @throws NullPointerException if given a null objectid
+     */
+    public CMObject(String objectId) throws NullPointerException {
+        if(objectId == null)
+            throw new NullPointerException("Cannot have a null objectId");
         this.objectId= objectId;
     }
 
-    protected CMObject(boolean autogenerateObjectId) {
+    /**
+     * Create a new CMObject that does not have an object id. This is useful for subobjects
+     * @param autogenerateObjectId if true, equivalent to {@link #CMObject()}, otherwise have no object id
+     */
+    public CMObject(boolean autogenerateObjectId) {
         if(autogenerateObjectId)
             this.objectId = generateUniqueObjectId();
     }

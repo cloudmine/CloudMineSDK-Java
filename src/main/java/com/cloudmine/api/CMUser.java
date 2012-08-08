@@ -87,8 +87,9 @@ public class CMUser extends CMObject {
     private String password;
     private CMSessionToken sessionToken;
 
-
-
+    protected CMUser() {
+        this(MISSING_VALUE, MISSING_VALUE);
+    }
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -96,21 +97,7 @@ public class CMUser extends CMObject {
      * @return a new CMUser instance
      * @throws CreationException if email or password are null
      */
-    public static CMUser CMUser(String email, String password) throws CreationException {
-        return new CMUser(email, password);
-    }
-
-
-    protected CMUser() {
-        this(MISSING_VALUE, MISSING_VALUE);
-    }
-    /**
-     * Don't call this, use the static constructor instead
-     * @param email
-     * @param password
-     * @throws CreationException
-     */
-    protected CMUser(String email, String password) throws CreationException {
+    public CMUser(String email, String password) throws CreationException {
         super(false);
         this.email = email;
         this.password = password;

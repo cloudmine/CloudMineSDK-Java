@@ -118,7 +118,7 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
         for(Map.Entry<String, Object> successEntry : objectMap.entrySet()) {
             String successName = successEntry.getKey();
             Map<String, Object> successMap = convertToMap(successEntry.getValue());
-            successObjects.add(SimpleCMObject.SimpleCMObject(successName, successMap));
+            successObjects.add(new SimpleCMObject(successName, successMap));
         }
         return successObjects;
 

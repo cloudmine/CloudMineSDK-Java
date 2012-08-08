@@ -35,21 +35,30 @@ public class SimpleCMObject extends CMObject {
     private final Map<String, Object> topLevelMap;
 
 
+    @Deprecated
+    public static SimpleCMObject SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
+        return new SimpleCMObject(objectId, contents);
+    }
+
+    @Deprecated
+    public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
+        return new SimpleCMObject(objectMap);
+    }
+
     /**
      * Instantiate a new SimpleCMObject with a randomly generated objectId
-     * @return a new SimpleCMObject with a randomly generated objectId
      */
-    public static SimpleCMObject SimpleCMObject() {
-        return new SimpleCMObject();
+    public SimpleCMObject() throws CreationException {
+        this(CMObject.generateUniqueObjectId());
     }
 
     /**
      * Instantiate a new SimpleCMObject with the given objectId
      * @param objectId the objectId for the new SimpleCMObject
-     * @return a new SimpleCMObject with the given objectId
+     * @throws CreationException if given a null objectId
      */
-    public static SimpleCMObject SimpleCMObject(String objectId) {
-        return new SimpleCMObject(objectId);
+    public SimpleCMObject(String objectId) throws CreationException {
+        this(objectId, new HashMap<String, Object>());
     }
 
     /**
@@ -58,54 +67,20 @@ public class SimpleCMObject extends CMObject {
      * If the transportable string representation has more than one top level key or consists of a single key mapped to a value instead of another transportable string representation object,
      * an objectId is generated and the given transportable string representation is assumed to be the contents.
      * @param transportable valid transportable string representation
-     * @return a new SimpleCMObject
      * @throws CreationException if unable to parse the given transportable string representation
      */
-    public static SimpleCMObject SimpleCMObject(Transportable transportable) throws CreationException {
-        try {
-            return new SimpleCMObject(transportable);
-        } catch (ConversionException e) {
-            throw new CreationException(e);
-        }
+    public SimpleCMObject(Transportable transportable) throws ConversionException, CreationException {
+        this(JsonUtilities.jsonToMap(transportable));
     }
+
 
     /**
      * Instantiate a new SimpleCMObject with the given objectId and containing the given contents
      * @param objectId identifies the SimpleCMObject
      * @param contents key value pairs that will be converted to transportable string representation and persisted with the object
-     * @return a SimpleCMObject containing the given contents with the given objectId
      * @throws CreationException if unable to map the given contents to transportable string representation
      */
-    public static SimpleCMObject SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
-        return new SimpleCMObject(objectId, contents);
-    }
-
-    /**
-     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
-     * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
-     * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
-     * a top level key is generated and the objectMap is assumed to be the contents.
-     * @param objectMap see above
-     * @return a new SimpleCMObject
-     * @throws CreationException if unable to map the given contents to transportable string representation
-     */
-    public static SimpleCMObject SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
-        return new SimpleCMObject(objectMap);
-    }
-
-    SimpleCMObject() throws CreationException {
-        this(CMObject.generateUniqueObjectId());
-    }
-
-    SimpleCMObject(String objectId) throws CreationException {
-        this(objectId, new HashMap<String, Object>());
-    }
-
-    SimpleCMObject(Transportable transportable) throws ConversionException, CreationException {
-        this(JsonUtilities.jsonToMap(transportable));
-    }
-
-    SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
+    public SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         this(new HashMap<String, Object>() {
             {
                 put(objectId, contents);
@@ -118,7 +93,8 @@ public class SimpleCMObject extends CMObject {
      * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
      * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
      * a top level key is generated and the objectMap is assumed to be the contents.
-     * @param objectMap
+     * @param objectMap see above
+     * @throws CreationException if unable to map the given contents to transportable string representation
      */
     SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
         super(extractObjectId(objectMap));
@@ -432,9 +408,9 @@ public class SimpleCMObject extends CMObject {
             return null;
         //Need to start at the bottom of the inheritance chain and work up
         if(CMGeoPoint.class.isAssignableFrom(klass)) {
-            return (T) CMGeoPoint.CMGeoPoint(new TransportableString(transportable));
+            return (T) new CMGeoPoint(new TransportableString(transportable));
         } else if(SimpleCMObject.class.isAssignableFrom(klass)) {
-            return (T) SimpleCMObject(new TransportableString(transportable));
+            return (T) new SimpleCMObject(new TransportableString(transportable));
         }
         return null;
     }

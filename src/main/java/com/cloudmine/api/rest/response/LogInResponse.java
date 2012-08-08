@@ -75,7 +75,7 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         CMSessionToken tempToken;
         if(wasSuccess()) {
             try {
-                tempToken = CMSessionToken.CMSessionToken(transportableRepresentation());
+                tempToken = new CMSessionToken(transportableRepresentation());
             } catch (ConversionException e) {
                 LOG.error("Unable to parse json", e);
                 tempToken = CMSessionToken.FAILED;

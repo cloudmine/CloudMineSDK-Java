@@ -306,7 +306,7 @@ public class JsonUtilities {
         Object klassString = jsonMap.get(CLASS_KEY);
         if(klassString == null ||
                 ClassNameRegistry.isRegistered(klassString.toString()) == false) {
-            return SimpleCMObject.SimpleCMObject(new TransportableString(json));
+            return new SimpleCMObject(new TransportableString(json));
         }
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);

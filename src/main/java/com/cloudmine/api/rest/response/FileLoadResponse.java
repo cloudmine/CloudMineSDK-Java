@@ -33,7 +33,7 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
 
     public FileLoadResponse(HttpResponse response, String fileName) {
         super(response, false);
-        file = CMFile.CMFile(response, fileName);
+        file = new CMFile(response, fileName);
     }
 
     @Override

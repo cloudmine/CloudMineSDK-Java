@@ -28,7 +28,7 @@ public class CMUserIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testLogin() throws ExecutionException, TimeoutException, InterruptedException {
-        final CMUser user = CMUser.CMUser("test13131313@test.com", "test");
+        final CMUser user = new CMUser("test13131313@test.com", "test");
         service.insert(user);
 
         user.login(testCallback(new LoginResponseCallback() {
@@ -57,7 +57,7 @@ public class CMUserIntegrationTest extends ServiceTestBase {
     @Test
     @Ignore //TODO we need to be able to delete users for this to work!
     public void testCreateUser() {
-        final CMUser user = CMUser.CMUser("user45435345x345f3@user.com", "w");
+        final CMUser user = new CMUser("user45435345x345f3@user.com", "w");
 
         user.createUser(TestServiceCallback.testCallback(new CreationResponseCallback() {
             @Override
@@ -71,7 +71,7 @@ public class CMUserIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testCreateUserErrors() {
-        CMUser user = CMUser.CMUser("@.notanEm!l", "pw");
+        CMUser user = new CMUser("@.notanEm!l", "pw");
         user.createUser(TestServiceCallback.testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {
@@ -79,7 +79,7 @@ public class CMUserIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
-        user = CMUser.CMUser("vali@email.com", "");
+        user = new CMUser("vali@email.com", "");
         user.createUser(TestServiceCallback.testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {

@@ -27,14 +27,7 @@ import java.util.Arrays;
  */
 public class CMFile implements Transportable, Savable {
 
-    /**
-     * Instantiate a new CMFile with the given contents, name, and type
-     * @param contents the contents of the file
-     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
-     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
-     * @return a new CMFile
-     * @throws CreationException If unable to read in the content stream
-     */
+
     public static CMFile CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
         return new CMFile(contents, fileName, contentType);
     }
@@ -63,47 +56,9 @@ public class CMFile implements Transportable, Savable {
      * @param fileContents the contents of the file
      * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
      * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
-     * @return a new CMFile
      * @throws CreationException If given null fileContents
      */
-    public static CMFile CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
-        return new CMFile(fileContents, fileName, contentType);
-    }
-
-    /**
-     * Instantiate a new CMFile with the given contents. A unique name will be generated, and the DEFAULT_CONTENT_TYPE will be used
-     * @param contents the contents of the file
-     * @return a new CMFile
-     * @throws CreationException If unable to read in the content stream
-     */
-    public static CMFile CMFile(InputStream contents) throws CreationException {
-        return new CMFile(contents);
-    }
-
-    /**
-     * Instantiate a new CMFile with the given contents, name, and type
-     * @param contents the contents of the file
-     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
-     * @return a new CMFile
-     * @throws CreationException If given null contents or unable to read in contents
-     */
-    public static CMFile CMFile(InputStream contents, String contentType) throws CreationException {
-        return new CMFile(contents, contentType);
-    }
-
-    /**
-     * Instantiate a new CMFile, using the entity contents of the HttpResponse. The file will have the
-     * given fileName
-     * @param response received in response to a loadFile request
-     * @param fileName the name of the file. If null a unique name will be generated
-     * @return a new CMFile
-     * @throws CreationException if unable to read in the entity contents
-     */
-    public static CMFile CMFile(HttpResponse response, String fileName) throws CreationException {
-        return new CMFile(response, fileName);
-    }
-
-    CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
+    public CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
         if(fileContents == null) {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
@@ -116,17 +71,44 @@ public class CMFile implements Transportable, Savable {
         this.fileContents = fileContents;
     }
 
-    private CMFile(InputStream contents) throws CreationException {
+    /**
+     * Instantiate a new CMFile with the given contents. A unique name will be generated, and the DEFAULT_CONTENT_TYPE will be used
+     * @param contents the contents of the file
+     * @throws CreationException If unable to read in the content stream
+     */
+    public CMFile(InputStream contents) throws CreationException {
         this(contents, null, null);
     }
-    private CMFile(InputStream contents, String contentType) throws CreationException {
+
+    /**
+     * Instantiate a new CMFile with the given contents, name, and type
+     * @param contents the contents of the file
+     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
+     * @throws CreationException If given null contents or unable to read in contents
+     */
+    public CMFile(InputStream contents, String contentType) throws CreationException {
         this(contents, contentType, null);
     }
-    private CMFile(HttpResponse response, String fileName) throws CreationException {
+
+    /**
+     * Instantiate a new CMFile, using the entity contents of the HttpResponse. The file will have the
+     * given fileName
+     * @param response received in response to a loadFile request
+     * @param fileName the name of the file. If null a unique name will be generated
+     * @throws CreationException if unable to read in the entity contents
+     */
+    public CMFile(HttpResponse response, String fileName) throws CreationException {
         this(extractInputStream(response), fileName, extractContentType(response));
     }
 
-    private CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
+    /**
+     * Instantiate a new CMFile with the given contents, name, and type
+     * @param contents the contents of the file
+     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
+     * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
+     * @throws CreationException If unable to read in the content stream
+     */
+    public CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
         this(inputStreamToByteArray(contents), fileName, contentType);
 
     }
