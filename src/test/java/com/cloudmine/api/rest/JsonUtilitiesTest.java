@@ -123,7 +123,7 @@ public class JsonUtilitiesTest {
 
     @Test
     public void testDateReplacement() {
-        SimpleCMObject object = SimpleCMObject.SimpleCMObject("someKey", createComplexObjectMap());
+        SimpleCMObject object = new SimpleCMObject("someKey", createComplexObjectMap());
         assertEquals(dateValue, object.getDate("date"));
     }
 
@@ -146,13 +146,13 @@ public class JsonUtilitiesTest {
 
         assertTrue(JsonUtilities.isJsonEquivalent(COMPLEX_JSON_OBJECT, json));
 
-        SimpleCMObject pictureObject = SimpleCMObject.SimpleCMObject();
+        SimpleCMObject pictureObject = new SimpleCMObject();
         pictureObject.setClass("task");
         pictureObject.add("dueDate", new Date());
         pictureObject.add("taskName", "gggg");
         pictureObject.add("isDone", true);
         pictureObject.add("priority", 0);
-        pictureObject.add("location", CMGeoPoint.CMGeoPoint(50, 50));
+        pictureObject.add("location", new CMGeoPoint(50, 50));
         pictureObject.add("picture", "pictureKey");
         try {
             pictureObject.transportableRepresentation(); //this is an ugly test but it routes through mapToJson and this used to fail
@@ -177,7 +177,7 @@ public class JsonUtilitiesTest {
         int number = 5;
         CMObject convertableObject = new ExtendedCMObject(name, date, number);
 
-        SimpleCMObject simpleObject = SimpleCMObject.SimpleCMObject(convertableObject.getObjectId());
+        SimpleCMObject simpleObject = new SimpleCMObject(convertableObject.getObjectId());
         simpleObject.add("name", name);
         simpleObject.add("date", date);
         simpleObject.add("number", number);
@@ -253,6 +253,16 @@ public class JsonUtilitiesTest {
         assertTrue(JsonUtilities.isJsonEquivalent(firstObjectJson, conversion.get("aKey")));
         assertTrue(JsonUtilities.isJsonEquivalent(secondObjectJson, conversion.get("another")));
         assertTrue(JsonUtilities.isJsonEquivalent(thirdObjectJson, conversion.get("allScrunch")));
+
+
+        String saying = "say \\\"st}op that!\\\" or something";
+        String escapedStringObjectJson = "{ \"int\":5, \"someString\":\"" + saying + "\", \"anotherObject\":{ \"bool\":false }}";
+        json = "\n" +
+                "{ \"aKey\":" + escapedStringObjectJson + ",\n" +
+                "\"another\"       :  " + secondObjectJson + ",\"allScrunch\":" + thirdObjectJson + "\n" +
+                "}";
+        conversion = JsonUtilities.jsonMapToKeyMap(json);
+        assertTrue(JsonUtilities.isJsonEquivalent(escapedStringObjectJson, conversion.get("aKey")));
     }
 
     @Test

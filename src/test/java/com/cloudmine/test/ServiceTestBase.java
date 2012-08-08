@@ -31,7 +31,7 @@ public class ServiceTestBase {
     protected static final String USER_PASSWORD = "test";
 //    private static final String APP_ID = "94b48aea559b4bb6bd16e1d4a8469308";
 //    private static final String API_KEY = "08cb0266f47840d28044d0e122286779";
-    private static final CMUser user = CMUser.CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
+    private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
     public static final TestServiceCallback hasSuccess = testCallback(new ResponseBaseCallback() {
         public void onCompletion(ResponseBase response) {
@@ -70,7 +70,7 @@ public class ServiceTestBase {
     }
 
     public static CMUser randomUser() {
-        return CMUser.CMUser(randomEmail(), randomString());
+        return new CMUser(randomEmail(), randomString());
     }
 
     protected CMWebService service;
@@ -126,7 +126,7 @@ public class ServiceTestBase {
     }
 
     public SimpleCMObject simpleObject() {
-        SimpleCMObject object = SimpleCMObject.SimpleCMObject();
+        SimpleCMObject object = new SimpleCMObject();
         object.add("string", "value");
         object.add("bool", true);
         object.add("int", 5);

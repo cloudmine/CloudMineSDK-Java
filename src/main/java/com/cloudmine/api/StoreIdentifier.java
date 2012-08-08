@@ -21,7 +21,6 @@ public class StoreIdentifier {
     /**
      * Get the StoreIdentifier for the given user. If no StoreIdentifier exists, one will be created.
      * @param user the user that objects at the USER level are saved with
-     * @return the StoreIdentifier for the given session
      * @throws CreationException if given a null session
      */
     public static StoreIdentifier StoreIdentifier(CMUser user) throws CreationException{
@@ -33,7 +32,9 @@ public class StoreIdentifier {
         return identifier;
     }
 
-    private StoreIdentifier(ObjectLevel level, CMUser user) throws CreationException {
+
+
+    protected StoreIdentifier(ObjectLevel level, CMUser user) throws CreationException {
         if(user == null && ObjectLevel.APPLICATION != level) {
             throw new CreationException("User cannot be null unless we are saving to the application level");
         }
@@ -44,11 +45,17 @@ public class StoreIdentifier {
         this.user = user;
     }
 
-    StoreIdentifier(CMUser user) throws CreationException {
+
+
+    protected StoreIdentifier(CMUser user) throws CreationException {
         this(ObjectLevel.USER, user);
     }
 
-    StoreIdentifier() throws CreationException {
+    /**
+     * Create an Application level StoreIdentifier
+     * @throws CreationException
+     */
+    public StoreIdentifier() throws CreationException {
         this(ObjectLevel.APPLICATION, null);
     }
 

@@ -27,7 +27,7 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testDefaultSave() {
-        final SimpleCMObject object = SimpleCMObject.SimpleCMObject();
+        final SimpleCMObject object = new SimpleCMObject();
         object.add("string", "value");
         object.save(TestServiceCallback.testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
@@ -51,7 +51,7 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testUserSave() {
-        final SimpleCMObject object = SimpleCMObject.SimpleCMObject();
+        final SimpleCMObject object = new SimpleCMObject();
         object.add("bool", true);
         final CMUser user = user();
         object.setSaveWith(user);

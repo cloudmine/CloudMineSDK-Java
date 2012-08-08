@@ -18,7 +18,7 @@ public class CMSessionTokenTest {
     public void testFromJson() {
         String json = userTokenJson();
 
-        CMSessionToken token = CMSessionToken.CMSessionToken(json);
+        CMSessionToken token = new CMSessionToken(json);
 
         assertEquals("44c31131ecac41cf92f49b28b84ebac4", token.getSessionToken());
         Date expectedDate = new Date(1340227389579L);
@@ -34,7 +34,7 @@ public class CMSessionTokenTest {
 
     @Test
     public void testIsValid() {
-        CMSessionToken token = CMSessionToken.CMSessionToken("null");
+        CMSessionToken token = new CMSessionToken("null");
         assertFalse(token.isValid());
     }
 }

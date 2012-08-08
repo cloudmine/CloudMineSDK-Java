@@ -14,11 +14,11 @@ public class CMGeoPointTest {
 
     @Test
     public void testConstructor() {
-        CMGeoPoint point = CMGeoPoint.CMGeoPoint(23.5, 100.1);
+        CMGeoPoint point = new CMGeoPoint(23.5, 100.1);
 
         assertEquals(100.1, point.getLatitude());
 
-        point = CMGeoPoint.CMGeoPoint(new TransportableString("{\"location\": {\n" +
+        point = new CMGeoPoint(new TransportableString("{\"location\": {\n" +
                 "            \"__type__\": \"geopoint\",\n" +
                 "            \"x\": 45.5,\n" +
                 "            \"lat\": -70.2\n" +
@@ -26,7 +26,7 @@ public class CMGeoPointTest {
         assertEquals(-70.2, point.getLatitude());
         assertEquals(45.5, point.getLongitude());
 
-        CMGeoPoint duplicatePoint = CMGeoPoint.CMGeoPoint(point);
+        CMGeoPoint duplicatePoint = new CMGeoPoint(point);
         assertEquals(point, duplicatePoint);
     }
 }

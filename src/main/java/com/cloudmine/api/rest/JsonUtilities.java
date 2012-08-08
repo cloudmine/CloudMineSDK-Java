@@ -16,10 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -266,11 +263,20 @@ public class JsonUtilities {
         }
     }
 
-    public static String objectToJson(CMObject object) throws ConversionException {
+    public static String objectToJson(Object object) throws ConversionException {
         StringWriter writer = new StringWriter();
         try {
             jsonMapper.writeValue(writer, object);
             return writer.toString();
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new ConversionException(e);
+        }
+    }
+
+    public static void writeObjectToJson(Object object, OutputStream stream) {
+        try {
+            jsonMapper.writeValue(stream, object);
         } catch (IOException e) {
             LOG.error("Exception thrown", e);
             throw new ConversionException(e);
@@ -300,7 +306,7 @@ public class JsonUtilities {
         Object klassString = jsonMap.get(CLASS_KEY);
         if(klassString == null ||
                 ClassNameRegistry.isRegistered(klassString.toString()) == false) {
-            return SimpleCMObject.SimpleCMObject(new TransportableString(json));
+            return new SimpleCMObject(new TransportableString(json));
         }
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);
@@ -369,6 +375,7 @@ public class JsonUtilities {
             int readInt;
             int open = 0;
             boolean inString = false;
+            boolean escapeNext = false;
             Map<String, String> jsonMap = new HashMap<String, String>();
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder contentsBuilder = new StringBuilder();
@@ -404,7 +411,17 @@ public class JsonUtilities {
                         }
                         break;
                     case '\"':
-                        inString = !inString;
+                        if(escapeNext) {
+                            escapeNext = false;
+                        } else {
+                            inString = !inString;
+                        }
+                        break;
+                    case '\\':
+                        escapeNext = true;
+                        break;
+                    default:
+                        escapeNext = false; //only escape the next character
 
                 }
                 if(open == 1) {

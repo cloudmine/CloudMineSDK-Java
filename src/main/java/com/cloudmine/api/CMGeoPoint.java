@@ -26,9 +26,10 @@ public class CMGeoPoint extends SimpleCMObject {
      * @param latitude a double between [-90, 90]
      * @return a new CMGeoPoint
      */
-    public static CMGeoPoint CMGeoPoint(double longitude, double latitude) {
-        return new CMGeoPoint(longitude, latitude);
+    public CMGeoPoint(double longitude, double latitude) throws CreationException {
+        this(longitude, latitude, CMObject.generateUniqueObjectId());
     }
+
 
     /**
      * Instantiate a CMGeoPoint with the given latitude and longitude and the given objectId
@@ -37,43 +38,22 @@ public class CMGeoPoint extends SimpleCMObject {
      * @param objectId the objectId. If null, a random unique objectId will be generated
      * @return a new CMGeoPoint
      */
-    public static CMGeoPoint CMGeoPoint(double longitude, double latitude, String objectId) {
-        return new CMGeoPoint(longitude, latitude, objectId);
-    }
-
-    /**
-     * Instantiate a new CMGeoPoint based on the given transportable. The transportable must include a top level key, a "__type__":"geopoint" property,
-     * and a latitude and longitude.
-     * @param transportable a valid transportable representation of a CMGeoPoint
-     * @return a new CMGeoPoint
-     * @throws CreationException if given improperly formated transportable; either malformed or lacking a __type__, latitude, or longitude.
-     */
-    public static CMGeoPoint CMGeoPoint(Transportable transportable) throws CreationException {
-        try {
-            return new CMGeoPoint(transportable);
-        } catch (ConversionException e) {
-            throw new CreationException(e);
-        }
-    }
-
-    CMGeoPoint(double longitude, double latitude) throws CreationException {
-        this(longitude, latitude, CMObject.generateUniqueObjectId());
-    }
-
-    CMGeoPoint(double longitude, double latitude, String key) {
-        super(key);
+    public CMGeoPoint(double longitude, double latitude, String objectId) {
+        super(objectId);
         setClass(GEOPOINT_CLASS);
         setType(CMType.GEO_POINT);
         add(LONGITUDE_KEY, longitude);
         add(LATITUDE_KEY, latitude);
     }
 
+
     /**
-     * Constructs a geopoint from the given Transportable. Is assumed to be in the format { "key": {geopoint transportable}}
-     * @param transportable
-     * @throws ConversionException
+     * Instantiate a new CMGeoPoint based on the given transportable. The transportable must include a top level key, a "__type__":"geopoint" property,
+     * and a latitude and longitude.
+     * @param transportable a valid transportable representation of a CMGeoPoint
+     * @throws CreationException if given improperly formated transportable; either malformed or lacking a __type__, latitude, or longitude.
      */
-    CMGeoPoint(Transportable transportable) throws ConversionException, CreationException {
+    public CMGeoPoint(Transportable transportable) throws ConversionException, CreationException {
         super(transportable);
         boolean isMissingAnything = !(isType(CMType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {

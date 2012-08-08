@@ -30,11 +30,11 @@ public class CMResponse extends ResponseBase<CMResponseCode> implements Transpor
     }
 
     /**
-     * Used by tests only
+     * Internal use only
      * @param messageBody
      * @param statusCode
      */
-    protected CMResponse(String messageBody, int statusCode) {
+    public CMResponse(String messageBody, int statusCode) {
         super(messageBody, statusCode);
     }
 

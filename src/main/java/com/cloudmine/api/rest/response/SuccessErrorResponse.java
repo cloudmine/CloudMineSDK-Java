@@ -15,8 +15,8 @@ import java.util.*;
  */
 public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
     private static final Logger LOG = LoggerFactory.getLogger(SuccessErrorResponse.class);
-    protected static final String SUCCESS = "success";
-    private static final String ERRORS = "errors";
+    public static final String SUCCESS = "success";
+    public static final String ERRORS = "errors";
     private final Map<String, Object> successResponse;
     private final Map<String, Object> errorResponse;
     private final Immutable<List<SimpleCMObject>> successObjects = new Immutable<List<SimpleCMObject>>();
@@ -31,7 +31,12 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
         errorResponse = convertToMap(getObject(ERRORS));
     }
 
-    protected SuccessErrorResponse(String msgBody, int statusCode) {
+    /**
+     * Internal use only
+     * @param msgBody
+     * @param statusCode
+     */
+    public SuccessErrorResponse(String msgBody, int statusCode) {
         super(msgBody, statusCode);
         successResponse = convertToMap(getObject(SUCCESS));
         errorResponse = convertToMap(getObject(ERRORS));
@@ -113,7 +118,7 @@ public abstract class SuccessErrorResponse<CODE> extends ResponseBase<CODE> {
         for(Map.Entry<String, Object> successEntry : objectMap.entrySet()) {
             String successName = successEntry.getKey();
             Map<String, Object> successMap = convertToMap(successEntry.getValue());
-            successObjects.add(SimpleCMObject.SimpleCMObject(successName, successMap));
+            successObjects.add(new SimpleCMObject(successName, successMap));
         }
         return successObjects;
 

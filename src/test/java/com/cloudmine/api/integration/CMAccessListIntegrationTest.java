@@ -37,7 +37,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         user.login(hasSuccess);
         waitThenAssertTestResults();
 
-        final CMAccessList list = CMAccessList.CMAccessList(user);
+        final CMAccessList list = new CMAccessList(user);
         List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
         list.grantAccessTo(userObjectIds);
         list.grantAccessTo(anotherUser);
@@ -52,7 +52,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
 
-        final SimpleCMObject anObject = SimpleCMObject.SimpleCMObject();
+        final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
         anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
@@ -77,7 +77,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
     @Test
     public void testGetAccessList() {
         CMUser user = user();
-        final CMAccessList list = CMAccessList.CMAccessList(user, CMAccessPermission.CREATE);
+        final CMAccessList list = new CMAccessList(user, CMAccessPermission.CREATE);
         list.grantAccessTo("whatever");
         list.save(hasSuccess);
         waitThenAssertTestResults();

@@ -63,7 +63,12 @@ public abstract class ResponseBase<CODE> implements Transportable {
         }
     }
 
-    protected ResponseBase(String messageBody, int statusCode) {
+    /**
+     * Internal use only
+     * @param messageBody
+     * @param statusCode
+     */
+    public ResponseBase(String messageBody, int statusCode) {
         Map<String, Object> tempNode;
         try {
             tempNode = JsonUtilities.jsonToMap(messageBody);

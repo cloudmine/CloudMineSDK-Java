@@ -23,34 +23,33 @@ public class CMAccessList extends CMObject {
     public static final String CLASS_NAME = "acl";
     private Set<String> userObjectIds = new HashSet<String>();
     private Set<CMAccessPermission> accessPermissions = EnumSet.noneOf(CMAccessPermission.class);
+
+
     /**
-     * Create a new CMAccessList that grants no privileges and contains no users
-     * @return
+     * Create a new CMAccessList that grants no privileges and contains no users. It grants permissions to
+     * objects owned by the given user
      */
-    public static CMAccessList CMAccessList(CMUser owner) {
-        return new CMAccessList(owner);
-    }
-
-    public static CMAccessList CMAccessList(CMUser owner, CMAccessPermission... permissions) {
-        return new CMAccessList(owner, permissions);
-    }
-
-    private CMAccessList() {
-        super();
-    }
-
-    protected CMAccessList(CMUser owner) {
+    public CMAccessList(CMUser owner) {
         super();
         if(owner == null)
             throw new NullPointerException("Cannot instantiate a new CMAccessList from a null CMUser");
         setSaveWith(owner);
     }
 
-    protected CMAccessList(CMUser owner, CMAccessPermission... permissions) {
+    /**
+     * Instantiate a new CMAccessList owned by the specified user that grants the specified permissions
+     * @param owner
+     * @param permissions permissions
+     */
+    public CMAccessList(CMUser owner, CMAccessPermission... permissions) {
         this(owner);
         for(CMAccessPermission permission : permissions) {
             this.accessPermissions.add(permission);
         }
+    }
+
+    protected CMAccessList() {
+        //for jackson
     }
 
     /**

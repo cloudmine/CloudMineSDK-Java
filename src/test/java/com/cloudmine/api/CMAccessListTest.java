@@ -17,12 +17,12 @@ public class CMAccessListTest {
 
     @Test
     public void testAddUser() {
-        CMUser owner = CMUser.CMUser("name@w.com", "t");
+        CMUser owner = new CMUser("name@w.com", "t");
         owner.setObjectId(CMObject.generateUniqueObjectId());
-        CMAccessList list = CMAccessList.CMAccessList(owner);
-        CMUser userToAddDirectly = CMUser.CMUser("user@u.com", "pw");
+        CMAccessList list = new CMAccessList(owner);
+        CMUser userToAddDirectly = new CMUser("user@u.com", "pw");
         userToAddDirectly.setObjectId(CMObject.generateUniqueObjectId());
-        CMUser userToAddById = CMUser.CMUser("another@u.com", "pw");
+        CMUser userToAddById = new CMUser("another@u.com", "pw");
         userToAddById.setObjectId(CMObject.generateUniqueObjectId());
 
         list.grantAccessTo(userToAddDirectly);
@@ -32,22 +32,22 @@ public class CMAccessListTest {
         assertTrue(list.doesAllowAccessTo(userToAddById));
 
         assertTrue(list.doesAllowAccessTo(userToAddDirectly.getObjectId()));
-        assertFalse(list.doesAllowAccessTo(CMUser.CMUser("nope@not.com", "f")));
+        assertFalse(list.doesAllowAccessTo(new CMUser("nope@not.com", "f")));
     }
 
     @Test
     public void testIsOwner() {
-        CMUser owner = CMUser.CMUser("wat@wat.com", "ff");
-        CMAccessList list = CMAccessList.CMAccessList(owner);
+        CMUser owner = new CMUser("wat@wat.com", "ff");
+        CMAccessList list = new CMAccessList(owner);
         assertTrue(list.isOwnedBy(owner));
-        CMUser notOwner = CMUser.CMUser("wat@wat.com", "f");
+        CMUser notOwner = new CMUser("wat@wat.com", "f");
         assertFalse(list.isOwnedBy(notOwner));
     }
 
     @Test
     public void testPermissions() {
-        CMUser owner = CMUser.CMUser("whatever@gmail.com", "t");
-        CMAccessList list = CMAccessList.CMAccessList(owner, CMAccessPermission.UPDATE, CMAccessPermission.READ);
+        CMUser owner = new CMUser("whatever@gmail.com", "t");
+        CMAccessList list = new CMAccessList(owner, CMAccessPermission.UPDATE, CMAccessPermission.READ);
 
         assertTrue(list.doesGrantPermissions(CMAccessPermission.UPDATE, CMAccessPermission.READ));
         assertFalse(list.doesGrantPermissions(CMAccessPermission.DELETE));
@@ -57,8 +57,8 @@ public class CMAccessListTest {
     @Test
     public void testAsJson() {
 
-        CMUser owner = CMUser.CMUser("bobdole@bobdole.com", "imbobdole");
-        CMAccessList list = CMAccessList.CMAccessList(owner);
+        CMUser owner = new CMUser("bobdole@bobdole.com", "imbobdole");
+        CMAccessList list = new CMAccessList(owner);
         list.grantPermissions(CMAccessPermission.CREATE);
 
         String json = list.transportableRepresentation();

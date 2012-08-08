@@ -4,6 +4,10 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Singleton for defining your application identifier and application API key. Must be initialized before
@@ -11,6 +15,7 @@ import org.apache.http.message.BasicHeader;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMApiCredentials {
+    private static final Logger LOG = LoggerFactory.getLogger(CMApiCredentials.class);
     private static final String HEADER_KEY = "X-CloudMine-ApiKey";
 
     private static final Immutable<CMApiCredentials> credentials = new Immutable<CMApiCredentials>();
@@ -23,6 +28,36 @@ public class CMApiCredentials {
         ClassNameRegistry.register(CMAccessList.CLASS_NAME, CMAccessList.class);
         ClassNameRegistry.register(CMGeoPoint.CLASS_NAME, CMGeoPoint.class);
         ClassNameRegistry.register(CMUser.CLASS_NAME, CMUser.class);
+    }
+
+    /**
+     * If you are using CloudMine on Android, this is the initialize method you should be calling. Works just
+     * like {@link #initialize(String, String)}, but sets some important android only information
+     * @param id
+     * @param apiKey
+     * @param context either null if not running on android, or the value of getApplicationContext from your main activity. It isn't typed here so the Java sdk does not have any android dependencies
+     * @return
+     * @throws CreationException in addition to the reasons defined in {@link #initialize(String, String)}, also if you do not provide the application context and you're running on android
+     */
+    public static synchronized CMApiCredentials initialize(String id, String apiKey, Object context) throws CreationException {
+        try {
+            Class contextClass = Class.forName("android.content.Context");
+            boolean invalidContext = context == null || contextClass == null || !contextClass.isAssignableFrom(context.getClass());
+            if(invalidContext) {
+                throw new CreationException("Running on android and application context not provided, try passing getApplicationContext to this method");
+            }
+
+            Class.forName("com.cloudmine.api.DeviceIdentifier").getMethod("initialize", contextClass).invoke(null, context);
+        } catch (ClassNotFoundException e) {
+            LOG.info("Not running on Android", e);
+        } catch (NoSuchMethodException e) {
+            LOG.error("Couldn't find initialize, did you change the signature?", e);
+        } catch (InvocationTargetException e) {
+            LOG.error("Exception thrown", e);
+        } catch (IllegalAccessException e) {
+            LOG.error("Exception thrown", e);
+        }
+        return initialize(id, apiKey);
     }
 
     /**
