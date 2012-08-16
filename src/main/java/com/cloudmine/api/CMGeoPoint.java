@@ -27,25 +27,12 @@ public class CMGeoPoint extends SimpleCMObject {
      * @return a new CMGeoPoint
      */
     public CMGeoPoint(double longitude, double latitude) throws CreationException {
-        this(longitude, latitude, CMObject.generateUniqueObjectId());
-    }
-
-
-    /**
-     * Instantiate a CMGeoPoint with the given latitude and longitude and the given objectId
-     * @param longitude a double between [-180, 180)
-     * @param latitude a double between [-90, 90]
-     * @param objectId the objectId. If null, a random unique objectId will be generated
-     * @return a new CMGeoPoint
-     */
-    public CMGeoPoint(double longitude, double latitude, String objectId) {
-        super(objectId);
+        super(false);
         setClass(GEOPOINT_CLASS);
         setType(CMType.GEO_POINT);
         add(LONGITUDE_KEY, longitude);
         add(LATITUDE_KEY, latitude);
     }
-
 
     /**
      * Instantiate a new CMGeoPoint based on the given transportable. The transportable must include a top level key, a "__type__":"geopoint" property,
@@ -61,6 +48,10 @@ public class CMGeoPoint extends SimpleCMObject {
         }
         setClass(GEOPOINT_CLASS);
         setType(CMType.GEO_POINT);
+    }
+
+    public CMGeoPoint() {
+        super(false);
     }
 
     private boolean hasLatitude() {

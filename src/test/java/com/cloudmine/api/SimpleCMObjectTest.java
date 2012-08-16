@@ -128,7 +128,7 @@ public class SimpleCMObjectTest {
     @Test
     public void testGeoAsJson() {
         SimpleCMObject object = new SimpleCMObject("topLevelKey");
-        CMGeoPoint geoObject = new CMGeoPoint(50, 50, "geoObject");
+        CMGeoPoint geoObject = new CMGeoPoint(50, 50);
         object.add("geo", geoObject);
         String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", " + EMPTY_ACCESS_JSON +
                 "\"geo\":{\"__id__\":\"geoObject\"," + EMPTY_ACCESS_JSON + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";

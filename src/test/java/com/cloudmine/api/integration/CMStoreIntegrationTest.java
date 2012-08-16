@@ -123,6 +123,27 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
+    public void testSearchGeoPoint() {
+
+        final SimpleCMObject object = new SimpleCMObject();
+        object.add("name", "John");
+        object.add("age", 25);
+        CMGeoPoint location = new CMGeoPoint(55, 50);
+        object.add("location", location);
+        ObjectModificationResponse response = CMWebService.getService().insert(object.transportableRepresentation());
+        assertTrue(response.wasSuccess());
+
+        CMStore.getStore().loadApplicationObjectsSearch("[location near (50, 48)]", testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+                assertTrue(response.wasSuccess());
+                CMObject loadedObject = response.getCMObject(object.getObjectId());
+                assertEquals(object, loadedObject);
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
     public void testUserLogin() {
         CMUser user = user();
         service.insert(user);

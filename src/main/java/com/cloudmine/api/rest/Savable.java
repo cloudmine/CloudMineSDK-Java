@@ -73,6 +73,17 @@ public interface Savable extends Transportable {
     public void save(Callback callback) throws CreationException, ConversionException;
 
     /**
+     * See {@link #delete(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    public void delete();
+
+    /**
+     * Delete this savable object, then run the given callback
+     * @param callback
+     */
+    public void delete(Callback callback);
+
+    /**
      * Return the CMUser this object belongs to, if it exists. Careful - this can return null if no user has been set
      * @return if this object is saved to the USER level, and a user has been set, its user; otherwise null.
      */

@@ -138,6 +138,10 @@ public class CMFile implements Transportable, Savable {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
 
+    public ObjectLevel getSaveLevel() {
+        return getSavedWith().getObjectLevel();
+    }
+
     @Override
     public boolean isOnLevel(ObjectLevel level) {
         return getSavedWith().isLevel(level);
@@ -161,6 +165,23 @@ public class CMFile implements Transportable, Savable {
     @Override
     public void save(Callback callback) throws CreationException, ConversionException {
         store().saveFile(this, callback);
+    }
+
+    @Override
+    public void delete() {
+        delete(CMCallback.doNothing());
+    }
+
+    @Override
+    public void delete(Callback callback) {
+        switch(getSaveLevel()) {
+            case APPLICATION:
+                store().deleteApplicationFile(getFileName(), callback);
+                break;
+            case USER:
+                store().deleteUserFile(getFileName(), callback);
+                break;
+        }
     }
 
     @Override

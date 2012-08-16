@@ -88,6 +88,17 @@ public class SimpleCMObject extends CMObject {
         });
     }
 
+
+    /**
+     * Create a new, empty SimpleCMObject, that may not have an object id. This is useful when constructing
+     * subobjects that are not stored themselves, but rather saved on the server
+     * @param hasObjectId whether to automatically generate an object id; if true, you can just use {@link #SimpleCMObject()}
+     */
+    public SimpleCMObject(boolean hasObjectId) {
+        super(hasObjectId);
+        contents = new HashMap<String, Object>();
+        topLevelMap = new HashMap<String, Object>();
+    }
     /**
      * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
      * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.

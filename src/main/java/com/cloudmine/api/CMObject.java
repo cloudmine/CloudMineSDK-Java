@@ -234,6 +234,21 @@ public class CMObject implements Transportable, Savable {
     }
 
     /**
+     * See {@link #delete(com.cloudmine.api.rest.callbacks.Callback)}
+     */
+    public void delete() {
+        delete(CMCallback.doNothing());
+    }
+
+    /**
+     * Delete this object, then run the given callback
+     * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
+     */
+    public void delete(Callback callback) {
+        store().deleteObject(this, callback);
+    }
+
+    /**
      * This method should be used to check date equality when overriding {@link #equals(Object)}, as
      * serialized dates are stored in seconds.
      * @param firstDate a null possible date

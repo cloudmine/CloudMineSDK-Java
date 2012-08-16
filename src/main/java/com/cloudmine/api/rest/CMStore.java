@@ -213,7 +213,7 @@ public class CMStore {
      * NOTE: No matter what user is associated with the object to save, the store always deletes the object with the user associated with the store.
      * @param object to delete; this is done based on the object id, its values are ignored
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and you are deleting a User level object
      */
     public void deleteObject(CMObject object, Callback callback) throws CreationException {
         deleteObject(object, callback, CMRequestOptions.NONE);

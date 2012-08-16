@@ -316,7 +316,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
     @Test
     public void testAsyncGeoSearch() {
         SimpleCMObject geoObject = new SimpleCMObject("location");
-        geoObject.add("geoPoint", new CMGeoPoint(50, 50, "geo"));
+        geoObject.add("geoPoint", new CMGeoPoint(50, 50));
 
         service.insert(geoObject.transportableRepresentation());
 
