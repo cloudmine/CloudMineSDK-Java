@@ -128,6 +128,15 @@ public abstract class ResponseBase<CODE> implements Transportable {
     }
 
     /**
+     * Get the results from a server function call, if the request was made with a {@link com.cloudmine.api.rest.options.CMServerFunction}
+     * provided in the {@link com.cloudmine.api.rest.options.CMRequestOptions}
+     * @return the result object, if it exists, otherwise null
+     */
+    public Object getResults() {
+        return getObject("result");
+    }
+
+    /**
      * Check whether the JSON returned by the request includes a specific top level key
      * @param key the top level key to check
      * @return

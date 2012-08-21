@@ -79,7 +79,7 @@ public interface Savable extends Transportable {
 
     /**
      * Delete this savable object, then run the given callback
-     * @param callback
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
     public void delete(Callback callback);
 

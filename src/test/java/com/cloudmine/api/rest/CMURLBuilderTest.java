@@ -79,7 +79,7 @@ public class CMURLBuilderTest {
 
         CMRequestOptions requestOptions = CMRequestOptions.CMRequestOptions(
                 CMPagingOptions.CMPagingOptions(5, 10, true),
-                CMServerFunction.CMServerFunction("cool Snippet", false),
+                new CMServerFunction("cool Snippet", false),
                 CMSortOptions.NONE);
         String expectedUrl = expectedBaseUrl() + "/text?keys=one,two,three+and+four&limit=5&skip=10&count=true&f=cool+Snippet&result_only=false&async=false";
         assertEquals(expectedUrl, builder.text().objectIds(Arrays.asList("one", "two", "three and four")).options(requestOptions).asUrlString());

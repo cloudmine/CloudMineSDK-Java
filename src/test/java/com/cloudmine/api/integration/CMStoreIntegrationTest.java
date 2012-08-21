@@ -404,7 +404,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         object.add("string", "dog");
         store.saveObject(object, hasSuccess);
         waitThenAssertTestResults();
-        CMServerFunction function = CMServerFunction.CMServerFunction("NewSnippet", false);
+        CMServerFunction function = new CMServerFunction("NewSnippet", false);
         store.loadApplicationObjectWithObjectId(object.getObjectId(), new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 Object result = response.getObject("result");

@@ -15,7 +15,7 @@ import java.util.Map;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMServerFunction implements BaseURL{
-    public static final CMServerFunction NONE = new CMServerFunction("");
+    public static final CMServerFunction NONE = new CMServerFunction("", null);
     public static final boolean DEFAULT_ASYNC = false;
     public static final boolean DEFAULT_RESULTS_ONLY = false;
     public static final Map<String,String> DEFAULT_EXTRA_PARAMETERS = Collections.<String, String>emptyMap();
@@ -31,11 +31,7 @@ public class CMServerFunction implements BaseURL{
      * You probably don't want to be calling this
      * @param asString the raw URL string that will be appended to the request URL
      */
-    public static CMServerFunction CMServerFunction(String asString) {
-        return new CMServerFunction(asString);
-    }
-
-    CMServerFunction(String asString) {
+    private CMServerFunction(String asString, Class randomParam) {
         urlString.setValue(asString);
         snippetName = "";
         resultsOnly = false;
@@ -44,16 +40,20 @@ public class CMServerFunction implements BaseURL{
     }
 
     /**
+     * Instantiate a new CMServerFunction that calls the given snippet name with default parameters
+     * @param snippetName the name of the snippet to call
+     */
+    public CMServerFunction(String snippetName) {
+        this(snippetName, false);
+    }
+
+    /**
      * Instantiate a new CMServerFunction that calls into the given snippetName on completion of the request.
      * Has no extra parameters and is not asynchronous.
      * @param snippetName the name of the snippet, defined in your CloudMine dashboard
      * @param resultsOnly if true, only the results of the function call are returned, otherwise the original data is returned as well
      */
-    public static CMServerFunction CMServerFunction(String snippetName, boolean resultsOnly) {
-        return new CMServerFunction(snippetName, resultsOnly);
-    }
-
-    CMServerFunction(String snippetName, boolean resultsOnly) {
+    public CMServerFunction(String snippetName, boolean resultsOnly) {
         this(snippetName, resultsOnly, DEFAULT_ASYNC, DEFAULT_EXTRA_PARAMETERS);
     }
 
@@ -65,11 +65,7 @@ public class CMServerFunction implements BaseURL{
      * @param isAsynchronous if true, run the code snippet asynchronously; this will cause the HTTP call to return immediately but will leave your code running on our servers. The only way to return data from an asynchronous call is to save it back using the CloudMine API from within the function. When false (default), the HTTP call will not complete until the function is done running.
      * @param extraParameters Allows you to pass in arbitrary parameters to the function. They will be available as data.params. If specified as valid JSON, they will already be parsed as a JSON object.
      */
-    public static CMServerFunction CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
-        return new CMServerFunction(snippetName, resultsOnly, isAsynchronous, extraParameters);
-    }
-
-    CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
+    public CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
         if(snippetName == null) {
             throw new CreationException("Cannot call a null function!");
         }

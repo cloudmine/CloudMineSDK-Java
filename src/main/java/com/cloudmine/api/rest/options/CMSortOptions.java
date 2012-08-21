@@ -11,7 +11,7 @@ public class CMSortOptions implements BaseURL{
 
     public static final CMSortOptions NONE = new CMSortOptions("");
 
-    enum SortDirection { ASCENDING("asc"), DESCENDING("desc");
+    public enum SortDirection { ASCENDING("asc"), DESCENDING("desc");
         private final String representation;
         private SortDirection(String representation) {
             this.representation = representation;

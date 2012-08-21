@@ -23,10 +23,16 @@ public class CMPagingOptions implements BaseURL {
      * Specify the paging options as a URL string. You probably don't want to use this.
      * @param asString the paging options as a string, no leading ?.
      */
+    @Deprecated
     public static CMPagingOptions CMPagingOptions(String asString) {
         return new CMPagingOptions(asString);
     }
 
+
+    @Deprecated
+    public static CMPagingOptions CMPagingOptions(int limit, int skipFirst, boolean includeCount) {
+        return new CMPagingOptions(limit, skipFirst, includeCount);
+    }
     /**
      * Instantiate a new CMPagingOptions with the different paging options.
      * @param limit the maximum number of results to return for this request
@@ -34,11 +40,7 @@ public class CMPagingOptions implements BaseURL {
      * @param includeCount true if the response should include the total number of result set for the query, regardless of the values for limit or skip. If true,
      *                     the count is returned as "count": N, and can be queried by CMResponse.getObject(COUNT_KEY)
      */
-    public static CMPagingOptions CMPagingOptions(int limit, int skipFirst, boolean includeCount) {
-        return new CMPagingOptions(limit, skipFirst, includeCount);
-    }
-
-    CMPagingOptions(int limit, int skipFirst, boolean includeCount) {
+    public CMPagingOptions(int limit, int skipFirst, boolean includeCount) {
         this.limit = limit;
         this.skipFirst = skipFirst;
         this.includeCount = includeCount;

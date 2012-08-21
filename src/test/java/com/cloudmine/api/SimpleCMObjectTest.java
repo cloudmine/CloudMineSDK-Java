@@ -4,10 +4,7 @@ import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.JsonUtilitiesTest;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -98,6 +95,7 @@ public class SimpleCMObjectTest {
         List<String> stringList = Arrays.asList("one", "two");
         List<Boolean> booleanList = Arrays.asList(Boolean.TRUE, Boolean.FALSE);
         List<Object> nullList = Arrays.asList(null, null, null);
+
         lotsOfListsMap.put("double", doubleList);
         lotsOfListsMap.put("string", stringList);
         lotsOfListsMap.put("boolean", booleanList);

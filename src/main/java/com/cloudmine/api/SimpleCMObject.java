@@ -379,7 +379,7 @@ public class SimpleCMObject extends CMObject {
      * @param <T>
      * @return
      */
-    private <T> T getValue(String key, Class<T> klass) throws ConversionException {
+    public <T> T getValue(String key, Class<T> klass) throws ConversionException {
         Object value = contents.get(key);
         if(key == null || klass == null || value == null) {
             return null;

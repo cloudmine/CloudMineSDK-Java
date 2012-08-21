@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.NotLoggedInException;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -263,7 +264,11 @@ public class CMUser extends CMObject {
         } else {
             login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
-                    getUserService().asyncLoadAccessLists(callback);
+                    if(isLoggedIn()) {
+                        getUserService().asyncLoadAccessLists(callback);
+                    } else {
+                        callback.onFailure(new NotLoggedInException("Was unable to log in user"), "Wasn't logged in");
+                    }
                 }
             });
         }
@@ -274,22 +279,26 @@ public class CMUser extends CMObject {
     }
 
     private void loadAndMergeProfileUpdatesThenCallback(final Callback callback) {
-        getUserService().asyncLoadLoggedInUserProfile(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
-            @Override
-            public void onCompletion(CMObjectResponse response) {
-                try {
-                    List<CMObject> loadedObjects = response.getObjects();
-                    if (loadedObjects.size() == 1) {
-                        CMObject thisUser = loadedObjects.get(0);
-                        if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
-                            mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
+        if(isLoggedIn()) {
+            getUserService().asyncLoadLoggedInUserProfile(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
+                @Override
+                public void onCompletion(CMObjectResponse response) {
+                    try {
+                        List<CMObject> loadedObjects = response.getObjects();
+                        if (loadedObjects.size() == 1) {
+                            CMObject thisUser = loadedObjects.get(0);
+                            if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
+                                mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
+                            }
                         }
+                    } finally {
+                        callback.onCompletion(response);
                     }
-                } finally {
-                    callback.onCompletion(response);
                 }
-            }
-        });
+            });
+        }else {
+            callback.onFailure(new NotLoggedInException("Was unable to log in"), "Unable to log in");
+        }
     }
 
     private void mergeProfilesUpdates(String profileTransportRepresentation) {
@@ -350,7 +359,11 @@ public class CMUser extends CMObject {
         } else {
             login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
-                    getUserService().asyncInsertUserProfile(CMUser.this, callback);
+                    if(isLoggedIn()) {
+                        getUserService().asyncInsertUserProfile(CMUser.this, callback);
+                    } else {
+                        callback.onFailure(new NotLoggedInException("Unable to log in"), "Unable to log in");
+                    }
                 }
             });
         }

@@ -15,10 +15,6 @@ public class CMRequestOptions implements BaseURL{
     private final CMSharedDataOptions sharedDataOptions;
 
 
-    public CMRequestOptions(CMPagingOptions allResults) {
-        this(allResults, CMServerFunction.NONE, CMSortOptions.NONE);
-    }
-
     /**
      * Instantiate a CMRequestOptions with the specified individual options. If you do not want to specify
      * a specific option, you can pass in the NONE constant from the relevant class.
@@ -44,6 +40,22 @@ public class CMRequestOptions implements BaseURL{
 
     public static CMRequestOptions CMRequestOptions(CMSharedDataOptions sharedDataOptions) {
         return new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, CMSortOptions.NONE, sharedDataOptions);
+    }
+
+    public CMRequestOptions(CMSharedDataOptions sharedDataOptions) {
+        this(CMPagingOptions.NONE, CMServerFunction.NONE, CMSortOptions.NONE, sharedDataOptions);
+    }
+
+    public CMRequestOptions(CMSortOptions sortOptions) {
+        this(CMPagingOptions.NONE, CMServerFunction.NONE, sortOptions);
+    }
+
+    public CMRequestOptions(CMPagingOptions pagingOptions) {
+        this(pagingOptions, CMServerFunction.NONE, CMSortOptions.NONE);
+    }
+
+    public CMRequestOptions(CMServerFunction serverFunction) {
+        this(CMPagingOptions.NONE, serverFunction, CMSortOptions.NONE);
     }
 
     public CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions, CMSharedDataOptions sharedDataOptions) {
