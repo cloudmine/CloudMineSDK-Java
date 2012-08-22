@@ -3,8 +3,7 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.rest.response.code.ObjectModificationCode;
 import org.apache.http.HttpResponse;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Response returned whenever objects are added, updated, or deleted on the CloudMine platform.
@@ -84,12 +83,56 @@ public class ObjectModificationResponse extends SuccessErrorResponse<ObjectModif
      */
     public List<String> getDeletedObjectIds() {
         List<String> deletedObjectIds = new ArrayList<String>();
-        for(String objectId : getSuccessMap().keySet()) {
+        for(String objectId : getObjectIds()) {
             if(wasDeleted(objectId)) {
                 deletedObjectIds.add(objectId);
             }
         }
         return deletedObjectIds;
+    }
+
+    /**
+     * Gets the object ids of all the objects that were updated
+     * @return
+     */
+    public List<String> getUpdatedObjectIds() {
+        List<String> updatedObjectIds = new ArrayList<String>();
+        for(String objectId : getObjectIds()) {
+            if(wasUpdated(objectId)) {
+                updatedObjectIds.add(objectId);
+            }
+        }
+        return updatedObjectIds;
+    }
+
+    /**
+     * Gets the object ids of all the objects that were created
+     * @return
+     */
+    public List<String> getCreatedObjectIds() {
+        List<String> createdObjectIds = new ArrayList<String>();
+        for(String objectId : getObjectIds()) {
+            if(wasCreated(objectId)) {
+                createdObjectIds.add(objectId);
+            }
+        }
+        return createdObjectIds;
+    }
+
+    /**
+     * Get a Map from the ObjectIds that have been modified, to how they were modified
+     * @return
+     */
+    public Map<String, ResponseValue> getModifiedMap() {
+        Map<String, ResponseValue> statusMap = new HashMap<String, ResponseValue>();
+        for(String objectId : getObjectIds()) {
+            statusMap.put(objectId, getKeyResponse(objectId));
+        }
+        return statusMap;
+    }
+
+    private Set<String> getObjectIds() {
+        return getSuccessMap().keySet();
     }
 
     /**
