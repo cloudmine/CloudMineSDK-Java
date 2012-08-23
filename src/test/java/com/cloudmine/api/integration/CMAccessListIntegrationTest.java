@@ -1,6 +1,8 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.rest.CMStore;
+import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
@@ -37,8 +39,8 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         user.login(hasSuccess);
         waitThenAssertTestResults();
 
-        final CMAccessList list = new CMAccessList(user);
         List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
+        CMAccessList list = new CMAccessList(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
         list.grantAccessTo(userObjectIds);
         list.grantAccessTo(anotherUser);
         list.grantPermissions(CMAccessPermission.READ);
@@ -55,6 +57,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
+
         anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
         waitThenAssertTestResults();
 
@@ -62,7 +65,8 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
         CMSessionToken token = anotherUser.getSessionToken();
 
-        service.getUserWebService(token).asyncLoadObject(anObject.getObjectId(), TestServiceCallback.testCallback(new CMObjectResponseCallback() {
+        UserCMWebService userWebService = service.getUserWebService(token);
+        userWebService.asyncLoadObject(anObject.getObjectId(), TestServiceCallback.testCallback(new CMObjectResponseCallback() {
             @Override
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.hasSuccess());
@@ -72,7 +76,21 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
             }
         }), CMRequestOptions.CMRequestOptions(CMSharedDataOptions.SHARED_OPTIONS));
         waitThenAssertTestResults();
+
+        CMRequestOptions requestOptions = new CMRequestOptions(CMSharedDataOptions.getShared());
+        userWebService.asyncLoadObjects(TestServiceCallback.testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+
+                assertTrue(response.hasSuccess());
+                assertEquals(1, response.getObjects().size());
+                CMObject loadedObject = response.getCMObject(anObject.getObjectId());
+                assertEquals(anObject, loadedObject);
+            }
+
+        }), requestOptions);
+        waitThenAssertTestResults();
     }
+
 
     @Test
     public void testGetAccessList() {

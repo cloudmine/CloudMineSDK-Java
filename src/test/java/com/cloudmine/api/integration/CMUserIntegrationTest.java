@@ -1,9 +1,12 @@
 package com.cloudmine.api.integration;
 
+import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
+import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
@@ -104,5 +107,25 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         reloadedUser.login(hasSuccess);
         waitThenAssertTestResults();
         assertEquals(50, reloadedUser.getAge());
+    }
+
+    @Test
+    public void testSearchUserProfiles() {
+        final ExtendedCMUser user = new ExtendedCMUser("ewoirusldfjlsjreoijrwlejfldjfsljfoweirudlsj.vc.ncosrjf@gmail.com", "12345");
+        user.setAge(500);
+        user.createUser(testCallback());
+        waitThenAssertTestResults();
+        user.login(hasSuccess);
+        waitThenAssertTestResults();
+        CMUser.searchUserProfiles("[age>400]", testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+                for(CMObject object : response.getObjects()) {
+                    if(object instanceof ExtendedCMUser) {
+                        assertEquals(user, object);
+                    }
+                }
+            }
+        }));
+        waitThenAssertTestResults();
     }
 }

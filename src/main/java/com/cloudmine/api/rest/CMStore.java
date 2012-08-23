@@ -14,6 +14,7 @@ import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 
+import javax.security.auth.login.LoginException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -140,11 +141,21 @@ public class CMStore {
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
     public void saveAccessList(final CMAccessList list, final Callback callback) {
-        list.getUser().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
-            public void onCompletion(LoginResponse response) {
-                userService().asyncInsert(list, callback);
-            }
-        });
+        final CMUser listUser = list.getUser();
+        if(listUser.isLoggedIn()) {
+            CMWebService.getService().getUserWebService(listUser.getSessionToken()).asyncInsert(list, callback);
+        } else {
+            listUser.login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+                public void onCompletion(LoginResponse response) {
+                    if(listUser.isLoggedIn()) {
+                        CMWebService.getService().getUserWebService(listUser.getSessionToken()).asyncInsert(list, callback);
+                    } else {
+                        callback.onFailure(new LoginException("Cannot save ACL belonging to user who cannot log in"), response.getMessageBody());
+                    }
+                }
+            });
+        }
+
     }
 
     /**
