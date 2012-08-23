@@ -129,17 +129,18 @@ public class SimpleCMObjectTest {
         CMGeoPoint geoObject = new CMGeoPoint(50, 50);
         object.add("geo", geoObject);
         String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", " + EMPTY_ACCESS_JSON +
-                "\"geo\":{\"__id__\":\"geoObject\"," + EMPTY_ACCESS_JSON + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+                "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
 
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.transportableRepresentation(), JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
 
 
         //difference is in the key value - geo vs geoObject
         object = new SimpleCMObject("topLevelKey");
-        object.add(geoObject);
-        expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\"," + EMPTY_ACCESS_JSON + "\"geoObject\":{\"__id__\":\"geoObject\", \"__type__\":\"geopoint\", " + EMPTY_ACCESS_JSON + "\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
-
-        assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.transportableRepresentation(), JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
-
+        try {
+            object.add(geoObject);
+            fail();
+        }catch(NullPointerException e) {
+            //pass
+        }
     }
 }

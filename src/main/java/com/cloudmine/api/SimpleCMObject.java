@@ -70,9 +70,12 @@ public class SimpleCMObject extends CMObject {
      * @throws CreationException if unable to parse the given transportable string representation
      */
     public SimpleCMObject(Transportable transportable) throws ConversionException, CreationException {
-        this(JsonUtilities.jsonToMap(transportable));
+        this(transportable, true);
     }
 
+    public SimpleCMObject(Transportable transportable, boolean hasObjectId) throws ConversionException, CreationException {
+        this(JsonUtilities.jsonToMap(transportable), hasObjectId);
+    }
 
     /**
      * Instantiate a new SimpleCMObject with the given objectId and containing the given contents
@@ -99,21 +102,15 @@ public class SimpleCMObject extends CMObject {
         contents = new HashMap<String, Object>();
         topLevelMap = new HashMap<String, Object>();
     }
-    /**
-     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
-     * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
-     * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
-     * a top level key is generated and the objectMap is assumed to be the contents.
-     * @param objectMap see above
-     * @throws CreationException if unable to map the given contents to transportable string representation
-     */
-    SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
-        super(extractObjectId(objectMap));
+
+    public SimpleCMObject(Map<String, Object> objectMap, boolean hasObjectId) {
+        super(extractObjectId(objectMap), hasObjectId);
         if(objectMap.size() != 1 ||
                 isMappedToAnotherMap(objectMap) == false) {
             contents = objectMap;
             topLevelMap = new HashMap<String, Object>();
-            topLevelMap.put(getObjectId(), contents);
+            if(hasObjectId)
+                topLevelMap.put(getObjectId(), contents);
         } else {
             this.topLevelMap = objectMap;
             Set<Map.Entry<String, Object>> contentSet = objectMap.entrySet();
@@ -131,6 +128,18 @@ public class SimpleCMObject extends CMObject {
             setAccessListIds(new HashSet<String>((Collection<? extends String>) accessObject));
         }
         add(CMObject.ACCESS_KEY, getAccessListIds());
+    }
+
+    /**
+     * Creates a SimpleCMObject from a Map. If the map has only one entry, it is assumed to be the
+     * objectId mapped to the contents of the object, unless that single entry is not a Map<String, Object>.
+     * If the objectMap has more than one key or consists of a single key mapped to a non string keyed map value,
+     * a top level key is generated and the objectMap is assumed to be the contents.
+     * @param objectMap see above
+     * @throws CreationException if unable to map the given contents to transportable string representation
+     */
+    SimpleCMObject(Map<String, Object> objectMap) throws CreationException {
+        this(objectMap, true);
     }
 
     private static String extractObjectId(Map<String, Object> objectMap) {
@@ -474,11 +483,16 @@ public class SimpleCMObject extends CMObject {
     }
 
     /**
-     * Add another SimpleCMObject to this SimpleCMObject. The objectId will be used as the key
+     * Add another SimpleCMObject to this SimpleCMObject. The objectId will be used as the key; this shouldn't be used
+     * with objects that do not have an objectId associated with them
      * @param value a SimpleCMObject
      * @return this
+     * @throws NullPointerException if given a null or empty objectId
      */
-    public SimpleCMObject add(CMObject value) {
+    public SimpleCMObject add(CMObject value) throws NullPointerException{
+        if(value.getObjectId() == null || value.getObjectId().isEmpty()) {
+            throw new NullPointerException("Cannot use a null or empty objectId as the key");
+        }
         add(value.getObjectId(), value);
         return this;
     }
@@ -511,7 +525,11 @@ public class SimpleCMObject extends CMObject {
     }
 
     public String transportableRepresentation() throws ConversionException {
-        return JsonUtilities.mapToJson(topLevelMap);
+        boolean hasTopLevelKey = !topLevelMap.isEmpty();
+        if(hasTopLevelKey)
+            return JsonUtilities.mapToJson(topLevelMap);
+        else
+            return JsonUtilities.mapToJson(contents);
     }
 
     public String toString() {

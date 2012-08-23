@@ -20,6 +20,7 @@ public class CMGeoPoint extends SimpleCMObject {
     public static final String LATITUDE_KEY = "latitude";
     public static final String CLASS_NAME = "geopoint";
 
+
     /**
      * Instantiate a CMGeoPoint with the given latitude and longitude and a random unique objectId
      * @param longitude a double between [-180, 180)
@@ -41,7 +42,7 @@ public class CMGeoPoint extends SimpleCMObject {
      * @throws CreationException if given improperly formated transportable; either malformed or lacking a __type__, latitude, or longitude.
      */
     public CMGeoPoint(Transportable transportable) throws ConversionException, CreationException {
-        super(transportable);
+        super(transportable, false);
         boolean isMissingAnything = !(isType(CMType.GEO_POINT) && hasLatitude() && hasLongitude());
         if(isMissingAnything) {
             throw new ConversionException("Given non geopoint class to construct geopoint: " + transportable);

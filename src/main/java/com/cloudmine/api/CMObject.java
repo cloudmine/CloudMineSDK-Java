@@ -88,9 +88,15 @@ public class CMObject implements Transportable, Savable {
      * @throws NullPointerException if given a null objectid
      */
     public CMObject(String objectId) throws NullPointerException {
-        if(objectId == null)
+        this(objectId,  true);
+    }
+
+    protected CMObject(String objectId, boolean hasObjectid) {
+        if(objectId == null && hasObjectid)
             throw new NullPointerException("Cannot have a null objectId");
-        this.objectId= objectId;
+        if(hasObjectid) {
+            this.objectId = objectId;
+        }
     }
 
     /**
