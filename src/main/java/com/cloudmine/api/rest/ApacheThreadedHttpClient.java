@@ -5,8 +5,13 @@ import com.cloudmine.api.rest.response.ResponseConstructor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncBasicHttpContext;
@@ -26,8 +31,22 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
 
 
     private HttpContext httpContext = new SyncBasicHttpContext(new BasicHttpContext());
-    private final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
-    private DefaultHttpClient client = new DefaultHttpClient(connectionManager);
+    private ClientConnectionManager connectionManager;
+    {
+        try {
+            //this will work for 4.2 and later
+            Class poolingClientConnectionManagerClass = Class.forName("org.apache.http.impl.conn.PoolingClientConnectionManager");
+            connectionManager = (ClientConnectionManager) poolingClientConnectionManagerClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            //we are running on an older version, lets try the  backup
+            SchemeRegistry schemeRegistry = new SchemeRegistry();
+            schemeRegistry.register(
+                    new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+            connectionManager = new ThreadSafeClientConnManager(new BasicHttpParams(), schemeRegistry);
+        }
+    }
+
+    private DefaultHttpClient client = new DefaultHttpClient(connectionManager, null);
 
     @Override
     public <T> void executeCommand(HttpUriRequest command, Callback<T> callback, ResponseConstructor<T> constructor) {
