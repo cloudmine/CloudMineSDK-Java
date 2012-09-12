@@ -26,6 +26,10 @@ public class ExtendedCMObject extends CMObject {
         this("default", new Date(), number);
     }
 
+    public ExtendedCMObject(String name, int number) {
+        this(name, new Date(), number);
+    }
+
     public ExtendedCMObject(String name, Date date, int number) {
         super();
         this.name = name;

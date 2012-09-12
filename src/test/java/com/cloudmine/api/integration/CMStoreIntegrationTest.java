@@ -257,6 +257,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     @Test
     public void testLoadSortOrder() {
         store.addObjects(Arrays.asList(new ExtendedCMObject(1), new ExtendedCMObject(2), new ExtendedCMObject(5), new ExtendedCMObject(4), new ExtendedCMObject(3)));
+        store.addObjects(Arrays.asList(new ExtendedCMObject("Annie", 100), new ExtendedCMObject("Betty", 100), new ExtendedCMObject("Fred", 100)));
         store.saveStoreApplicationObjects(testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
@@ -264,17 +265,26 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         }));
         waitThenAssertTestResults();
 
-        CMRequestOptions options = new CMRequestOptions(new CMSortOptions("number", CMSortOptions.SortDirection.ASCENDING));
+        CMRequestOptions options = new CMRequestOptions(new CMSortOptions.Builder().addSortField("number", CMSortOptions.SortDirection.ASCENDING)
+                                                                .addSortField("name", CMSortOptions.SortDirection.DESCENDING).build());
         store.loadAllApplicationObjects(testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
-                int[] expectedNumbers = {1, 2, 3, 4, 5};
-                int i = 0;
+                int[] expectedNumbers = {1, 2, 3, 4, 5, 100, 100, 100};
+                String[] expectedNames = {"Fred", "Betty", "Annie"};
+                int expectedNumberCounter = 0;
+                int expectedNamesCounter = 0;
                 for(CMObject object : response.getObjects()) {
-                    assertEquals(expectedNumbers[i], ((ExtendedCMObject)object).getNumber());
-                    i++;
+                    ExtendedCMObject extendedCMObject = (ExtendedCMObject) object;
+                    int number = extendedCMObject.getNumber();
+                    assertEquals(expectedNumbers[expectedNumberCounter], number);
+                    if(number == 100) {
+                        assertEquals(expectedNames[expectedNamesCounter], extendedCMObject.getName());
+                        expectedNamesCounter++;
+                    }
+                    expectedNumberCounter++;
                 }
-                assertEquals(5, i);
+                assertEquals(8, expectedNumberCounter);
             }
         }), options);
         waitThenAssertTestResults();
