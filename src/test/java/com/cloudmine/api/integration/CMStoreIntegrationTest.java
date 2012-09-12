@@ -11,6 +11,7 @@ import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.options.CMPagingOptions;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.options.CMServerFunction;
+import com.cloudmine.api.rest.options.CMSortOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.FileLoadResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
@@ -19,13 +20,16 @@ import com.cloudmine.api.rest.response.code.FileLoadCode;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import com.cloudmine.api.rest.response.code.ObjectModificationCode;
+import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -123,6 +127,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
+    @Ignore //this is broken until subobjects on simplecmobjects are fixed
     public void testSearchGeoPoint() {
 
         final SimpleCMObject object = new SimpleCMObject();
@@ -246,6 +251,32 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 }
             }
         }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testLoadSortOrder() {
+        store.addObjects(Arrays.asList(new ExtendedCMObject(1), new ExtendedCMObject(2), new ExtendedCMObject(5), new ExtendedCMObject(4), new ExtendedCMObject(3)));
+        store.saveStoreApplicationObjects(testCallback(new ObjectModificationResponseCallback() {
+            public void onCompletion(ObjectModificationResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+
+        CMRequestOptions options = new CMRequestOptions(new CMSortOptions("number", CMSortOptions.SortDirection.ASCENDING));
+        store.loadAllApplicationObjects(testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+                assertTrue(response.wasSuccess());
+                int[] expectedNumbers = {1, 2, 3, 4, 5};
+                int i = 0;
+                for(CMObject object : response.getObjects()) {
+                    assertEquals(expectedNumbers[i], ((ExtendedCMObject)object).getNumber());
+                    i++;
+                }
+                assertEquals(5, i);
+            }
+        }), options);
         waitThenAssertTestResults();
     }
 

@@ -17,10 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 /**
  * Simplify working with JSON by putting all the utility methods in one place. Mostly focused on converting
  * objects to and from JSON
@@ -358,7 +356,7 @@ public class JsonUtilities {
 
     public static Map<String, CMObject> jsonToClassMap(String json) {
         Map<String, String> simpleMap = jsonMapToKeyMap(json);
-        Map<String, CMObject> objectMap = new HashMap<String, CMObject>();
+        Map<String, CMObject> objectMap = new LinkedHashMap<String, CMObject>();
         for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
             objectMap.put(entry.getKey(), jsonToClass(entry.getValue()));
         }
@@ -376,7 +374,7 @@ public class JsonUtilities {
             int open = 0;
             boolean inString = false;
             boolean escapeNext = false;
-            Map<String, String> jsonMap = new HashMap<String, String>();
+            Map<String, String> jsonMap = new LinkedHashMap<String, String>();
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder contentsBuilder = new StringBuilder();
 
