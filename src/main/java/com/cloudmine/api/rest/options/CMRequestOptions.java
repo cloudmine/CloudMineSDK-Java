@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.options;
 
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.BaseURL;
 
 /**
@@ -80,10 +81,10 @@ public class CMRequestOptions implements BaseURL{
     }
 
     private void addIfExists(StringBuilder builder, BaseURL url) {
-        if(url.asUrlString().isEmpty()) {
+        if(Strings.isEmpty(url.asUrlString())) {
             return;
         }
-        boolean isNotEmpty = !builder.toString().isEmpty();
+        boolean isNotEmpty = !Strings.isEmpty(builder.toString());
         if(isNotEmpty) {
             builder.append("&");
         }

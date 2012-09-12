@@ -3,6 +3,7 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.BaseDeviceIdentifier;
 import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.Strings;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -37,7 +38,7 @@ public class JavaHeaderFactory implements HeaderFactory {
         String id = getDeviceIdentifier();
 
         String value = ResponseTimeDataStore.getContentsAsStringAndClearMap();
-        String idHeader = value.isEmpty() ?
+        String idHeader = Strings.isEmpty(value) ?
                 id :
                 id + DEVICE_ID_DELIM + value;
 
