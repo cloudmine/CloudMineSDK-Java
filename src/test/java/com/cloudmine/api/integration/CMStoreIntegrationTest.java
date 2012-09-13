@@ -477,13 +477,14 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         store.saveObject(object, hasSuccess);
         waitThenAssertTestResults();
         CMServerFunction function = new CMServerFunction("NewSnippet", false);
-        store.loadApplicationObjectWithObjectId(object.getObjectId(), new CMObjectResponseCallback() {
+        store.loadApplicationObjectWithObjectId(object.getObjectId(), testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 Object result = response.getObject("result");
                 assertNotNull(result);
             }
-        },
+        }),
                 CMRequestOptions.CMRequestOptions(function));
+        waitThenAssertTestResults();
     }
 
     @Test
