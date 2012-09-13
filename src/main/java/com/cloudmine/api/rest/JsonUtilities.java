@@ -363,6 +363,16 @@ public class JsonUtilities {
         return objectMap;
     }
 
+    public static <CMO extends CMObject> Map<String, CMO> jsonToCMObjectMap(String json, Class<CMO> klass) {
+
+        Map<String, String> simpleMap = jsonMapToKeyMap(json);
+        Map<String, CMO> objectMap = new LinkedHashMap<String, CMO>();
+        for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
+            objectMap.put(entry.getKey(), jsonToClass(entry.getValue(), klass));
+        }
+        return objectMap;
+    }
+
     public static Map<String, String> jsonMapToKeyMap(String json) {
         //TODO this method is big and kinda gross
         if(json == null) {

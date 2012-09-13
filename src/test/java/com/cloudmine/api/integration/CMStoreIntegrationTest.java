@@ -4,22 +4,17 @@ import com.cloudmine.api.*;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.UserCMWebService;
-import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
-import com.cloudmine.api.rest.callbacks.FileLoadCallback;
-import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
-import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
+import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.options.CMPagingOptions;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.options.CMServerFunction;
 import com.cloudmine.api.rest.options.CMSortOptions;
-import com.cloudmine.api.rest.response.CMObjectResponse;
-import com.cloudmine.api.rest.response.FileLoadResponse;
-import com.cloudmine.api.rest.response.LoginResponse;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.*;
 import com.cloudmine.api.rest.response.code.FileLoadCode;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import com.cloudmine.api.rest.response.code.ObjectModificationCode;
+import com.cloudmine.test.AsyncTestResultsCoordinator;
 import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
@@ -291,6 +286,40 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
+    public void testLoadClassAndSearchQueryTyped() {
+        ExtendedCMObject object = new ExtendedCMObject(10);
+        ExtendedCMObject notLoadedObject = new ExtendedCMObject(20);
+        store.addObject(object);
+        store.addObject(notLoadedObject);
+        store.saveStoreApplicationObjects(hasSuccess);
+        waitThenAssertTestResults();
+
+        store.loadApplicationObjectsOfClass(ExtendedCMObject.class,
+                testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+                    @Override
+                    public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                        assertTrue(response.wasSuccess());
+                        int loaded = 0;
+                        for (ExtendedCMObject object : response.getObjects()) {
+                            assertTrue(object.getNumber() < 21);
+                            loaded++;
+                        }
+                        assertEquals(2, loaded);
+                    }
+                }));
+        waitThenAssertTestResults();
+        //okay now test the multi search
+        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+            public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                assertTrue(response.wasSuccess());
+                assertEquals(1, response.getObjects().size());
+                assertEquals(10, response.getObjects().get(0).getNumber());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
     public void testDeleteObjects() {
         final SimpleCMObject appObject = new SimpleCMObject();
         appObject.add("SomeKey", "Value");
@@ -345,6 +374,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testInvalidCredentialsUserOperation() {
         store.setUser(new CMUser("xnnxNOEXISTMANxnxnx@hotmail.com", "t"));
         final Immutable<Boolean> wasEntered = new Immutable<Boolean>();
+        AsyncTestResultsCoordinator.ignoreOnFailure(true);
         store.loadUserObjectsOfClass("whatever", testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertEquals(ObjectLoadCode.MISSING_OR_INVALID_CREDENTIALS, response.getResponseCode());
@@ -356,6 +386,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
+        AsyncTestResultsCoordinator.ignoreOnFailure(false);
         assertTrue(wasEntered.value());
     }
 
@@ -446,13 +477,14 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         store.saveObject(object, hasSuccess);
         waitThenAssertTestResults();
         CMServerFunction function = new CMServerFunction("NewSnippet", false);
-        store.loadApplicationObjectWithObjectId(object.getObjectId(), new CMObjectResponseCallback() {
+        store.loadApplicationObjectWithObjectId(object.getObjectId(), testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 Object result = response.getObject("result");
                 assertNotNull(result);
             }
-        },
+        }),
                 CMRequestOptions.CMRequestOptions(function));
+        waitThenAssertTestResults();
     }
 
     @Test
