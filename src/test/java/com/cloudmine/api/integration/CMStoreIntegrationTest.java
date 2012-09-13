@@ -1,21 +1,16 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.UserCMWebService;
-import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
-import com.cloudmine.api.rest.callbacks.FileLoadCallback;
-import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
-import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
+import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.options.CMPagingOptions;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.options.CMServerFunction;
 import com.cloudmine.api.rest.options.CMSortOptions;
-import com.cloudmine.api.rest.response.CMObjectResponse;
-import com.cloudmine.api.rest.response.FileLoadResponse;
-import com.cloudmine.api.rest.response.LoginResponse;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.*;
 import com.cloudmine.api.rest.response.code.FileLoadCode;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
@@ -287,6 +282,41 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 assertEquals(8, expectedNumberCounter);
             }
         }), options);
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testClassAndSearchQueryTyped() {
+        ExtendedCMObject object = new ExtendedCMObject(10);
+        ExtendedCMObject notLoadedObject = new ExtendedCMObject(20);
+        store.addObject(object);
+        store.addObject(notLoadedObject);
+        store.saveStoreApplicationObjects(hasSuccess);
+        waitThenAssertTestResults();
+        //real fast - test that it works when strings are provided
+        store.loadApplicationObjectsOfClass(ClassNameRegistry.forClass(ExtendedCMObject.class),
+                testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+                    @Override
+                    public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                        assertTrue(response.wasSuccess());
+                        int loaded = 0;
+                        for(ExtendedCMObject object : response.getObjects()) {
+                            assertTrue(object.getNumber() < 21);
+                            loaded++;
+                        }
+                        assertEquals(2, loaded);
+                    }
+        }));
+        waitThenAssertTestResults();
+
+        //okay now test the multi search
+        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+            public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                assertTrue(response.wasSuccess());
+                assertEquals(1, response.getObjects().size());
+                assertEquals(10, response.getObjects().get(0).getNumber());
+            }
+        }));
         waitThenAssertTestResults();
     }
 

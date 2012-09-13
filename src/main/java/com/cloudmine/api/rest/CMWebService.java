@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
@@ -197,9 +198,43 @@ public class CMWebService {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]", options);
+        Class clz = ClassNameRegistry.forName(klass);
+        asyncLoadObjectsOfClass(clz, callback, options);
+    }
+
+    public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback) {
+        asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    }
+
+    public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback, CMRequestOptions options) {
+        HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
         executeAsyncCommand(search,
-                callback, cmObjectResponseConstructor());
+                callback, baseCMObjectResponseResponseConstructor(klass));
+    }
+
+    public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback) {
+        asyncLoadObjectsOfClassAndSearch(klass, search, callback, CMRequestOptions.NONE);
+    }
+
+    public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createSearch(addClassSearch(klass, search), options),
+                callback, baseCMObjectResponseResponseConstructor(klass));
+
+    }
+
+    private String getClassSearchString(Class<? extends CMObject> klass) {
+        String className = ClassNameRegistry.forClass(klass);
+        return JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(className);
+    }
+
+    private String addClassSearch(Class<? extends CMObject> klass, String search) {
+        int endOfSearch = search.lastIndexOf("]");
+        if(endOfSearch == -1) {
+
+        }
+        String openSearch = search.substring(0, endOfSearch);
+        openSearch += ", " + getClassSearchString(klass) + "]";
+        return openSearch;
     }
 
     public void asyncLoadAllUserProfiles(Callback callback) {
@@ -1193,6 +1228,10 @@ public class CMWebService {
 
     protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
+    }
+
+    protected <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> baseCMObjectResponseResponseConstructor(Class<CMO> klass) {
+        return TypedCMObjectResponse.constructor(klass);
     }
 
     @Override
