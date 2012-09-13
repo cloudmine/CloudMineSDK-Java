@@ -487,7 +487,11 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsOfClass(final String klass, final Callback callback, final CMRequestOptions options) throws CreationException {
-        loadUserObjectsOfClass(ClassNameRegistry.forName(klass), options, callback);
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
+        });
     }
 
     /**

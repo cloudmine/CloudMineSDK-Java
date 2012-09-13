@@ -198,8 +198,9 @@ public class CMWebService {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        Class clz = ClassNameRegistry.forName(klass);
-        asyncLoadObjectsOfClass(clz, callback, options);
+        HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
+        executeAsyncCommand(search, callback, cmObjectResponseConstructor());
+
     }
 
     public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback) {
@@ -209,7 +210,7 @@ public class CMWebService {
     public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
         executeAsyncCommand(search,
-                callback, baseCMObjectResponseResponseConstructor(klass));
+                callback, typedCMObjectResponseResponseConstructor(klass));
     }
 
     public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback) {
@@ -218,19 +219,23 @@ public class CMWebService {
 
     public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback, CMRequestOptions options) {
         executeAsyncCommand(createSearch(addClassSearch(klass, search), options),
-                callback, baseCMObjectResponseResponseConstructor(klass));
+                callback, typedCMObjectResponseResponseConstructor(klass));
 
     }
 
     private String getClassSearchString(Class<? extends CMObject> klass) {
         String className = ClassNameRegistry.forClass(klass);
+        return getClassSearchString(className);
+    }
+
+    private String getClassSearchString(String className) {
         return JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(className);
     }
 
     private String addClassSearch(Class<? extends CMObject> klass, String search) {
         int endOfSearch = search.lastIndexOf("]");
         if(endOfSearch == -1) {
-
+            return search; //this is an invalid search which will fail server side
         }
         String openSearch = search.substring(0, endOfSearch);
         openSearch += ", " + getClassSearchString(klass) + "]";
@@ -1230,7 +1235,7 @@ public class CMWebService {
         return CMObjectResponse.CONSTRUCTOR;
     }
 
-    protected <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> baseCMObjectResponseResponseConstructor(Class<CMO> klass) {
+    protected <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> typedCMObjectResponseResponseConstructor(Class<CMO> klass) {
         return TypedCMObjectResponse.constructor(klass);
     }
 

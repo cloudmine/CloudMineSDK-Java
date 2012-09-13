@@ -1,6 +1,7 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.response.*;
@@ -129,6 +130,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
 
     @Test
     public void testAsyncObjectLoad() throws Throwable {
+        ClassNameRegistry.register("task", SimpleCMObject.class);
         final SimpleCMObject task = new SimpleCMObject();
         task.setClass("task");
         task.add("name", "Do dishes");

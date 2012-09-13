@@ -1,7 +1,6 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
-import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -15,6 +14,7 @@ import com.cloudmine.api.rest.response.code.FileLoadCode;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import com.cloudmine.api.rest.response.code.ObjectModificationCode;
+import com.cloudmine.test.AsyncTestResultsCoordinator;
 import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
@@ -286,29 +286,28 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
-    public void testClassAndSearchQueryTyped() {
+    public void testLoadClassAndSearchQueryTyped() {
         ExtendedCMObject object = new ExtendedCMObject(10);
         ExtendedCMObject notLoadedObject = new ExtendedCMObject(20);
         store.addObject(object);
         store.addObject(notLoadedObject);
         store.saveStoreApplicationObjects(hasSuccess);
         waitThenAssertTestResults();
-        //real fast - test that it works when strings are provided
-        store.loadApplicationObjectsOfClass(ClassNameRegistry.forClass(ExtendedCMObject.class),
+
+        store.loadApplicationObjectsOfClass(ExtendedCMObject.class,
                 testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
                     @Override
                     public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
                         assertTrue(response.wasSuccess());
                         int loaded = 0;
-                        for(ExtendedCMObject object : response.getObjects()) {
+                        for (ExtendedCMObject object : response.getObjects()) {
                             assertTrue(object.getNumber() < 21);
                             loaded++;
                         }
                         assertEquals(2, loaded);
                     }
-        }));
+                }));
         waitThenAssertTestResults();
-
         //okay now test the multi search
         store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
             public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
@@ -375,6 +374,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testInvalidCredentialsUserOperation() {
         store.setUser(new CMUser("xnnxNOEXISTMANxnxnx@hotmail.com", "t"));
         final Immutable<Boolean> wasEntered = new Immutable<Boolean>();
+        AsyncTestResultsCoordinator.ignoreOnFailure(true);
         store.loadUserObjectsOfClass("whatever", testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertEquals(ObjectLoadCode.MISSING_OR_INVALID_CREDENTIALS, response.getResponseCode());
@@ -386,6 +386,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
+        AsyncTestResultsCoordinator.ignoreOnFailure(false);
         assertTrue(wasEntered.value());
     }
 
