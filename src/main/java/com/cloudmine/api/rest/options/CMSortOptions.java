@@ -9,6 +9,22 @@ import com.cloudmine.api.rest.BaseURL;
  */
 public class CMSortOptions implements BaseURL{
 
+    public static class Builder {
+        StringBuilder sortString = new StringBuilder();
+
+        public Builder addSortField(String sortByField, SortDirection direction) {
+            if(sortString.toString().length() != 0) {
+                sortString.append("&");
+            }
+            addSortString(sortString, sortByField, direction);
+            return this;
+        }
+
+        public CMSortOptions build() {
+            return new CMSortOptions(sortString.toString());
+        }
+    }
+
     public static final CMSortOptions NONE = new CMSortOptions("");
 
     public enum SortDirection { ASCENDING("asc"), DESCENDING("desc");
@@ -26,6 +42,10 @@ public class CMSortOptions implements BaseURL{
     private final SortDirection direction;
     private final String sortByField;
     private final Immutable<String> urlString = new Immutable<String>();
+
+    private static void addSortString(StringBuilder builder, String sortByField, SortDirection direction) {
+        builder.append("sort=").append(sortByField).append(":").append(direction);
+    }
 
     /**
      * Instantiate a new CMSortOptions for the specified field, in the specified direction
@@ -65,7 +85,7 @@ public class CMSortOptions implements BaseURL{
     public String asUrlString() {
         if(!urlString.isSet()) {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append("sort=").append(sortByField).append(":").append(direction);
+            addSortString(urlBuilder, sortByField, direction);
             urlString.setValue(urlBuilder.toString());
         }
         return urlString.value();

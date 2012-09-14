@@ -16,10 +16,12 @@ public class ClassNameRegistry {
     private static final ClassNameRegistry registry = new ClassNameRegistry();
 
     private final Map<String, Class> registryMap = new HashMap<String, Class>();
-
+    //why is there no BidiMap as a default in java? not writing me own, but if this gets more complicated it should be done
+    private final Map<Class, String> reverseRegistryMap = new HashMap<Class, String>();
 
     public static void register(String name, Class klass) {
         registry.registryMap.put(name, klass);
+        registry.reverseRegistryMap.put(klass, name);
     }
 
     public static Class forName(String name) {
@@ -32,6 +34,14 @@ public class ClassNameRegistry {
             }
         }
         return aClass;
+    }
+
+    public static String forClass(Class klass) {
+        String className = registry.reverseRegistryMap.get(klass);
+        if(className == null) {
+            className = klass.getName();
+        }
+        return className;
     }
 
     public static boolean isRegistered(String klass) {

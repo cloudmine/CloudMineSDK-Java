@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -388,9 +389,9 @@ public class CMStore {
      */
     public void loadUserObjectsWithObjectIds(final Collection<String> objectIds, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
         });
     }
 
@@ -456,6 +457,8 @@ public class CMStore {
         applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
+
+
     /**
      * Retrieve all the user level objects that are of the specified class. Class values are determined automatically, or
      * can be set by overriding {@link com.cloudmine.api.CMObject#getClassName()}. retrieved objects will be added to this Store after load
@@ -487,11 +490,63 @@ public class CMStore {
      */
     public void loadUserObjectsOfClass(final String klass, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
         });
+    }
 
+    /**
+     * See {@link #loadUserObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final Callback callback) {
+        loadUserObjectsOfClass(klass, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #loadUserObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param options
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
+        });
+    }
+
+    /**
+     * See {@link #loadUserObjectsOfClassWithSearch(Class, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param search
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final Callback callback) {
+        loadUserObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load user objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * is used here, so the returned objects will be accessable without having to be cast
+     * @param klass the Class of the objects to load
+     * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
+     * @param options any additional options for the query
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param <CMO> the type of the objects being loaded
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClassAndSearch(klass, search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options) ;
+            }
+        });
     }
 
     /**
@@ -515,6 +570,51 @@ public class CMStore {
      */
     public void loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
         applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, Callback callback) {
+        loadApplicationObjectsOfClass(klass, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param options
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadObjectsOfClass(klass, callback, options);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClassWithSearch(Class, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param search
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, Callback callback) {
+        loadApplicationObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load applications objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * is used here, so the returned objects will be accessable without having to be cast
+     * @param klass the Class of the objects to load
+     * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
+     * @param options any additional options for the query
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param <CMO> the type of the objects being loaded
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadObjectsOfClassAndSearch(klass, search, callback, options);
     }
 
     /**

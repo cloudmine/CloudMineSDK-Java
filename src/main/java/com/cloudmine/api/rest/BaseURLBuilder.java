@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     }
 
     private String querySeparator() {
-        return queryParams == null || queryParams.isEmpty() ?
+        return Strings.isEmpty(queryParams) ?
                 "?" :
                 "&";
     }

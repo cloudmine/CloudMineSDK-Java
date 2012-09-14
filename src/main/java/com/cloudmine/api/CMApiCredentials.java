@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Singleton for defining your application identifier and application API key. Must be initialized before
@@ -47,11 +48,14 @@ public class CMApiCredentials {
                 throw new CreationException("Running on android and application context not provided, try passing getApplicationContext to this method");
             }
 
-            Class.forName("com.cloudmine.api.DeviceIdentifier").getMethod("initialize", contextClass).invoke(null, context);
+//            Class.forName("com.cloudmine.api.DeviceIdentifier").getMethod("initialize", contextClass).invoke(null, context);
+            for(Method method : Class.forName("com.cloudmine.api.DeviceIdentifier").getMethods()) { //for some reason the above is broken on android 2.2.2
+                if("initialize".equals(method.getName())) {
+                    method.invoke(null, context);
+                }
+            }
         } catch (ClassNotFoundException e) {
             LOG.info("Not running on Android", e);
-        } catch (NoSuchMethodException e) {
-            LOG.error("Couldn't find initialize, did you change the signature?", e);
         } catch (InvocationTargetException e) {
             LOG.error("Exception thrown", e);
         } catch (IllegalAccessException e) {

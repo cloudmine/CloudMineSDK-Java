@@ -1,8 +1,6 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
-import com.cloudmine.api.Distance;
-import com.cloudmine.api.DistanceUnits;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -21,31 +19,36 @@ import java.util.Map;
  *  {@link CMObject}s returned by the request
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
+public class TypedCMObjectResponse<CMO extends CMObject> extends SuccessErrorResponse<ObjectLoadCode> {
     private static final Logger LOG = LoggerFactory.getLogger(TypedCMObjectResponse.class);
     public static final String COUNT_KEY = "count";
     public static final int NO_COUNT = -1;
-    public static ResponseConstructor<CMObjectResponse> CONSTRUCTOR = new ResponseConstructor<CMObjectResponse>() {
-        @Override
-        public CMObjectResponse construct(HttpResponse response) throws CreationException {
-            return new CMObjectResponse(response);
-        }
-    };
-    private final Map<String, ? extends CMObject> objectMap;
 
+    private final Map<String, CMO> objectMap;
+
+    public static <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> constructor(final Class<CMO> klass) {
+        return new ResponseConstructor<TypedCMObjectResponse<CMO>>() {
+            @Override
+            public TypedCMObjectResponse<CMO> construct(HttpResponse response) throws CreationException {
+                return new TypedCMObjectResponse<CMO>(response, klass);
+            }
+        };
+    }
 
     /**
      * Instantiate a new CMObjectResponse. You probably should not be calling this yourself.
      * @param response a response to an object fetch request
      */
-    public CMObjectResponse(HttpResponse response) {
+    public TypedCMObjectResponse(HttpResponse response, Class<CMO> klass) {
         super(response);
         if(hasSuccess()) {
-            Map<String, String> messageMap = JsonUtilities.jsonMapToKeyMap(getMessageBody());
-            String success = messageMap.get(SUCCESS);
-            Map<String, ? extends CMObject> tempMap;
+            String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
+            Map<String, CMO> tempMap;
             try {
-                tempMap = JsonUtilities.jsonToClassMap(success);
+//                if(klass == null || CMObject.class.equals(klass))
+//                    tempMap = JsonUtilities.jsonToClassMap(success);
+//                else
+                    tempMap = JsonUtilities.<CMO>jsonToCMObjectMap(success, klass);
             }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
@@ -61,13 +64,17 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      * @param response
      * @param code
      */
-    public CMObjectResponse(String response, int code) {
+    public TypedCMObjectResponse(String response, int code, Class<CMO> klass) {
         super(response, code); //TODO this is copy pasta code from above :( thats bad
+
         if(hasSuccess()) {
             String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
-            Map<String, ? extends CMObject> tempMap;
+            Map<String, CMO> tempMap;
             try {
-                tempMap = JsonUtilities.jsonToClassMap(success);
+//                if(klass == null || CMObject.class.equals(klass))
+//                    tempMap = JsonUtilities.jsonToClassMap(success);
+//                else
+                tempMap = JsonUtilities.<CMO>jsonToCMObjectMap(success, klass);
             }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
@@ -84,38 +91,11 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     }
 
     /**
-     * Get the distance measurement for a specific objectId. In order for a value to be returned, the
-     * object with the given objectId must have been loaded, a geo query must have been performed, and
-     * a {@link com.cloudmine.api.rest.options.CMRequestOptions} with a {@link com.cloudmine.api.rest.options.CMSearchOptions}
-     * must have been specified. If this isn't the case, null will be returned
-     * @param objectId
-     * @return null if there isn't a distance value for the given objectId, or the Distance from the geo query point
-     */
-    public Distance getDistanceFor(String objectId) {
-        Map<String, Object> metaMap = (Map<String, Object>) getObject("meta"); //got maps on maps on maps
-        if(metaMap != null) {
-            Map<String, Object> objectMap = (Map<String, Object>) metaMap.get(objectId);
-            if(objectMap != null) {
-                Map<String, Object> geoMap = (Map<String, Object>) objectMap.get("geo");
-                if(geoMap != null) {
-                    Double distance = (Double) geoMap.get("distance");
-                    String unitsString = (String) geoMap.get("units");
-                    DistanceUnits units = DistanceUnits.valueOf(unitsString);
-                    if(distance != null && units != null) {
-                        return new Distance(distance, units);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Returns a List of all the CMObjects fetched by the request
      * @return a List of all the CMObjects fetched by the request
      */
-    public List<CMObject> getObjects() {
-        return new ArrayList<CMObject>(objectMap.values());
+    public List<CMO> getObjects() {
+        return new ArrayList<CMO>(objectMap.values());
     }
 
     /**
