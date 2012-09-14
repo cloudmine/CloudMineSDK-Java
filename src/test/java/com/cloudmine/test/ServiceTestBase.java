@@ -116,7 +116,7 @@ public class ServiceTestBase {
     }
 
     public CMUser user() {
-        return user;
+        return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
     }
 
     public SimpleCMObject simpleUserObject() {

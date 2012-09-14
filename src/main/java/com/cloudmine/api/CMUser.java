@@ -389,19 +389,57 @@ public class CMUser extends CMObject {
      * Asynchronously change this users password
      * @param newPassword the new password
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
+     * @deprecated in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      */
+    @Deprecated
     public void changePassword(String newPassword) throws CreationException {
         changePassword(newPassword, CMCallback.doNothing());
     }
 
     /**
-     * Asynchronously change this users password
+     * Asynchronously change this users password. This only works if the user has not been logged in, and
+     * should be avoided in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      * @param newPassword the new password
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
+     * @deprecated in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      */
+    @Deprecated
     public void changePassword(String newPassword, Callback callback) throws CreationException {
-        CMWebService.getService().asyncChangePassword(this, newPassword, callback);
+        changePassword(getPassword(), newPassword, callback);
+    }
+
+    /**
+     * Change this user's password from the oldPassword to the newPassword.
+     * @param oldPassword the old (current) password
+     * @param newPassword the new password
+     * @param options any options to use for this call, IE a CMServerFunction to run after the password has been updated
+     * @param callback callback to run once the password has been changed. Use a {@link CMResponseCallback} here
+     */
+    public void changePassword(String oldPassword, String newPassword, CMRequestOptions options, Callback callback) {
+        CMWebService.getService().asyncChangePassword(this.getEmail(), oldPassword, newPassword, options, callback);
+        setPassword(newPassword);
+    }
+
+    /**
+     * See {@link #changePassword(String, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param oldPassword
+     * @param newPassword
+     * @param callback
+     * @throws CreationException
+     */
+    public void changePassword(String oldPassword, String newPassword, Callback callback) throws CreationException {
+        changePassword(oldPassword, newPassword, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #changePassword(String, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param oldPassword
+     * @param newPassword
+     * @throws CreationException
+     */
+    public void changePassword(String oldPassword, String newPassword) throws CreationException {
+        changePassword(oldPassword, newPassword, CMRequestOptions.NONE, CMCallback.doNothing());
     }
 
     /**
@@ -442,13 +480,16 @@ public class CMUser extends CMObject {
         CMWebService.getService().asyncResetPasswordConfirmation(emailToken, newPassword, callback);
     }
 
+    public static String encode(String email, String password) {
+        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(email + ":" + password);
+    }
+
     /**
      * Encode this CMUser's email and password as a Base64 string. The format is email:password
      * @return a Base64 representation of this user
      */
     public String encode() {
-        String userString = getEmail() + ":" + getPassword();
-        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(userString);
+        return encode(getEmail(), getPassword());
     }
 
     private final Callback<LoginResponse> setLoggedInUserCallback(final Callback callback) {

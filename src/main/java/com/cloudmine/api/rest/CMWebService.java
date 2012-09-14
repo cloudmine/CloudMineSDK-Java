@@ -755,7 +755,21 @@ public class CMWebService {
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
      */
     public void asyncChangePassword(CMUser user, String newPassword, Callback callback) {
-        executeAsyncCommand(createChangePassword(user, newPassword), callback);
+        asyncChangePassword(user, newPassword, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Change the given user's password to newPassword
+     * @param user the user whose password is to be changed
+     * @param newPassword the new password
+     * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
+     */
+    public void asyncChangePassword(CMUser user, String newPassword, CMRequestOptions options, Callback callback) {
+        asyncChangePassword(user.getEmail(), user.getPassword(), newPassword, options, callback);
+    }
+
+    public void asyncChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createChangePassword(email, oldPassword, newPassword, options), callback);
     }
 
     /**
@@ -932,7 +946,7 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      */
     public CMResponse changePassword(CMUser user, String newPassword) throws NetworkException {
-        return executeCommand(createChangePassword(user, newPassword));
+        return executeCommand(createChangePassword(user, newPassword, CMRequestOptions.NONE));
     }
 
 
@@ -1166,10 +1180,14 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createChangePassword(CMUser user, String newPassword) {
-        HttpPost post = new HttpPost(baseUrl.account().password().change().asUrlString());
+    private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
+        return createChangePassword(user.getEmail(), user.getPassword(), newPassword, options);
+    }
+
+    private HttpPost createChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options) {
+        HttpPost post = new HttpPost(baseUrl.account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);
-        addAuthorizationHeader(user, post);
+        addAuthorizationHeader(email, oldPassword, post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
@@ -1197,7 +1215,11 @@ public class CMWebService {
     }
 
     protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
-        post.addHeader(AUTHORIZATION_KEY, "Basic " + user.encode());
+        addAuthorizationHeader(user.getEmail(), user.getPassword(), post);
+    }
+
+    protected void addAuthorizationHeader(String email, String password, HttpEntityEnclosingRequestBase post) {
+        post.addHeader(AUTHORIZATION_KEY, "Basic " + CMUser.encode(email, password));
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {

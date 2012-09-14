@@ -208,14 +208,23 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testLoadUserObjectsOfClass() {
         SimpleCMObject object = simpleObject();
         object.setClass("testObject");
-        object.setSaveWith(user());
-        object.save(hasSuccess);
+        CMUser user = user();
+        object.setSaveWith(user);
+        object.save(testCallback(new ResponseBaseCallback() {
+            public void onCompletion(ResponseBase response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
 
         waitThenAssertTestResults();
-        user().logout(hasSuccess);
-        waitThenAssertTestResults();
-        store.setUser(user());
-        user().setPassword(USER_PASSWORD);
+        user.logout(testCallback(new ResponseBaseCallback() {
+            public void onCompletion(ResponseBase response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults(20);
+        store.setUser(user);
+        user.setPassword(USER_PASSWORD);
         store.loadUserObjectsOfClass("testObject", hasSuccessAndHasLoaded(object));
         waitThenAssertTestResults();
 
