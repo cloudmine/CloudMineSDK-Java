@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
@@ -128,6 +129,8 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
 
     public CMURLBuilder options(CMRequestOptions options) {
+        if(options == null || options == CMRequestOptions.NONE || Strings.isEmpty(options.asUrlString()))
+            return this;
         return addQuery(options.asUrlString());
     }
 
