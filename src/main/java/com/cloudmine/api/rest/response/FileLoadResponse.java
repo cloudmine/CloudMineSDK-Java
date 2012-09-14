@@ -25,15 +25,15 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
         }
     };
 
-    public static ResponseConstructor<FileLoadResponse> constructor(String fileName) {
-        return new Constructor(fileName);
+    public static ResponseConstructor<FileLoadResponse> constructor(String fileId) {
+        return new Constructor(fileId);
     }
 
     private final CMFile file;
 
-    public FileLoadResponse(HttpResponse response, String fileName) {
+    public FileLoadResponse(HttpResponse response, String fileId) {
         super(response, false);
-        file = new CMFile(response, fileName);
+        file = new CMFile(response, fileId);
     }
 
     @Override

@@ -411,7 +411,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         user.logout(hasSuccess);
         user.setPassword(USER_PASSWORD);
         waitThenAssertTestResults();
-        store.loadUserFile(file.getFileName(), testCallback(new FileLoadCallback(file.getFileName()) {
+        store.loadUserFile(file.getFileId(), testCallback(new FileLoadCallback(file.getFileId()) {
             public void onCompletion(FileLoadResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(file, response.getFile());
@@ -435,10 +435,10 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         file.save(hasSuccess);
         waitThenAssertTestResults();
         store.setUser(user);
-        store.deleteUserFile(file.getFileName(), testCallback(new ObjectModificationResponseCallback() {
+        store.deleteUserFile(file.getFileId(), testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
-                assertTrue(response.wasDeleted(file.getFileName()));
+                assertTrue(response.wasDeleted(file.getFileId()));
                 assertEquals(ObjectModificationCode.SUCCESS, response.getResponseCode());
             }
         }));
