@@ -542,7 +542,7 @@ public class CMStore {
     public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback callback) {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
-                userService().asyncLoadObjectsOfClassAndSearch(klass, search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options) ;
+                userService().asyncLoadObjectsOfClassAndSearch(klass, search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
             }
         });
     }
@@ -936,12 +936,23 @@ public class CMStore {
         });
     }
 
+    /**
+     * See {@link #loadApplicationFileMetaData(String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param fileId
+     * @param callback
+     */
     public void loadApplicationFileMetaData(String fileId, Callback callback) {
         loadApplicationFileMetaData(fileId, CMRequestOptions.NONE, callback);
     }
 
+    /**
+     * Load the meta data for the given fileId
+     * @param fileId the fileId of the CMFile whose metadata is to be loaded
+     * @param options any post call options
+     * @param callback a {@link CMObjectResponse} that will contain the {@link CMFileMetaData} information
+     */
     public void loadApplicationFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
-        applicationService.asyncLoadFileMetaData(fileId, options, //callback);
+        applicationService.asyncLoadFileMetaData(fileId, options,
                 objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT));
     }
 
@@ -1003,6 +1014,29 @@ public class CMStore {
             public void onCompletion(LoginResponse response) {
                 userService().asyncDeleteFile(fileId, callback, options);
             }
+        });
+    }
+
+    /**
+     * See {@link #loadUserFileMetaData(String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param fileId
+     * @param callback
+     */
+    public void loadUserFileMetaData(final String fileId, final Callback callback) {
+        loadUserFileMetaData(fileId, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load {@link CMFileMetaData} about a user file
+     * @param fileId
+     * @param options
+     * @param callback a {@link CMObjectResponseCallback} 
+     */
+    public void loadUserFileMetaData(final String fileId, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
+           public void onCompletion(CMObjectResponse response) {
+               userService().asyncLoadFileMetaData(fileId, options, callback);
+           }
         });
     }
 
