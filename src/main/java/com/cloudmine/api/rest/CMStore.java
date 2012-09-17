@@ -936,6 +936,15 @@ public class CMStore {
         });
     }
 
+    public void loadApplicationFileMetaData(String fileId, Callback callback) {
+        loadApplicationFileMetaData(fileId, CMRequestOptions.NONE, callback);
+    }
+
+    public void loadApplicationFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadFileMetaData(fileId, options, //callback);
+                objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT));
+    }
+
     /**
      * Delete the {@link CMFile} with the specified fileId, if it exists at the application level
      * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion

@@ -38,6 +38,7 @@ public class CMFile implements Transportable, Savable {
                 (file.getFileContents().length == 1 && file.getFileContents()[0] == 32);
     }
 
+    public static final String TYPE_VALUE = "file";
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CMFile.class);
@@ -83,7 +84,7 @@ public class CMFile implements Transportable, Savable {
      * @throws CreationException If given null contents or unable to read in contents
      */
     public CMFile(InputStream contents, String contentType) throws CreationException {
-        this(contents, contentType, null);
+        this(contents, null, contentType);
     }
 
     /**

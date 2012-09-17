@@ -1,8 +1,6 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMObject;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.persistance.CMJacksonModule;
 import com.cloudmine.api.persistance.CMUserConstructorMixIn;
@@ -294,7 +292,7 @@ public class JsonUtilities {
             CMO object = jsonMapper.readValue(json, klass);
             return object;
         }catch (IOException e) {
-            LOG.error("Trouble reading json", e);
+            LOG.error("Trouble reading json: \n" + json, e);
             throw new ConversionException("JSON: " + json, e);
         }
     }
@@ -302,8 +300,15 @@ public class JsonUtilities {
     public static CMObject jsonToClass(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
-        if(klassString == null ||
-                ClassNameRegistry.isRegistered(klassString.toString()) == false) {
+        CMType type = CMType.getTypeById(Strings.asString(jsonMap.get(TYPE_KEY)));
+        boolean isTyped = type != null &&
+                                !CMType.NONE.equals(type);
+        if(isTyped) {
+            return jsonToClass(json, type.getTypeClass());
+        }
+        boolean isUnknownClass = klassString == null ||
+                ClassNameRegistry.isRegistered(klassString.toString()) == false;
+        if(isUnknownClass) {
             return new SimpleCMObject(new TransportableString(json));
         }
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());

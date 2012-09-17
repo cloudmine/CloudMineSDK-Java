@@ -88,6 +88,16 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         return new ArrayList<CMObject>(objectMap.values());
     }
 
+    public <CMO extends CMObject> List<CMO> getObjects(Class<CMO> klass) {
+        List<CMO> toReturn = new ArrayList<CMO>();
+        for(CMObject object : getObjects()) {
+            if(klass.isAssignableFrom(object.getClass())) {
+                toReturn.add((CMO)object);
+            }
+        }
+        return toReturn;
+    }
+
     /**
      * Returns the object with the given objectId, or null if it doesn't exist
      * @param objectId the objectId for the object

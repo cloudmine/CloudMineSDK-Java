@@ -501,6 +501,10 @@ public class CMWebService {
                 callback, fileLoadResponseResponseConstructor(fileId));
     }
 
+    public void asyncLoadFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createGetFileMetaData(fileId, options), callback, cmObjectResponseConstructor());
+    }
+
     /**
      * Retrieve all the objects
      */
@@ -1128,6 +1132,17 @@ public class CMWebService {
         HttpGet get = new HttpGet(baseUrl.binary(key).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
+    }
+
+    private HttpGet createGetFileMetaData(String fileId, CMRequestOptions options) {
+        HttpGet get = new HttpGet(baseUrl.search(createFileMetaDataSearch(fileId)).options(options).asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private String createFileMetaDataSearch(String fileId) {
+        return new StringBuilder("[").append(JsonUtilities.TYPE_KEY).append(" = \"").append(CMFile.TYPE_VALUE).append("\", ")
+                .append(JsonUtilities.OBJECT_ID_KEY).append(" = \"").append(fileId).append("\"]").toString();
     }
 
     private HttpGet createGetAllUsers() {
