@@ -107,4 +107,6 @@ public class CMGeoPoint extends SimpleCMObject {
         return super.getClassName();
     }
 
+
+
 }

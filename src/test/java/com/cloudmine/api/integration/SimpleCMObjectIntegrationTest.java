@@ -1,11 +1,10 @@
 package com.cloudmine.api.integration;
 
-import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.SimpleCMObject;
-import com.cloudmine.api.StoreIdentifier;
+import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
@@ -84,4 +83,19 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
     }
 
 
+    @Test
+    public void testSimpleGeoPoint() {
+        SimpleCMObject object = new SimpleCMObject();
+        object.add("test", new CMGeoPoint(55, 55));
+        object.save(hasSuccess);
+        waitThenAssertTestResults();
+
+        CMStore.getStore().loadApplicationObjectWithObjectId(object.getObjectId(), testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
+                SimpleCMObject loaded = (SimpleCMObject)response.getObjects().get(0);
+                assertEquals(55.0, loaded.getGeoPoint("test"));
+            }
+        }));
+        waitThenAssertTestResults();
+    }
 }

@@ -1,9 +1,13 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.TransportableString;
+import com.cloudmine.test.GeoCMObject;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
@@ -28,5 +32,13 @@ public class CMGeoPointTest {
 
         CMGeoPoint duplicatePoint = new CMGeoPoint(point);
         assertEquals(point, duplicatePoint);
+    }
+
+    @Test
+    public void testSubObject() {
+        ClassNameRegistry.register("CMGeoPoint", CMGeoPoint.class);
+        GeoCMObject object = JsonUtilities.jsonToClass("{\"geoPoint\":{\"__type__\":\"geopoint\",\"longitude\":55.0,\"latitude\":55.0,\"__class__\":\"CMGeoPoint\"},\"__id__\":\"4bac92ba-6f40-4b9f-8785-c0cf1adc152e\",\"__access__\":[],\"__class__\":\"com.cloudmine.test.GeoCMObject\"}", GeoCMObject.class);
+        assertNotNull(object.getGeoPoint());
+        assertEquals(55.0, object.getGeoPoint().getLatitude());
     }
 }

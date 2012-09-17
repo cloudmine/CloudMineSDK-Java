@@ -27,7 +27,7 @@ public class CMApiCredentials {
 
     static {
         ClassNameRegistry.register(CMAccessList.CLASS_NAME, CMAccessList.class);
-        ClassNameRegistry.register(CMGeoPoint.CLASS_NAME, CMGeoPoint.class);
+        ClassNameRegistry.register(CMGeoPoint.GEOPOINT_CLASS, CMGeoPoint.class);
         ClassNameRegistry.register(CMUser.CLASS_NAME, CMUser.class);
     }
 
