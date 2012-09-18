@@ -22,6 +22,7 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.6" level="project" />
+    <orderEntry type="library" name="org.slf4j:slf4j-simple:1.6.4" level="project" />
   </component>
 </module>
 

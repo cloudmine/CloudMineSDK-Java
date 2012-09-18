@@ -278,8 +278,8 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 String[] expectedNames = {"Fred", "Betty", "Annie"};
                 int expectedNumberCounter = 0;
                 int expectedNamesCounter = 0;
-                for(CMObject object : response.getObjects()) {
-                    ExtendedCMObject extendedCMObject = (ExtendedCMObject) object;
+                for(ExtendedCMObject extendedCMObject : response.getObjects(ExtendedCMObject.class)) {
+
                     int number = extendedCMObject.getNumber();
                     assertEquals(expectedNumbers[expectedNumberCounter], number);
                     if(number == 100) {

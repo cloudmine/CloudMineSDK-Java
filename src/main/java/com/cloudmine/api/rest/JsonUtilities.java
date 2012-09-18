@@ -364,7 +364,10 @@ public class JsonUtilities {
         Map<String, String> simpleMap = jsonMapToKeyMap(json);
         Map<String, CMObject> objectMap = new LinkedHashMap<String, CMObject>();
         for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
-            objectMap.put(entry.getKey(), jsonToClass(entry.getValue()));
+            String objectId = entry.getKey();
+            CMObject cmObject = jsonToClass(entry.getValue());
+            cmObject.setObjectId(objectId);
+            objectMap.put(objectId, cmObject);
         }
         return objectMap;
     }

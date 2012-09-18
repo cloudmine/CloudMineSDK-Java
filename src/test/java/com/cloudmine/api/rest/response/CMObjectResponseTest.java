@@ -1,15 +1,15 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import org.junit.Test;
 
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * <br>
@@ -17,6 +17,22 @@ import static junit.framework.Assert.assertTrue;
  * See LICENSE file included with SDK for details.
  */
 public class CMObjectResponseTest {
+
+    @Test
+    public void testMissingId() {
+        String firstObjectId = "fa4dd970-614f-4b42-bfc2-e4f5c88fee62";
+        String responseBody = "{\"success\":{" +
+                "\"" + firstObjectId + "\":" +
+                    "{\"otherExtendedObjects\":{},\"name\":\"default\",\"date\":{\"__class__\":\"datetime\",\"timestamp\":1347990557},\"number\":1,\"__access__\":[],\"__class__\":\"govna\"} }}";
+
+        ClassNameRegistry.register("govna", ExtendedCMObject.class);
+        CMObjectResponse response = new CMObjectResponse(responseBody, 200);
+
+        ExtendedCMObject object = response.getCMObject(firstObjectId, ExtendedCMObject.class);
+        assertNotNull(object);
+        assertEquals(firstObjectId, object.getObjectId());
+
+    }
 
     @Test
     public void testGetUser() {
