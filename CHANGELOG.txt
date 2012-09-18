@@ -1,0 +1,4 @@
+Release 0.3.2
+* Remove TypedCMObjectResponse and Callback, replace with methods directly on CMObjectResponse for retrieving typed CMObjects
+* Add support for retrieving CMGeoPoints distance information in a query
+* Add support for retrieving CMFileMetaData, and renamed fileName to fileId
