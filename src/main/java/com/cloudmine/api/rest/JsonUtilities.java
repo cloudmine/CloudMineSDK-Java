@@ -302,7 +302,8 @@ public class JsonUtilities {
         Object klassString = jsonMap.get(CLASS_KEY);
         CMType type = CMType.getTypeById(Strings.asString(jsonMap.get(TYPE_KEY)));
         boolean isTyped = type != null &&
-                                !CMType.NONE.equals(type);
+                                !CMType.NONE.equals(type) &&
+                                klassString == null; //if we have a class string, use that instead of the specified type
         if(isTyped) {
             return jsonToClass(json, type.getTypeClass());
         }

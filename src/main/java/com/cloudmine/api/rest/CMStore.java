@@ -531,12 +531,12 @@ public class CMStore {
     }
 
     /**
-     * Load user objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * Load user objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback}
      * is used here, so the returned objects will be accessable without having to be cast
      * @param klass the Class of the objects to load
      * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
      * @param options any additional options for the query
-     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is passed here
      * @param <CMO> the type of the objects being loaded
      */
     public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback callback) {
@@ -603,12 +603,12 @@ public class CMStore {
     }
 
     /**
-     * Load applications objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * Load applications objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback}
      * is used here, so the returned objects will be accessable without having to be cast
      * @param klass the Class of the objects to load
      * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
      * @param options any additional options for the query
-     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is passed here
      * @param <CMO> the type of the objects being loaded
      */
     public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, CMRequestOptions options, Callback callback) {

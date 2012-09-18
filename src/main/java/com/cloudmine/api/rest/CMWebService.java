@@ -210,7 +210,7 @@ public class CMWebService {
     public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback, CMRequestOptions options) {
         HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
         executeAsyncCommand(search,
-                callback, typedCMObjectResponseResponseConstructor(klass));
+                callback, cmObjectResponseConstructor());
     }
 
     public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback) {
@@ -219,7 +219,7 @@ public class CMWebService {
 
     public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback, CMRequestOptions options) {
         executeAsyncCommand(createSearch(addClassSearch(klass, search), options),
-                callback, typedCMObjectResponseResponseConstructor(klass));
+                callback, cmObjectResponseConstructor());
 
     }
 
@@ -1270,10 +1270,6 @@ public class CMWebService {
 
     protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
-    }
-
-    protected <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> typedCMObjectResponseResponseConstructor(Class<CMO> klass) {
-        return TypedCMObjectResponse.constructor(klass);
     }
 
     @Override

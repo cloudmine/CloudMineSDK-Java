@@ -304,12 +304,12 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         store.loadApplicationObjectsOfClass(ExtendedCMObject.class,
-                testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+                testCallback(new CMObjectResponseCallback() {
                     @Override
-                    public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                    public void onCompletion(CMObjectResponse response) {
                         assertTrue(response.wasSuccess());
                         int loaded = 0;
-                        for (ExtendedCMObject object : response.getObjects()) {
+                        for (ExtendedCMObject object : response.getObjects(ExtendedCMObject.class)) {
                             assertTrue(object.getNumber() < 21);
                             loaded++;
                         }
@@ -318,11 +318,11 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 }));
         waitThenAssertTestResults();
         //okay now test the multi search
-        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
-            public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(1, response.getObjects().size());
-                assertEquals(10, response.getObjects().get(0).getNumber());
+                assertEquals(10, response.getObjects(ExtendedCMObject.class).get(0).getNumber());
             }
         }));
         waitThenAssertTestResults();

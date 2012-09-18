@@ -20,7 +20,7 @@ import java.util.Map;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
-    private static final Logger LOG = LoggerFactory.getLogger(TypedCMObjectResponse.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CMObjectResponse.class);
     public static final String COUNT_KEY = "count";
     public static final int NO_COUNT = -1;
     public static ResponseConstructor<CMObjectResponse> CONSTRUCTOR = new ResponseConstructor<CMObjectResponse>() {
@@ -91,11 +91,16 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     public <CMO extends CMObject> List<CMO> getObjects(Class<CMO> klass) {
         List<CMO> toReturn = new ArrayList<CMO>();
         for(CMObject object : getObjects()) {
-            if(klass.isAssignableFrom(object.getClass())) {
+            if(isReturnableFor(klass, object)) {
                 toReturn.add((CMO)object);
             }
         }
         return toReturn;
+    }
+
+    private <CMO extends CMObject> boolean isReturnableFor(Class<CMO> klass, CMObject object) {
+        return object != null && klass != null &&
+                klass.isAssignableFrom(object.getClass());
     }
 
     /**
@@ -105,6 +110,21 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      */
     public CMObject getCMObject(String objectId) {
         return objectMap.get(objectId);
+    }
+
+    /**
+     * Get the object with the given objectId as the specific class, or null if it doesn't exist or isn't of
+     * the specified class
+     * @param objectId the objectId for the object to retrieve
+     * @param objectClass the class to cast the retrieved object as, if possible
+     * @param <CMO>
+     * @return the object, or null if it wasn't loaded in this response, or if its
+     */
+    public <CMO extends CMObject> CMO getCMObject(String objectId, Class<CMO> objectClass) {
+        CMObject object = getCMObject(objectId);
+        if(isReturnableFor(objectClass, object))
+            return (CMO) object;
+        return null;
     }
 
     /**
