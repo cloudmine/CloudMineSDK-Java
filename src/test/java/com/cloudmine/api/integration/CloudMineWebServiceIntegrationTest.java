@@ -48,9 +48,9 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
     @Ignore //Only works when we can delete users
     public void testAsyncCreateUser() throws Exception {
         CMUser newUser = new CMUser("test2@test.com", "password");
-        service.asyncCreateUser(newUser, testCallback(new CMResponseCallback() {
+        service.asyncCreateUser(newUser, testCallback(new CreationResponseCallback() {
             @Override
-            public void onCompletion(CMResponse response) {
+            public void onCompletion(CreationResponse response) {
                 Assert.assertTrue(response.was(201));
             }
 
