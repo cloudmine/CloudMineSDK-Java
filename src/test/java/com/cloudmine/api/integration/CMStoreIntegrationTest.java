@@ -1,6 +1,7 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.rest.CMFileMetaData;
 import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -210,15 +211,16 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         object.setClass("testObject");
         CMUser user = user();
         object.setSaveWith(user);
-        object.save(testCallback(new ResponseBaseCallback() {
-            public void onCompletion(ResponseBase response) {
+        object.save(testCallback(new ObjectModificationResponseCallback() {
+            public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
             }
         }));
 
         waitThenAssertTestResults();
-        user.logout(testCallback(new ResponseBaseCallback() {
-            public void onCompletion(ResponseBase response) {
+        user.logout(testCallback(new CMResponseCallback() {
+            @Override
+            public void onCompletion(CMResponse response) {
                 assertTrue(response.wasSuccess());
             }
         }));
@@ -227,7 +229,6 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         user.setPassword(USER_PASSWORD);
         store.loadUserObjectsOfClass("testObject", hasSuccessAndHasLoaded(object));
         waitThenAssertTestResults();
-
     }
 
     @Test
@@ -415,6 +416,15 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             public void onCompletion(FileLoadResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(file, response.getFile());
+            }
+        }));
+        waitThenAssertTestResults();
+        store.loadUserFileMetaData(file.getFileId(), testCallback(new CMObjectResponseCallback() {
+            @Override
+            public void onCompletion(CMObjectResponse response) {
+                List<CMFileMetaData> metaData = response.getObjects(CMFileMetaData.class);
+                assertEquals(1, metaData.size());
+                assertEquals(file.getFileId(), metaData.get(0).getFilename());
             }
         }));
         waitThenAssertTestResults();

@@ -64,15 +64,15 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         }));
         waitThenAssertTestResults();
         assertEquals("12345", user.getPassword());
-        user.login(testCallback(new ResponseBaseCallback() {
-            public void onCompletion(ResponseBase response) {
+        user.login(testCallback(new LoginResponseCallback() {
+            public void onCompletion(LoginResponse response) {
                 assertTrue(response.wasSuccess());
             }
         }));
         waitThenAssertTestResults();
 
-        user.changePassword("12345", "test", testCallback(new ResponseBaseCallback() {
-            public void onCompletion(ResponseBase response) {
+        user.changePassword("12345", "test", testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse response) {
                 assertTrue(response.wasSuccess());
             }
         }));

@@ -2,16 +2,15 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.AccessException;
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.CMObject;
-import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 
@@ -133,7 +132,7 @@ public class CMStore {
     /*****************************OBJECTS********************************/
 
     public void saveAccessList(CMAccessList list) {
-        saveAccessList(list, CMCallback.doNothing());
+        saveAccessList(list, CMCallback.<CreationResponse>doNothing());
     }
 
     /**
@@ -141,7 +140,7 @@ public class CMStore {
      * @param list the list to save
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void saveAccessList(final CMAccessList list, final Callback callback) {
+    public void saveAccessList(final CMAccessList list, final Callback<CreationResponse> callback) {
         final CMUser listUser = list.getUser();
         if(listUser.isLoggedIn()) {
             CMWebService.getService().getUserWebService(listUser.getSessionToken()).asyncInsert(list, callback);
@@ -1033,10 +1032,11 @@ public class CMStore {
      * @param callback a {@link CMObjectResponseCallback} 
      */
     public void loadUserFileMetaData(final String fileId, final CMRequestOptions options, final Callback callback) {
-        user().login(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
-           public void onCompletion(CMObjectResponse response) {
-               userService().asyncLoadFileMetaData(fileId, options, callback);
-           }
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            @Override
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadFileMetaData(fileId, options, callback);
+            }
         });
     }
 
