@@ -232,7 +232,7 @@ public class JsonUtilities {
      * @return valid JSON that represents the passed in objects as a collection of JSON
      * @throws ConversionException if unable to convert this CMObject to json
      */
-    public static String objectsToJson(CMObject... objects) throws ConversionException {
+    public static String cmobjectsToJson(CMObject... objects) throws ConversionException {
         if(objects == null) {
             LOG.debug("Received null objects, returning empty json");
             return EMPTY_JSON;

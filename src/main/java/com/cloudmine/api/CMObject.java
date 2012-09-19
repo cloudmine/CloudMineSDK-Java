@@ -13,6 +13,7 @@ import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +111,7 @@ public class CMObject implements Transportable, Savable {
 
     @Override
     public String transportableRepresentation() throws ConversionException {
-        return JsonUtilities.objectsToJson(this);
+        return JsonUtilities.cmobjectsToJson(this);
     }
 
 
@@ -190,6 +191,7 @@ public class CMObject implements Transportable, Savable {
     }
 
     @JsonProperty(ACCESS_KEY)
+    @JsonSerialize(include= JsonSerialize.Inclusion.NON_EMPTY)
     public Set<String> getAccessListIds() {
         return accessListIds;
     }
