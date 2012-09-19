@@ -9,10 +9,7 @@ import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
-import com.cloudmine.api.rest.response.CMObjectResponse;
-import com.cloudmine.api.rest.response.CreationResponse;
-import com.cloudmine.api.rest.response.LoginResponse;
-import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.*;
 
 import javax.security.auth.login.LoginException;
 import java.util.*;
@@ -111,7 +108,7 @@ public class CMStore {
         return user.valueOrThrow();
     }
 
-    private final Callback<CMObjectResponse> objectLoadUpdateStoreCallback(final Callback callback, final StoreIdentifier identifier) {
+    private final Callback<CMObjectResponse> objectLoadUpdateStoreCallback(final Callback<CMObjectResponse> callback, final StoreIdentifier identifier) {
         return new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
             public void onCompletion(CMObjectResponse response) {
                 try {
@@ -167,7 +164,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveObject(CMObject object) throws ConversionException, CreationException {
-        saveObject(object, CMCallback.doNothing());
+        saveObject(object, CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -179,7 +176,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and this object is UserLevel
      */
-    public void saveObject(CMObject object, Callback callback) throws ConversionException, CreationException {
+    public void saveObject(CMObject object, Callback<ObjectModificationResponse> callback) throws ConversionException, CreationException {
         saveObject(object, callback, CMRequestOptions.NONE);
     }
 
@@ -193,7 +190,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void saveObject(final CMObject object, final Callback callback, final CMRequestOptions options) throws ConversionException, CreationException {
+    public void saveObject(final CMObject object, final Callback<ObjectModificationResponse> callback, final CMRequestOptions options) throws ConversionException, CreationException {
         addObject(object);
         if(object.isOnLevel(ObjectLevel.USER)) {
             user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
@@ -215,7 +212,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteObject(CMObject object) throws CreationException {
-        deleteObject(object, CMCallback.doNothing());
+        deleteObject(object, CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -226,7 +223,7 @@ public class CMStore {
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and you are deleting a User level object
      */
-    public void deleteObject(CMObject object, Callback callback) throws CreationException {
+    public void deleteObject(CMObject object, Callback<ObjectModificationResponse> callback) throws CreationException {
         deleteObject(object, callback, CMRequestOptions.NONE);
     }
 
@@ -239,7 +236,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void deleteObject(final CMObject object, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void deleteObject(final CMObject object, final Callback<ObjectModificationResponse> callback, final CMRequestOptions options) throws CreationException {
         removeObject(object);
         if(object.isOnLevel(ObjectLevel.USER)) {
             user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
@@ -256,14 +253,14 @@ public class CMStore {
      * Retrieve all the application level objects; they will be added to this Store after load
      */
     public void loadAllApplicationObjects() {
-        loadAllApplicationObjects(CMCallback.doNothing());
+        loadAllApplicationObjects(CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
      * Retrieve all the application level objects and pass the results into the given callback. They will be added to this Store after load
      * @param callback a Callback that expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      */
-    public void loadAllApplicationObjects(Callback callback) {
+    public void loadAllApplicationObjects(Callback<CMObjectResponse> callback) {
         loadAllApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -272,7 +269,7 @@ public class CMStore {
      * @param callback a Callback that expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
-    public void loadAllApplicationObjects(Callback callback, CMRequestOptions options) {
+    public void loadAllApplicationObjects(Callback<CMObjectResponse> callback, CMRequestOptions options) {
         applicationService.asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT),
                 options);
     }
@@ -282,7 +279,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadAllUserObjects() throws CreationException {
-        loadAllUserObjects(CMCallback.doNothing());
+        loadAllUserObjects(CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -290,7 +287,7 @@ public class CMStore {
      * @param callback a Callback that expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadAllUserObjects(Callback callback) throws CreationException {
+    public void loadAllUserObjects(Callback<CMObjectResponse> callback) throws CreationException {
         loadAllUserObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -300,7 +297,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
-    public void loadAllUserObjects(final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadAllUserObjects(final Callback<CMObjectResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncLoadObjects(objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -313,7 +310,7 @@ public class CMStore {
      * @param objectIds the top level objectIds of the objects to retrieve
      */
     public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds) {
-        loadApplicationObjectsWithObjectIds(objectIds, CMCallback.doNothing());
+        loadApplicationObjectsWithObjectIds(objectIds, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -321,7 +318,7 @@ public class CMStore {
      * @param objectIds the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
-    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback) {
+    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback<CMObjectResponse> callback) {
         loadApplicationObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
     }
 
@@ -331,7 +328,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
-    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback callback, CMRequestOptions options) {
+    public void loadApplicationObjectsWithObjectIds(Collection<String> objectIds, Callback<CMObjectResponse> callback, CMRequestOptions options) {
         applicationService.asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
@@ -340,14 +337,14 @@ public class CMStore {
      * @param objectId the top level objectIds of the objects to retrieve
      */
     public void loadApplicationObjectWithObjectId(String objectId) {
-        loadApplicationObjectWithObjectId(objectId, CMCallback.doNothing());
+        loadApplicationObjectWithObjectId(objectId, CMCallback.<CMObjectResponse>doNothing());
     }
     /**
      * Retrieve all the application level objects with the given objectIds; they will be added to this Store after load
      * @param objectId the top level objectIds of the objects to retrieve
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
-    public void loadApplicationObjectWithObjectId(String objectId, Callback callback) {
+    public void loadApplicationObjectWithObjectId(String objectId, Callback<CMObjectResponse> callback) {
         loadApplicationObjectWithObjectId(objectId, callback, CMRequestOptions.NONE);
     }
     /**
@@ -356,7 +353,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
-    public void loadApplicationObjectWithObjectId(String objectId, Callback callback, CMRequestOptions options) {
+    public void loadApplicationObjectWithObjectId(String objectId, Callback<CMObjectResponse> callback, CMRequestOptions options) {
         applicationService.asyncLoadObject(objectId, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
@@ -366,7 +363,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
     public void loadUserObjectsWithObjectIds(Collection<String> objectIds) throws CreationException {
-        loadUserObjectsWithObjectIds(objectIds, CMCallback.doNothing());
+        loadUserObjectsWithObjectIds(objectIds, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -375,7 +372,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
-    public void loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback callback) throws CreationException {
+    public void loadUserObjectsWithObjectIds(Collection<String> objectIds, Callback<CMObjectResponse> callback) throws CreationException {
         loadUserObjectsWithObjectIds(objectIds, callback, CMRequestOptions.NONE);
     }
 
@@ -386,7 +383,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws CreationException if this CMStore does not have a CMUser associated with it
      */
-    public void loadUserObjectsWithObjectIds(final Collection<String> objectIds, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadUserObjectsWithObjectIds(final Collection<String> objectIds, final Callback<CMObjectResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -400,7 +397,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsSearch(String search) throws CreationException {
-        loadUserObjectsSearch(search, CMCallback.doNothing());
+        loadUserObjectsSearch(search, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -409,7 +406,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserObjectsSearch(String search, Callback callback) throws CreationException {
+    public void loadUserObjectsSearch(String search, Callback<CMObjectResponse> callback) throws CreationException {
         loadUserObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
@@ -420,7 +417,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserObjectsSearch(final String search, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadUserObjectsSearch(final String search, final Callback<CMObjectResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
@@ -434,7 +431,7 @@ public class CMStore {
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      */
     public void loadApplicationObjectsSearch(String search) {
-        loadApplicationObjectsSearch(search, CMCallback.doNothing());
+        loadApplicationObjectsSearch(search, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -442,7 +439,7 @@ public class CMStore {
      * @param search the search string to use. For more information on syntax. See <a href="https://cloudmine.me/docs/object-storage#query_syntax">Search query syntax</a>
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
-    public void loadApplicationObjectsSearch(String search, Callback callback) {
+    public void loadApplicationObjectsSearch(String search, Callback<CMObjectResponse> callback) {
         loadApplicationObjectsSearch(search, callback, CMRequestOptions.NONE);
     }
 
@@ -452,7 +449,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
-    public void loadApplicationObjectsSearch(String search, Callback callback, CMRequestOptions options) {
+    public void loadApplicationObjectsSearch(String search, Callback<CMObjectResponse> callback, CMRequestOptions options) {
         applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
@@ -463,7 +460,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserObjectsOfClass(String klass) throws CreationException {
-        loadUserObjectsOfClass(klass, CMCallback.doNothing());
+        loadUserObjectsOfClass(klass, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -473,7 +470,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserObjectsOfClass(String klass, Callback callback) throws CreationException {
+    public void loadUserObjectsOfClass(String klass, Callback<CMObjectResponse> callback) throws CreationException {
         loadUserObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
@@ -485,7 +482,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserObjectsOfClass(final String klass, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadUserObjectsOfClass(final String klass, final Callback<CMObjectResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -499,7 +496,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final Callback callback) {
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final Callback<CMObjectResponse> callback) {
         loadUserObjectsOfClass(klass, CMRequestOptions.NONE, callback);
     }
 
@@ -510,7 +507,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final CMRequestOptions options, final Callback callback) {
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final CMRequestOptions options, final Callback<CMObjectResponse> callback) {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -525,7 +522,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final Callback callback) {
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final Callback<CMObjectResponse> callback) {
         loadUserObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
     }
 
@@ -538,7 +535,7 @@ public class CMStore {
      * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is passed here
      * @param <CMO> the type of the objects being loaded
      */
-    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback callback) {
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback<CMObjectResponse> callback) {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncLoadObjectsOfClassAndSearch(klass, search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
@@ -553,7 +550,7 @@ public class CMStore {
      * @param klass the class type to load
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
-    public void loadApplicationObjectsOfClass(String klass, Callback callback) {
+    public void loadApplicationObjectsOfClass(String klass, Callback<CMObjectResponse> callback) {
         loadApplicationObjectsOfClass(klass, callback, CMRequestOptions.NONE);
     }
 
@@ -565,7 +562,7 @@ public class CMStore {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      */
-    public void loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
+    public void loadApplicationObjectsOfClass(String klass, Callback<CMObjectResponse> callback, CMRequestOptions options) {
         applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
@@ -575,7 +572,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, Callback callback) {
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, Callback<CMObjectResponse> callback) {
         loadApplicationObjectsOfClass(klass, CMRequestOptions.NONE, callback);
     }
 
@@ -586,7 +583,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, CMRequestOptions options, Callback callback) {
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, CMRequestOptions options, Callback<CMObjectResponse> callback) {
         applicationService.asyncLoadObjectsOfClass(klass, callback, options);
     }
 
@@ -597,7 +594,7 @@ public class CMStore {
      * @param callback
      * @param <CMO>
      */
-    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, Callback callback) {
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, Callback<CMObjectResponse> callback) {
         loadApplicationObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
     }
 
@@ -610,7 +607,7 @@ public class CMStore {
      * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is passed here
      * @param <CMO> the type of the objects being loaded
      */
-    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, CMRequestOptions options, Callback callback) {
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, CMRequestOptions options, Callback<CMObjectResponse> callback) {
         applicationService.asyncLoadObjectsOfClassAndSearch(klass, search, callback, options);
     }
 
@@ -621,7 +618,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
     public void saveStoreApplicationObjects() throws ConversionException {
-        saveStoreApplicationObjects(CMCallback.doNothing());
+        saveStoreApplicationObjects(CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -631,7 +628,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
-    public void saveStoreApplicationObjects(Callback callback) throws ConversionException {
+    public void saveStoreApplicationObjects(Callback<ObjectModificationResponse> callback) throws ConversionException {
         saveStoreApplicationObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -643,7 +640,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into, paging options, etc
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      */
-    public void saveStoreApplicationObjects(Callback callback, CMRequestOptions options) throws ConversionException {
+    public void saveStoreApplicationObjects(Callback<ObjectModificationResponse> callback, CMRequestOptions options) throws ConversionException {
         applicationService.asyncInsert(getStoreObjectsOfType(ObjectLevel.APPLICATION), callback, options);
     }
 
@@ -655,7 +652,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void saveStoreUserObjects() throws ConversionException, CreationException {
-        saveStoreUserObjects(CMCallback.doNothing());
+        saveStoreUserObjects(CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -666,7 +663,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void saveStoreUserObjects(Callback callback) throws ConversionException, CreationException {
+    public void saveStoreUserObjects(Callback<ObjectModificationResponse> callback) throws ConversionException, CreationException {
         saveStoreUserObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -678,7 +675,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void saveStoreUserObjects(final Callback callback, final CMRequestOptions options) throws ConversionException, CreationException {
+    public void saveStoreUserObjects(final Callback<ObjectModificationResponse> callback, final CMRequestOptions options) throws ConversionException, CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
            public void onCompletion(LoginResponse response) {
                userService().asyncInsert(getStoreObjectsOfType(ObjectLevel.USER), callback, options);
@@ -695,7 +692,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
     public void saveStoreObjects() throws ConversionException, CreationException {
-        saveStoreObjects(CMCallback.doNothing());
+        saveStoreObjects(CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -708,7 +705,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(Callback appCallback, Callback userCallback) throws ConversionException, CreationException {
+    public void saveStoreObjects(Callback<ObjectModificationResponse> appCallback, Callback userCallback) throws ConversionException, CreationException {
         saveStoreObjects(appCallback, userCallback, CMRequestOptions.NONE);
     }
 
@@ -723,7 +720,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(Callback appCallback, Callback userCallback, CMRequestOptions options) throws ConversionException, CreationException {
+    public void saveStoreObjects(Callback<ObjectModificationResponse> appCallback, Callback userCallback, CMRequestOptions options) throws ConversionException, CreationException {
         saveStoreUserObjects(userCallback, options);
         saveStoreApplicationObjects(appCallback, options);
     }
@@ -738,7 +735,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(Callback callback) throws ConversionException, CreationException {
+    public void saveStoreObjects(Callback<ObjectModificationResponse> callback) throws ConversionException, CreationException {
         saveStoreObjects(callback, CMRequestOptions.NONE);
     }
 
@@ -752,7 +749,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(Callback callback, CMRequestOptions options) throws ConversionException, CreationException {
+    public void saveStoreObjects(Callback<ObjectModificationResponse> callback, CMRequestOptions options) throws ConversionException, CreationException {
         saveStoreObjects(callback, callback, options);
     }
 
@@ -850,7 +847,7 @@ public class CMStore {
      * @throws CreationException If this CMStore does not have a CMUser associated with it
      */
     public void saveFile(CMFile file) throws CreationException {
-        saveFile(file, CMCallback.doNothing());
+        saveFile(file, CMCallback.<FileCreationResponse>doNothing());
     }
 
     /**
@@ -859,7 +856,7 @@ public class CMStore {
      * @param callback will be called on completion; expects a FileCreationResponse, it is recommended a {@link com.cloudmine.api.rest.callbacks.FileCreationResponseCallback} is used here
      * @throws CreationException If this CMStore does not have a CMUser associated with it
      */
-    public void saveFile(final CMFile file, final Callback callback) throws CreationException {
+    public void saveFile(final CMFile file, final Callback<FileCreationResponse> callback) throws CreationException {
         if(file.isOnLevel(ObjectLevel.USER)) {
             login(user(), new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 @Override
@@ -878,7 +875,7 @@ public class CMStore {
      * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void loadApplicationFile(String fileId) {
-        loadApplicationFile(fileId, CMCallback.doNothing());
+        loadApplicationFile(fileId, CMCallback.<FileLoadResponse>doNothing());
     }
 
     /**
@@ -886,7 +883,7 @@ public class CMStore {
      * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      */
-    public void loadApplicationFile(String fileId, Callback callback) {
+    public void loadApplicationFile(String fileId, Callback<FileLoadResponse> callback) {
         loadApplicationFile(fileId, callback, CMRequestOptions.NONE);
     }
 
@@ -896,7 +893,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void loadApplicationFile(String fileId, Callback callback, CMRequestOptions options) {
+    public void loadApplicationFile(String fileId, Callback<FileLoadResponse> callback, CMRequestOptions options) {
         applicationService.asyncLoadFile(fileId, callback, options);
     }
 
@@ -906,7 +903,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void loadUserFile(String fileId) throws CreationException {
-        loadUserFile(fileId, CMCallback.doNothing());
+        loadUserFile(fileId, CMCallback.<FileLoadResponse>doNothing());
     }
 
     /**
@@ -915,7 +912,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserFile(String fileId, Callback callback) throws CreationException {
+    public void loadUserFile(String fileId, Callback<FileLoadResponse> callback) throws CreationException {
         loadUserFile(fileId, callback, CMRequestOptions.NONE);
     }
 
@@ -926,7 +923,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserFile(final String fileId, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadUserFile(final String fileId, final Callback<FileLoadResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
@@ -940,7 +937,7 @@ public class CMStore {
      * @param fileId
      * @param callback
      */
-    public void loadApplicationFileMetaData(String fileId, Callback callback) {
+    public void loadApplicationFileMetaData(String fileId, Callback<CMObjectResponse> callback) {
         loadApplicationFileMetaData(fileId, CMRequestOptions.NONE, callback);
     }
 
@@ -950,7 +947,7 @@ public class CMStore {
      * @param options any post call options
      * @param callback a {@link CMObjectResponse} that will contain the {@link CMFileMetaData} information
      */
-    public void loadApplicationFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
+    public void loadApplicationFileMetaData(String fileId, CMRequestOptions options, Callback<CMObjectResponse> callback) {
         applicationService.asyncLoadFileMetaData(fileId, options,
                 objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT));
     }
@@ -960,7 +957,7 @@ public class CMStore {
      * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
     public void deleteApplicationFile(String fileId) {
-        deleteApplicationFile(fileId, CMCallback.doNothing());
+        deleteApplicationFile(fileId, CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -968,7 +965,7 @@ public class CMStore {
      * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
-    public void deleteApplicationFile(String fileId, Callback callback) {
+    public void deleteApplicationFile(String fileId, Callback<ObjectModificationResponse> callback) {
         deleteApplicationFile(fileId, callback, CMRequestOptions.NONE);
     }
 
@@ -978,7 +975,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void deleteApplicationFile(String fileId, Callback callback, CMRequestOptions options) {
+    public void deleteApplicationFile(String fileId, Callback<ObjectModificationResponse> callback, CMRequestOptions options) {
         applicationService.asyncDeleteFile(fileId, callback, options);
     }
 
@@ -988,7 +985,7 @@ public class CMStore {
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
     public void deleteUserFile(String fileId) throws CreationException {
-        deleteUserFile(fileId, CMCallback.doNothing());
+        deleteUserFile(fileId, CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
@@ -997,7 +994,7 @@ public class CMStore {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void deleteUserFile(String fileId, Callback callback) throws CreationException {
+    public void deleteUserFile(String fileId, Callback<ObjectModificationResponse> callback) throws CreationException {
         deleteUserFile(fileId, callback, CMRequestOptions.NONE);
     }
 
@@ -1008,7 +1005,7 @@ public class CMStore {
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void deleteUserFile(final String fileId, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void deleteUserFile(final String fileId, final Callback<ObjectModificationResponse> callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
                 userService().asyncDeleteFile(fileId, callback, options);
@@ -1021,7 +1018,7 @@ public class CMStore {
      * @param fileId
      * @param callback
      */
-    public void loadUserFileMetaData(final String fileId, final Callback callback) {
+    public void loadUserFileMetaData(final String fileId, final Callback<CMObjectResponse> callback) {
         loadUserFileMetaData(fileId, CMRequestOptions.NONE, callback);
     }
 
@@ -1031,7 +1028,7 @@ public class CMStore {
      * @param options
      * @param callback a {@link CMObjectResponseCallback} 
      */
-    public void loadUserFileMetaData(final String fileId, final CMRequestOptions options, final Callback callback) {
+    public void loadUserFileMetaData(final String fileId, final CMRequestOptions options, final Callback<CMObjectResponse> callback) {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
@@ -1054,7 +1051,7 @@ public class CMStore {
      * @param searchString
      */
     public void loadUserProfilesSearch(String searchString) {
-        loadUserProfilesSearch(searchString, CMCallback.doNothing());
+        loadUserProfilesSearch(searchString, CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -1063,12 +1060,12 @@ public class CMStore {
      * @param searchString what to search for
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
-    public void loadUserProfilesSearch(String searchString, Callback callback) {
+    public void loadUserProfilesSearch(String searchString, Callback<CMObjectResponse> callback) {
         loadUserProfilesSearch(searchString, CMRequestOptions.NONE, callback);
     }
 
 
-    public void loadUserProfilesSearch(String searchString, CMRequestOptions options, Callback callback) {
+    public void loadUserProfilesSearch(String searchString, CMRequestOptions options, Callback<CMObjectResponse> callback) {
         applicationService.asyncSearchUserProfiles(searchString, options, callback);
     }
 
@@ -1076,7 +1073,7 @@ public class CMStore {
      * See {@link #loadAllUserProfiles(com.cloudmine.api.rest.callbacks.Callback)}
      */
     public void loadAllUserProfiles() {
-        loadAllUserProfiles(CMCallback.doNothing());
+        loadAllUserProfiles(CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
@@ -1084,7 +1081,7 @@ public class CMStore {
      * but not the user's e-mail address (unless e-mail address is an additional field added to profile).
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
      */
-    public void loadAllUserProfiles(Callback callback) {
+    public void loadAllUserProfiles(Callback<CMObjectResponse> callback) {
         applicationService.asyncLoadAllUserProfiles(callback);
     }
 
@@ -1092,7 +1089,7 @@ public class CMStore {
      * Get the profile for the user associated with this store. If there is no user associated with this store, throws a CreationException
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
      */
-    public void loadLoggedInUserProfile(Callback callback) throws CreationException{
+    public void loadLoggedInUserProfile(Callback<CMObjectResponse> callback) throws CreationException{
         userService().asyncLoadLoggedInUserProfile(callback);
     }
 
@@ -1103,7 +1100,7 @@ public class CMStore {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public boolean login(CMUser user) throws CreationException {
-        return login(user, CMCallback.doNothing());
+        return login(user, CMCallback.<LoginResponse>doNothing());
     }
 
     /**
@@ -1113,7 +1110,7 @@ public class CMStore {
      * @return whether the user was set for this store; if false, the user has already been set
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public boolean login(CMUser user, Callback callback) throws CreationException {
+    public boolean login(CMUser user, Callback<LoginResponse> callback) throws CreationException {
         boolean userSet = setUser(user);
         user.login(callback);
         return userSet;
