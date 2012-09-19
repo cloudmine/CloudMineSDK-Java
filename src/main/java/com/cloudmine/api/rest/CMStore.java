@@ -720,7 +720,7 @@ public class CMStore {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing objects and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it and at least one object to be saved has a {@link ObjectLevel#USER}
      */
-    public void saveStoreObjects(Callback<ObjectModificationResponse> appCallback, Callback userCallback, CMRequestOptions options) throws ConversionException, CreationException {
+    public void saveStoreObjects(Callback<ObjectModificationResponse> appCallback, Callback<ObjectModificationResponse> userCallback, CMRequestOptions options) throws ConversionException, CreationException {
         saveStoreUserObjects(userCallback, options);
         saveStoreApplicationObjects(appCallback, options);
     }
