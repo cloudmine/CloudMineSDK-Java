@@ -8,7 +8,8 @@ import com.cloudmine.api.rest.response.ResponseConstructor;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public abstract class CMCallback<T> implements Callback<T> {
-    public static final Callback doNothing() { 
+
+    public static <T> Callback<T> doNothing() {
         return new Callback() {
             private long startTime;
             @Override

@@ -1,5 +1,6 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.rest.CMFileMetaData;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 
@@ -9,9 +10,10 @@ import com.cloudmine.api.rest.JsonUtilities;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public enum CMType implements Transportable {
-    GEO_POINT("geopoint"), FILE("file"), USER("user"), NONE("");
+    GEO_POINT("geopoint", CMGeoPoint.class), FILE("file", CMFileMetaData.class), USER("user", CMUser.class), NONE("", Void.class);
 
     private final String typeId;
+    private final Class<? extends CMObject> klass;
 
     /**
      * Get the enum representation of the typeId. Differs from {@link #valueOf(String)} by handing null and
@@ -30,8 +32,11 @@ public enum CMType implements Transportable {
         return NONE;
     }
 
-    private CMType(String typeId) {
+
+
+    private CMType(String typeId, Class klass) {
         this.typeId = typeId;
+        this.klass = klass;
     }
 
     /**
@@ -45,5 +50,9 @@ public enum CMType implements Transportable {
     @Override
     public String transportableRepresentation() {
         return JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, getTypeId());
+    }
+
+    public Class<? extends CMObject> getTypeClass() {
+        return klass;
     }
 }

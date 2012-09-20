@@ -11,8 +11,10 @@ import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,7 @@ import java.util.*;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class CMObject implements Transportable, Savable {
+public class CMObject implements Transportable, Savable<ObjectModificationResponse, ObjectModificationResponse> {
     //******SEE CMApiCredentials for static declaration of Class mapping*******
     private static final Logger LOG = LoggerFactory.getLogger(CMObject.class);
     public static final String MISSING_OBJECT_ID = "";
@@ -110,7 +112,7 @@ public class CMObject implements Transportable, Savable {
 
     @Override
     public String transportableRepresentation() throws ConversionException {
-        return JsonUtilities.objectsToJson(this);
+        return JsonUtilities.cmobjectsToJson(this);
     }
 
 
@@ -120,7 +122,7 @@ public class CMObject implements Transportable, Savable {
      * @throws ConversionException if this object cannot be converted to transportable
      */
     public String asKeyedObject() throws ConversionException {
-        return null; //TODO this shouldn't return null I'm thinking
+        return JsonUtilities.unwrap(transportableRepresentation());
     }
 
     @JsonIgnore
@@ -190,6 +192,7 @@ public class CMObject implements Transportable, Savable {
     }
 
     @JsonProperty(ACCESS_KEY)
+    @JsonSerialize(include= JsonSerialize.Inclusion.NON_EMPTY)
     public Set<String> getAccessListIds() {
         return accessListIds;
     }
@@ -202,7 +205,7 @@ public class CMObject implements Transportable, Savable {
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
     public void save() throws ConversionException, CreationException {
-        save(CMCallback.doNothing());
+        save(CMCallback.<ObjectModificationResponse>doNothing());
     }
     /**
      * Save this object in its associated store; if you have not specified this with {@link #setSaveWith(StoreIdentifier)}
@@ -211,12 +214,12 @@ public class CMObject implements Transportable, Savable {
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      * @throws CreationException if CMApiCredentials has not been initialized properly
      */
-    public void save(Callback callback) throws CreationException, ConversionException {
+    public void save(Callback<ObjectModificationResponse> callback) throws CreationException, ConversionException {
         store().saveObject(this, callback);
     }
 
     public void saveWithUser(CMUser user) throws CreationException, ConversionException {
-        saveWithUser(user, CMCallback.doNothing());
+        saveWithUser(user, CMCallback.<ObjectModificationResponse>doNothing());
     }
     /**
      * Save this object in in the given CMUser's store. If {@link #setSaveWith(StoreIdentifier)} has already been called
@@ -228,7 +231,7 @@ public class CMObject implements Transportable, Savable {
      * @throws CreationException if CMApiCredentials has not been initialized properly
      * @throws com.cloudmine.api.exceptions.AccessException if setSaveWith has already been set
      */
-    public void saveWithUser(CMUser user, Callback callback) throws CreationException, AccessException, ConversionException{
+    public void saveWithUser(CMUser user, Callback<ObjectModificationResponse> callback) throws CreationException, AccessException, ConversionException{
         boolean wasAlreadySet = !setSaveWith(user);
         boolean notSameUser = wasAlreadySet && //skip the check if it wasn't already set; still check below in if statement for clarity
                 !user.equals(getUser());
@@ -243,14 +246,14 @@ public class CMObject implements Transportable, Savable {
      * See {@link #delete(com.cloudmine.api.rest.callbacks.Callback)}
      */
     public void delete() {
-        delete(CMCallback.doNothing());
+        delete(CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     /**
      * Delete this object, then run the given callback
      * @param callback a Callback that expects an ObjectModificationResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in for this
      */
-    public void delete(Callback callback) {
+    public void delete(Callback<ObjectModificationResponse> callback) {
         store().deleteObject(this, callback);
     }
 
@@ -293,7 +296,15 @@ public class CMObject implements Transportable, Savable {
         return objectId == null ? MISSING_OBJECT_ID : objectId;
     }
 
-    void setObjectId(String objectId) {
+    /**
+     * Think real hard before using this method. If this object has already been saved, changing the objectId will cause
+     * a new copy to be saved. If the objectId is being used as a key in a Map, then changing it will not update the maps.
+     * If you change the objectId of an object being managed by the store, if you query the store by objectId it will still
+     * be under its old value.
+     * Basically, STAY AWAY unless you have a very good reason, or are only calling before the object is used by anything.
+     * @param objectId
+     */
+    public void setObjectId(String objectId) {
         this.objectId = objectId;
     }
 
@@ -314,7 +325,7 @@ public class CMObject implements Transportable, Savable {
      * @param callback
      * @return
      */
-    public final CreationResponseCallback setObjectIdOnCreation(final Callback callback) {
+    public final CreationResponseCallback setObjectIdOnCreation(final Callback<CreationResponse> callback) {
         return new CreationResponseCallback() {
             public void onCompletion(CreationResponse response) {
                 try {

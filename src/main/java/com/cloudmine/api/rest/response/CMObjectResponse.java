@@ -2,7 +2,7 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.exceptions.JsonConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.ObjectLoadCode;
 import org.apache.http.HttpResponse;
@@ -21,18 +21,16 @@ import java.util.Map;
  */
 public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
     private static final Logger LOG = LoggerFactory.getLogger(CMObjectResponse.class);
-    public static final ResponseConstructor<CMObjectResponse> CONSTRUCTOR =
-            new ResponseConstructor<CMObjectResponse>() {
-
-                @Override
-                public CMObjectResponse construct(HttpResponse response) {
-                    return new CMObjectResponse(response);
-                }
-            };
     public static final String COUNT_KEY = "count";
     public static final int NO_COUNT = -1;
-
+    public static ResponseConstructor<CMObjectResponse> CONSTRUCTOR = new ResponseConstructor<CMObjectResponse>() {
+        @Override
+        public CMObjectResponse construct(HttpResponse response) throws CreationException {
+            return new CMObjectResponse(response);
+        }
+    };
     private final Map<String, ? extends CMObject> objectMap;
+
 
     /**
      * Instantiate a new CMObjectResponse. You probably should not be calling this yourself.
@@ -67,13 +65,13 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
             Map<String, ? extends CMObject> tempMap;
             try {
                 tempMap = JsonUtilities.jsonToClassMap(success);
-            }catch(JsonConversionException jce) {
+            }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
             }
             objectMap = tempMap;
         } else {
-            objectMap = Collections.emptyMap(); 
+            objectMap = Collections.emptyMap();
         }
     }
 
@@ -90,6 +88,21 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         return new ArrayList<CMObject>(objectMap.values());
     }
 
+    public <CMO extends CMObject> List<CMO> getObjects(Class<CMO> klass) {
+        List<CMO> toReturn = new ArrayList<CMO>();
+        for(CMObject object : getObjects()) {
+            if(isReturnableFor(klass, object)) {
+                toReturn.add((CMO)object);
+            }
+        }
+        return toReturn;
+    }
+
+    private <CMO extends CMObject> boolean isReturnableFor(Class<CMO> klass, CMObject object) {
+        return object != null && klass != null &&
+                klass.isAssignableFrom(object.getClass());
+    }
+
     /**
      * Returns the object with the given objectId, or null if it doesn't exist
      * @param objectId the objectId for the object
@@ -97,6 +110,21 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      */
     public CMObject getCMObject(String objectId) {
         return objectMap.get(objectId);
+    }
+
+    /**
+     * Get the object with the given objectId as the specific class, or null if it doesn't exist or isn't of
+     * the specified class
+     * @param objectId the objectId for the object to retrieve
+     * @param objectClass the class to cast the retrieved object as, if possible
+     * @param <CMO>
+     * @return the object, or null if it wasn't loaded in this response, or if its
+     */
+    public <CMO extends CMObject> CMO getCMObject(String objectId, Class<CMO> objectClass) {
+        CMObject object = getCMObject(objectId);
+        if(isReturnableFor(objectClass, object))
+            return (CMO) object;
+        return null;
     }
 
     /**

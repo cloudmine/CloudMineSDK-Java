@@ -6,7 +6,9 @@ import com.cloudmine.api.CMUser;
 import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
@@ -60,7 +62,7 @@ public class UserCMWebService extends CMWebService {
      * authentication
      */
     public void asyncLogout() {
-        asyncLogout(CMCallback.doNothing());
+        asyncLogout(CMCallback.<CMResponse>doNothing());
     }
 
     /**
@@ -68,7 +70,7 @@ public class UserCMWebService extends CMWebService {
      * authentication
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      */
-    public void asyncLogout(Callback callback) {
+    public void asyncLogout(Callback<CMResponse> callback) {
         asyncLogout(sessionToken, callback);
     }
 
@@ -77,7 +79,7 @@ public class UserCMWebService extends CMWebService {
      * @param list
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void asyncInsert(CMAccessList list, Callback callback) {
+    public void asyncInsert(CMAccessList list, Callback<CreationResponse> callback) {
         executeAsyncCommand(createAccessListPost(list), callback, creationResponseConstructor());
     }
 
@@ -85,7 +87,7 @@ public class UserCMWebService extends CMWebService {
      *
      * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      */
-    public void asyncLoadLoggedInUserProfile(Callback callback) {
+    public void asyncLoadLoggedInUserProfile(Callback<CMObjectResponse> callback) {
         HttpGet get = createGet(baseUrl.account().mine().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
@@ -95,7 +97,7 @@ public class UserCMWebService extends CMWebService {
      * @param user the users profile to update; note that the user associated with this UserCMWebService will always be the one updated, even if the passed in user is different
      * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void asyncInsertUserProfile(CMUser user, Callback callback) {
+    public void asyncInsertUserProfile(CMUser user, Callback<CreationResponse> callback) {
         HttpPut put = createProfilePut(user);
         executeAsyncCommand(put, callback, creationResponseConstructor());
     }
@@ -104,7 +106,7 @@ public class UserCMWebService extends CMWebService {
      * Load the access lists belonging to the user associated with this object
      * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, it is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
-    public void asyncLoadAccessLists(Callback callback) {
+    public void asyncLoadAccessLists(Callback<CMObjectResponse> callback) {
         HttpGet get = createGet(baseUrl.access().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
