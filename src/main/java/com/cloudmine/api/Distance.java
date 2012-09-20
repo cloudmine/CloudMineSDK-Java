@@ -7,6 +7,8 @@ package com.cloudmine.api;
  */
 public class Distance {
 
+    public static final DistanceUnits DEFAULT_UNITS = DistanceUnits.km;
+
     private final double measurement;
     private final DistanceUnits units;
 
@@ -15,6 +17,10 @@ public class Distance {
             throw new NullPointerException("Can't have a distance with null units");
         this.measurement = measurement;
         this.units = units;
+    }
+
+    public Distance(double measurement) {
+        this(measurement, DEFAULT_UNITS);
     }
 
     public double getMeasurement() {
