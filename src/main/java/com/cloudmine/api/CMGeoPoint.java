@@ -1,6 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.rest.TransportableString;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,6 @@ public class CMGeoPoint extends CMObject{
     public static final String LATITUDE_KEY = "latitude";
     public static final String CLASS_NAME = "geopoint";
 
-    @Js
     private double latitude;
     private double longitude;
     private final String __type__ = "geopoint";
@@ -37,6 +37,23 @@ public class CMGeoPoint extends CMObject{
         SimpleCMObject object = new SimpleCMObject(transportableString);
         this.latitude = getValueFromKey(object, LATITUDE_KEYS);
         this.longitude = getValueFromKey(object, LONGITUDE_KEYS);
+    }
+
+    @JsonAnySetter protected void setWithOtherKey(String key, double value) {
+        if(is(LATITUDE_KEYS, key)) {
+            setLatitude(value);
+        } else if(is(LONGITUDE_KEYS, key)) {
+            setLongitude(value);
+        }
+    }
+
+    private boolean is(String[] possibleKeys, String key) {
+        for(String possibleKey : possibleKeys) {
+            if(possibleKey.equals(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private double getValueFromKey(SimpleCMObject object, String[] keys) {
