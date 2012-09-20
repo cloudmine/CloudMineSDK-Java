@@ -76,8 +76,10 @@ public class AsyncTestResultsCoordinator {
         }
         if(!ignoreOnFailure) {
             for(Throwable thrown : onFailures) {
-                thrown.printStackTrace();
-                throw new AssertionError(thrown);
+                if(thrown != null) {
+                    thrown.printStackTrace();
+                    throw new AssertionError(thrown);
+                }
             }
         }
     }

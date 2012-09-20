@@ -3,6 +3,8 @@ package com.cloudmine.api;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
@@ -200,7 +202,7 @@ public class CMAccessList extends CMObject {
      * Is equivalent to calling {@link #save(Callback)}, since the user associated with the list is set at instantiation
      */
     @Override
-    public void saveWithUser(CMUser ignored, Callback callback) {
+    public void saveWithUser(CMUser ignored, Callback<ObjectModificationResponse> callback) {
         save(callback);
     }
 

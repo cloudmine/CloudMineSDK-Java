@@ -8,6 +8,8 @@ import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.response.FileCreationResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -25,7 +27,7 @@ import java.util.Arrays;
  * The transportable representation of a CMFile consists of the CMType (file) and content type (MIME type, defaults to application/octet-stream)
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMFile implements Transportable, Savable {
+public class CMFile implements Transportable, Savable<FileCreationResponse, ObjectModificationResponse> {
 
 
     /**
@@ -38,6 +40,7 @@ public class CMFile implements Transportable, Savable {
                 (file.getFileContents().length == 1 && file.getFileContents()[0] == 32);
     }
 
+    public static final String TYPE_VALUE = "file";
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CMFile.class);
@@ -83,7 +86,7 @@ public class CMFile implements Transportable, Savable {
      * @throws CreationException If given null contents or unable to read in contents
      */
     public CMFile(InputStream contents, String contentType) throws CreationException {
-        this(contents, contentType, null);
+        this(contents, null, contentType);
     }
 
     /**
@@ -155,7 +158,7 @@ public class CMFile implements Transportable, Savable {
 
     @Override
     public void save() throws ConversionException, CreationException {
-        save(CMCallback.doNothing());
+        save(CMCallback.<FileCreationResponse>doNothing());
     }
 
     @Override
@@ -163,17 +166,17 @@ public class CMFile implements Transportable, Savable {
      * Save this File
      * @param callback a {@link com.cloudmine.api.rest.callbacks.FileCreationResponseCallback}
      */
-    public void save(Callback callback) throws CreationException, ConversionException {
+    public void save(Callback<FileCreationResponse> callback) throws CreationException, ConversionException {
         store().saveFile(this, callback);
     }
 
     @Override
     public void delete() {
-        delete(CMCallback.doNothing());
+        delete(CMCallback.<ObjectModificationResponse>doNothing());
     }
 
     @Override
-    public void delete(Callback callback) {
+    public void delete(Callback<ObjectModificationResponse> callback) {
         switch(getSaveLevel()) {
             case APPLICATION:
                 store().deleteApplicationFile(getFileId(), callback);

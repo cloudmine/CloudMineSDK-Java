@@ -85,6 +85,7 @@ public class ServiceTestBase {
 
         user().setPassword(USER_PASSWORD);
         deleteAll();
+//        deleteAllUsers();
     }
 
     private void deleteAll() {
@@ -100,15 +101,7 @@ public class ServiceTestBase {
                 response.wasSuccess();
                 for(CMObject object : response.getObjects()) {
                     if(object.hasObjectId()) {
-                        service.asyncDeleteUser(object.getObjectId(), new ObjectModificationResponseCallback() {
-                            public void onCompletion(ObjectModificationResponse response) {
-                                if(response.wasSuccess()) {
-                                    response.getDeletedObjectIds();
-                                } else {
-                                    response.getDeletedObjectIds();
-                                }
-                            }
-                        });
+                        service.asyncDeleteUser(object.getObjectId());
                     }
                 }
             }
