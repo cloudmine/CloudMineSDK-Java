@@ -39,11 +39,20 @@ public class CMGeoPoint extends CMObject{
         this.longitude = getValueFromKey(object, LONGITUDE_KEYS);
     }
 
-    @JsonAnySetter protected void setWithOtherKey(String key, double value) {
+    protected void setWithOtherKey(String key, double value) {
         if(is(LATITUDE_KEYS, key)) {
             setLatitude(value);
         } else if(is(LONGITUDE_KEYS, key)) {
             setLongitude(value);
+        }
+    }
+
+    @JsonAnySetter protected void setWithOtherKey(String key, String value) {
+        try {
+            double asDouble = Double.parseDouble(value);
+            setWithOtherKey(key, asDouble);
+        }catch(NumberFormatException e) {
+
         }
     }
 

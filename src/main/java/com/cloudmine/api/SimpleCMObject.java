@@ -413,6 +413,14 @@ public class SimpleCMObject extends CMObject {
         if(value != null && klass.isAssignableFrom(valueClass)) {
             return (T)value;
         }
+        if(value !=null && Map.class.isAssignableFrom(valueClass)) {
+            try {
+                String asJson = JsonUtilities.mapToJson((Map)value);
+                return (T) JsonUtilities.jsonToClass(asJson, klass);
+            } catch(Exception e) {
+                LOG.error("Can't get value: " + key + " = " + value, e);
+            }
+        }
         return null;
     }
 

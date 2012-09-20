@@ -157,7 +157,8 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 store.loadAllUserObjects(testCallback(new CMObjectResponseCallback() {
                     public void onCompletion(CMObjectResponse response) {
                         assertTrue(response.wasSuccess());
-                        assertEquals("v", ((SimpleCMObject)response.getCMObject("key")).getString("k"));
+                        SimpleCMObject object = response.getCMObject("key", SimpleCMObject.class);
+                        assertEquals("v", object.getString("k"));
                     }
                 }));
             }

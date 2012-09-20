@@ -322,10 +322,10 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
 
         service.asyncSearch("[geoPoint near (50, 50)]", testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
-                List<CMObject> objects = response.getObjects();
+                List<SimpleCMObject> objects = response.getObjects(SimpleCMObject.class);
                 Assert.assertEquals(1, objects.size());
 
-                CMGeoPoint geoPoint = ((SimpleCMObject) objects.get(0)).getGeoPoint("geoPoint");
+                CMGeoPoint geoPoint = objects.get(0).getGeoPoint("geoPoint");
                 Assert.assertEquals(50, geoPoint.getLatitude(), 2);
                 Assert.assertEquals(50, geoPoint.getLongitude(), 2);
 
