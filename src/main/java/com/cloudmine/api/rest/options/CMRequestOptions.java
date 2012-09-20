@@ -10,10 +10,11 @@ import com.cloudmine.api.rest.BaseURL;
 public class CMRequestOptions implements BaseURL{
     public static final CMRequestOptions NONE = new CMRequestOptions(CMPagingOptions.NONE, CMServerFunction.NONE, CMSortOptions.NONE);
 
-    private final CMPagingOptions pagingOptions;
-    private final CMServerFunction serverFunction;
-    private final CMSortOptions sortOptions;
-    private final CMSharedDataOptions sharedDataOptions;
+    private CMPagingOptions pagingOptions = CMPagingOptions.NONE;
+    private CMServerFunction serverFunction = CMServerFunction.NONE;
+    private CMSortOptions sortOptions = CMSortOptions.NONE;
+    private CMSharedDataOptions sharedDataOptions = CMSharedDataOptions.NO_OPTIONS;
+    private CMSearchOptions searchOptions = CMSearchOptions.NONE;
 
 
     /**
@@ -66,13 +67,66 @@ public class CMRequestOptions implements BaseURL{
         this.sharedDataOptions = sharedDataOptions;
     }
 
-    CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
+    public CMRequestOptions(CMSearchOptions searchOptions) {
+        this.searchOptions = searchOptions;
+    }
+
+    public CMRequestOptions() {
+
+    }
+
+    public CMRequestOptions(CMPagingOptions pagingOptions, CMServerFunction serverFunction, CMSortOptions sortOptions) {
         this(pagingOptions, serverFunction, sortOptions, CMSharedDataOptions.NO_OPTIONS);
+    }
+
+    public CMPagingOptions getPagingOptions() {
+        return pagingOptions;
+    }
+
+    public void setPagingOptions(CMPagingOptions pagingOptions) {
+        this.pagingOptions = pagingOptions;
+    }
+
+    public CMServerFunction getServerFunction() {
+        return serverFunction;
+    }
+
+    public CMRequestOptions setServerFunction(CMServerFunction serverFunction) {
+        this.serverFunction = serverFunction;
+        return this;
+    }
+
+    public CMSortOptions getSortOptions() {
+        return sortOptions;
+    }
+
+    public CMRequestOptions setSortOptions(CMSortOptions sortOptions) {
+        this.sortOptions = sortOptions;
+        return this;
+    }
+
+    public CMSharedDataOptions getSharedDataOptions() {
+        return sharedDataOptions;
+    }
+
+    public CMRequestOptions setSharedDataOptions(CMSharedDataOptions sharedDataOptions) {
+        this.sharedDataOptions = sharedDataOptions;
+        return this;
+    }
+
+    public CMSearchOptions getSearchOptions() {
+        return searchOptions;
+    }
+
+    public CMRequestOptions setSearchOptions(CMSearchOptions searchOptions) {
+        this.searchOptions = searchOptions;
+        return this;
     }
 
     @Override
     public String asUrlString() {
         StringBuilder urlBuilder = new StringBuilder();
+        addIfExists(urlBuilder, searchOptions);
         addIfExists(urlBuilder, pagingOptions);
         addIfExists(urlBuilder, serverFunction);
         addIfExists(urlBuilder, sortOptions);
@@ -81,7 +135,7 @@ public class CMRequestOptions implements BaseURL{
     }
 
     private void addIfExists(StringBuilder builder, BaseURL url) {
-        if(Strings.isEmpty(url.asUrlString())) {
+        if(url == null || Strings.isEmpty(url.asUrlString())) {
             return;
         }
         boolean isNotEmpty = !Strings.isEmpty(builder.toString());
@@ -100,11 +154,13 @@ public class CMRequestOptions implements BaseURL{
 
         if (pagingOptions != null ? !pagingOptions.equals(that.pagingOptions) : that.pagingOptions != null)
             return false;
+        if (searchOptions != null ? !searchOptions.equals(that.searchOptions) : that.searchOptions != null)
+            return false;
         if (serverFunction != null ? !serverFunction.equals(that.serverFunction) : that.serverFunction != null)
             return false;
+        if (sharedDataOptions != null ? !sharedDataOptions.equals(that.sharedDataOptions) : that.sharedDataOptions != null)
+            return false;
         if (sortOptions != null ? !sortOptions.equals(that.sortOptions) : that.sortOptions != null) return false;
-
-        if(sharedDataOptions != null ? !sharedDataOptions.equals(that.sharedDataOptions) : that.sharedDataOptions != null) return false;
 
         return true;
     }
@@ -115,6 +171,7 @@ public class CMRequestOptions implements BaseURL{
         result = 31 * result + (serverFunction != null ? serverFunction.hashCode() : 0);
         result = 31 * result + (sortOptions != null ? sortOptions.hashCode() : 0);
         result = 31 * result + (sharedDataOptions != null ? sharedDataOptions.hashCode() : 0);
+        result = 31 * result + (searchOptions != null ? searchOptions.hashCode() : 0);
         return result;
     }
 }

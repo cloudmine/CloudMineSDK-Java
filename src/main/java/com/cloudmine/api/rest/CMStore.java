@@ -457,6 +457,8 @@ public class CMStore {
         applicationService.asyncSearch(search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
     }
 
+
+
     /**
      * Retrieve all the user level objects that are of the specified class. Class values are determined automatically, or
      * can be set by overriding {@link com.cloudmine.api.CMObject#getClassName()}. retrieved objects will be added to this Store after load
