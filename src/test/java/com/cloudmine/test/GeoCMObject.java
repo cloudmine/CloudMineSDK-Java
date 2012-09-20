@@ -1,6 +1,6 @@
 package com.cloudmine.test;
 
-import com.cloudmine.api.CMGeoPoint2;
+import com.cloudmine.api.CMGeoPoint;
 import com.cloudmine.api.CMObject;
 
 /**
@@ -10,21 +10,21 @@ import com.cloudmine.api.CMObject;
  */
 public class GeoCMObject extends CMObject {
 
-    private CMGeoPoint2 geoPoint;
+    private CMGeoPoint geoPoint;
 
     public GeoCMObject() {
 
     }
 
-    public GeoCMObject(CMGeoPoint2 point) {
+    public GeoCMObject(CMGeoPoint point) {
         this.geoPoint = point;
     }
 
-    public CMGeoPoint2 getGeoPoint() {
+    public CMGeoPoint getGeoPoint() {
         return geoPoint;
     }
 
-    public void setGeoPoint(CMGeoPoint2 geoPoint) {
+    public void setGeoPoint(CMGeoPoint geoPoint) {
         this.geoPoint = geoPoint;
     }
 }

@@ -30,7 +30,7 @@ public class CMGeoPointTest {
         assertEquals(-70.2, point.getLatitude());
         assertEquals(45.5, point.getLongitude());
 
-        CMGeoPoint duplicatePoint = new CMGeoPoint(point);
+        CMGeoPoint duplicatePoint = new CMGeoPoint(45.5, -70.2);
         assertEquals(point, duplicatePoint);
     }
 

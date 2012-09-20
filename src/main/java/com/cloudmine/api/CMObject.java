@@ -342,4 +342,12 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     protected CMStore store() throws CreationException {
         return CMStore.getStore(storeId.value(StoreIdentifier.DEFAULT));
     }
+
+    public String toString() {
+        try {
+            return transportableRepresentation();
+        } catch(Exception e) {
+            return super.toString();
+        }
+    }
 }

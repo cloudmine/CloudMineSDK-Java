@@ -301,17 +301,20 @@ public class JsonUtilities {
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
         CMType type = CMType.getTypeById(Strings.asString(jsonMap.get(TYPE_KEY)));
+
         boolean isTyped = type != null &&
                                 !CMType.NONE.equals(type) &&
                                 klassString == null; //if we have a class string, use that instead of the specified type
         if(isTyped) {
             return jsonToClass(json, type.getTypeClass());
         }
+
         boolean isUnknownClass = klassString == null ||
                 ClassNameRegistry.isRegistered(klassString.toString()) == false;
         if(isUnknownClass) {
             return new SimpleCMObject(new TransportableString(json));
         }
+
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);
     }

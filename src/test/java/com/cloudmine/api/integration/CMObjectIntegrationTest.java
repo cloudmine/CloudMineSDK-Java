@@ -30,24 +30,4 @@ public class CMObjectIntegrationTest extends ServiceTestBase{
         service.asyncLoadObject(object.getObjectId(), hasSuccessAndHasLoaded(object));
         waitThenAssertTestResults();
     }
-
-    @Test
-    public void testGeoPoint() {
-        final GeoCMObject geoObject = new GeoCMObject();
-        final CMGeoPoint2 geoPoint = new CMGeoPoint2(55, 55);
-
-        geoObject.setGeoPoint(geoPoint);
-
-        geoObject.save(hasSuccess);
-        waitThenAssertTestResults();
-
-        CMStore.getStore().loadApplicationObjectWithObjectId(geoObject.getObjectId(), testCallback(new CMObjectResponseCallback() {
-            public void onCompletion(CMObjectResponse response) {
-                GeoCMObject loadedGeoObject = (GeoCMObject)response.getCMObject(geoObject.getObjectId());
-                assertEquals(geoPoint, loadedGeoObject.getGeoPoint());
-            }
-
-        }));
-        waitThenAssertTestResults();
-    }
 }
