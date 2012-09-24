@@ -118,6 +118,12 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         return new ArrayList<CMObject>(objectMap.values());
     }
 
+    /**
+     * Get all of the objects of the specified klass
+     * @param klass
+     * @param <CMO>
+     * @return
+     */
     public <CMO extends CMObject> List<CMO> getObjects(Class<CMO> klass) {
         List<CMO> toReturn = new ArrayList<CMO>();
         for(CMObject object : getObjects()) {
