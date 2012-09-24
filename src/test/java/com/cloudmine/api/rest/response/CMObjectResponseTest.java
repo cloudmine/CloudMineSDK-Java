@@ -2,6 +2,8 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.Distance;
+import com.cloudmine.api.DistanceUnits;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
@@ -57,7 +59,15 @@ public class CMObjectResponseTest {
         for(CMObject object : response.getObjects()) {
             assertTrue(object.hasObjectId());
         }
+    }
 
+    @Test
+    public void testGetDistanceMetaData() {
+        String distanceResponse = "{\"success\":{\"bba977ba-0db5-463a-a71b-70baf52a255a\":{\"location\":{\"__type__\":\"geopoint\",\"longitude\":55.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"},\"age\":25,\"name\":\"John\",\"__id__\":\"bba977ba-0db5-463a-a71b-70baf52a255a\",\"__access__\":[]},\"key21\":{\"field\":\"value1\",\"location\":{\"__type__\":\"geopoint\",\"longitude\":-180,\"latitude\":-90}}},\"errors\":{},\"meta\":{\"bba977ba-0db5-463a-a71b-70baf52a255a\":{\"geo\":{\"distance\":14799081.26,\"units\":\"ft\"}},\"key21\":{\"geo\":{\"distance\":65301482.49,\"units\":\"ft\"}}}}";
+        CMObjectResponse response = new CMObjectResponse(distanceResponse, 200);
+        String key = "key21";
+        Distance expectedDistance = new Distance(65301482.49, DistanceUnits.ft);
+        assertEquals(expectedDistance, response.getDistanceFor(key));
     }
 
     @Test

@@ -6,10 +6,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.*;
-import com.cloudmine.api.rest.options.CMPagingOptions;
-import com.cloudmine.api.rest.options.CMRequestOptions;
-import com.cloudmine.api.rest.options.CMServerFunction;
-import com.cloudmine.api.rest.options.CMSortOptions;
+import com.cloudmine.api.rest.options.*;
 import com.cloudmine.api.rest.response.*;
 import com.cloudmine.api.rest.response.code.FileLoadCode;
 import com.cloudmine.api.rest.response.code.LoginCode;
@@ -20,7 +17,6 @@ import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -123,7 +119,6 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     }
 
     @Test
-    @Ignore //this is broken until subobjects on simplecmobjects are fixed
     public void testSearchGeoPoint() {
 
         final SimpleCMObject object = new SimpleCMObject();
@@ -138,9 +133,12 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 CMObject loadedObject = response.getCMObject(object.getObjectId());
-                assertEquals(object, loadedObject);
+//                assertEquals(object, loadedObject); //this is broken until subobjects on simplecmobjects are fixed
+                assertNotNull(loadedObject);
+                Distance distance = response.getDistanceFor(loadedObject.getObjectId());
+                assertNotNull(distance);
             }
-        }));
+        }), new CMRequestOptions(new CMSearchOptions(DistanceUnits.km)));
         waitThenAssertTestResults();
     }
 
