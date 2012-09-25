@@ -293,7 +293,15 @@ public class CMObject implements Transportable, Savable {
         return objectId == null ? MISSING_OBJECT_ID : objectId;
     }
 
-    void setObjectId(String objectId) {
+    /**
+     * Think real hard before using this method. If this object has already been saved, changing the objectId will cause
+     * a new copy to be saved. If the objectId is being used as a key in a Map, then changing it will not update the maps.
+     * If you change the objectId of an object being managed by the store, if you query the store by objectId it will still
+     * be under its old value.
+     * Basically, STAY AWAY unless you have a very good reason, or are only calling before the object is used by anything.
+     * @param objectId
+     */
+    public void setObjectId(String objectId) {
         this.objectId = objectId;
     }
 

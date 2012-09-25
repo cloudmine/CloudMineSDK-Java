@@ -85,6 +85,7 @@ public class ServiceTestBase {
 
         user().setPassword(USER_PASSWORD);
         deleteAll();
+//        deleteAllUsers();
     }
 
     private void deleteAll() {
@@ -100,15 +101,7 @@ public class ServiceTestBase {
                 response.wasSuccess();
                 for(CMObject object : response.getObjects()) {
                     if(object.hasObjectId()) {
-                        service.asyncDeleteUser(object.getObjectId(), new ObjectModificationResponseCallback() {
-                            public void onCompletion(ObjectModificationResponse response) {
-                                if(response.wasSuccess()) {
-                                    response.getDeletedObjectIds();
-                                } else {
-                                    response.getDeletedObjectIds();
-                                }
-                            }
-                        });
+                        service.asyncDeleteUser(object.getObjectId());
                     }
                 }
             }
@@ -134,7 +127,8 @@ public class ServiceTestBase {
     }
 
 
-    public InputStream getObjectInputStream() throws IOException {
+    public InputStream getObjectInputStream() {
+        try {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ObjectOutputStream objectOutput = new ObjectOutputStream(output);
         objectOutput.write(55);
@@ -143,5 +137,8 @@ public class ServiceTestBase {
         objectOutput.close();
 
         return new ByteArrayInputStream(output.toByteArray());
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

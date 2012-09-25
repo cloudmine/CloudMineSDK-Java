@@ -278,8 +278,8 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 String[] expectedNames = {"Fred", "Betty", "Annie"};
                 int expectedNumberCounter = 0;
                 int expectedNamesCounter = 0;
-                for(CMObject object : response.getObjects()) {
-                    ExtendedCMObject extendedCMObject = (ExtendedCMObject) object;
+                for(ExtendedCMObject extendedCMObject : response.getObjects(ExtendedCMObject.class)) {
+
                     int number = extendedCMObject.getNumber();
                     assertEquals(expectedNumbers[expectedNumberCounter], number);
                     if(number == 100) {
@@ -304,12 +304,12 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         store.loadApplicationObjectsOfClass(ExtendedCMObject.class,
-                testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
+                testCallback(new CMObjectResponseCallback() {
                     @Override
-                    public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+                    public void onCompletion(CMObjectResponse response) {
                         assertTrue(response.wasSuccess());
                         int loaded = 0;
-                        for (ExtendedCMObject object : response.getObjects()) {
+                        for (ExtendedCMObject object : response.getObjects(ExtendedCMObject.class)) {
                             assertTrue(object.getNumber() < 21);
                             loaded++;
                         }
@@ -318,11 +318,11 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
                 }));
         waitThenAssertTestResults();
         //okay now test the multi search
-        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new TypedCMObjectResponseCallback<ExtendedCMObject>(ExtendedCMObject.class) {
-            public void onCompletion(TypedCMObjectResponse<ExtendedCMObject> response) {
+        store.loadApplicationObjectsOfClassWithSearch(ExtendedCMObject.class, "[number < 20]", testCallback(new CMObjectResponseCallback() {
+            public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(1, response.getObjects().size());
-                assertEquals(10, response.getObjects().get(0).getNumber());
+                assertEquals(10, response.getObjects(ExtendedCMObject.class).get(0).getNumber());
             }
         }));
         waitThenAssertTestResults();
@@ -411,7 +411,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         user.logout(hasSuccess);
         user.setPassword(USER_PASSWORD);
         waitThenAssertTestResults();
-        store.loadUserFile(file.getFileName(), testCallback(new FileLoadCallback(file.getFileName()) {
+        store.loadUserFile(file.getFileId(), testCallback(new FileLoadCallback(file.getFileId()) {
             public void onCompletion(FileLoadResponse response) {
                 assertTrue(response.wasSuccess());
                 assertEquals(file, response.getFile());
@@ -435,10 +435,10 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         file.save(hasSuccess);
         waitThenAssertTestResults();
         store.setUser(user);
-        store.deleteUserFile(file.getFileName(), testCallback(new ObjectModificationResponseCallback() {
+        store.deleteUserFile(file.getFileId(), testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 assertTrue(response.wasSuccess());
-                assertTrue(response.wasDeleted(file.getFileName()));
+                assertTrue(response.wasDeleted(file.getFileId()));
                 assertEquals(ObjectModificationCode.SUCCESS, response.getResponseCode());
             }
         }));
