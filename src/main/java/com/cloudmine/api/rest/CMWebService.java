@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
@@ -197,9 +198,48 @@ public class CMWebService {
      * @param callback the callback to pass the results into. It is recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
-        HttpGet search = createSearch("[" + JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(klass) + "]", options);
+        HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
+        executeAsyncCommand(search, callback, cmObjectResponseConstructor());
+
+    }
+
+    public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback) {
+        asyncLoadObjectsOfClass(klass, callback, CMRequestOptions.NONE);
+    }
+
+    public void asyncLoadObjectsOfClass(Class<? extends CMObject> klass, Callback callback, CMRequestOptions options) {
+        HttpGet search = createSearch("[" + getClassSearchString(klass) + "]", options);
         executeAsyncCommand(search,
-                callback, cmObjectResponseConstructor());
+                callback, typedCMObjectResponseResponseConstructor(klass));
+    }
+
+    public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback) {
+        asyncLoadObjectsOfClassAndSearch(klass, search, callback, CMRequestOptions.NONE);
+    }
+
+    public void asyncLoadObjectsOfClassAndSearch(Class<? extends CMObject> klass, String search, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createSearch(addClassSearch(klass, search), options),
+                callback, typedCMObjectResponseResponseConstructor(klass));
+
+    }
+
+    private String getClassSearchString(Class<? extends CMObject> klass) {
+        String className = ClassNameRegistry.forClass(klass);
+        return getClassSearchString(className);
+    }
+
+    private String getClassSearchString(String className) {
+        return JsonUtilities.CLASS_KEY + "=" + JsonUtilities.addQuotes(className);
+    }
+
+    private String addClassSearch(Class<? extends CMObject> klass, String search) {
+        int endOfSearch = search.lastIndexOf("]");
+        if(endOfSearch == -1) {
+            return search; //this is an invalid search which will fail server side
+        }
+        String openSearch = search.substring(0, endOfSearch);
+        openSearch += ", " + getClassSearchString(klass) + "]";
+        return openSearch;
     }
 
     public void asyncLoadAllUserProfiles(Callback callback) {
@@ -365,7 +405,7 @@ public class CMWebService {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
     public void asyncDeleteFile(CMFile file, Callback callback) {
-        asyncDelete(file.getFileName(), callback);
+        asyncDelete(file.getFileId(), callback);
     }
 
     /**
@@ -384,36 +424,36 @@ public class CMWebService {
     public void asyncDeleteFiles(Collection<CMFile> files, Callback callback) {
         Collection<String> keys = new ArrayList<String>(files.size());
         for(CMFile file : files) {
-            keys.add(file.getFileName());
+            keys.add(file.getFileId());
         }
         asyncDelete(keys, callback);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileId
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
-    public void asyncDeleteFile(String fileName) {
-        asyncDeleteFile(fileName, CMCallback.doNothing());
+    public void asyncDeleteFile(String fileId) {
+        asyncDeleteFile(fileId, CMCallback.doNothing());
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileId
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
-    public void asyncDeleteFile(String fileName, Callback callback) {
-        asyncDeleteFile(fileName, callback, CMRequestOptions.NONE);
+    public void asyncDeleteFile(String fileId, Callback callback) {
+        asyncDeleteFile(fileId, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileId
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void asyncDeleteFile(String fileName, Callback callback, CMRequestOptions options) {
-        asyncDelete(fileName, callback, options);
+    public void asyncDeleteFile(String fileId, Callback callback, CMRequestOptions options) {
+        asyncDelete(fileId, callback, options);
     }
 
     /**
@@ -434,31 +474,35 @@ public class CMWebService {
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
-    public void asyncLoadFile(String fileName) {
-        asyncLoadFile(fileName, CMCallback.doNothing());
+    public void asyncLoadFile(String fileId) {
+        asyncLoadFile(fileId, CMCallback.doNothing());
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      */
-    public void asyncLoadFile(String fileName, Callback callback) {
-        asyncLoadFile(fileName, callback, CMRequestOptions.NONE);
+    public void asyncLoadFile(String fileId, Callback callback) {
+        asyncLoadFile(fileId, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
      */
-    public void asyncLoadFile(String fileName, Callback callback, CMRequestOptions options) {
-        executeAsyncCommand(createGetFile(fileName, options),
-                callback, fileLoadResponseResponseConstructor(fileName));
+    public void asyncLoadFile(String fileId, Callback callback, CMRequestOptions options) {
+        executeAsyncCommand(createGetFile(fileId, options),
+                callback, fileLoadResponseResponseConstructor(fileId));
+    }
+
+    public void asyncLoadFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createGetFileMetaData(fileId, options), callback, cmObjectResponseConstructor());
     }
 
     /**
@@ -715,7 +759,21 @@ public class CMWebService {
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
      */
     public void asyncChangePassword(CMUser user, String newPassword, Callback callback) {
-        executeAsyncCommand(createChangePassword(user, newPassword), callback);
+        asyncChangePassword(user, newPassword, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Change the given user's password to newPassword
+     * @param user the user whose password is to be changed
+     * @param newPassword the new password
+     * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
+     */
+    public void asyncChangePassword(CMUser user, String newPassword, CMRequestOptions options, Callback callback) {
+        asyncChangePassword(user.getEmail(), user.getPassword(), newPassword, options, callback);
+    }
+
+    public void asyncChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options, Callback callback) {
+        executeAsyncCommand(createChangePassword(email, oldPassword, newPassword, options), callback);
     }
 
     /**
@@ -826,15 +884,15 @@ public class CMWebService {
 
     /**
      * Make a blocking call to load the specified file
-     * @param fileName the name of the file to load
+     * @param fileId the name of the file to load
      * @return a FileLoadResponse that contains the loaded file, if the call was a success
      * @throws NetworkException if unable to perform the network call
      * @throws CreationException if unable to create the CMFile
      */
-    public FileLoadResponse loadFile(String fileName) throws NetworkException, CreationException {
+    public FileLoadResponse loadFile(String fileId) throws NetworkException, CreationException {
         try {
-            HttpResponse response = httpClient.execute(createGetFile(fileName));
-            return new FileLoadResponse(response, fileName);
+            HttpResponse response = httpClient.execute(createGetFile(fileId));
+            return new FileLoadResponse(response, fileId);
         } catch (IOException e) {
             LOG.error("IOException getting file", e);
             throw new CreationException("Couldn't get file because of IOException", e);
@@ -892,7 +950,7 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      */
     public CMResponse changePassword(CMUser user, String newPassword) throws NetworkException {
-        return executeCommand(createChangePassword(user, newPassword));
+        return executeCommand(createChangePassword(user, newPassword, CMRequestOptions.NONE));
     }
 
 
@@ -1023,7 +1081,7 @@ public class CMWebService {
     }
 
     private HttpPut createPut(CMFile file) {
-        HttpPut put = new HttpPut(baseUrl.binary(file.getFileName()).asUrlString());
+        HttpPut put = new HttpPut(baseUrl.binary(file.getFileId()).asUrlString());
         addCloudMineHeader(put);
         put.setEntity(new ByteArrayEntity(file.getFileContents()));
         put.addHeader("Content-Type", file.getMimeType());
@@ -1076,6 +1134,17 @@ public class CMWebService {
         return get;
     }
 
+    private HttpGet createGetFileMetaData(String fileId, CMRequestOptions options) {
+        HttpGet get = new HttpGet(baseUrl.search(createFileMetaDataSearch(fileId)).options(options).asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    private String createFileMetaDataSearch(String fileId) {
+        return new StringBuilder("[").append(JsonUtilities.TYPE_KEY).append(" = \"").append(CMFile.TYPE_VALUE).append("\", ")
+                .append(JsonUtilities.OBJECT_ID_KEY).append(" = \"").append(fileId).append("\"]").toString();
+    }
+
     private HttpGet createGetAllUsers() {
         HttpGet get = new HttpGet(baseUrl.account().asUrlString());
         addCloudMineHeader(get);
@@ -1126,10 +1195,14 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createChangePassword(CMUser user, String newPassword) {
-        HttpPost post = new HttpPost(baseUrl.account().password().change().asUrlString());
+    private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
+        return createChangePassword(user.getEmail(), user.getPassword(), newPassword, options);
+    }
+
+    private HttpPost createChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options) {
+        HttpPost post = new HttpPost(baseUrl.account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);
-        addAuthorizationHeader(user, post);
+        addAuthorizationHeader(email, oldPassword, post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
@@ -1157,7 +1230,11 @@ public class CMWebService {
     }
 
     protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
-        post.addHeader(AUTHORIZATION_KEY, "Basic " + user.encode());
+        addAuthorizationHeader(user.getEmail(), user.getPassword(), post);
+    }
+
+    protected void addAuthorizationHeader(String email, String password, HttpEntityEnclosingRequestBase post) {
+        post.addHeader(AUTHORIZATION_KEY, "Basic " + CMUser.encode(email, password));
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
@@ -1193,6 +1270,10 @@ public class CMWebService {
 
     protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
+    }
+
+    protected <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> typedCMObjectResponseResponseConstructor(Class<CMO> klass) {
+        return TypedCMObjectResponse.constructor(klass);
     }
 
     @Override

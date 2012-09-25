@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.AccessException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -388,9 +389,9 @@ public class CMStore {
      */
     public void loadUserObjectsWithObjectIds(final Collection<String> objectIds, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjects(objectIds, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
         });
     }
 
@@ -487,11 +488,63 @@ public class CMStore {
      */
     public void loadUserObjectsOfClass(final String klass, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
-           public void onCompletion(LoginResponse response) {
-               userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
-           }
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
         });
+    }
 
+    /**
+     * See {@link #loadUserObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final Callback callback) {
+        loadUserObjectsOfClass(klass, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #loadUserObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param options
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClass(final Class<CMO> klass, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
+        });
+    }
+
+    /**
+     * See {@link #loadUserObjectsOfClassWithSearch(Class, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param search
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final Callback callback) {
+        loadUserObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load user objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * is used here, so the returned objects will be accessable without having to be cast
+     * @param klass the Class of the objects to load
+     * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
+     * @param options any additional options for the query
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param <CMO> the type of the objects being loaded
+     */
+    public <CMO extends CMObject> void loadUserObjectsOfClassWithSearch(final Class<CMO> klass, final String search, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+            public void onCompletion(LoginResponse response) {
+                userService().asyncLoadObjectsOfClassAndSearch(klass, search, objectLoadUpdateStoreCallback(callback, StoreIdentifier.StoreIdentifier(user())), options);
+            }
+        });
     }
 
     /**
@@ -515,6 +568,51 @@ public class CMStore {
      */
     public void loadApplicationObjectsOfClass(String klass, Callback callback, CMRequestOptions options) {
         applicationService.asyncLoadObjectsOfClass(klass, objectLoadUpdateStoreCallback(callback, StoreIdentifier.applicationLevel()), options);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, Callback callback) {
+        loadApplicationObjectsOfClass(klass, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClass(String, com.cloudmine.api.rest.callbacks.Callback, com.cloudmine.api.rest.options.CMRequestOptions)}
+     * @param klass
+     * @param options
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClass(Class<CMO> klass, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadObjectsOfClass(klass, callback, options);
+    }
+
+    /**
+     * See {@link #loadApplicationObjectsOfClassWithSearch(Class, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param klass
+     * @param search
+     * @param callback
+     * @param <CMO>
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, Callback callback) {
+        loadApplicationObjectsOfClassWithSearch(klass, search, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load applications objects of the specific class, filtered by the given search. Recommended that a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback}
+     * is used here, so the returned objects will be accessable without having to be cast
+     * @param klass the Class of the objects to load
+     * @param search any additional filters, must conform to the CloudMine syntax for searching (ie, "[field = "value"]"
+     * @param options any additional options for the query
+     * @param callback recommended a {@link com.cloudmine.api.rest.callbacks.TypedCMObjectResponseCallback} is passed here
+     * @param <CMO> the type of the objects being loaded
+     */
+    public <CMO extends CMObject> void loadApplicationObjectsOfClassWithSearch(Class<CMO> klass, String search, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadObjectsOfClassAndSearch(klass, search, callback, options);
     }
 
     /**
@@ -777,125 +875,168 @@ public class CMStore {
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      */
-    public void loadApplicationFile(String fileName) {
-        loadApplicationFile(fileName, CMCallback.doNothing());
+    public void loadApplicationFile(String fileId) {
+        loadApplicationFile(fileId, CMCallback.doNothing());
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      */
-    public void loadApplicationFile(String fileName, Callback callback) {
-        loadApplicationFile(fileName, callback, CMRequestOptions.NONE);
+    public void loadApplicationFile(String fileId, Callback callback) {
+        loadApplicationFile(fileId, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @param options options to apply to the call, such as a server function to pass the results of the call into
-     */
-    public void loadApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
-        applicationService.asyncLoadFile(fileName, callback, options);
-    }
-
-    /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public void loadUserFile(String fileName) throws CreationException {
-        loadUserFile(fileName, CMCallback.doNothing());
-    }
-
-    /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public void loadUserFile(String fileName, Callback callback) throws CreationException {
-        loadUserFile(fileName, callback, CMRequestOptions.NONE);
-    }
-
-    /**
-     * Retrieve the {@link CMFile} with the specified fileName, if it exists at the user level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
+     */
+    public void loadApplicationFile(String fileId, Callback callback, CMRequestOptions options) {
+        applicationService.asyncLoadFile(fileId, callback, options);
+    }
+
+    /**
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the user level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void loadUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void loadUserFile(String fileId) throws CreationException {
+        loadUserFile(fileId, CMCallback.doNothing());
+    }
+
+    /**
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the user level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public void loadUserFile(String fileId, Callback callback) throws CreationException {
+        loadUserFile(fileId, callback, CMRequestOptions.NONE);
+    }
+
+    /**
+     * Retrieve the {@link CMFile} with the specified fileId, if it exists at the user level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects a FileLoadResponse or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.FileLoadCallback} is passed in
+     * @param options options to apply to the call, such as a server function to pass the results of the call into
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public void loadUserFile(final String fileId, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
-                userService().asyncLoadFile(fileName, callback, options);
+                userService().asyncLoadFile(fileId, callback, options);
             }
         });
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * See {@link #loadApplicationFileMetaData(String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param fileId
+     * @param callback
      */
-    public void deleteApplicationFile(String fileName) {
-        deleteApplicationFile(fileName, CMCallback.doNothing());
+    public void loadApplicationFileMetaData(String fileId, Callback callback) {
+        loadApplicationFileMetaData(fileId, CMRequestOptions.NONE, callback);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Load the meta data for the given fileId
+     * @param fileId the fileId of the CMFile whose metadata is to be loaded
+     * @param options any post call options
+     * @param callback a {@link CMObjectResponse} that will contain the {@link CMFileMetaData} information
+     */
+    public void loadApplicationFileMetaData(String fileId, CMRequestOptions options, Callback callback) {
+        applicationService.asyncLoadFileMetaData(fileId, options,
+                objectLoadUpdateStoreCallback(callback, StoreIdentifier.DEFAULT));
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     */
+    public void deleteApplicationFile(String fileId) {
+        deleteApplicationFile(fileId, CMCallback.doNothing());
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
-    public void deleteApplicationFile(String fileName, Callback callback) {
-        deleteApplicationFile(fileName, callback, CMRequestOptions.NONE);
+    public void deleteApplicationFile(String fileId, Callback callback) {
+        deleteApplicationFile(fileId, callback, CMRequestOptions.NONE);
     }
 
     /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the application level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @param options options to apply to the call, such as a server function to pass the results of the call into
-     */
-    public void deleteApplicationFile(String fileName, Callback callback, CMRequestOptions options) {
-        applicationService.asyncDeleteFile(fileName, callback, options);
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public void deleteUserFile(String fileName) throws CreationException {
-        deleteUserFile(fileName, CMCallback.doNothing());
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
-     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
-     */
-    public void deleteUserFile(String fileName, Callback callback) throws CreationException {
-        deleteUserFile(fileName, callback, CMRequestOptions.NONE);
-    }
-
-    /**
-     * Delete the {@link CMFile} with the specified fileName, if it exists at the user level.
-     * @param fileName the file fileName, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the application level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      * @param options options to apply to the call, such as a server function to pass the results of the call into
+     */
+    public void deleteApplicationFile(String fileId, Callback callback, CMRequestOptions options) {
+        applicationService.asyncDeleteFile(fileId, callback, options);
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the user level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
      * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
      */
-    public void deleteUserFile(final String fileName, final Callback callback, final CMRequestOptions options) throws CreationException {
+    public void deleteUserFile(String fileId) throws CreationException {
+        deleteUserFile(fileId, CMCallback.doNothing());
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the user level
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public void deleteUserFile(String fileId, Callback callback) throws CreationException {
+        deleteUserFile(fileId, callback, CMRequestOptions.NONE);
+    }
+
+    /**
+     * Delete the {@link CMFile} with the specified fileId, if it exists at the user level.
+     * @param fileId the file fileId, either specified when the CMFile was instantiated or returned in the {@link com.cloudmine.api.rest.response.FileCreationResponse} post insertion
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
+     * @param options options to apply to the call, such as a server function to pass the results of the call into
+     * @throws CreationException if this CMStore does not have a CMSessionToken associated with it
+     */
+    public void deleteUserFile(final String fileId, final Callback callback, final CMRequestOptions options) throws CreationException {
         user().login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
             public void onCompletion(LoginResponse response) {
-                userService().asyncDeleteFile(fileName, callback, options);
+                userService().asyncDeleteFile(fileId, callback, options);
             }
+        });
+    }
+
+    /**
+     * See {@link #loadUserFileMetaData(String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param fileId
+     * @param callback
+     */
+    public void loadUserFileMetaData(final String fileId, final Callback callback) {
+        loadUserFileMetaData(fileId, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * Load {@link CMFileMetaData} about a user file
+     * @param fileId
+     * @param options
+     * @param callback a {@link CMObjectResponseCallback} 
+     */
+    public void loadUserFileMetaData(final String fileId, final CMRequestOptions options, final Callback callback) {
+        user().login(new ExceptionPassthroughCallback<CMObjectResponse>(callback) {
+           public void onCompletion(CMObjectResponse response) {
+               userService().asyncLoadFileMetaData(fileId, options, callback);
+           }
         });
     }
 

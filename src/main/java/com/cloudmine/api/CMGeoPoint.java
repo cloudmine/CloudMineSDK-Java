@@ -14,7 +14,6 @@ import com.cloudmine.api.rest.Transportable;
 public class CMGeoPoint extends SimpleCMObject {
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};
     private static final String[] LONGITUDE_KEYS = {"longitude", "lon", "x"};
-    public static final String GEOPOINT_TYPE = "geopoint";
     public static final String GEOPOINT_CLASS = "CMGeoPoint";
     public static final String LONGITUDE_KEY = "longitude";
     public static final String LATITUDE_KEY = "latitude";

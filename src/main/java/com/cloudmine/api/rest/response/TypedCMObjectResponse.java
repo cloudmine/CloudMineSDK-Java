@@ -19,30 +19,36 @@ import java.util.Map;
  *  {@link CMObject}s returned by the request
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
+public class TypedCMObjectResponse<CMO extends CMObject> extends SuccessErrorResponse<ObjectLoadCode> {
     private static final Logger LOG = LoggerFactory.getLogger(TypedCMObjectResponse.class);
     public static final String COUNT_KEY = "count";
     public static final int NO_COUNT = -1;
-    public static ResponseConstructor<CMObjectResponse> CONSTRUCTOR = new ResponseConstructor<CMObjectResponse>() {
-        @Override
-        public CMObjectResponse construct(HttpResponse response) throws CreationException {
-            return new CMObjectResponse(response);
-        }
-    };
-    private final Map<String, ? extends CMObject> objectMap;
 
+    private final Map<String, CMO> objectMap;
+
+    public static <CMO extends CMObject> ResponseConstructor<TypedCMObjectResponse<CMO>> constructor(final Class<CMO> klass) {
+        return new ResponseConstructor<TypedCMObjectResponse<CMO>>() {
+            @Override
+            public TypedCMObjectResponse<CMO> construct(HttpResponse response) throws CreationException {
+                return new TypedCMObjectResponse<CMO>(response, klass);
+            }
+        };
+    }
 
     /**
      * Instantiate a new CMObjectResponse. You probably should not be calling this yourself.
      * @param response a response to an object fetch request
      */
-    public CMObjectResponse(HttpResponse response) {
+    public TypedCMObjectResponse(HttpResponse response, Class<CMO> klass) {
         super(response);
         if(hasSuccess()) {
             String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
-            Map<String, ? extends CMObject> tempMap;
+            Map<String, CMO> tempMap;
             try {
-                tempMap = JsonUtilities.jsonToClassMap(success);
+//                if(klass == null || CMObject.class.equals(klass))
+//                    tempMap = JsonUtilities.jsonToClassMap(success);
+//                else
+                    tempMap = JsonUtilities.<CMO>jsonToCMObjectMap(success, klass);
             }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
@@ -58,13 +64,17 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      * @param response
      * @param code
      */
-    public CMObjectResponse(String response, int code) {
+    public TypedCMObjectResponse(String response, int code, Class<CMO> klass) {
         super(response, code); //TODO this is copy pasta code from above :( thats bad
+
         if(hasSuccess()) {
             String success = JsonUtilities.jsonMapToKeyMap(getMessageBody()).get(SUCCESS);
-            Map<String, ? extends CMObject> tempMap;
+            Map<String, CMO> tempMap;
             try {
-                tempMap = JsonUtilities.jsonToClassMap(success);
+//                if(klass == null || CMObject.class.equals(klass))
+//                    tempMap = JsonUtilities.jsonToClassMap(success);
+//                else
+                tempMap = JsonUtilities.<CMO>jsonToCMObjectMap(success, klass);
             }catch(ConversionException jce) {
                 tempMap = Collections.emptyMap();
                 LOG.error("Trouble converting: " + success + ", using empty map");
@@ -84,18 +94,8 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
      * Returns a List of all the CMObjects fetched by the request
      * @return a List of all the CMObjects fetched by the request
      */
-    public List<CMObject> getObjects() {
-        return new ArrayList<CMObject>(objectMap.values());
-    }
-
-    public <CMO extends CMObject> List<CMO> getObjects(Class<CMO> klass) {
-        List<CMO> toReturn = new ArrayList<CMO>();
-        for(CMObject object : getObjects()) {
-            if(klass.isAssignableFrom(object.getClass())) {
-                toReturn.add((CMO)object);
-            }
-        }
-        return toReturn;
+    public List<CMO> getObjects() {
+        return new ArrayList<CMO>(objectMap.values());
     }
 
     /**

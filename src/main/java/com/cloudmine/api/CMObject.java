@@ -120,7 +120,7 @@ public class CMObject implements Transportable, Savable {
      * @throws ConversionException if this object cannot be converted to transportable
      */
     public String asKeyedObject() throws ConversionException {
-        return null; //TODO this shouldn't return null I'm thinking
+        return JsonUtilities.unwrap(transportableRepresentation());
     }
 
     @JsonIgnore

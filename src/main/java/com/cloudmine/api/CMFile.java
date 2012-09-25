@@ -28,10 +28,6 @@ import java.util.Arrays;
 public class CMFile implements Transportable, Savable {
 
 
-    public static CMFile CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
-        return new CMFile(contents, fileName, contentType);
-    }
-
     /**
      * Check whether the file is null and has any contents
      * @param file the file to check
@@ -42,11 +38,12 @@ public class CMFile implements Transportable, Savable {
                 (file.getFileContents().length == 1 && file.getFileContents()[0] == 32);
     }
 
+    public static final String TYPE_VALUE = "file";
     public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     public static final String IMAGE_PNG_CONTENT_TYPE = "image/png";
     private static final Logger LOG = LoggerFactory.getLogger(CMFile.class);
 
-    private final String fileName;
+    private final String fileId;
     private final String contentType;
     private final byte[] fileContents;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
@@ -54,17 +51,17 @@ public class CMFile implements Transportable, Savable {
     /**
      * Instantiate a new CMFile with the given contents, name, and type
      * @param fileContents the contents of the file
-     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
+     * @param fileId the name of the file; used to retrieve a stored file. If null, a unique name is generated
      * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
      * @throws CreationException If given null fileContents
      */
-    public CMFile(byte[] fileContents, String fileName, String contentType) throws CreationException {
+    public CMFile(byte[] fileContents, String fileId, String contentType) throws CreationException {
         if(fileContents == null) {
             throw new CreationException(new NullPointerException("Cannot create a new file with null contents"));
         }
-        this.fileName = fileName == null ?
+        this.fileId = fileId == null ?
                 CMObject.generateUniqueObjectId() :
-                fileName;
+                fileId;
         this.contentType = contentType == null ?
                 DEFAULT_CONTENT_TYPE :
                 contentType;
@@ -87,29 +84,29 @@ public class CMFile implements Transportable, Savable {
      * @throws CreationException If given null contents or unable to read in contents
      */
     public CMFile(InputStream contents, String contentType) throws CreationException {
-        this(contents, contentType, null);
+        this(contents, null, contentType);
     }
 
     /**
      * Instantiate a new CMFile, using the entity contents of the HttpResponse. The file will have the
-     * given fileName
+     * given fileId
      * @param response received in response to a loadFile request
-     * @param fileName the name of the file. If null a unique name will be generated
+     * @param fileId the name of the file. If null a unique name will be generated
      * @throws CreationException if unable to read in the entity contents
      */
-    public CMFile(HttpResponse response, String fileName) throws CreationException {
-        this(extractInputStream(response), fileName, extractContentType(response));
+    public CMFile(HttpResponse response, String fileId) throws CreationException {
+        this(extractInputStream(response), fileId, extractContentType(response));
     }
 
     /**
      * Instantiate a new CMFile with the given contents, name, and type
      * @param contents the contents of the file
-     * @param fileName the name of the file; used to retrieve a stored file. If null, a unique name is generated
+     * @param fileId the name of the file; used to retrieve a stored file. If null, a unique name is generated
      * @param contentType the MIME type. If null, {@link #DEFAULT_CONTENT_TYPE} is used
      * @throws CreationException If unable to read in the content stream
      */
-    public CMFile(InputStream contents, String fileName, String contentType) throws CreationException {
-        this(inputStreamToByteArray(contents), fileName, contentType);
+    public CMFile(InputStream contents, String fileId, String contentType) throws CreationException {
+        this(inputStreamToByteArray(contents), fileId, contentType);
 
     }
 
@@ -163,6 +160,10 @@ public class CMFile implements Transportable, Savable {
     }
 
     @Override
+    /**
+     * Save this File
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.FileCreationResponseCallback}
+     */
     public void save(Callback callback) throws CreationException, ConversionException {
         store().saveFile(this, callback);
     }
@@ -176,10 +177,10 @@ public class CMFile implements Transportable, Savable {
     public void delete(Callback callback) {
         switch(getSaveLevel()) {
             case APPLICATION:
-                store().deleteApplicationFile(getFileName(), callback);
+                store().deleteApplicationFile(getFileId(), callback);
                 break;
             case USER:
-                store().deleteUserFile(getFileName(), callback);
+                store().deleteUserFile(getFileId(), callback);
                 break;
         }
     }
@@ -213,13 +214,13 @@ public class CMFile implements Transportable, Savable {
      * The name of the file
      * @return the name of the file
      */
-    public String getFileName() {
-        return fileName;
+    public String getFileId() {
+        return fileId;
     }
 
     @Override
     public String getObjectId() {
-        return getFileName();
+        return getFileId();
     }
 
 
@@ -263,7 +264,7 @@ public class CMFile implements Transportable, Savable {
     public int hashCode() {
         int hash = 1;
         hash = hash * 31 + contentType.hashCode();
-        hash = hash * 31 + fileName.hashCode();
+        hash = hash * 31 + fileId.hashCode();
         hash = hash * 31 + Arrays.hashCode(fileContents);
         return hash;
     }
@@ -273,7 +274,7 @@ public class CMFile implements Transportable, Savable {
         if(other instanceof CMFile) {
             CMFile otherFile = (CMFile)other;
             return otherFile.getMimeType().equals(getMimeType()) &&
-                    otherFile.getFileName().equals(getFileName()) &&
+                    otherFile.getFileId().equals(getFileId()) &&
                     Arrays.equals(otherFile.getFileContents(), getFileContents());
         }
         return false;
@@ -282,7 +283,7 @@ public class CMFile implements Transportable, Savable {
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append("Key: ").append(fileName).append(" Content-Type: ").append(contentType).append(" contents: ");
+        string.append("Key: ").append(fileId).append(" Content-Type: ").append(contentType).append(" contents: ");
         for(int i = 0; i < fileContents.length; i++) {
             string.append(fileContents[i]);
         }
@@ -293,7 +294,7 @@ public class CMFile implements Transportable, Savable {
     public String transportableRepresentation() throws ConversionException {
         return
              JsonUtilities.jsonCollection(
-                JsonUtilities.createJsonProperty("key", fileName),
+                JsonUtilities.createJsonProperty("key", fileId),
                 JsonUtilities.createJsonProperty("content_type", contentType),
                 JsonUtilities.createJsonProperty(JsonUtilities.TYPE_KEY, CMType.FILE.transportableRepresentation())).transportableRepresentation();
 

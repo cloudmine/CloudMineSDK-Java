@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.callbacks.Callback;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -42,7 +43,7 @@ public class ResponseTimeDataStore {
         Set<Map.Entry<String, Long>> contents = responseMap.entrySet();
         for(Map.Entry<String, Long> entry : contents) {
             responseBuilder.append(separator).append(entry.getKey()).append(KEY_VALUE_SEPERATOR).append(entry.getValue());
-            if(separator.isEmpty())
+            if(Strings.isEmpty(separator))
                 separator = ENTRY_SEPARATOR;
         }
         responseMap.clear(); //we could lose a response if it is added between these two operations, however these headers are not critical so that is alright

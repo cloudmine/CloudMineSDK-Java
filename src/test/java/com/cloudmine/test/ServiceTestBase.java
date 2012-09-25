@@ -116,7 +116,7 @@ public class ServiceTestBase {
     }
 
     public CMUser user() {
-        return user;
+        return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
     }
 
     public SimpleCMObject simpleUserObject() {
@@ -134,7 +134,8 @@ public class ServiceTestBase {
     }
 
 
-    public InputStream getObjectInputStream() throws IOException {
+    public InputStream getObjectInputStream() {
+        try {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ObjectOutputStream objectOutput = new ObjectOutputStream(output);
         objectOutput.write(55);
@@ -143,5 +144,8 @@ public class ServiceTestBase {
         objectOutput.close();
 
         return new ByteArrayInputStream(output.toByteArray());
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

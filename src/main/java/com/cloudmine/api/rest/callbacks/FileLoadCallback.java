@@ -7,7 +7,7 @@ import com.cloudmine.api.rest.response.FileLoadResponse;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class FileLoadCallback  extends CMCallback<FileLoadResponse> {
-    public FileLoadCallback(String fileName) {
-        super(FileLoadResponse.constructor(fileName));
+    public FileLoadCallback(String fileId) {
+        super(FileLoadResponse.constructor(fileId));
     }
 }

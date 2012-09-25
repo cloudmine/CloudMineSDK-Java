@@ -490,7 +490,7 @@ public class SimpleCMObject extends CMObject {
      * @throws NullPointerException if given a null or empty objectId
      */
     public SimpleCMObject add(CMObject value) throws NullPointerException{
-        if(value.getObjectId() == null || value.getObjectId().isEmpty()) {
+        if(Strings.isEmpty(value.getObjectId())) {
             throw new NullPointerException("Cannot use a null or empty objectId as the key");
         }
         add(value.getObjectId(), value);
