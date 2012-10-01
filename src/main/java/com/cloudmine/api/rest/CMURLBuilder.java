@@ -69,7 +69,6 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     protected CMURLBuilder(String baseUrl, String actions, String queryParams) {
         super(baseUrl, actions, queryParams);
-
     }
 
     protected CMURLBuilder newBuilder(String baseUrl, String actions, String queryParams) {

@@ -10,10 +10,7 @@ import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.Assert.*;
 
@@ -281,6 +278,15 @@ public class JsonUtilitiesTest {
         String profileUpdateJson = "{\"address\":\"here\"}";
         JsonUtilities.mergeJsonUpdates(user, profileUpdateJson);
         assertEquals("here", user.getAddress());
+    }
+
+    @Test
+    public void testConvertCMSocialResponse() {
+        String facebookSelf = "[{\"idr\":\"contact:24408595@facebook/self#24408595\",\"id\":\"a88b18159c612d04a1087875da8fd891_8e1dfae40\",\"data\":{\"birthday\":\"02/08/1987\",\"currency\":{\"user_currency\":\"USD\",\"currency_exchange\":10,\"currency_exchange_inverse\":0.1,\"currency_offset\":100},\"devices\":[{\"os\":\"Android\"}],\"education\":[{\"school\":{\"id\":\"110916468935758\",\"name\":\"RIT\"},\"type\":\"College\"}],\"email\":\"john@kittenpile.com\",\"first_name\":\"John\",\"gender\":\"male\",\"id\":\"24408595\",\"installed\":true,\"interested_in\":[\"female\",\"male\"],\"last_name\":\"McCarthy\",\"link\":\"http://www.facebook.com/John.H.McCarthy\",\"locale\":\"en_GB\",\"location\":{\"id\":\"101881036520836\",\"name\":\"Philadelphia, Pennsylvania\"},\"name\":\"John McCarthy\",\"political\":\"Other\",\"relationship_status\":\"Single\",\"third_party_id\":\"b22BFx7cViX5ijgvLXuNy_RUmUc\",\"timezone\":-4,\"updated_time\":1342987702,\"username\":\"John.H.McCarthy\",\"verified\":true,\"video_upload_limits\":{\"length\":1200,\"size\":1073741824},\"work\":[{\"employer\":{\"id\":\"102733686471970\",\"name\":\"CloudMine\"},\"location\":{\"id\":\"101881036520836\",\"name\":\"Philadelphia, Pennsylvania\"},\"position\":{\"id\":\"109542932398298\",\"name\":\"Software Engineer\"},\"start_date\":\"0000-00\"},{\"employer\":{\"id\":\"113897213765\",\"name\":\"Oracle\"},\"location\":{\"id\":\"105800286119974\",\"name\":\"Bala Cynwyd, Pennsylvania\"},\"position\":{\"id\":\"146072335419647\",\"name\":\"Application Engineer\"},\"start_date\":\"2010-07\",\"end_date\":\"2012-05\"}],\"picture\":\"http://profile-b.xx.fbcdn.net/hprofile-snc7/372365_24408595_519317596_q.jpg\"},\"at\":1342987702000,\"types\":{}}]";
+        List<SimpleCMObject> asSimple = JsonUtilities.socialJsonToSimpleCMObject(facebookSelf);
+        assertEquals(1, asSimple.size());
+        SimpleCMObject profileData = asSimple.get(0);
+        assertEquals("John McCarthy", profileData.getSimpleCMObject("data").get("name"));
     }
 
     public static Map<String, Object> createComplexObjectMap() {

@@ -297,6 +297,22 @@ public class JsonUtilities {
         }
     }
 
+    public static List<SimpleCMObject> socialJsonToSimpleCMObject(String json) throws ConversionException{
+        List<SimpleCMObject> socialObjects = new ArrayList<SimpleCMObject>();
+        try {
+
+            for(Object entry : jsonMapper.readValue(json, ArrayList.class)) {
+                if(entry instanceof Map) {
+                    socialObjects.add(new SimpleCMObject((Map<String, Object>) entry, false));
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+            throw new ConversionException(e);
+        }
+        return socialObjects;
+    }
+
     public static CMObject jsonToClass(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
