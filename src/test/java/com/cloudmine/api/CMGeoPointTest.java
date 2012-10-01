@@ -35,6 +35,16 @@ public class CMGeoPointTest {
     }
 
     @Test
+    public void testLngKey() {
+        CMGeoPoint point = new CMGeoPoint(new TransportableString("{\"location\": {\n" +
+                "            \"__type__\": \"geopoint\",\n" +
+                "            \"lng\": 45.5,\n" +
+                "            \"lat\": -70.2\n" +
+                "        }}"));
+        assertEquals(45.5, point.getLongitude());
+    }
+
+    @Test
     public void testSubObject() {
         ClassNameRegistry.register("CMGeoPoint", CMGeoPoint.class);
         GeoCMObject object = JsonUtilities.jsonToClass("{\"geoPoint\":{\"__type__\":\"geopoint\",\"longitude\":55.0,\"latitude\":55.0,\"__class__\":\"CMGeoPoint\"},\"__id__\":\"4bac92ba-6f40-4b9f-8785-c0cf1adc152e\",\"__access__\":[],\"__class__\":\"com.cloudmine.test.GeoCMObject\"}", GeoCMObject.class);
