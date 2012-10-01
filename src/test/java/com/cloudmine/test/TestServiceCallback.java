@@ -25,6 +25,10 @@ public class TestServiceCallback<T> extends CMCallback<T> {
         this.callback = callback;
     }
 
+    public CMCallback getCallback() {
+        return callback;
+    }
+
     @Override
     public void onCompletion(T response) {
         try {
@@ -42,10 +46,11 @@ public class TestServiceCallback<T> extends CMCallback<T> {
 
     @Override
     public void onFailure(Throwable thrown, String message) {
+        AsyncTestResultsCoordinator.add(thrown);
         try {
             callback.onFailure(thrown, message);
         } catch(AssertionError t) {
-            AsyncTestResultsCoordinator.add(t);
+
         }finally {
             AsyncTestResultsCoordinator.done();
         }

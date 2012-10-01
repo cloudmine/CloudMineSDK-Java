@@ -3,17 +3,12 @@ package com.cloudmine.api.integration;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
-import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
-import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
-import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
-import com.cloudmine.api.rest.response.CMObjectResponse;
-import com.cloudmine.api.rest.response.CreationResponse;
-import com.cloudmine.api.rest.response.LoginResponse;
+import com.cloudmine.api.rest.callbacks.*;
+import com.cloudmine.api.rest.response.*;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
 import com.cloudmine.test.TestServiceCallback;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -58,9 +53,35 @@ public class CMUserIntegrationTest extends ServiceTestBase {
     }
 
     @Test
-    @Ignore //TODO we need to be able to delete users for this to work!
+    public void testChangePassword() {
+        CMUser user = new CMUser(randomEmail(), "test");
+        user.createUser(testCallback());
+        waitThenAssertTestResults();
+        user.changePassword("12345", testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+        assertEquals("12345", user.getPassword());
+        user.login(testCallback(new LoginResponseCallback() {
+            public void onCompletion(LoginResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+
+        user.changePassword("12345", "test", testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
     public void testCreateUser() {
-        final CMUser user = new CMUser("user45435345x345f3@user.com", "w");
+        final CMUser user = new CMUser(randomEmail(), "w");
 
         user.createUser(TestServiceCallback.testCallback(new CreationResponseCallback() {
             @Override

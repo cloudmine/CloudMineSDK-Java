@@ -4,7 +4,7 @@ import com.cloudmine.api.rest.response.code.FileCreationCode;
 import org.apache.http.HttpResponse;
 
 /**
- * Returned by the CloudMine service in response to file creation requests. Contains the fileName
+ * Returned by the CloudMine service in response to file creation requests. Contains the fileId
  * for the created file
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
@@ -34,7 +34,7 @@ public class FileCreationResponse extends ResponseBase<FileCreationCode> {
      * Get the name for the file. May be null if the create request failed
      * @return The name for the file. May be null if the create request failed
      */
-    public String getFileName() {
+    public String getfileId() {
         Object key = getObject("key");
         if(key == null) {
             return null;

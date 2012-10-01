@@ -1,8 +1,6 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMObject;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.persistance.CMJacksonModule;
 import com.cloudmine.api.persistance.CMUserConstructorMixIn;
@@ -17,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 /**
  * Simplify working with JSON by putting all the utility methods in one place. Mostly focused on converting
  * objects to and from JSON
@@ -236,7 +232,7 @@ public class JsonUtilities {
      * @return valid JSON that represents the passed in objects as a collection of JSON
      * @throws ConversionException if unable to convert this CMObject to json
      */
-    public static String objectsToJson(CMObject... objects) throws ConversionException {
+    public static String cmobjectsToJson(CMObject... objects) throws ConversionException {
         if(objects == null) {
             LOG.debug("Received null objects, returning empty json");
             return EMPTY_JSON;
@@ -296,7 +292,7 @@ public class JsonUtilities {
             CMO object = jsonMapper.readValue(json, klass);
             return object;
         }catch (IOException e) {
-            LOG.error("Trouble reading json", e);
+            LOG.error("Trouble reading json: \n" + json, e);
             throw new ConversionException("JSON: " + json, e);
         }
     }
@@ -304,10 +300,21 @@ public class JsonUtilities {
     public static CMObject jsonToClass(String json) throws ConversionException {
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
-        if(klassString == null ||
-                ClassNameRegistry.isRegistered(klassString.toString()) == false) {
+        CMType type = CMType.getTypeById(Strings.asString(jsonMap.get(TYPE_KEY)));
+
+        boolean isTyped = type != null &&
+                                !CMType.NONE.equals(type) &&
+                                klassString == null; //if we have a class string, use that instead of the specified type
+        if(isTyped) {
+            return jsonToClass(json, type.getTypeClass());
+        }
+
+        boolean isUnknownClass = klassString == null ||
+                ClassNameRegistry.isRegistered(klassString.toString()) == false;
+        if(isUnknownClass) {
             return new SimpleCMObject(new TransportableString(json));
         }
+
         Class<? extends CMObject> klass = ClassNameRegistry.forName(klassString.toString());
         return jsonToClass(json, klass);
     }
@@ -358,9 +365,22 @@ public class JsonUtilities {
 
     public static Map<String, CMObject> jsonToClassMap(String json) {
         Map<String, String> simpleMap = jsonMapToKeyMap(json);
-        Map<String, CMObject> objectMap = new HashMap<String, CMObject>();
+        Map<String, CMObject> objectMap = new LinkedHashMap<String, CMObject>();
         for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
-            objectMap.put(entry.getKey(), jsonToClass(entry.getValue()));
+            String objectId = entry.getKey();
+            CMObject cmObject = jsonToClass(entry.getValue());
+            cmObject.setObjectId(objectId);
+            objectMap.put(objectId, cmObject);
+        }
+        return objectMap;
+    }
+
+    public static <CMO extends CMObject> Map<String, CMO> jsonToCMObjectMap(String json, Class<CMO> klass) {
+
+        Map<String, String> simpleMap = jsonMapToKeyMap(json);
+        Map<String, CMO> objectMap = new LinkedHashMap<String, CMO>();
+        for(Map.Entry<String, String> entry : simpleMap.entrySet()) {
+            objectMap.put(entry.getKey(), jsonToClass(entry.getValue(), klass));
         }
         return objectMap;
     }
@@ -376,7 +396,7 @@ public class JsonUtilities {
             int open = 0;
             boolean inString = false;
             boolean escapeNext = false;
-            Map<String, String> jsonMap = new HashMap<String, String>();
+            Map<String, String> jsonMap = new LinkedHashMap<String, String>();
             StringBuilder keyBuilder = new StringBuilder();
             StringBuilder contentsBuilder = new StringBuilder();
 

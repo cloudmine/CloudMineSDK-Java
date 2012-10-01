@@ -10,11 +10,11 @@ import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.test.ServiceTestBase;
-import com.cloudmine.test.TestServiceCallback;
 import junit.framework.Assert;
 import org.junit.Test;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
+import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.*;
 
 /**
@@ -29,11 +29,11 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
     public void testDefaultSave() {
         final SimpleCMObject object = new SimpleCMObject();
         object.add("string", "value");
-        object.save(TestServiceCallback.testCallback(new ObjectModificationResponseCallback() {
+        object.save(testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 CMObjectResponse loadResponse = CMWebService.getService().loadObject(object.getObjectId());
                 Assert.assertTrue(loadResponse.wasSuccess());
-                SimpleCMObject loadedObject = (SimpleCMObject)loadResponse.getCMObject(object.getObjectId());
+                SimpleCMObject loadedObject = (SimpleCMObject) loadResponse.getCMObject(object.getObjectId());
                 assertEquals(object, loadedObject);
             }
         }));
@@ -55,10 +55,10 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
         object.add("bool", true);
         final CMUser user = user();
         object.setSaveWith(user);
-        object.save(TestServiceCallback.testCallback(new ObjectModificationResponseCallback() {
+        object.save(testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
                 CMObjectResponse loadedObjectResponse = service.loadObject(object.getObjectId());
-                SimpleCMObject loadedObject = (SimpleCMObject)loadedObjectResponse.getCMObject(object.getObjectId());
+                SimpleCMObject loadedObject = (SimpleCMObject) loadedObjectResponse.getCMObject(object.getObjectId());
 
                 Assert.assertNull(loadedObject);
             }
@@ -82,6 +82,4 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
             //expected
         }
     }
-
-
 }

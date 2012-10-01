@@ -183,7 +183,7 @@ public class JsonUtilitiesTest {
         simpleObject.add("number", number);
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
         simpleObject.setClass(convertableObject.getClassName());
-        String json = JsonUtilities.objectsToJson(convertableObject);
+        String json = JsonUtilities.cmobjectsToJson(convertableObject);
         assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.transportableRepresentation()));
 
         Map<String, ExtendedCMObject> map = JsonUtilities.jsonToClassMap(json, ExtendedCMObject.class);
