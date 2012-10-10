@@ -94,11 +94,12 @@ public abstract class ResponseBase<CODE> implements Transportable {
                 noJson) {
             LOG.info("Received null, error, or none json response");
         }
-            try {
+        try {
+            if(!noJson)
                 responseMap = JsonUtilities.jsonToMap(json);
-            } catch (ConversionException e) {
-                LOG.error("Failed converting response content to json", e);
-            }
+        } catch (ConversionException e) {
+            LOG.error("Failed converting response content to json", e);
+        }
 
         return responseMap == null ?
                 new HashMap<String, Object>() :

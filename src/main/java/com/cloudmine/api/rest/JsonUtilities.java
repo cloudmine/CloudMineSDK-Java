@@ -314,6 +314,9 @@ public class JsonUtilities {
     }
 
     public static CMObject jsonToClass(String json) throws ConversionException {
+        if(Strings.isEmpty(json)) {
+            throw new ConversionException("Can't convert an empty or null json string");
+        }
         Map<String, Object> jsonMap = jsonToMap(json); //this is a slow but easy way to get the klass name, might have to be replaced in the future
         Object klassString = jsonMap.get(CLASS_KEY);
         CMType type = CMType.getTypeById(Strings.asString(jsonMap.get(TYPE_KEY)));
@@ -401,9 +404,15 @@ public class JsonUtilities {
         return objectMap;
     }
 
+    /**
+     * This method only works
+     * @param json
+     * @return
+     */
     public static Map<String, String> jsonMapToKeyMap(String json) {
         //TODO this method is big and kinda gross
-        if(json == null) {
+        //TODO Also its kind of broken on input that has top level keys to none json objects
+        if(Strings.isEmpty(json)) {
             return new HashMap<String, String>();
         }
         try {

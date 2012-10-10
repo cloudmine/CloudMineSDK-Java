@@ -260,6 +260,7 @@ public class JsonUtilitiesTest {
                 "}";
         conversion = JsonUtilities.jsonMapToKeyMap(json);
         assertTrue(JsonUtilities.isJsonEquivalent(escapedStringObjectJson, conversion.get("aKey")));
+
     }
 
     @Test

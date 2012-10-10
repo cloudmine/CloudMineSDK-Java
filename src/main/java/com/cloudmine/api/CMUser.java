@@ -1,8 +1,9 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NotLoggedInException;
+import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * A CMUser consists of an email and a password. When logged in, objects can be specified to be saved
@@ -87,7 +88,8 @@ public class CMUser extends CMObject {
     private String email;
     private String password;
     private CMSessionToken sessionToken;
-
+    private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
+//    public List<String> __services__ = new ArrayList<String>();
     protected CMUser() {
         this(MISSING_VALUE, MISSING_VALUE);
     }
@@ -156,6 +158,20 @@ public class CMUser extends CMObject {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setSessionToken(CMSessionToken token) {
+        this.sessionToken = token;
+    }
+
+    @JsonProperty("__services__")
+    public void setAuthenticatedServices(Set<CMSocial.Service> services) {
+        authenticatedServices = services;
+    }
+
+    @JsonProperty("__services__")
+    public Set<CMSocial.Service> getAuthenticatedServices() {
+        return EnumSet.copyOf(authenticatedServices);
     }
 
     @JsonIgnore
@@ -548,6 +564,8 @@ public class CMUser extends CMObject {
 
         CMUser cmUser = (CMUser) o;
 
+        if (authenticatedServices != null ? !authenticatedServices.equals(cmUser.authenticatedServices) : cmUser.authenticatedServices != null)
+            return false;
         if (email != null ? !email.equals(cmUser.email) : cmUser.email != null) return false;
         if (password != null ? !password.equals(cmUser.password) : cmUser.password != null) return false;
         if (sessionToken != null ? !sessionToken.equals(cmUser.sessionToken) : cmUser.sessionToken != null)
@@ -561,6 +579,7 @@ public class CMUser extends CMObject {
         int result = email != null ? email.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        result = 31 * result + (authenticatedServices != null ? authenticatedServices.hashCode() : 0);
         return result;
     }
 }

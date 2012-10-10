@@ -12,10 +12,15 @@ import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
 import org.junit.Before;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
 import java.util.UUID;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
+import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -84,7 +89,7 @@ public class ServiceTestBase {
         reset();
 
         user().setPassword(USER_PASSWORD);
-        deleteAll();
+//        deleteAll();
 //        deleteAllUsers();
     }
 
@@ -99,13 +104,25 @@ public class ServiceTestBase {
         service.asyncLoadAllUserProfiles(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 response.wasSuccess();
-                for(CMObject object : response.getObjects()) {
+                List<CMObject> objects = response.getObjects();
+                reset(objects.size());
+                for(CMObject object : objects) {
                     if(object.hasObjectId()) {
-                        service.asyncDeleteUser(object.getObjectId());
+                        System.out.println("Deleting: " + object.getObjectId());
+//                        reset();
+                        service.asyncDeleteUser(object.getObjectId(), testCallback());
+//                        waitForTestResults();
                     }
                 }
+                waitForTestResults(500000);
             }
         });
+    }
+
+    public static void main(String... args) {
+        ServiceTestBase serviceTestBase = new ServiceTestBase();
+        serviceTestBase.setUp();
+        serviceTestBase.deleteAllUsers();
     }
 
     public CMUser user() {

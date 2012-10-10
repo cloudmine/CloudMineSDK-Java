@@ -4,6 +4,7 @@ import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMSocialResponse;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.http.client.methods.HttpGet;
 
 import java.util.*;
@@ -31,12 +32,17 @@ public class CMSocial {
     }
 
     public enum Service implements BaseURL {
-        TWITTER("twitter", Action.SELF, Action.FRIENDS, Action.MENTIONS, Action.TIMELINE, Action.TWEETS, Action.RELATED), FACEBOOK("facebook", Action.SELF, Action.FEED, Action.FRIENDS, Action.HOME, Action.HOME_UPDATE, Action.PHOTOS);
+        TWITTER("twitter", Action.SELF, Action.FRIENDS, Action.MENTIONS, Action.TIMELINE, Action.TWEETS, Action.RELATED), FACEBOOK("facebook", Action.SELF, Action.FEED, Action.FRIENDS, Action.HOME, Action.HOME_UPDATE, Action.PHOTOS), GITHUB("github");
         private final String representation;
         private final Set<Action> actions;
         private Service(String representation, Action... actions) {
             this.representation = representation;
-            this.actions = EnumSet.copyOf(Arrays.asList(actions));
+            this.actions = new HashSet<Action>(Arrays.asList(actions));
+        }
+
+        @JsonCreator
+        public static Service forValue(String stringRepresentation) {
+            return Service.valueOf(stringRepresentation.toUpperCase());
         }
 
         public Set<Action> getActions() {
