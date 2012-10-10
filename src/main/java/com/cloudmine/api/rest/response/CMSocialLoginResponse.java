@@ -2,7 +2,9 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
+import org.apache.http.HttpResponse;
 
 import java.util.Map;
 
@@ -12,9 +14,19 @@ import java.util.Map;
  * See LICENSE file included with SDK for details.
  */
 public class CMSocialLoginResponse {
+    public static final ResponseConstructor<CMSocialLoginResponse> CONSTRUCTOR = new ResponseConstructor<CMSocialLoginResponse>() {
+        @Override
+        public CMSocialLoginResponse construct(HttpResponse response) throws CreationException {
+            return new CMSocialLoginResponse(response);
+        }
+    };
 
     private final CMSessionToken token;
     private final CMUser user;
+
+    public CMSocialLoginResponse(HttpResponse response) {
+        this(ResponseBase.readMessageBody(response), ResponseBase.readStatusCode(response));
+    }
 
     public CMSocialLoginResponse(String msgBody, int responseCode) {
         token = new CMSessionToken(msgBody);
