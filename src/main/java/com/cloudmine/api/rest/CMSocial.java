@@ -32,12 +32,32 @@ public class CMSocial {
     }
 
     public enum Service implements BaseURL {
-        TWITTER("twitter", Action.SELF, Action.FRIENDS, Action.MENTIONS, Action.TIMELINE, Action.TWEETS, Action.RELATED), FACEBOOK("facebook", Action.SELF, Action.FEED, Action.FRIENDS, Action.HOME, Action.HOME_UPDATE, Action.PHOTOS), GITHUB("github");
+        TWITTER("twitter", "https://api.twitter.com", Action.SELF, Action.FRIENDS, Action.MENTIONS, Action.TIMELINE, Action.TWEETS, Action.RELATED),
+        FACEBOOK("facebook", "", Action.SELF, Action.FEED, Action.FRIENDS, Action.HOME, Action.HOME_UPDATE, Action.PHOTOS),
+        GITHUB("github", "https://github.com"),
+        FOURSQUARE("foursquare", "https://foursquare.com"),
+        FITBIT("fitbit", "http://www.fitbit.com/"),
+        INSTAGRAM("instagram", "https://instagram.com"),
+        TUMBLR("tumblr", "https://www.tumblr.com"),
+        LINKEDIN("linkedin", "https://www.linkedin.com"),
+        DROPBOX("dropbox", "https://www.dropbox.com"),
+        MEETUP("meetup", "https://secure.meetup.com"),
+        RUNKEEPER("runkeeper", "https://runkeeper.com"),
+        WITHINGS("withings", "http://auth.withings.com/"),
+        WORDPRESS("wordpress", "https://public-api.wordpress.com"),
+        YAMMER("yammer", "https://www.yammer.com"),
+        FLICKR("flickr", "https://login.yahoo.com");
         private final String representation;
+        private final String authenticationUrl;
         private final Set<Action> actions;
-        private Service(String representation, Action... actions) {
+        private Service(String representation, String authURL, Action... actions) {
             this.representation = representation;
             this.actions = new HashSet<Action>(Arrays.asList(actions));
+            this.authenticationUrl = authURL;
+        }
+
+        public String getAuthenticationUrl() {
+            return authenticationUrl;
         }
 
         @JsonCreator

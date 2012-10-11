@@ -171,6 +171,8 @@ public class CMUser extends CMObject {
 
     @JsonProperty("__services__")
     public Set<CMSocial.Service> getAuthenticatedServices() {
+        if(authenticatedServices.isEmpty())
+            return EnumSet.noneOf(CMSocial.Service.class);
         return EnumSet.copyOf(authenticatedServices);
     }
 
