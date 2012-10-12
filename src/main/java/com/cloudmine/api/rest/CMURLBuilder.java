@@ -39,6 +39,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
     public static final String APP = "/app";
 
 
@@ -229,6 +230,37 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder login() {
         return this.addAction("login");
+    }
+
+    public CMURLBuilder social() {
+        return this.addAction("social");
+    }
+
+    public CMURLBuilder status() {
+        return this.addAction("status");
+    }
+
+    public CMURLBuilder token(String token) {
+        return this.addAction(token);
+    }
+
+    public CMURLBuilder service(CMSocial.Service service) {
+        return this.addQuery("service", service.asUrlString());
+    }
+
+    public CMURLBuilder apikey() {
+        return this.addQuery("apikey", CMApiCredentials.getApplicationApiKey());
+    }
+
+    public CMURLBuilder sessionToken(String sessionToken) {
+        if(Strings.isEmpty(sessionToken)) {
+            return this;
+        }
+        return this.addQuery("existing_user", sessionToken);
+    }
+
+    public CMURLBuilder challenge(String challenge) {
+        return this.addQuery("challenge", challenge);
     }
 
     public CMURLBuilder logout() {

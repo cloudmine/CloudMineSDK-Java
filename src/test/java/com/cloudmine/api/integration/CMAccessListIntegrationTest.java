@@ -29,7 +29,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
     @Test
     public void testStoreAccessList() {
         final CMUser anotherUser = randomUser();
-        anotherUser.save(hasSuccess);
+        anotherUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
         final CMUser user = user();
