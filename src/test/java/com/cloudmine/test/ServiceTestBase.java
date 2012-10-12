@@ -89,7 +89,7 @@ public class ServiceTestBase {
         reset();
 
         user().setPassword(USER_PASSWORD);
-//        deleteAll();
+        deleteAll();
 //        deleteAllUsers();
     }
 

@@ -56,7 +56,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
-
+        System.out.println("AO: " + anObject.transportableRepresentation());
         anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
         waitThenAssertTestResults();
 
