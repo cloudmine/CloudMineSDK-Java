@@ -29,6 +29,7 @@ public class CMSocialLoginResponse {
     }
 
     public CMSocialLoginResponse(String msgBody, int responseCode) {
+        System.out.println("MB: " + msgBody);
         token = new CMSessionToken(msgBody);
         Object profileObject = JsonUtilities.jsonToMap(msgBody).get(CMUser.PROFILE_KEY);
         if(!(profileObject instanceof Map)) {

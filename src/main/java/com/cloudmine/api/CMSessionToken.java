@@ -35,7 +35,8 @@ public class CMSessionToken implements Transportable {
     private final Date expires;
 
     /**
-     * Instantiates a new CMSessionToken based on a transportable string returned from a login request
+     * Instantiates a new CMSessionToken based on a transportable string returned from a login request. If given
+     * an invalid transport string, the CMSessionToken may be equal to FAILED
      * @param transportString A transport string returned from a login request
      * @return a new CMSessionToken
      * @throws ConversionException if invalid transport representation is passed in
@@ -50,25 +51,31 @@ public class CMSessionToken implements Transportable {
             boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
                     !objectMap.containsKey(EXPIRES_KEY);
             if(isMissingKey) {
-                throw new ConversionException("Can't create CMSessionToken from transportString missing field");
-            }
-            sessionToken = objectMap.get(SESSION_KEY).toString();
-            Object dateObject = objectMap.get(EXPIRES_KEY);
-            Date tempDate;
-            if(dateObject instanceof Date) {
-                tempDate = (Date) dateObject;
-            } else if(dateObject != null) {
-                String dateString = dateObject.toString();
-                try {
-                    tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
-                } catch (ParseException e) {
-                    throw new ConversionException(e);
-                }
+                sessionToken = INVALID_TOKEN;
+                expires = EXPIRED_DATE;
             } else {
-                tempDate = EXPIRED_DATE;
+                sessionToken = objectMap.get(SESSION_KEY).toString();
+                expires = getExpiresDate(objectMap);
             }
-            expires = tempDate;
         }
+    }
+
+    private Date getExpiresDate(Map<String, Object> objectMap) {
+        Object dateObject = objectMap.get(EXPIRES_KEY);
+        Date tempDate;
+        if(dateObject instanceof Date) {
+            tempDate = (Date) dateObject;
+        } else if(dateObject != null) {
+            String dateString = dateObject.toString();
+            try {
+                tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
+            } catch (ParseException e) {
+                throw new ConversionException(e);
+            }
+        } else {
+            tempDate = EXPIRED_DATE;
+        }
+        return tempDate;
     }
 
     public CMSessionToken(String sessionToken, Date expires) {
