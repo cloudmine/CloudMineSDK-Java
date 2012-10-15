@@ -1029,7 +1029,7 @@ public class CMWebService {
 
 
     private HttpGet createCompleteSocialGet(String token, String challenge) {
-        String url = baseUrl.account().social().status().token(token).challenge(challenge).asUrlString();
+        String url = baseUrl.account().social().login().status().token(token).challenge(challenge).asUrlString();
         HttpGet get = new HttpGet(url);
         addCloudMineHeader(get);
         return get;

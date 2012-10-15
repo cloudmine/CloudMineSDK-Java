@@ -121,6 +121,10 @@ public class CMSessionToken implements Transportable {
                 expires.after(new Date());
     }
 
+    public String toString() {
+        return sessionToken;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -62,7 +62,6 @@ public abstract class ResponseBase<CODE> implements Transportable {
         statusCode = readStatusCode(response);
         if(readMessageBody) {
             messageBody = readMessageBody(response);
-            System.out.println("MB: " + messageBody);
             baseMap = extractResponseMap(response, messageBody);
         } else {
             messageBody = "";
