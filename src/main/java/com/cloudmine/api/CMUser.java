@@ -89,7 +89,7 @@ public class CMUser extends CMObject {
     private String password;
     private CMSessionToken sessionToken;
     private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
-//    public List<String> __services__ = new ArrayList<String>();
+
     protected CMUser() {
         this(MISSING_VALUE, MISSING_VALUE);
     }

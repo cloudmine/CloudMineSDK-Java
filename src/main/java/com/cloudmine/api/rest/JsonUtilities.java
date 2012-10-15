@@ -297,22 +297,6 @@ public class JsonUtilities {
         }
     }
 
-    public static List<SimpleCMObject> socialJsonToSimpleCMObject(String json) throws ConversionException{
-        List<SimpleCMObject> socialObjects = new ArrayList<SimpleCMObject>();
-        try {
-
-            for(Object entry : jsonMapper.readValue(json, ArrayList.class)) {
-                if(entry instanceof Map) {
-                    socialObjects.add(new SimpleCMObject((Map<String, Object>) entry, false));
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Exception thrown", e);
-            throw new ConversionException(e);
-        }
-        return socialObjects;
-    }
-
     public static CMObject jsonToClass(String json) throws ConversionException {
         if(Strings.isEmpty(json)) {
             throw new ConversionException("Can't convert an empty or null json string");
@@ -405,7 +389,7 @@ public class JsonUtilities {
     }
 
     /**
-     * This method only works
+     * This method only works if all the values are objects, otherwise it breaks
      * @param json
      * @return
      */

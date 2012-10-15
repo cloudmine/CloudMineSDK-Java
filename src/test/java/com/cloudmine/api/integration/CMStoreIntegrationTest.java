@@ -70,7 +70,6 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testSaveUserObject() throws ExecutionException, InterruptedException {
-        System.out.println("******");
         final SimpleCMObject object = new SimpleCMObject();
         object.add("bool", true);
         final CMUser user = randomUser();
@@ -80,7 +79,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         object.setSaveWith(StoreIdentifier.StoreIdentifier(user));
         CMStore store = CMStore.CMStore();
         store.setUser(user);
-        System.out.println(object.transportableRepresentation());
+
         store.saveObject(object, testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse ignoredResponse) {
                 assertTrue(ignoredResponse.wasSuccess());

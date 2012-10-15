@@ -38,8 +38,8 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
-//    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
-    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
+    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
     public static final String APP = "/app";
 
 

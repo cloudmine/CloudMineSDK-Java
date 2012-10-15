@@ -36,7 +36,6 @@ public class CMSocialLoginResponse extends ResponseBase<CMSocialCode>{
         String profile = JsonUtilities.mapToJson((Map<String, ? extends Object>) profileObject);
         user = (CMUser)JsonUtilities.jsonToClass(profile);
         user.setSessionToken(token);
-//        this(ResponseBase.readMessageBody(response), ResponseBase.readStatusCode(response));
     }
 
     public CMSocialLoginResponse(String msgBody, int responseCode) {
@@ -61,6 +60,10 @@ public class CMSocialLoginResponse extends ResponseBase<CMSocialCode>{
         return token;
     }
 
+    /**
+     * May be null if the login did not succeed.
+     * @return the user profile for the logged in user
+     */
     public CMUser getUser() {
         return user;
     }
