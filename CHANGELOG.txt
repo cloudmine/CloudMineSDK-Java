@@ -1,3 +1,7 @@
+Release 0.3.3
+* Support social log in functionality
+* Bug fix - support GeoPoint objects that use 'lng' for longitude key
+
 Release 0.3.2
 * Remove TypedCMObjectResponse and Callback, replace with methods directly on CMObjectResponse for retrieving typed CMObjects
 * Add support for retrieving CMGeoPoints distance information in a query
