@@ -72,7 +72,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testSaveUserObject() throws ExecutionException, InterruptedException {
         final SimpleCMObject object = new SimpleCMObject();
         object.add("bool", true);
-        final CMUser user = new CMUser("dfljdsfkdfskd@t.com", "t");
+        final CMUser user = randomUser();
         CMWebService.getService().insert(user);
 
 

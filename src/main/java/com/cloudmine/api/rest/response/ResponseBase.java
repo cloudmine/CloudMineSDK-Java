@@ -28,6 +28,26 @@ public abstract class ResponseBase<CODE> implements Transportable {
     private final int statusCode;
     private final String messageBody;
 
+    public static int readStatusCode(HttpResponse response) {
+        if(response != null &&
+                response.getStatusLine() != null) {
+            return response.getStatusLine().getStatusCode();
+        } else {
+            return NO_RESPONSE_CODE;
+        }
+    }
+
+    public static String readMessageBody(HttpResponse response) {
+        InputStream jsonStream = null;
+        StringWriter writer = new StringWriter();
+        try {
+            jsonStream = response.getEntity().getContent();
+            IOUtils.copy(jsonStream, writer, JsonUtilities.ENCODING);
+        } catch (IOException e) {
+            LOG.error("Exception thrown", e);
+        }
+        return writer.toString();
+    }
 
     public static final ResponseConstructor<ResponseBase> CONSTRUCTOR = new ResponseConstructor<ResponseBase>() {
         public ResponseBase construct(HttpResponse response) {
@@ -39,23 +59,9 @@ public abstract class ResponseBase<CODE> implements Transportable {
         this(response, true);
     }
     protected ResponseBase(HttpResponse response, boolean readMessageBody)  {
-        if(response != null &&
-                response.getStatusLine() != null) {
-            statusCode = response.getStatusLine().getStatusCode();
-        } else {
-            statusCode = NO_RESPONSE_CODE;
-        }
+        statusCode = readStatusCode(response);
         if(readMessageBody) {
-            InputStream jsonStream = null;
-            StringWriter writer = new StringWriter();
-            try {
-                jsonStream = response.getEntity().getContent();
-                IOUtils.copy(jsonStream, writer, JsonUtilities.ENCODING);
-            } catch (IOException e) {
-                LOG.error("Exception thrown", e);
-            }
-            messageBody = writer.toString();
-
+            messageBody = readMessageBody(response);
             baseMap = extractResponseMap(response, messageBody);
         } else {
             messageBody = "";
@@ -94,11 +100,12 @@ public abstract class ResponseBase<CODE> implements Transportable {
                 noJson) {
             LOG.info("Received null, error, or none json response");
         }
-            try {
+        try {
+            if(!noJson)
                 responseMap = JsonUtilities.jsonToMap(json);
-            } catch (ConversionException e) {
-                LOG.error("Failed converting response content to json", e);
-            }
+        } catch (ConversionException e) {
+            LOG.error("Failed converting response content to json", e);
+        }
 
         return responseMap == null ?
                 new HashMap<String, Object>() :

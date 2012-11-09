@@ -1,9 +1,14 @@
 package com.cloudmine.api;
 
+import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.test.ExtendedCMUser;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -30,5 +35,15 @@ public class CloudMineUserTest {
                  JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMUser.class.getName()) +
                 "}";
         assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, user.profileTransportRepresentation()));
+    }
+
+    @Test
+    public void testSerializeServices() {
+        CMUser user = new CMUser();
+        user.setAuthenticatedServices(new HashSet<CMSocial.Service>(Arrays.asList(CMSocial.Service.TWITTER, CMSocial.Service.GITHUB)));
+        String json = user.transportableRepresentation();
+        CMUser deserialized = JsonUtilities.jsonToClass(json, CMUser.class);
+        assertEquals(user, deserialized);
+
     }
 }

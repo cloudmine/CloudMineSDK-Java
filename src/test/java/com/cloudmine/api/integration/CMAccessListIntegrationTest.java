@@ -29,7 +29,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
     @Test
     public void testStoreAccessList() {
         final CMUser anotherUser = randomUser();
-        anotherUser.save(hasSuccess);
+        anotherUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
         final CMUser user = user();
@@ -56,7 +56,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
-
+        System.out.println("AO: " + anObject.transportableRepresentation());
         anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
         waitThenAssertTestResults();
 

@@ -10,10 +10,7 @@ import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.Assert.*;
 
@@ -263,6 +260,7 @@ public class JsonUtilitiesTest {
                 "}";
         conversion = JsonUtilities.jsonMapToKeyMap(json);
         assertTrue(JsonUtilities.isJsonEquivalent(escapedStringObjectJson, conversion.get("aKey")));
+
     }
 
     @Test
