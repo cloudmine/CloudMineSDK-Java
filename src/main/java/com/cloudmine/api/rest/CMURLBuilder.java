@@ -40,6 +40,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
 //    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "http://localhost:3000";
     public static final String APP = "/app";
 
 
@@ -261,6 +262,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder challenge(String challenge) {
         return this.addQuery("challenge", challenge);
+    }
+
+    public CMURLBuilder statusChallenge(String challenge) {
+        return this.addAction(challenge);
     }
 
     public CMURLBuilder logout() {
