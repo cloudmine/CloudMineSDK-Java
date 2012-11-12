@@ -812,6 +812,11 @@ public class CMWebService {
         executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
+    public void asyncCompleteSocialLogin(String challenge, Callback<CMSocialLoginResponse> callback) {
+        HttpGet get = createCompleteSocialGet(challenge);
+        executeAsyncCommand(get, callback, CMSocialLoginResponse.CONSTRUCTOR);
+    }
+
     /**
      * Asynchronously log in this user
      * @param user the user to log in
@@ -1021,6 +1026,15 @@ public class CMWebService {
     }
 
     //**************************Http commands*****************************************
+
+
+    private HttpGet createCompleteSocialGet(String challenge) {
+        String url = baseUrl.account().social().login().status().statusChallenge(challenge).asUrlString();
+        HttpGet get = new HttpGet(url);
+        addCloudMineHeader(get);
+        return get;
+    }
+
     private HttpGet createSearch(String search) {
         return createSearch(search, CMRequestOptions.NONE);
     }

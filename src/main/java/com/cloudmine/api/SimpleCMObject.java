@@ -86,7 +86,8 @@ public class SimpleCMObject extends CMObject {
     public SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         this(new HashMap<String, Object>() {
             {
-                put(objectId, contents);
+                String newObjectId = objectId == null ? generateUniqueObjectId() : objectId;
+                put(newObjectId, contents);
             }
         });
     }
