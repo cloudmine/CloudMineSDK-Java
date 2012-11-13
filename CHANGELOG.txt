@@ -1,4 +1,4 @@
-Release 0.3.3
+Release 0.4
 * Support social log in functionality
 * Bug fix - support GeoPoint objects that use 'lng' for longitude key
 
