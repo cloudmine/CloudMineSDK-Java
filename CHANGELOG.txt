@@ -1,3 +1,6 @@
+Release 0.4.1
+* Update error message for missing CMApiCredentials to be more clear on what the fix is
+
 Release 0.4
 * Support social log in functionality
 * Bug fix - support GeoPoint objects that use 'lng' for longitude key
