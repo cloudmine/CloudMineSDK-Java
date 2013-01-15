@@ -31,7 +31,7 @@ public class CloudMineUserTest {
                 "\"age\":5,\n" +
                 "\"address\":\"whatever\",\n" +
                 "\"paid\":false,\n" +
-                "\"__access__\":[]," +
+                "\"__services__\":[]," +
                  JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMUser.class.getName()) +
                 "}";
         assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, user.profileTransportRepresentation()));
@@ -42,7 +42,10 @@ public class CloudMineUserTest {
         CMUser user = new CMUser();
         user.setAuthenticatedServices(new HashSet<CMSocial.Service>(Arrays.asList(CMSocial.Service.TWITTER, CMSocial.Service.GITHUB)));
         String json = user.transportableRepresentation();
+        System.out.println("Test: " + json);
         CMUser deserialized = JsonUtilities.jsonToClass(json, CMUser.class);
+        System.out.println("Test 2: " + deserialized.getAuthenticatedServices());
+
         assertEquals(user, deserialized);
 
     }
