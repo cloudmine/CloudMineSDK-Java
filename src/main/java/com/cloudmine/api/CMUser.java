@@ -554,7 +554,7 @@ public class CMUser extends CMObject {
 
     @Override
     public String toString() {
-        return getEmail() + ":" + getPassword();
+        return getEmail() + ":" + getPassword() + ":" + getAuthenticatedServices();
     }
 
     @Override
