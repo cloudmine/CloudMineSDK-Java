@@ -41,12 +41,8 @@ public class CloudMineUserTest {
     public void testSerializeServices() {
         CMUser user = new CMUser();
         user.setAuthenticatedServices(new HashSet<CMSocial.Service>(Arrays.asList(CMSocial.Service.TWITTER, CMSocial.Service.GITHUB)));
-        String json = user.transportableRepresentation();
-        System.out.println("Test: " + json);
+        String json = user.profileTransportRepresentation();
         CMUser deserialized = JsonUtilities.jsonToClass(json, CMUser.class);
-        System.out.println("Test 2: " + deserialized.getAuthenticatedServices());
-
         assertEquals(user, deserialized);
-
     }
 }
