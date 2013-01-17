@@ -38,9 +38,9 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
-    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
 //    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
-//    public static final String CLOUD_MINE_URL = "http://localhost:3000";
+    public static final String CLOUD_MINE_URL = "http://10.10.20.115:3001";
     public static final String APP = "/app";
 
 
@@ -286,6 +286,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder binary() {
         return this.addAction("binary");
+    }
+
+    public CMURLBuilder device() {
+        return this.notUser().addAction("device");
     }
 
     public CMURLBuilder binary(String key) {

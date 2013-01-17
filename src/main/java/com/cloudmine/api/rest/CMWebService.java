@@ -857,6 +857,20 @@ public class CMWebService {
         executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
+    public void registerForGCM(String senderID, Callback<TokenUpdateResponse> callback) {
+        HttpPost postRequest = createRegisterGCMPost(senderID);
+        for (Header h : postRequest.getAllHeaders() ) {
+            System.out.println("HEADER: " + h.getName() + " : " + h.getValue());
+        }
+
+        executeAsyncCommand(postRequest, callback, tokenUpdateConstructor());
+    }
+
+    public void unregisterForGCM(Callback<TokenUpdateResponse> callback) {
+        HttpDelete deleteRequest = createDeleteToken();
+        executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
+    }
+
     /**
      * Make a blocking call to load the object associated with the given objectId
      * @param objectId of the object to load
@@ -1077,6 +1091,12 @@ public class CMWebService {
         return delete;
     }
 
+    private HttpDelete createDeleteToken() {
+        HttpDelete delete = new HttpDelete(baseUrl.device().asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
     private HttpPut createPut(String json) {
         return createPut(json, CMRequestOptions.NONE);
     }
@@ -1117,6 +1137,14 @@ public class CMWebService {
     private HttpPost createLogoutPost(CMSessionToken sessionToken) {
         HttpPost post = createPost(baseUrl.account().logout().asUrlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.getSessionToken());
+        return post;
+    }
+
+    private HttpPost createRegisterGCMPost(String senderID) {
+        HttpPost post = createPost(baseUrl.device().asUrlString());
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("registration_id", senderID);
+        addJson(post, JsonUtilities.mapToJson(body));
         return post;
     }
 
@@ -1284,6 +1312,10 @@ public class CMWebService {
 
     protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<TokenUpdateResponse> tokenUpdateConstructor() {
+        return TokenUpdateResponse.CONSTRUCTOR;
     }
 
     @Override
