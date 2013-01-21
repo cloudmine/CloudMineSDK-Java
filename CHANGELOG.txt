@@ -1,3 +1,8 @@
+Release 0.5?
+* Updated social login to allow scope parameter, and other parameters.
+* Added Social Graph querying through CMWebService
+* Added registering and unregistering for CloudMine push notifications.
+
 Release 0.3.3
 * Support social log in functionality
 * Bug fix - support GeoPoint objects that use 'lng' for longitude key
