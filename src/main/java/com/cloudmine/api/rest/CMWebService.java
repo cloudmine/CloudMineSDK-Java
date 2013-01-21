@@ -859,15 +859,22 @@ public class CMWebService {
         executeAsyncCommand(createLogoutPost(token), callback, cmResponseConstructor());
     }
 
+    /**
+     * Registers the given token with CloudMine, so push notifications can be sent to the device. If the UserCMWebService is
+     * used, the token will be registered with the specific user.
+     * @param senderID The senderID given by Google for Push Notifications
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link TokenUpdateResponse} class.
+     */
     public void registerForGCM(String senderID, Callback<TokenUpdateResponse> callback) {
         HttpPost postRequest = createRegisterGCMPost(senderID);
-        for (Header h : postRequest.getAllHeaders() ) {
-            System.out.println("HEADER: " + h.getName() + " : " + h.getValue());
-        }
-
         executeAsyncCommand(postRequest, callback, tokenUpdateConstructor());
     }
 
+    /**
+     * Unregisters the token associated with this device. If it was registered with a specific user, that user's CMWebService should
+     * be used to unregister it.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link TokenUpdateResponse} class.
+     */
     public void unregisterForGCM(Callback<TokenUpdateResponse> callback) {
         HttpDelete deleteRequest = createDeleteToken();
         executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
