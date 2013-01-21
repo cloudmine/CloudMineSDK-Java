@@ -253,7 +253,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore
     @Test
     public void testDropboxUpload() {
         try {
@@ -268,7 +267,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
                     "files_put/dropbox/dropbox_upload_test.txt",
                     null,
                     new HashMap<String, Object>() {{ put("Content-Type", "application/octet-stream"); put("Content-Length", "" + length); }},
-                    null,
+                    file,
                     testCallback(new SocialGraphCallback() {
                         public void onCompletion(SocialGraphResponse response) {
                             System.out.println("Code2: " + response.getStatusCode());
