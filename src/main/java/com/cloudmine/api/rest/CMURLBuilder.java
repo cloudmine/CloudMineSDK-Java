@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
@@ -199,6 +201,14 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
             comma = ",";
         }
         return keyString;
+    }
+
+    public CMURLBuilder hashMapToQuery(HashMap<String, Object> map) {
+        CMURLBuilder builder = this;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            builder = builder.addQuery(entry.getKey(), entry.getValue().toString());
+        }
+        return builder;
     }
 
     public CMURLBuilder notUser() {

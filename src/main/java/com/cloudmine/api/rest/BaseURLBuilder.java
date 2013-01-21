@@ -42,7 +42,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
         return key + "=" + value;
     }
 
-    private String querySeparator() {
+    protected String querySeparator() {
         return Strings.isEmpty(queryParams) ?
                 "?" :
                 "&";
