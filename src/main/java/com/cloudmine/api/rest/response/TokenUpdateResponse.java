@@ -6,11 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ethan
- * Date: 1/16/13
- * Time: 10:26 AM
- * To change this template use File | Settings | File Templates.
+ * Holds the response for register the token with CloudMine for push notifications.
+ * <br>
+ * Copyright CloudMine LLC. All rights reserved<br>
+ * See LICENSE file included with SDK for details.
  */
 public class TokenUpdateResponse extends ResponseBase<TokenUpdateCode> {
     private static final Logger LOG = LoggerFactory.getLogger(TokenUpdateResponse.class);

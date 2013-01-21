@@ -1,11 +1,9 @@
 package com.cloudmine.api.rest.response.code;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ethan
- * Date: 1/18/13
- * Time: 10:42 AM
- * To change this template use File | Settings | File Templates.
+ * <br>
+ * Copyright CloudMine LLC. All rights reserved<br>
+ * See LICENSE file included with SDK for details.
  */
 public enum SocialGraphCode {
     OK(200);

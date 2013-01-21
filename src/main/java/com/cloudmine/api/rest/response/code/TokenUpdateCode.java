@@ -1,11 +1,9 @@
 package com.cloudmine.api.rest.response.code;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ethan
- * Date: 1/16/13
- * Time: 10:19 AM
- * To change this template use File | Settings | File Templates.
+ * <br>
+ * Copyright CloudMine LLC. All rights reserved<br>
+ * See LICENSE file included with SDK for details.
  */
 public enum TokenUpdateCode {
     DEVICE_TOKEN_UPDATE_SUCCESS(200), MISSING_OR_INVALID_AUTHORIZATION(401), APPLICATION_ID_NOT_FOUND(404), UNKNOWN(-1);

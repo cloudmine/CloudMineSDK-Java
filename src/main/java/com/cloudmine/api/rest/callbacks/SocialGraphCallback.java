@@ -3,11 +3,9 @@ package com.cloudmine.api.rest.callbacks;
 import com.cloudmine.api.rest.response.SocialGraphResponse;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ethan
- * Date: 1/18/13
- * Time: 11:17 AM
- * To change this template use File | Settings | File Templates.
+ * <br>
+ * Copyright CloudMine LLC. All rights reserved<br>
+ * See LICENSE file included with SDK for details.
  */
 public class SocialGraphCallback extends CMCallback<SocialGraphResponse> {
     public SocialGraphCallback() {

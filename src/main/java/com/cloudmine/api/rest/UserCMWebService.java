@@ -111,7 +111,18 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
-
+    /**
+     * A call to execute the Query on the Given Social Network. Returns the response body in the Callback.
+     *
+     * @param service The CMSocial.Service service you
+     * @param httpVerb The {@link com.cloudmine.api.rest.HttpVerb} for the request.
+     * @param baseQuery The base query for the URL. Can be an empty string.
+     * @param parameters The Parameters which will be added to the request. For example: new HashMap<String, Object>() {{ put("Param1", "Value"); }} Can be null.
+     * @param headers The headers which will be added to the request. For example: new HashMap<String, Object>() {{ put("Content-Type", "application/octet-stream"); }} Can be null.
+     * @param data The data which will put into the HTTP body of the request. Can be null.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
+     * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb. Note that PATCH is not support as of now.
+     */
     public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
                                                HttpVerb httpVerb,
                                                String baseQuery,
@@ -122,21 +133,16 @@ public class UserCMWebService extends CMWebService {
 
         CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery);
 
-        System.out.println("CM: Parameters: " + parameters);
-        System.out.println("CM: URL: " + url.asUrlString());
-        if (parameters != null) {
+        if (parameters != null)
             url = url.addQuery("params", CMURLBuilder.encode(JsonUtilities.mapToJson(parameters)));
-        }
-        System.out.println("CM2: URL: " + url.asUrlString());
 
-        if (headers != null) {
+        if (headers != null)
             url = url.addQuery("headers", CMURLBuilder.encode(JsonUtilities.mapToJson(headers)));
-        }
 
         String finalURL = url.asUrlString();
         boolean canHaveData = false;
-
         HttpRequestBase request = null;
+
         switch (httpVerb) {
             case GET:
                 request = new HttpGet(finalURL);
@@ -159,9 +165,8 @@ public class UserCMWebService extends CMWebService {
 
         addCloudMineHeader(request);
 
-        if (data != null && canHaveData) {
+        if (data != null && canHaveData)
             ((HttpEntityEnclosingRequestBase)request).setEntity(data);
-        }
 
         executeAsyncCommand(request, callback, SocialGraphResponse.CONSTRUCTOR);
     }

@@ -11,11 +11,11 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ethan
- * Date: 1/18/13
- * Time: 10:37 AM
- * To change this template use File | Settings | File Templates.
+ * Holds the response to a social graph query.
+ * <strong>Important:</strong> Use response.getStatusCode() for the HTTP Code, not response.getResponseCode(), because the code could be ANY int value.
+ * <br>
+ * Copyright CloudMine LLC. All rights reserved<br>
+ * See LICENSE file included with SDK for details.
  */
 public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
     private static final Logger LOG = LoggerFactory.getLogger(SocialGraphResponse.class);
@@ -32,6 +32,10 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
         super(response);
     }
 
+    /**
+     * Do not use. Use getStatusCode() instead.
+     * @return null.
+     */
     @Override
     public SocialGraphCode getResponseCode() {
         return null;
