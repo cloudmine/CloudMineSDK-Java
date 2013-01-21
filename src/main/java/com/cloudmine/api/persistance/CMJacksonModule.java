@@ -1,9 +1,6 @@
 package com.cloudmine.api.persistance;
 
-import com.cloudmine.api.CMFile;
-import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMType;
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.*;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.TransportableString;
@@ -14,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
@@ -66,7 +64,6 @@ public class CMJacksonModule extends SimpleModule {
                 return null;
             }
         });
-
         addSerializer(new JsonSerializer<SimpleCMObject>() {
 
             @Override

@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
 import org.slf4j.Logger;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
@@ -37,7 +40,9 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
-    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+//    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
+    public static final String CLOUD_MINE_URL = "http://10.10.20.115:3001";
     public static final String APP = "/app";
 
 
@@ -68,7 +73,6 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     protected CMURLBuilder(String baseUrl, String actions, String queryParams) {
         super(baseUrl, actions, queryParams);
-
     }
 
     protected CMURLBuilder newBuilder(String baseUrl, String actions, String queryParams) {
@@ -128,6 +132,8 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
 
     public CMURLBuilder options(CMRequestOptions options) {
+        if(options == null || options == CMRequestOptions.NONE || Strings.isEmpty(options.asUrlString()))
+            return this;
         return addQuery(options.asUrlString());
     }
 
@@ -197,6 +203,14 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return keyString;
     }
 
+    public CMURLBuilder hashMapToQuery(HashMap<String, Object> map) {
+        CMURLBuilder builder = this;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            builder = builder.addQuery(entry.getKey(), entry.getValue().toString());
+        }
+        return builder;
+    }
+
     public CMURLBuilder notUser() {
         return this.removeAction(USER);
     }
@@ -229,6 +243,41 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return this.addAction("login");
     }
 
+    public CMURLBuilder social() {
+        return this.addAction("social");
+    }
+
+    public CMURLBuilder status() {
+        return this.addAction("status");
+    }
+
+    public CMURLBuilder token(String token) {
+        return this.addAction(token);
+    }
+
+    public CMURLBuilder service(CMSocial.Service service) {
+        return this.addQuery("service", service.asUrlString());
+    }
+
+    public CMURLBuilder apikey() {
+        return this.addQuery("apikey", CMApiCredentials.getApplicationApiKey());
+    }
+
+    public CMURLBuilder sessionToken(String sessionToken) {
+        if(Strings.isEmpty(sessionToken)) {
+            return this;
+        }
+        return this.addQuery("existing_user", sessionToken);
+    }
+
+    public CMURLBuilder challenge(String challenge) {
+        return this.addQuery("challenge", challenge);
+    }
+
+    public CMURLBuilder statusChallenge(String challenge) {
+        return this.addAction(challenge);
+    }
+
     public CMURLBuilder logout() {
         return this.addAction("logout");
     }
@@ -247,6 +296,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder binary() {
         return this.addAction("binary");
+    }
+
+    public CMURLBuilder device() {
+        return this.notUser().addAction("device");
     }
 
     public CMURLBuilder binary(String key) {

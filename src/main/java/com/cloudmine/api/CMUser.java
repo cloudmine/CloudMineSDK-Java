@@ -1,8 +1,9 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NotLoggedInException;
+import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.UserCMWebService;
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * A CMUser consists of an email and a password. When logged in, objects can be specified to be saved
@@ -43,7 +44,7 @@ public class CMUser extends CMObject {
      * @param searchString what to search for
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
-    public static void searchUserProfiles(String searchString, Callback callback) {
+    public static void searchUserProfiles(String searchString, Callback<CMObjectResponse> callback) {
         searchUserProfiles(searchString, CMRequestOptions.NONE, callback);
     }
     /**
@@ -52,7 +53,7 @@ public class CMUser extends CMObject {
      * @param searchString what to search for
      * @param callback will be called after load. Expects a {@link CMObjectResponse}. It is recommended that {@link CMObjectResponseCallback} is used here
      */
-    public static void searchUserProfiles(String searchString, CMRequestOptions options, Callback callback) {
+    public static void searchUserProfiles(String searchString, CMRequestOptions options, Callback<CMObjectResponse> callback) {
         CMWebService.getService().asyncSearchUserProfiles(searchString, options, callback);
     }
 
@@ -61,7 +62,7 @@ public class CMUser extends CMObject {
      * but not the user's e-mail address (unless e-mail address is an additional field added to profile).
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
      */
-    public static void loadAllUserProfiles(Callback callback) {
+    public static void loadAllUserProfiles(Callback<CMObjectResponse> callback) {
         CMWebService.getService().asyncLoadAllUserProfiles(callback);
     }
 
@@ -69,7 +70,7 @@ public class CMUser extends CMObject {
      * Get the profile for the user given
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
      */
-    public static void loadLoggedInUserProfile(final CMUser user, final Callback callback) throws CreationException{
+    public static void loadLoggedInUserProfile(final CMUser user, final Callback<CMObjectResponse> callback) throws CreationException{
         if(user.isLoggedIn()) {
             CMWebService.getService().getUserWebService(user.getSessionToken()).asyncLoadLoggedInUserProfile(callback);
         } else {
@@ -87,6 +88,7 @@ public class CMUser extends CMObject {
     private String email;
     private String password;
     private CMSessionToken sessionToken;
+    private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
 
     protected CMUser() {
         this(MISSING_VALUE, MISSING_VALUE);
@@ -158,6 +160,20 @@ public class CMUser extends CMObject {
         this.email = email;
     }
 
+    public void setSessionToken(CMSessionToken token) {
+        this.sessionToken = token;
+    }
+
+    @JsonProperty("__services__")
+    public void setAuthenticatedServices(Set<CMSocial.Service> services) {
+        authenticatedServices = services;
+    }
+
+    @JsonProperty("__services__")
+    public Set<CMSocial.Service> getAuthenticatedServices() {
+        return new HashSet<CMSocial.Service>(authenticatedServices);
+    }
+
     @JsonIgnore
     public CMSessionToken getSessionToken() {
         if(sessionToken == null) {
@@ -197,7 +213,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void login() throws CreationException {
-        login(CMCallback.doNothing());
+        login(CMCallback.<LoginResponse>doNothing());
     }
 
     /**
@@ -205,7 +221,7 @@ public class CMUser extends CMObject {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public void login(Callback callback) throws CreationException {
+    public void login(Callback<LoginResponse> callback) throws CreationException {
         if(isLoggedIn()) {
             LoginResponse fakeResponse = createFakeLoginResponse();
             callback.onCompletion(fakeResponse);
@@ -222,22 +238,22 @@ public class CMUser extends CMObject {
      * Asynchronously log out this user
      */
     public void logout() {
-        logout(CMCallback.doNothing());
+        logout(CMCallback.<CMResponse>doNothing());
     }
 
     /**
      * Asynchronously log out this user
      * @param callback a {@link Callback} that expects a {@link CMResponse}. It is recommended that a {@link CMResponseCallback} is used here
      */
-    public void logout(Callback callback) {
+    public void logout(Callback<CMResponse> callback) {
         CMWebService.getService().asyncLogout(getSessionToken(), setLoggedOutUserCallback(callback));
     }
 
     private void loadProfile() {
-        loadProfile(CMCallback.doNothing());
+        loadProfile(CMCallback.<CMObjectResponse>doNothing());
     }
 
-    private void loadProfile(final Callback callback) {
+    private void loadProfile(final Callback<CMObjectResponse> callback) {
         if(isLoggedIn()) {
             loadAndMergeProfileUpdatesThenCallback(callback);
         } else {
@@ -251,14 +267,14 @@ public class CMUser extends CMObject {
     }
 
     public void loadAccessLists() {
-        loadAccessLists(CMCallback.doNothing());
+        loadAccessLists(CMCallback.<CMObjectResponse>doNothing());
     }
 
     /**
      * Load the {@link CMAccessList} that  belong to this user. If this user is not logged in, they will be.
      * @param callback expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is passed in here
      */
-    public void loadAccessLists(final Callback callback) {
+    public void loadAccessLists(final Callback<CMObjectResponse> callback) {
         if(isLoggedIn()) {
             getUserService().asyncLoadAccessLists(callback);
         } else {
@@ -289,7 +305,11 @@ public class CMUser extends CMObject {
                             CMObject thisUser = loadedObjects.get(0);
                             if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
                                 mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
+                            } else {
+                                LOG.error("Loaded user profile that isn't a CMUser");
                             }
+                        } else {
+                            LOG.error("Loaded multiple user profiles for a single user");
                         }
                     } finally {
                         callback.onCompletion(response);
@@ -311,7 +331,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      * @throws ConversionException if unable to convert to transportable representation; this should not happen unless you are subclassing this and doing something you shouldn't be with overriding transportableRepresentation
      */
-    public void createUser(Callback callback) throws CreationException, ConversionException {
+    public void createUser(Callback<CreationResponse> callback) throws CreationException, ConversionException {
         CMWebService.getService().asyncCreateUser(this, callback);
     }
 
@@ -319,13 +339,14 @@ public class CMUser extends CMObject {
      * Equivalent to {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} with no callback
      */
     public void createUser() throws CreationException, ConversionException {
-        createUser(CMCallback.doNothing());
+        createUser(CMCallback.<CreationResponse>doNothing());
     }
 
     /**
      * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
+    @Deprecated
     public void save() throws CreationException, ConversionException {
         save(CMCallback.doNothing());
     }
@@ -339,6 +360,7 @@ public class CMUser extends CMObject {
      * about what you would like.
      */
     @Override
+    @Deprecated
     public void save(Callback callback) throws CreationException, ConversionException {
         if(isCreated()) {
             saveProfile(callback);
@@ -353,7 +375,7 @@ public class CMUser extends CMObject {
      * been created. Will log the user in if the user is not already logged in
      * @param callback expects a {@link CreationResponse}. It is recommended a {@link CreationResponseCallback} is used here
      */
-    public void saveProfile(final Callback callback) {
+    public void saveProfile(final Callback<CreationResponse> callback) {
         if(isLoggedIn()) {
             getUserService().asyncInsertUserProfile(this, callback);
         } else {
@@ -373,14 +395,16 @@ public class CMUser extends CMObject {
      * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
+    @Deprecated
     public void saveWithUser(CMUser ignored) throws CreationException, ConversionException{
         saveWithUser(ignored, CMCallback.doNothing());
     }
 
     /**
-     * See {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)}
+     * Use either {@link #createUser(com.cloudmine.api.rest.callbacks.Callback)} or {@link #saveProfile(com.cloudmine.api.rest.callbacks.Callback)}
      */
     @Override
+    @Deprecated
     public void saveWithUser(CMUser ignored, Callback callback) throws CreationException, ConversionException {
         save(callback);
     }
@@ -389,19 +413,57 @@ public class CMUser extends CMObject {
      * Asynchronously change this users password
      * @param newPassword the new password
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
+     * @deprecated in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      */
+    @Deprecated
     public void changePassword(String newPassword) throws CreationException {
-        changePassword(newPassword, CMCallback.doNothing());
+        changePassword(newPassword, CMCallback.<CMResponse>doNothing());
     }
 
     /**
-     * Asynchronously change this users password
+     * Asynchronously change this users password. This only works if the user has not been logged in, and
+     * should be avoided in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      * @param newPassword the new password
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
+     * @deprecated in favor of {@link #changePassword(String, String, com.cloudmine.api.rest.callbacks.Callback)}
      */
-    public void changePassword(String newPassword, Callback callback) throws CreationException {
-        CMWebService.getService().asyncChangePassword(this, newPassword, callback);
+    @Deprecated
+    public void changePassword(String newPassword, Callback<CMResponse> callback) throws CreationException {
+        changePassword(getPassword(), newPassword, callback);
+    }
+
+    /**
+     * Change this user's password from the oldPassword to the newPassword.
+     * @param oldPassword the old (current) password
+     * @param newPassword the new password
+     * @param options any options to use for this call, IE a CMServerFunction to run after the password has been updated
+     * @param callback callback to run once the password has been changed. Use a {@link CMResponseCallback} here
+     */
+    public void changePassword(String oldPassword, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
+        CMWebService.getService().asyncChangePassword(this.getEmail(), oldPassword, newPassword, options, callback);
+        setPassword(newPassword);
+    }
+
+    /**
+     * See {@link #changePassword(String, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param oldPassword
+     * @param newPassword
+     * @param callback
+     * @throws CreationException
+     */
+    public void changePassword(String oldPassword, String newPassword, Callback<CMResponse> callback) throws CreationException {
+        changePassword(oldPassword, newPassword, CMRequestOptions.NONE, callback);
+    }
+
+    /**
+     * See {@link #changePassword(String, String, com.cloudmine.api.rest.options.CMRequestOptions, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param oldPassword
+     * @param newPassword
+     * @throws CreationException
+     */
+    public void changePassword(String oldPassword, String newPassword) throws CreationException {
+        changePassword(oldPassword, newPassword, CMRequestOptions.NONE, CMCallback.<CMResponse>doNothing());
     }
 
     /**
@@ -409,7 +471,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void resetPasswordRequest() throws CreationException {
-        resetPasswordRequest(CMCallback.doNothing());
+        resetPasswordRequest(CMCallback.<CMResponse>doNothing());
     }
 
     /**
@@ -417,7 +479,7 @@ public class CMUser extends CMObject {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public void resetPasswordRequest(Callback callback) throws CreationException {
+    public void resetPasswordRequest(Callback<CMResponse> callback) throws CreationException {
         CMWebService.getService().asyncResetPasswordRequest(getEmail(), callback);
     }
 
@@ -428,7 +490,7 @@ public class CMUser extends CMObject {
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
     public void resetPasswordConfirmation(String emailToken, String newPassword) throws CreationException {
-        resetPasswordConfirmation(emailToken, newPassword, CMCallback.doNothing());
+        resetPasswordConfirmation(emailToken, newPassword, CMCallback.<CMResponse>doNothing());
     }
 
     /**
@@ -438,8 +500,12 @@ public class CMUser extends CMObject {
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link CMResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is passed in
      * @throws CreationException if called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public void resetPasswordConfirmation(String emailToken, String newPassword, Callback callback) throws CreationException {
+    public void resetPasswordConfirmation(String emailToken, String newPassword, Callback<CMResponse> callback) throws CreationException {
         CMWebService.getService().asyncResetPasswordConfirmation(emailToken, newPassword, callback);
+    }
+
+    public static String encode(String email, String password) {
+        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(email + ":" + password);
     }
 
     /**
@@ -447,11 +513,10 @@ public class CMUser extends CMObject {
      * @return a Base64 representation of this user
      */
     public String encode() {
-        String userString = getEmail() + ":" + getPassword();
-        return LibrarySpecificClassCreator.getCreator().getEncoder().encode(userString);
+        return encode(getEmail(), getPassword());
     }
 
-    private final Callback<LoginResponse> setLoggedInUserCallback(final Callback callback) {
+    private final Callback<LoginResponse> setLoggedInUserCallback(final Callback<LoginResponse> callback) {
         return new ExceptionPassthroughCallback<LoginResponse>(callback) {
             @Override
             public void onCompletion(LoginResponse response) {
@@ -473,7 +538,7 @@ public class CMUser extends CMObject {
         password = null;
     }
 
-    private final CMResponseCallback setLoggedOutUserCallback(final Callback callback) {
+    private final CMResponseCallback setLoggedOutUserCallback(final Callback<CMResponse> callback) {
         return new CMResponseCallback() {
             public void onCompletion(CMResponse response) {
                 try {
@@ -489,7 +554,7 @@ public class CMUser extends CMObject {
 
     @Override
     public String toString() {
-        return getEmail() + ":" + getPassword();
+        return getEmail() + ":" + getPassword() + ":" + getAuthenticatedServices();
     }
 
     @Override
@@ -499,6 +564,8 @@ public class CMUser extends CMObject {
 
         CMUser cmUser = (CMUser) o;
 
+        if (authenticatedServices != null ? !authenticatedServices.equals(cmUser.authenticatedServices) : cmUser.authenticatedServices != null)
+            return false;
         if (email != null ? !email.equals(cmUser.email) : cmUser.email != null) return false;
         if (password != null ? !password.equals(cmUser.password) : cmUser.password != null) return false;
         if (sessionToken != null ? !sessionToken.equals(cmUser.sessionToken) : cmUser.sessionToken != null)
@@ -512,6 +579,7 @@ public class CMUser extends CMObject {
         int result = email != null ? email.hashCode() : 0;
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (sessionToken != null ? sessionToken.hashCode() : 0);
+        result = 31 * result + (authenticatedServices != null ? authenticatedServices.hashCode() : 0);
         return result;
     }
 }

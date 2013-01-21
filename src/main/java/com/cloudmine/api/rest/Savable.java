@@ -11,7 +11,7 @@ import com.cloudmine.api.rest.callbacks.Callback;
  * A common interface that can be shared between different objects that can be saved to cloudmine
  * Copyright CloudMine LLC
  */
-public interface Savable extends Transportable {
+public interface Savable<SAVE_CALLBACK, DELETE_CALLBACK> extends Transportable {
 
     /**
      * Set what store to save this object with. If this is not set, it is assumed to be saved with
@@ -70,7 +70,7 @@ public interface Savable extends Transportable {
      * @throws ConversionException if unable to convert this object to transportable representation; should not happen unless you have overridden transportableRepresentation
      * @throws CreationException if {@link com.cloudmine.api.CMApiCredentials#initialize(String, String)} has not been called
      */
-    public void save(Callback callback) throws CreationException, ConversionException;
+    public void save(Callback<SAVE_CALLBACK> callback) throws CreationException, ConversionException;
 
     /**
      * See {@link #delete(com.cloudmine.api.rest.callbacks.Callback)}
@@ -81,7 +81,7 @@ public interface Savable extends Transportable {
      * Delete this savable object, then run the given callback
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link com.cloudmine.api.rest.response.ObjectModificationResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback} is passed in
      */
-    public void delete(Callback callback);
+    public void delete(Callback<DELETE_CALLBACK> callback);
 
     /**
      * Return the CMUser this object belongs to, if it exists. Careful - this can return null if no user has been set

@@ -6,7 +6,7 @@
 
     <groupId>com.cloudmine.api</groupId>
     <artifactId>cloudmine-javasdk</artifactId>
-    <version>0.3</version>
+    <version>0.5</version>
     <packaging>jar</packaging>
 
 
@@ -18,6 +18,13 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.8.1</version>
                 <configuration>
+                    <!-- switch on dependency-driven aggregation -->
+                    <includeDependencySources>true</includeDependencySources>
+
+                    <dependencySourceIncludes>
+                      <!-- include ONLY dependencies I control -->
+                      <dependencySourceInclude>org.test.dep:*</dependencySourceInclude>
+                    </dependencySourceIncludes>
                     <doclet></doclet>
                 </configuration>
             </plugin>
@@ -52,6 +59,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                  <execution>
+                    <id>bundle-sources</id>
+                    <phase>package</phase>
+                    <goals>
+                      <!-- produce source artifact for main project sources -->
+                      <goal>jar-no-fork</goal>
+                      
+                      <!-- produce source artifact for project test sources -->
+                      <goal>test-jar-no-fork</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -80,7 +104,7 @@
                 <dependency>
                     <groupId>com.cloudmine.api</groupId>
                     <artifactId>cloudmine-android</artifactId>
-                    <version>0.3-SNAPSHOT</version>
+                    <version>0.5</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.httpcomponents</groupId>

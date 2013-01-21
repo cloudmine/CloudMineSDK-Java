@@ -1,7 +1,6 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
-import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
@@ -10,13 +9,13 @@ import com.cloudmine.api.rest.options.CMSharedDataOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.test.ServiceTestBase;
-import com.cloudmine.test.TestServiceCallback;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
+import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -30,11 +29,11 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
     @Test
     public void testStoreAccessList() {
         final CMUser anotherUser = randomUser();
-        anotherUser.save(hasSuccess);
+        anotherUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
         final CMUser user = user();
-        user.createUser(TestServiceCallback.testCallback());
+        user.createUser(testCallback());
         waitThenAssertTestResults();
         user.login(hasSuccess);
         waitThenAssertTestResults();
@@ -44,7 +43,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         list.grantAccessTo(userObjectIds);
         list.grantAccessTo(anotherUser);
         list.grantPermissions(CMAccessPermission.READ);
-        list.save(TestServiceCallback.testCallback(new CreationResponseCallback() {
+        list.save(testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {
                 assertTrue(response.wasSuccess());
@@ -57,7 +56,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
-
+        System.out.println("AO: " + anObject.transportableRepresentation());
         anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
         waitThenAssertTestResults();
 
@@ -66,7 +65,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         CMSessionToken token = anotherUser.getSessionToken();
 
         UserCMWebService userWebService = service.getUserWebService(token);
-        userWebService.asyncLoadObject(anObject.getObjectId(), TestServiceCallback.testCallback(new CMObjectResponseCallback() {
+        userWebService.asyncLoadObject(anObject.getObjectId(), testCallback(new CMObjectResponseCallback() {
             @Override
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.hasSuccess());
@@ -78,7 +77,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         CMRequestOptions requestOptions = new CMRequestOptions(CMSharedDataOptions.getShared());
-        userWebService.asyncLoadObjects(TestServiceCallback.testCallback(new CMObjectResponseCallback() {
+        userWebService.asyncLoadObjects(testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
 
                 assertTrue(response.hasSuccess());
@@ -100,7 +99,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         list.save(hasSuccess);
         waitThenAssertTestResults();
 
-        user.loadAccessLists(TestServiceCallback.testCallback(new CMObjectResponseCallback() {
+        user.loadAccessLists(testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 assertTrue(response.wasSuccess());
                 CMObject loadedList = response.getCMObject(list.getObjectId());

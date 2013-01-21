@@ -86,7 +86,8 @@ public class SimpleCMObject extends CMObject {
     public SimpleCMObject(final String objectId, final Map<String, Object> contents) throws CreationException {
         this(new HashMap<String, Object>() {
             {
-                put(objectId, contents);
+                String newObjectId = objectId == null ? generateUniqueObjectId() : objectId;
+                put(newObjectId, contents);
             }
         });
     }
@@ -413,6 +414,14 @@ public class SimpleCMObject extends CMObject {
         if(value != null && klass.isAssignableFrom(valueClass)) {
             return (T)value;
         }
+        if(value !=null && Map.class.isAssignableFrom(valueClass)) {
+            try {
+                String asJson = JsonUtilities.mapToJson((Map)value);
+                return (T) JsonUtilities.jsonToClass(asJson, klass);
+            } catch(Exception e) {
+                LOG.error("Can't get value: " + key + " = " + value, e);
+            }
+        }
         return null;
     }
 
@@ -490,7 +499,7 @@ public class SimpleCMObject extends CMObject {
      * @throws NullPointerException if given a null or empty objectId
      */
     public SimpleCMObject add(CMObject value) throws NullPointerException{
-        if(value.getObjectId() == null || value.getObjectId().isEmpty()) {
+        if(Strings.isEmpty(value.getObjectId())) {
             throw new NullPointerException("Cannot use a null or empty objectId as the key");
         }
         add(value.getObjectId(), value);
