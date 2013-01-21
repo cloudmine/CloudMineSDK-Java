@@ -1,19 +1,19 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMAccessList;
-import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.LibrarySpecificClassCreator;
+import com.cloudmine.api.*;
+import com.cloudmine.api.exceptions.InvalidRequestException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.SocialGraphResponse;
 import org.apache.http.Header;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.AbstractHttpMessage;
+
+import java.util.HashMap;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
@@ -109,6 +109,61 @@ public class UserCMWebService extends CMWebService {
     public void asyncLoadAccessLists(Callback<CMObjectResponse> callback) {
         HttpGet get = createGet(baseUrl.access().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
+    }
+
+
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               HashMap<String, Object> parameters,
+                                               HashMap<String, Object> headers,
+                                               ByteArrayEntity data,
+                                               Callback<SocialGraphResponse> callback) throws InvalidRequestException {
+
+        CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery);
+
+        System.out.println("CM: Parameters: " + parameters);
+        System.out.println("CM: URL: " + url.asUrlString());
+        if (parameters != null) {
+            url = url.addQuery("params", CMURLBuilder.encode(JsonUtilities.mapToJson(parameters)));
+        }
+        System.out.println("CM2: URL: " + url.asUrlString());
+
+        if (headers != null) {
+            url = url.addQuery("headers", CMURLBuilder.encode(JsonUtilities.mapToJson(headers)));
+        }
+
+        String finalURL = url.asUrlString();
+        boolean canHaveData = false;
+
+        HttpRequestBase request = null;
+        switch (httpVerb) {
+            case GET:
+                request = new HttpGet(finalURL);
+                break;
+            case POST:
+                canHaveData = true;
+                request = new HttpPost(finalURL);
+                break;
+            case PUT:
+                canHaveData = true;
+                request = new HttpPut(finalURL);
+                break;
+            case DELETE:
+                request = new HttpDelete(finalURL);
+                break;
+            case PATCH:
+            default:
+                throw new InvalidRequestException("*** CloudMine Error! Unsupported Type" + httpVerb);
+        }
+
+        addCloudMineHeader(request);
+
+        if (data != null && canHaveData) {
+            ((HttpEntityEnclosingRequestBase)request).setEntity(data);
+        }
+
+        executeAsyncCommand(request, callback, SocialGraphResponse.CONSTRUCTOR);
     }
 
     @Override
