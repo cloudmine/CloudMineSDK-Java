@@ -232,7 +232,14 @@ public class SocialIntegrationTest extends ServiceTestBase {
     @Test
     public void testDropboxUpload() {
         try {
-            byte[] bytes = readFileToByteArray(new File("/Users/ethan/dropbox_upload_test.txt"));
+            ///
+            /// Create File
+            ///
+            PrintWriter writer = new PrintWriter("dropbox_upload_test.txt", "UTF-8");
+            writer.println("This is a test!");
+            writer.close();
+
+            byte[] bytes = readFileToByteArray(new File("dropbox_upload_test.txt"));
             ByteArrayEntity file = new ByteArrayEntity(bytes);
             final long length = file.getContentLength();
 
