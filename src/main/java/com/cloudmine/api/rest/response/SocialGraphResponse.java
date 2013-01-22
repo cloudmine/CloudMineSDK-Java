@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.rest.response.code.SocialGraphCode;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -39,6 +40,10 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
     @Override
     public SocialGraphCode getResponseCode() {
         return SocialGraphCode.codeForStatus(getStatusCode());
+    }
+
+    public SimpleCMObject toSimpleCMObject() {
+        return new SimpleCMObject(this);
     }
 
 }
