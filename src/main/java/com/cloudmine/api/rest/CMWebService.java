@@ -10,7 +10,6 @@ import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.*;
-import com.sun.tools.internal.xjc.util.NullStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -23,8 +22,6 @@ import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -1152,7 +1149,7 @@ public class CMWebService {
 
     private HttpPost createRegisterGCMPost(String senderID) {
         HttpPost post = createPost(baseUrl.device().asUrlString());
-        HashMap<String, String> body = new HashMap<String, String>();
+        Map<String, String> body = new HashMap<String, String>();
         body.put("registration_id", senderID);
         addJson(post, JsonUtilities.mapToJson(body));
         return post;

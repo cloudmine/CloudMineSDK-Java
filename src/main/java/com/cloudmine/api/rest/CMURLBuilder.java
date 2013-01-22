@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,9 +39,9 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
-//    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
+    public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
 //    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
-    public static final String CLOUD_MINE_URL = "http://10.10.20.115:3001";
+//    public static final String CLOUD_MINE_URL = "http://10.10.20.115:3001";
     public static final String APP = "/app";
 
 
@@ -203,7 +202,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return keyString;
     }
 
-    public CMURLBuilder hashMapToQuery(HashMap<String, Object> map) {
+    public CMURLBuilder mapToQuery(Map<String, Object> map) {
         CMURLBuilder builder = this;
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             builder = builder.addQuery(entry.getKey(), entry.getValue().toString());

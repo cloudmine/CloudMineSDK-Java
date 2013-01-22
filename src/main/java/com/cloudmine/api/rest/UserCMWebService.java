@@ -12,8 +12,7 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.AbstractHttpMessage;
-
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
@@ -112,26 +111,26 @@ public class UserCMWebService extends CMWebService {
     }
 
     /**
-     * A call to execute the Query on the Given Social Network. Returns the response body in the Callback.
+     * A call to execute the Query on the given social network. Returns the response body in the Callback.
      *
-     * @param service The CMSocial.Service service you
-     * @param httpVerb The {@link com.cloudmine.api.rest.HttpVerb} for the request.
-     * @param baseQuery The base query for the URL. Can be an empty string.
-     * @param parameters The Parameters which will be added to the request. For example: new HashMap<String, Object>() {{ put("Param1", "Value"); }} Can be null.
-     * @param headers The headers which will be added to the request. For example: new HashMap<String, Object>() {{ put("Content-Type", "application/octet-stream"); }} Can be null.
+     * @param service The CMSocial.Service you want to send the query too.
+     * @param httpVerb The {@link com.cloudmine.api.rest.HttpVerb} for the request. Note that PATCH is not supported as of now.
+     * @param baseQuery The base query for the URL. Can be an empty string or null.
+     * @param parameters The Parameters which will be added to the request. Maps parameter name to value. Can be null.
+     * @param headers The headers which will be added to the request. Maps header name to value. Can be null.
      * @param data The data which will put into the HTTP body of the request. Can be null.
      * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
-     * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb. Note that PATCH is not support as of now.
+     * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb.
      */
     public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
                                                HttpVerb httpVerb,
                                                String baseQuery,
-                                               HashMap<String, Object> parameters,
-                                               HashMap<String, Object> headers,
+                                               Map<String, Object> parameters,
+                                               Map<String, Object> headers,
                                                ByteArrayEntity data,
                                                Callback<SocialGraphResponse> callback) throws InvalidRequestException {
 
-        CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery);
+        CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery == null ? "" : baseQuery);
 
         if (parameters != null)
             url = url.addQuery("params", CMURLBuilder.encode(JsonUtilities.mapToJson(parameters)));

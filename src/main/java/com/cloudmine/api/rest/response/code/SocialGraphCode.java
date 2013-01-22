@@ -6,9 +6,17 @@ package com.cloudmine.api.rest.response.code;
  * See LICENSE file included with SDK for details.
  */
 public enum SocialGraphCode {
-    OK(200);
+    QUERY_SUCCESS(200,300), FAILURE(300,505), UNKNOWN(-1, -1);
 
-    private final int statusCode;
+    private int lowerRange;
+    private int upperRange;
+    private int statusCode;
+
+    private SocialGraphCode(int lowerRange, int upperRange) {
+        this.lowerRange = lowerRange;
+        this.upperRange = upperRange;
+    }
+
     private SocialGraphCode(int statusCode) {
         this.statusCode = statusCode;
     }
@@ -22,6 +30,11 @@ public enum SocialGraphCode {
     }
 
     public static SocialGraphCode codeForStatus(int statusCode) {
-        return null;
+        for(SocialGraphCode code : SocialGraphCode.values()) {
+            if(statusCode <= code.upperRange && statusCode >= code.lowerRange ) {
+                return code;
+            }
+        }
+        return UNKNOWN;
     }
 }

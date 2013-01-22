@@ -38,7 +38,7 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
      */
     @Override
     public SocialGraphCode getResponseCode() {
-        return null;
+        return SocialGraphCode.codeForStatus(getStatusCode());
     }
 
 }

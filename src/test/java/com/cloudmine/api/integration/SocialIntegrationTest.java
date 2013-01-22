@@ -38,13 +38,14 @@ public class SocialIntegrationTest extends ServiceTestBase {
     private static UserCMWebService socialService;
     private String gistIdentifier;
     private String gistTestingId;
+    private static final String APP_ID = "f2bc46fbb67948cea6dbed4f6f39940f";
+    private static final String API_KEY = "c826d8bcad8a4f8685cef78efeb21ec3";
 
-    @Before
-    public void setUp() {
-        reset();
-        CMApiCredentials.initialize("f2bc46fbb67948cea6dbed4f6f39940f", "c826d8bcad8a4f8685cef78efeb21ec3");
-
-    }
+//    @Before
+//    public void setUp() {
+//        CMApiCredentials.initialize("f2bc46fbb67948cea6dbed4f6f39940f", "c826d8bcad8a4f8685cef78efeb21ec3");
+//
+//    }
 
     @Test
     public void testFIRST() {
@@ -76,10 +77,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
                     public void onCompletion(SocialGraphResponse response) {
                         assertTrue(response.wasSuccess());
                     }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed To Get Timeline!");
-                    }
                 }
                 ));
 
@@ -104,10 +101,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
                         assertTrue(response.wasSuccess());
-                    }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed To Tweet!");
                     }
                 }
                 ));
@@ -146,10 +139,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
                             }
                         }
                     }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed To Make Gist");
-                    }
                 }
                 ));
 
@@ -170,10 +159,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
                         assertTrue(response.wasSuccess());
-                    }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed To List Gist");
                     }
                 }
                 ));
@@ -219,11 +204,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
                         assertEquals(response.getStatusCode(), 404);
                         assertFalse(response.wasSuccess());
                     }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed to make request!" + msg);
-                        t.printStackTrace();
-                    }
                 }
                 ));
         waitForTestResults();
@@ -241,25 +221,20 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 null,
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
-                        System.out.println("Code: " + response.getStatusCode());
                         assertTrue(response.wasSuccess());
-                    }
-
-                    public void onFailure(Throwable t, String msg) {
-                        Assert.fail("Failed To Get Dropbox Account info");
                     }
                 }
                 ));
         waitForTestResults();
     }
 
+    @Ignore
     @Test
     public void testDropboxUpload() {
         try {
             byte[] bytes = readFileToByteArray(new File("/Users/ethan/dropbox_upload_test.txt"));
             ByteArrayEntity file = new ByteArrayEntity(bytes);
             final long length = file.getContentLength();
-            System.out.println("Array: " + file.toString() + " - " + file.getContentLength());
 
             socialService.asyncSocialGraphQueryOnNetwork(
                     CMSocial.Service.DROPBOX,
@@ -270,12 +245,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
                     file,
                     testCallback(new SocialGraphCallback() {
                         public void onCompletion(SocialGraphResponse response) {
-                            System.out.println("Code2: " + response.getStatusCode());
                             assertTrue(response.wasSuccess());
-                        }
-
-                        public void onFailure(Throwable t, String msg) {
-                            Assert.fail("Failed To Upload Dropbox File");
                         }
                     }
                     ));
