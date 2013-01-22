@@ -38,14 +38,8 @@ public class SocialIntegrationTest extends ServiceTestBase {
     private static UserCMWebService socialService;
     private String gistIdentifier;
     private String gistTestingId;
-    private static final String APP_ID = "f2bc46fbb67948cea6dbed4f6f39940f";
-    private static final String API_KEY = "c826d8bcad8a4f8685cef78efeb21ec3";
-
-//    @Before
-//    public void setUp() {
-//        CMApiCredentials.initialize("f2bc46fbb67948cea6dbed4f6f39940f", "c826d8bcad8a4f8685cef78efeb21ec3");
-//
-//    }
+    private static final String APP_ID = "f2bc46fbb67948cea6dbed4f6f39940f"; // Won't work
+    private static final String API_KEY = "c826d8bcad8a4f8685cef78efeb21ec3"; // Won't work.
 
     @Test
     public void testFIRST() {
