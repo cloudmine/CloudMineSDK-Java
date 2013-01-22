@@ -41,9 +41,4 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
     public SocialGraphCode getResponseCode() {
         return SocialGraphCode.codeForStatus(getStatusCode());
     }
-
-    public SimpleCMObject toSimpleCMObject() {
-        return new SimpleCMObject(this);
-    }
-
 }
