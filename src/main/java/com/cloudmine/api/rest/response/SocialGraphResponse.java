@@ -35,7 +35,7 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
 
     /**
      * Do not use. Use getStatusCode() instead.
-     * @return null.
+     * @return SocialGraphCode The code corresponding to a success or failure.
      */
     @Override
     public SocialGraphCode getResponseCode() {
