@@ -1,15 +1,15 @@
+Backend Java API for interaction with CloudMine
+======
 
-Backend Java API for interaction with CloudMine  
-=================  
-Build from scratch instructions  
-0. If there have been any changes to the android project itself OR this is your first time doing a build from scratch, you must build the android project first. The android project depends on the JavaSDK, so you must build and add that to your local maven repository first:  
+Build from scratch instructions:  
+1. If there have been any changes to the android project itself OR this is your first time doing a build from scratch, you must build the android project first. The android project depends on the JavaSDK, so you must build and add that to your local maven repository first:  
 mvn package -DskipTests=true -f $JAVA_SDK_HOME/pom.xml;mvn install:install-file -DgroupId=com.cloudmine.api -DartifactId=cloudmine-javasdk -Dversion=0.3-SNAPSHOT -Dpackaging=jar -DpomFileJAVA_SDK_HOME/pom.xml -DfileJAVA_SDK_HOME/target/cloudmine-javasdk-0.3.jar -DgeneratePom=true  
 Then use this command to build and add the android sdk:
 mvn package -DskipTests=true -f $ANDROID_HOME/pom.xml;mvn install:install-file -DgroupId=com.cloudmine.api -DartifactId=cloudmine-android -Dversion=0.3-SNAPSHOT -Dpackaging=jar -DpomFile=$ANDROID_HOME/pom.xml -Dfile=$ANDROID_HOME/target/cloudmine-android-0.3-SNAPSHOT.jar  
 where $ANDROID_HOME = the home directory of the android project.  
 If you haven't  
-1. Run all of the integration and unit tests.  
-2. Edit the pom.xml so that the version # is correct  
+2. Run all of the integration and unit tests.  
+3. Edit the pom.xml so that the version # is correct  
 3. Build the jar  
 3.1 for android, the command is: mvn assembly:assembly -DdescriptorId=jar-with-dependencies -DbuildFor=android -DskipTests=true  
 3.2 for javasdk, the command is: mvn package -DskipTests=true  
