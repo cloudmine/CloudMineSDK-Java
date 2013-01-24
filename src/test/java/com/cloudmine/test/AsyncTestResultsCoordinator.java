@@ -11,12 +11,18 @@ import java.util.concurrent.TimeUnit;
  * Date: 6/6/12, 3:25 PM
  */
 public class AsyncTestResultsCoordinator {
+    private static boolean ignoreOnFailure = false;
     private static final List<AssertionError> errors = new ArrayList<AssertionError>();
+    private static final List<Throwable> onFailures = new ArrayList<Throwable>();
     private static CountDownLatch latch;
     public static final int TIMEOUT = 10;
 
     public static void add(AssertionError error) {
         errors.add(error);
+    }
+
+    public static void add(Throwable thrown) {
+        onFailures.add(thrown);
     }
 
     public static void reset() {
@@ -26,6 +32,7 @@ public class AsyncTestResultsCoordinator {
     public static void reset(int numberOfCallbacks) {
         latch = new CountDownLatch(numberOfCallbacks);
         errors.clear();
+        onFailures.clear();
     }
 
     public static void waitThenAssertTestResults() {
@@ -59,9 +66,21 @@ public class AsyncTestResultsCoordinator {
         latch.countDown();
     }
 
+    public static void ignoreOnFailure(boolean newValue) {
+        ignoreOnFailure = newValue;
+    }
+
     public static void assertAsyncTaskResult() throws AssertionError {
         for(AssertionError error : errors) {
             throw error;
+        }
+        if(!ignoreOnFailure) {
+            for(Throwable thrown : onFailures) {
+                if(thrown != null) {
+                    thrown.printStackTrace();
+                    throw new AssertionError(thrown);
+                }
+            }
         }
     }
 }

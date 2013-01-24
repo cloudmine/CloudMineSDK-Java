@@ -12,10 +12,15 @@ import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
 import org.junit.Before;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
 import java.util.UUID;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
+import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -29,8 +34,6 @@ public class ServiceTestBase {
     private static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
     private static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
     protected static final String USER_PASSWORD = "test";
-//    private static final String APP_ID = "94b48aea559b4bb6bd16e1d4a8469308";
-//    private static final String API_KEY = "08cb0266f47840d28044d0e122286779";
     private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
     public static final TestServiceCallback hasSuccess = testCallback(new ResponseBaseCallback() {
@@ -85,6 +88,7 @@ public class ServiceTestBase {
 
         user().setPassword(USER_PASSWORD);
         deleteAll();
+//        deleteAllUsers();
     }
 
     private void deleteAll() {
@@ -98,25 +102,29 @@ public class ServiceTestBase {
         service.asyncLoadAllUserProfiles(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 response.wasSuccess();
-                for(CMObject object : response.getObjects()) {
+                List<CMObject> objects = response.getObjects();
+                reset(objects.size());
+                for(CMObject object : objects) {
                     if(object.hasObjectId()) {
-                        service.asyncDeleteUser(object.getObjectId(), new ObjectModificationResponseCallback() {
-                            public void onCompletion(ObjectModificationResponse response) {
-                                if(response.wasSuccess()) {
-                                    response.getDeletedObjectIds();
-                                } else {
-                                    response.getDeletedObjectIds();
-                                }
-                            }
-                        });
+                        System.out.println("Deleting: " + object.getObjectId());
+//                        reset();
+                        service.asyncDeleteUser(object.getObjectId(), testCallback());
+//                        waitForTestResults();
                     }
                 }
+                waitForTestResults(500000);
             }
         });
     }
 
+    public static void main(String... args) {
+        ServiceTestBase serviceTestBase = new ServiceTestBase();
+        serviceTestBase.setUp();
+        serviceTestBase.deleteAllUsers();
+    }
+
     public CMUser user() {
-        return user;
+        return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
     }
 
     public SimpleCMObject simpleUserObject() {
@@ -134,7 +142,8 @@ public class ServiceTestBase {
     }
 
 
-    public InputStream getObjectInputStream() throws IOException {
+    public InputStream getObjectInputStream() {
+        try {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ObjectOutputStream objectOutput = new ObjectOutputStream(output);
         objectOutput.write(55);
@@ -143,5 +152,8 @@ public class ServiceTestBase {
         objectOutput.close();
 
         return new ByteArrayInputStream(output.toByteArray());
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

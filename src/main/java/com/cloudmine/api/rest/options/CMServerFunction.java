@@ -80,7 +80,10 @@ public class CMServerFunction implements BaseURL{
         boolean isNotSet = urlString.isSet() == false;
         if(isNotSet) {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append("f=").append(CMURLBuilder.encode(snippetName)).append("&result_only=").append(resultsOnly).append("&async=").append(isAsynchronous);
+            urlBuilder.append("f=").append(CMURLBuilder.encode(snippetName)).append("&result_only=").append(resultsOnly);
+            if(isAsynchronous) {
+                urlBuilder.append("&async=").append(isAsynchronous);
+            }
             boolean haveExtraParameters = !extraParameters.isEmpty();
             if(haveExtraParameters) {
                 urlBuilder.append("&params=");
