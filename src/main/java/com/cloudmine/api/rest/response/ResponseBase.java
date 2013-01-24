@@ -4,6 +4,7 @@ import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The base class for different types of responses.
@@ -27,6 +27,8 @@ public abstract class ResponseBase<CODE> implements Transportable {
     private final Map<String, Object> baseMap;
     private final int statusCode;
     private final String messageBody;
+
+    private List<Header> headers = new ArrayList<Header>();
 
     public static int readStatusCode(HttpResponse response) {
         if(response != null &&
@@ -60,6 +62,7 @@ public abstract class ResponseBase<CODE> implements Transportable {
     }
     protected ResponseBase(HttpResponse response, boolean readMessageBody)  {
         statusCode = readStatusCode(response);
+        extractHeaders(response);
         if(readMessageBody) {
             messageBody = readMessageBody(response);
             baseMap = extractResponseMap(response, messageBody);
@@ -89,6 +92,15 @@ public abstract class ResponseBase<CODE> implements Transportable {
 
     public String getMessageBody() {
         return messageBody;
+    }
+
+    public List<Header> getHeaders() {
+        return headers;
+    }
+
+    private void extractHeaders(HttpResponse response) {
+        if ( response == null || response.getAllHeaders() == null )
+            headers.addAll(Arrays.asList(response.getAllHeaders()));
     }
 
     protected Map<String, Object> extractResponseMap(HttpResponse response, String json) {

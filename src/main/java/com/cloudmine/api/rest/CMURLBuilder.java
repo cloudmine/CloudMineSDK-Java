@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
@@ -40,7 +41,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
     public static final VERSION DEFAULT_VERSION = VERSION.V1;
     public static final String CLOUD_MINE_URL = "https://api.cloudmine.me";
 //    public static final String CLOUD_MINE_URL = "http://api-beta.cloudmine.me";
-//    public static final String CLOUD_MINE_URL = "http://localhost:3000";
+//    public static final String CLOUD_MINE_URL = "http://10.10.20.115:3001";
     public static final String APP = "/app";
 
 
@@ -201,6 +202,14 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return keyString;
     }
 
+    public CMURLBuilder mapToQuery(Map<String, Object> map) {
+        CMURLBuilder builder = this;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            builder = builder.addQuery(entry.getKey(), entry.getValue().toString());
+        }
+        return builder;
+    }
+
     public CMURLBuilder notUser() {
         return this.removeAction(USER);
     }
@@ -286,6 +295,10 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder binary() {
         return this.addAction("binary");
+    }
+
+    public CMURLBuilder device() {
+        return this.notUser().addAction("device");
     }
 
     public CMURLBuilder binary(String key) {

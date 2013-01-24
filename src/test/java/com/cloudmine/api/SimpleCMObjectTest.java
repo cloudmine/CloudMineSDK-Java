@@ -128,8 +128,10 @@ public class SimpleCMObjectTest {
         SimpleCMObject object = new SimpleCMObject("topLevelKey");
         CMGeoPoint geoObject = new CMGeoPoint(50, 50);
         object.add("geo", geoObject);
+        //String expectedJson = "{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"},\"__id__\":\"topLevelKey\",\"__access__\":[]}";
+
         String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", " + EMPTY_ACCESS_JSON +
-                "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+               "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
 
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.transportableRepresentation(), JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
 

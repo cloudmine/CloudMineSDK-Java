@@ -1,19 +1,18 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMAccessList;
-import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
-import com.cloudmine.api.LibrarySpecificClassCreator;
+import com.cloudmine.api.*;
+import com.cloudmine.api.exceptions.InvalidRequestException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.SocialGraphResponse;
 import org.apache.http.Header;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.AbstractHttpMessage;
+import java.util.Map;
 
 /**
  * A {@link CMWebService} that does all its operations at the user level
@@ -21,10 +20,8 @@ import org.apache.http.message.AbstractHttpMessage;
  */
 public class UserCMWebService extends CMWebService {
 
-
     protected final CMSessionToken sessionToken;
     private final Header userHeader;
-
 
     /**
      * Provides access to a specific users data.
@@ -109,6 +106,217 @@ public class UserCMWebService extends CMWebService {
     public void asyncLoadAccessLists(Callback<CMObjectResponse> callback) {
         HttpGet get = createGet(baseUrl.access().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
+    }
+
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, null, null, null, null, CMCallback.<SocialGraphResponse>doNothing() );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, null, null, null, CMCallback.<SocialGraphResponse>doNothing() );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param parameters
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, parameters, null, null, CMCallback.<SocialGraphResponse>doNothing() );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param parameters
+     * @param headers
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters,
+                                               Map<String, Object> headers) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, parameters, headers, null, CMCallback.<SocialGraphResponse>doNothing() );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param parameters
+     * @param headers
+     * @param data
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters,
+                                               Map<String, Object> headers,
+                                               ByteArrayEntity data) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, parameters, headers, data, CMCallback.<SocialGraphResponse>doNothing() );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param callback
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               Callback<SocialGraphResponse> callback) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, null, null, null, null, callback );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param callback
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Callback<SocialGraphResponse> callback) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, null, null, null, callback );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param parameters
+     * @param callback
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters,
+                                               Callback<SocialGraphResponse> callback ) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, parameters, null, null, callback );
+    }
+
+    /**
+     * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}
+     *
+     * @param service
+     * @param httpVerb
+     * @param baseQuery
+     * @param parameters
+     * @param headers
+     * @param callback
+     * @throws InvalidRequestException
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters,
+                                               Map<String, Object> headers,
+                                               Callback<SocialGraphResponse> callback) throws InvalidRequestException {
+        asyncSocialGraphQueryOnNetwork(service, httpVerb, baseQuery, parameters, headers, null, callback );
+    }
+
+
+
+    /**
+     * A call to execute the Query on the given social network. Returns the response body in the Callback.
+     *
+     * @param service The CMSocial.Service you want to send the query too.
+     * @param httpVerb The {@link com.cloudmine.api.rest.HttpVerb} for the request. Note that PATCH is not supported as of now.
+     * @param baseQuery The base query for the URL. Can be an empty string or null.
+     * @param parameters The Parameters which will be added to the request. Maps parameter name to value. Can be null.
+     * @param headers The headers which will be added to the request. Maps header name to value. Can be null.
+     * @param data The data which will put into the HTTP body of the request. Can be null.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
+     * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb.
+     */
+    public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
+                                               HttpVerb httpVerb,
+                                               String baseQuery,
+                                               Map<String, Object> parameters,
+                                               Map<String, Object> headers,
+                                               ByteArrayEntity data,
+                                               Callback<SocialGraphResponse> callback) throws InvalidRequestException {
+
+        CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery == null ? "" : baseQuery);
+
+        if (parameters != null)
+            url = url.addQuery("params", CMURLBuilder.encode(JsonUtilities.mapToJson(parameters)));
+
+        if (headers != null)
+            url = url.addQuery("headers", CMURLBuilder.encode(JsonUtilities.mapToJson(headers)));
+
+        String finalURL = url.asUrlString();
+        boolean canHaveData = false;
+        HttpRequestBase request = null;
+
+        switch (httpVerb) {
+            case GET:
+                request = new HttpGet(finalURL);
+                break;
+            case POST:
+                canHaveData = true;
+                request = new HttpPost(finalURL);
+                break;
+            case PUT:
+                canHaveData = true;
+                request = new HttpPut(finalURL);
+                break;
+            case DELETE:
+                request = new HttpDelete(finalURL);
+                break;
+            case PATCH:
+            default:
+                throw new InvalidRequestException("*** CloudMine Error! Unsupported Type" + httpVerb);
+        }
+
+        addCloudMineHeader(request);
+
+        if (data != null && canHaveData)
+            ((HttpEntityEnclosingRequestBase)request).setEntity(data);
+
+        executeAsyncCommand(request, callback, SocialGraphResponse.CONSTRUCTOR);
     }
 
     @Override

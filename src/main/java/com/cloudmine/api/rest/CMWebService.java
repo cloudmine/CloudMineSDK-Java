@@ -22,7 +22,6 @@ import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -858,6 +857,28 @@ public class CMWebService {
     }
 
     /**
+     * Registers the given token with CloudMine, so push notifications can be sent to the device. If the UserCMWebService is
+     * used, the token will be registered with the specific user.
+     * @param senderID The senderID given by Google for Push Notifications
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link TokenUpdateResponse} class.
+     */
+    public void registerForGCM(String senderID, Callback<TokenUpdateResponse> callback) {
+        HttpPost postRequest = createRegisterGCMPost(senderID);
+        executeAsyncCommand(postRequest, callback, tokenUpdateConstructor());
+    }
+
+    /**
+     * Unregisters the token associated with this device. If it was registered with a specific user, that user's CMWebService should
+     * be used to unregister it.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.Callback} that expects a {@link TokenUpdateResponse} class.
+     */
+    public void unregisterForGCM(Callback<TokenUpdateResponse> callback) {
+        HttpDelete deleteRequest = createDeleteToken();
+        executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
+    }
+
+
+    /**
      * Make a blocking call to load the object associated with the given objectId
      * @param objectId of the object to load
      * @return a CMObjectResponse containing success or failure, and the loaded object if it exists and the call was a success
@@ -1077,6 +1098,12 @@ public class CMWebService {
         return delete;
     }
 
+    private HttpDelete createDeleteToken() {
+        HttpDelete delete = new HttpDelete(baseUrl.device().asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
     private HttpPut createPut(String json) {
         return createPut(json, CMRequestOptions.NONE);
     }
@@ -1117,6 +1144,14 @@ public class CMWebService {
     private HttpPost createLogoutPost(CMSessionToken sessionToken) {
         HttpPost post = createPost(baseUrl.account().logout().asUrlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.getSessionToken());
+        return post;
+    }
+
+    private HttpPost createRegisterGCMPost(String senderID) {
+        HttpPost post = createPost(baseUrl.device().asUrlString());
+        Map<String, String> body = new HashMap<String, String>();
+        body.put("registration_id", senderID);
+        addJson(post, JsonUtilities.mapToJson(body));
         return post;
     }
 
@@ -1284,6 +1319,10 @@ public class CMWebService {
 
     protected ResponseConstructor<CMObjectResponse> cmObjectResponseConstructor() {
         return CMObjectResponse.CONSTRUCTOR;
+    }
+
+    protected ResponseConstructor<TokenUpdateResponse> tokenUpdateConstructor() {
+        return TokenUpdateResponse.CONSTRUCTOR;
     }
 
     @Override

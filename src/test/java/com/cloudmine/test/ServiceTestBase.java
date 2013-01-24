@@ -34,8 +34,6 @@ public class ServiceTestBase {
     private static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
     private static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
     protected static final String USER_PASSWORD = "test";
-//    private static final String APP_ID = "94b48aea559b4bb6bd16e1d4a8469308";
-//    private static final String API_KEY = "08cb0266f47840d28044d0e122286779";
     private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
     public static final TestServiceCallback hasSuccess = testCallback(new ResponseBaseCallback() {

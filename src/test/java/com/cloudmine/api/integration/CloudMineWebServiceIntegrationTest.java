@@ -1,6 +1,8 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
+import com.cloudmine.api.rest.CMSocial;
+import com.cloudmine.api.rest.HttpVerb;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.response.*;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
@@ -490,6 +493,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
                 }));
         waitThenAssertTestResults();
     }
+
 
     private void assertWasSuccess(SuccessErrorResponse response) {
         Assert.assertNotNull(response);
