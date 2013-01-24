@@ -100,7 +100,7 @@ public class CMApiCredentials {
      */
     public static CMApiCredentials getCredentials() throws CreationException {
         if(credentials.isSet() == false) {
-            throw new CreationException("Cannot access CMApiCredentials before they have been initialized");
+            throw new CreationException("Cannot access CMApiCredentials before they have been initialized. Please make a call to CMApiCredentials.initialize before attempting to make any CloudMine calls");
         }
         return credentials.value();
     }

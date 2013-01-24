@@ -9,8 +9,6 @@
     <version>0.5</version>
     <packaging>jar</packaging>
 
-
-
     <build>
         <plugins>
             <plugin>

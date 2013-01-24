@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class CMGeoPoint extends CMObject{
     private static final Logger LOG = LoggerFactory.getLogger(CMGeoPoint.class);
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};
-    private static final String[] LONGITUDE_KEYS = {"longitude", "lon", "x"};
+    private static final String[] LONGITUDE_KEYS = {"longitude", "lon", "lng", "x"};
     public static final String GEOPOINT_CLASS = "CMGeoPoint";
     public static final String LONGITUDE_KEY = "longitude";
     public static final String LATITUDE_KEY = "latitude";
