@@ -38,28 +38,34 @@ public class SocialIntegrationTest extends ServiceTestBase {
     private static UserCMWebService socialService;
     private String gistIdentifier;
     private String gistTestingId;
-    private static final String APP_ID = "f2bc46fbb67948cea6dbed4f6f39940f"; // Won't work
-    private static final String API_KEY = "c826d8bcad8a4f8685cef78efeb21ec3"; // Won't work.
 
     @Test
     public void testFIRST() {
+
         socialUser.login( testCallback(new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
-                Assert.assertTrue(response.wasSuccess());
 
                 if (response.wasSuccess()) {
                     socialService = CMWebService.getService().setLoggedInUser(socialUser.getSessionToken());
+                    System.out.println("Authenticated: " + socialUser.getAuthenticatedServices());
                 }
+                Assert.assertTrue(response.wasSuccess());
+            }
+
+            public void onFailure(Throwable t, String msg) {
+                t.printStackTrace();
             }
         }));
 
         waitForTestResults();
         Assert.assertNotNull(socialUser.getSessionToken());
+        Assert.assertFalse(socialUser.getSessionToken().toString().equalsIgnoreCase("invalidToken"));
     }
 
     @Test
     public void testTwitter() {
-        reset();
+        System.out.println("Service: " + socialService);
+
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.TWITTER,
                 HttpVerb.GET,
@@ -69,6 +75,8 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 null,
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
+                        System.out.println("Body: " + response.getMessageBody() + " - " + response.getStatusCode());
+                        System.out.println("Test? " + response.wasSuccess());
                         assertTrue(response.wasSuccess());
                     }
                 }
@@ -77,10 +85,8 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore //We don't need more tweets. this works.
     @Test
     public void testTweet() {
-        reset();
 
         String tweet = "status=Android Testing! " + UUID.randomUUID().toString();
         ByteArrayEntity tweetEntity = new ByteArrayEntity(tweet.getBytes(Charset.forName("UTF-8")));
@@ -94,6 +100,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 tweetEntity,
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
+                        System.out.print("Body: " + response.getMessageBody() + " - " + response.getStatusCode());
                         assertTrue(response.wasSuccess());
                     }
                 }
@@ -103,14 +110,11 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore
     @Test
     public void testCreateGist() {
         gistIdentifier = UUID.randomUUID().toString();
 
         String gist = "{\"description\":\"Ethan Testing\",\"public\":true,\"files\":{\"" + gistIdentifier + ".txt\":{\"content\":\"" + gistIdentifier + " - String file contents\"}}}";
-
-        reset();
 
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.GITHUB,
@@ -139,10 +143,8 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore
     @Test
     public void testListGist() {
-        reset();
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.GITHUB,
                 HttpVerb.GET,
@@ -159,10 +161,8 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore
     @Test
     public void testDeleteGist() {
-        reset();
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.GITHUB,
                 HttpVerb.DELETE,
@@ -182,6 +182,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 ));
         waitForTestResults();
     }
+
 
     @Test
     public void testGet404() {
@@ -205,7 +206,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testDropBoxAccount() {
-        reset();
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.DROPBOX,
                 HttpVerb.GET,
@@ -222,7 +222,6 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
-    @Ignore
     @Test
     public void testDropboxUpload() {
         try {
