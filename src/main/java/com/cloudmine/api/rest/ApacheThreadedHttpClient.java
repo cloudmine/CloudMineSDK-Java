@@ -89,7 +89,7 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
                     requestCounter++;
                     retry = retryHandler.retryRequest(cause, requestCounter, httpContext);
                 } catch(Exception e) {
-                    callback.onFailure(cause, "Failed");
+                    callback.onFailure(e, "Failed");
                     return;
                 }
             }
