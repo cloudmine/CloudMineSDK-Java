@@ -21,7 +21,7 @@
 
                     <dependencySourceIncludes>
                       <!-- include ONLY dependencies I control -->
-                      <dependencySourceInclude>org.test.dep:*</dependencySourceInclude>
+                      <dependencySourceInclude>com.cloudmine.api:*</dependencySourceInclude>
                     </dependencySourceIncludes>
                     <doclet></doclet>
                 </configuration>
