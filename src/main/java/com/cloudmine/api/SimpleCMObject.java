@@ -102,6 +102,9 @@ public class SimpleCMObject extends CMObject {
         super(hasObjectId);
         contents = new HashMap<String, Object>();
         topLevelMap = new HashMap<String, Object>();
+        if(hasObjectId) {
+            topLevelMap.put(getObjectId(), contents);
+        }
     }
 
     public SimpleCMObject(Map<String, Object> objectMap, boolean hasObjectId) {
