@@ -6,7 +6,7 @@
 
     <groupId>com.cloudmine.api</groupId>
     <artifactId>cloudmine-javasdk</artifactId>
-    <version>0.5</version>
+    <version>0.5.1</version>
     <packaging>jar</packaging>
 
     <build>
