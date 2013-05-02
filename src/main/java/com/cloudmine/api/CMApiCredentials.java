@@ -48,7 +48,7 @@ public class CMApiCredentials {
                 throw new CreationException("Running on android and application context not provided, try passing getApplicationContext to this method");
             }
 
-            for(Method method : Class.forName("com.cloudmine.api.DeviceIdentifier").getMethods()) { //TODO for some reason the above is broken on android 2.2.2
+            for(Method method : Class.forName("com.cloudmine.api.DeviceIdentifier").getMethods()) { 
                 if("initialize".equals(method.getName())) {
                     method.invoke(null, context);
                 }
