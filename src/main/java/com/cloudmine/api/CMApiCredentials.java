@@ -19,7 +19,7 @@ public class CMApiCredentials {
     private static final Logger LOG = LoggerFactory.getLogger(CMApiCredentials.class);
     private static final String HEADER_KEY = "X-CloudMine-ApiKey";
 
-    private static final Immutable<CMApiCredentials> credentials = new Immutable<CMApiCredentials>();
+    private static CMApiCredentials credentials;
 
     private final String applicationIdentifier;
     private final String applicationApiKey;
@@ -48,7 +48,7 @@ public class CMApiCredentials {
                 throw new CreationException("Running on android and application context not provided, try passing getApplicationContext to this method");
             }
 
-            for(Method method : Class.forName("com.cloudmine.api.DeviceIdentifier").getMethods()) { //for some reason the above is broken on android 2.2.2
+            for(Method method : Class.forName("com.cloudmine.api.DeviceIdentifier").getMethods()) { //TODO for some reason the above is broken on android 2.2.2
                 if("initialize".equals(method.getName())) {
                     method.invoke(null, context);
                 }
@@ -72,20 +72,11 @@ public class CMApiCredentials {
      * @return the initialized CMApiCredentials instance
      */
     public static synchronized CMApiCredentials initialize(String id, String apiKey) throws CreationException {
-        if(id == null || apiKey == null) {
-            throw new CreationException("Illegal null argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
+        if(Strings.isEmpty(id) || Strings.isEmpty(apiKey)) {
+            throw new CreationException("Illegal null/empty argument passed to initialize. Given id=" + id + " and apiKey=" + apiKey);
         }
-        if(credentials.isSet()) {
-
-            String currentApiKey = credentials.value().applicationApiKey;
-            String currentIdentifier = credentials.value().applicationIdentifier;
-            boolean valuesAreDifferent = !(id.equals(currentIdentifier) && apiKey.equals(currentApiKey));
-            if(valuesAreDifferent) {
-                throw new CreationException("Multiple calls mode to initialize with different values");
-            }
-        }
-        credentials.setValue(new CMApiCredentials(id, apiKey));
-        return credentials.value();
+        credentials = new CMApiCredentials(id, apiKey);
+        return credentials;
     }
 
     private CMApiCredentials(String id, String apiKey) {
@@ -99,10 +90,10 @@ public class CMApiCredentials {
      * @throws CreationException if called before the credentials have been initialized
      */
     public static CMApiCredentials getCredentials() throws CreationException {
-        if(credentials.isSet() == false) {
+        if(credentials == null) {
             throw new CreationException("Cannot access CMApiCredentials before they have been initialized. Please make a call to CMApiCredentials.initialize before attempting to make any CloudMine calls");
         }
-        return credentials.value();
+        return credentials;
     }
 
     /**
