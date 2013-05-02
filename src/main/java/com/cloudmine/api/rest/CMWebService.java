@@ -743,6 +743,17 @@ public class CMWebService {
     }
 
     /**
+     * Change the user's e-mail address
+     * @param user
+     * @param newEmail
+     * @param callback
+     */
+    public void asyncChangeEmail(CMUser user, String newEmail, Callback<CMResponse> callback) {
+        HttpPost updateEmail = createUpdateEmail(user, newEmail);
+        executeAsyncCommand(updateEmail, callback);
+    }
+
+    /**
      * Change the given user's password to newPassword
      * @param user the user whose password is to be changed
      * @param newPassword the new password
@@ -1144,6 +1155,13 @@ public class CMWebService {
     private HttpPost createLogoutPost(CMSessionToken sessionToken) {
         HttpPost post = createPost(baseUrl.account().logout().asUrlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.getSessionToken());
+        return post;
+    }
+
+    private HttpPost createUpdateEmail(CMUser user, String newEmail) {
+        HttpPost post = createPost(baseUrl.account().credentials().asUrlString());
+        addAuthorizationHeader(user, post);
+        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty("email", newEmail)));
         return post;
     }
 
