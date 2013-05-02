@@ -1,6 +1,10 @@
 HEAD
 =====
 
+Release 0.5.1
+=====
+* Fix a bug where new SimpleCMObject(true) would appear to not have a top level key.
+
 Release 0.5
 =====
 * Updated social login to allow scope parameter, and other parameters.
