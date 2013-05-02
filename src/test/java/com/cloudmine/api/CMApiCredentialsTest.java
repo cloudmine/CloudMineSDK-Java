@@ -1,6 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.test.ServiceTestBase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -11,7 +12,7 @@ import static org.junit.Assert.fail;
  * User: johnmccarthy
  * Date: 6/12/12, 3:26 PM
  */
-public class CMApiCredentialsTest {
+public class CMApiCredentialsTest extends ServiceTestBase {
 
     @Test
     public void testInitialize() {
@@ -38,7 +39,7 @@ public class CMApiCredentialsTest {
             fail();
         }
 
-        CMApiCredentials.initialize("someId", "someApiKey"); 
+        CMApiCredentials.initialize("someId", "someApiKey");
         assertEquals("someId", CMApiCredentials.getApplicationIdentifier());
         assertEquals("someApiKey", CMApiCredentials.getApplicationApiKey());
     }
