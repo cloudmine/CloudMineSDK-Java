@@ -85,7 +85,7 @@ public class ApacheThreadedHttpClient implements AsynchronousHttpClient {
                     // there's a bug in HttpClient 4.0.x that on some occasions causes
                     // DefaultRequestExecutor to throw an NPE, see
                     // http://code.google.com/p/android/issues/detail?id=5255
-                    cause = new IOException("NPE", e);
+                    cause = new IOException("NPE");
                     requestCounter++;
                     retry = retryHandler.retryRequest(cause, requestCounter, httpContext);
                 } catch(Exception e) {
