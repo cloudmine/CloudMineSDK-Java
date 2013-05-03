@@ -97,13 +97,19 @@ public class CMUser extends CMObject {
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
      * @param password password for the user
-     * @return a new CMUser instance
-     * @throws CreationException if email or password are null
      */
-    public CMUser(String email, String password) throws CreationException {
+    public CMUser(String email, String password) {
         super(false);
         this.email = email;
         this.password = password;
+    }
+
+    /**
+     * Instantiate a new CMUser instance with the given email. Password will be blank and should be set before logging in
+     * @param email email of the user
+     */
+    public CMUser(String email) {
+        this(email, "");
     }
 
     public String transportableRepresentation() throws ConversionException {
@@ -268,6 +274,46 @@ public class CMUser extends CMObject {
 
     public void loadAccessLists() {
         loadAccessLists(CMCallback.<CMObjectResponse>doNothing());
+    }
+
+    /**
+     * Change this user's email address. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newEmail The new e-mail address
+     */
+    public void changeEmailAddress(String newEmail) {
+        changeEmailAddress(newEmail, CMCallback.<CMResponse>doNothing());
+    }
+
+    /**
+     * Change this user's email address. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newEmail The new e-mail address
+     * @param callback
+     */
+    public void changeEmailAddress(String newEmail, Callback<CMResponse> callback) {
+        CMWebService.getService().asyncChangeEmail(this, newEmail, callback);
+    }
+
+    /**
+     * Change this user's email address. The user's old session tokens will be invalid upon completion of this operation
+     * @param newEmail the new e-mail address
+     * @param currentPassword
+     * @param callback
+     */
+    public void changeEmailAddress(String newEmail, String currentPassword, Callback<CMResponse> callback) {
+        setPassword(currentPassword);
+        changeEmailAddress(newEmail, callback);
+    }
+
+    /**
+     * Change this user's email address. The user's old session tokens will be invalid upon completion of this operation
+     * @param newEmail the new e-mail address
+     * @param currentPassword
+     */
+    public void changeEmailAddress(String newEmail, String currentPassword) {
+        setPassword(currentPassword);
+        changeEmailAddress(newEmail);
     }
 
     /**
