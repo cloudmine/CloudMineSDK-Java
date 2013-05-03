@@ -88,11 +88,14 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         user.changeEmailAddress(newEmail, testCallback());
         waitThenAssertTestResults();
         user.setEmail(newEmail);
-        user.login(testCallback(new LoginResponseCallback() {
-            public void onCompletion(LoginResponse response) {
-                assertTrue(response.wasSuccess());
-            }
-        }));
+        user.login(hasSuccess);
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testUserNameUser() {
+        CMUser user = CMUser.CMUserWithUserName(randomString(), "test");
+        user.createUser(hasSuccess);
         waitThenAssertTestResults();
     }
 

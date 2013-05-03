@@ -31,7 +31,7 @@ import java.util.*;
 public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
-    public static final String MISSING_VALUE = "unset";
+    public static final String USERNAME_KEY = "username";
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
     public static final String CREDENTIALS_KEY = "credentials";
@@ -86,13 +86,34 @@ public class CMUser extends CMObject {
 
 
     private String email;
+    private String userName;
     private String password;
     private CMSessionToken sessionToken;
     private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
 
     protected CMUser() {
-        this(MISSING_VALUE, MISSING_VALUE);
+        this("", "");
     }
+
+    public static CMUser CMUserWithUserName(String userName, String password) {
+        return new CMUser(null, userName, password);
+    }
+
+    public static CMUser CMUserWithUserName(String userName) {
+        return new CMUser(null, userName, "");
+    }
+
+    /**
+     * Instantiate a new CMUser instance with the given email, username, and password. If you only want to set the username, use #CMUserWithUserName or pass null for the email
+     * @param email email of the user
+     * @param userName the username of the user
+     * @param password password for the user
+     */
+    public CMUser(String email, String userName, String password) {
+        this(email, password);
+        this.userName = userName;
+    }
+
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -113,9 +134,11 @@ public class CMUser extends CMObject {
     }
 
     public String transportableRepresentation() throws ConversionException {
-        String credentialsJson = JsonUtilities.jsonCollection(
-                                        JsonUtilities.createJsonProperty(EMAIL_KEY, getEmail()),
-                                        JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).transportableRepresentation();
+        List<String> credentials = new ArrayList<String>();
+        if(Strings.isNotEmpty(email)) credentials.add(JsonUtilities.createJsonProperty(EMAIL_KEY, email));
+        if(Strings.isNotEmpty(userName)) credentials.add(JsonUtilities.createJsonProperty(USERNAME_KEY, userName));
+        credentials.add(JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword()));
+        String credentialsJson = JsonUtilities.jsonCollection(credentials).transportableRepresentation();
         return JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonPropertyToJson(CREDENTIALS_KEY, credentialsJson),
                 JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).transportableRepresentation();
