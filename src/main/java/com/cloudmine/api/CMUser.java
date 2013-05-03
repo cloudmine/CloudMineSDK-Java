@@ -189,6 +189,14 @@ public class CMUser extends CMObject {
         this.email = email;
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
     public void setSessionToken(CMSessionToken token) {
         this.sessionToken = token;
     }
@@ -315,7 +323,7 @@ public class CMUser extends CMObject {
      * @param callback
      */
     public void changeEmailAddress(String newEmail, Callback<CMResponse> callback) {
-        CMWebService.getService().asyncChangeEmail(this, newEmail, callback);
+        CMWebService.getService().asyncChangeEmail(email, password, newEmail, callback);
     }
 
     /**
@@ -337,6 +345,47 @@ public class CMUser extends CMObject {
     public void changeEmailAddress(String newEmail, String currentPassword) {
         setPassword(currentPassword);
         changeEmailAddress(newEmail);
+    }
+
+    /**
+     * Change this user's name. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName The new user name
+     */
+    public void changeUserName(String newUserName) {
+        changeUserName(newUserName, CMCallback.<CMResponse>doNothing());
+    }
+
+
+    /**
+     * Change this user's name. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName The new user name
+     * @param callback
+     */
+    public void changeUserName(String newUserName, Callback<CMResponse> callback) {
+        CMWebService.getService().asyncChangeUserName(userName, password, newUserName, callback);
+    }
+
+    /**
+     * Change this user's name. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName the new user name
+     * @param currentPassword
+     * @param callback
+     */
+    public void changeUserName(String newUserName, String currentPassword, Callback<CMResponse> callback) {
+        setPassword(currentPassword);
+        changeUserName(newUserName, callback);
+    }
+
+    /**
+     * Change this user's name. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName the new user name
+     * @param currentPassword
+     */
+    public void changeUserName(String newUserName, String currentPassword) {
+        setPassword(currentPassword);
+        changeUserName(newUserName);
     }
 
     /**
