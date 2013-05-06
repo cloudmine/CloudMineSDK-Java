@@ -3,8 +3,14 @@ package com.cloudmine.api.integration;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
-import com.cloudmine.api.rest.callbacks.*;
-import com.cloudmine.api.rest.response.*;
+import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
+import com.cloudmine.api.rest.callbacks.CMResponseCallback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
+import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
+import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.ServiceTestBase;
@@ -88,11 +94,16 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         user.changeEmailAddress(newEmail, testCallback());
         waitThenAssertTestResults();
         user.setEmail(newEmail);
-        user.login(testCallback(new LoginResponseCallback() {
-            public void onCompletion(LoginResponse response) {
-                assertTrue(response.wasSuccess());
-            }
-        }));
+        user.login(hasSuccess);
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testUserNameUser() {
+        CMUser user = CMUser.CMUserWithUserName(randomString(), "test");
+        user.createUser(hasSuccess);
+        waitThenAssertTestResults();
+        user.login(hasSuccess);
         waitThenAssertTestResults();
     }
 
@@ -145,6 +156,24 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         reloadedUser.login(hasSuccess);
         waitThenAssertTestResults();
         assertEquals(50, reloadedUser.getAge());
+    }
+
+    @Test
+    public void testChangeUserName() {
+        CMUser user = CMUser.CMUserWithUserName(randomString(), "test");
+        user.createUser(hasSuccess);
+        waitThenAssertTestResults();
+        String newUserName = randomString();
+        user.changeUserName(newUserName, hasSuccess);
+        waitThenAssertTestResults();
+        user.setUserName(newUserName);
+        user.setPassword("test");
+        user.login(testCallback(new LoginResponseCallback() {
+            public void onCompletion(LoginResponse response) {
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
     }
 
     @Test

@@ -31,7 +31,7 @@ import java.util.*;
 public class CMUser extends CMObject {
     private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
 
-    public static final String MISSING_VALUE = "unset";
+    public static final String USERNAME_KEY = "username";
     public static final String EMAIL_KEY = "email";
     public static final String PASSWORD_KEY = "password";
     public static final String CREDENTIALS_KEY = "credentials";
@@ -86,13 +86,34 @@ public class CMUser extends CMObject {
 
 
     private String email;
+    private String userName;
     private String password;
     private CMSessionToken sessionToken;
     private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
 
     protected CMUser() {
-        this(MISSING_VALUE, MISSING_VALUE);
+        this("", "");
     }
+
+    public static CMUser CMUserWithUserName(String userName, String password) {
+        return new CMUser(null, userName, password);
+    }
+
+    public static CMUser CMUserWithUserName(String userName) {
+        return new CMUser(null, userName, "");
+    }
+
+    /**
+     * Instantiate a new CMUser instance with the given email, username, and password. If you only want to set the username, use #CMUserWithUserName or pass null for the email
+     * @param email email of the user
+     * @param userName the username of the user
+     * @param password password for the user
+     */
+    public CMUser(String email, String userName, String password) {
+        this(email, password);
+        this.userName = userName;
+    }
+
     /**
      * Instantiate a new CMUser instance with the given email and password
      * @param email email of the user
@@ -113,9 +134,11 @@ public class CMUser extends CMObject {
     }
 
     public String transportableRepresentation() throws ConversionException {
-        String credentialsJson = JsonUtilities.jsonCollection(
-                                        JsonUtilities.createJsonProperty(EMAIL_KEY, getEmail()),
-                                        JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword())).transportableRepresentation();
+        List<String> credentials = new ArrayList<String>();
+        if(Strings.isNotEmpty(email)) credentials.add(JsonUtilities.createJsonProperty(EMAIL_KEY, email));
+        if(Strings.isNotEmpty(userName)) credentials.add(JsonUtilities.createJsonProperty(USERNAME_KEY, userName));
+        credentials.add(JsonUtilities.createJsonProperty(PASSWORD_KEY, getPassword()));
+        String credentialsJson = JsonUtilities.jsonCollection(credentials).transportableRepresentation();
         return JsonUtilities.jsonCollection(
                 JsonUtilities.createJsonPropertyToJson(CREDENTIALS_KEY, credentialsJson),
                 JsonUtilities.createJsonPropertyToJson(PROFILE_KEY, profileTransportRepresentation())).transportableRepresentation();
@@ -164,6 +187,14 @@ public class CMUser extends CMObject {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     public void setSessionToken(CMSessionToken token) {
@@ -292,7 +323,7 @@ public class CMUser extends CMObject {
      * @param callback
      */
     public void changeEmailAddress(String newEmail, Callback<CMResponse> callback) {
-        CMWebService.getService().asyncChangeEmail(this, newEmail, callback);
+        CMWebService.getService().asyncChangeEmail(email, password, newEmail, callback);
     }
 
     /**
@@ -314,6 +345,47 @@ public class CMUser extends CMObject {
     public void changeEmailAddress(String newEmail, String currentPassword) {
         setPassword(currentPassword);
         changeEmailAddress(newEmail);
+    }
+
+    /**
+     * Change this user's name. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName The new user name
+     */
+    public void changeUserName(String newUserName) {
+        changeUserName(newUserName, CMCallback.<CMResponse>doNothing());
+    }
+
+
+    /**
+     * Change this user's name. Note that the password must be set; if the user has been logged in, the password
+     * has been cleared and must be reset. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName The new user name
+     * @param callback
+     */
+    public void changeUserName(String newUserName, Callback<CMResponse> callback) {
+        CMWebService.getService().asyncChangeUserName(userName, password, newUserName, callback);
+    }
+
+    /**
+     * Change this user's name. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName the new user name
+     * @param currentPassword
+     * @param callback
+     */
+    public void changeUserName(String newUserName, String currentPassword, Callback<CMResponse> callback) {
+        setPassword(currentPassword);
+        changeUserName(newUserName, callback);
+    }
+
+    /**
+     * Change this user's name. The user's old session tokens will be invalid upon completion of this operation
+     * @param newUserName the new user name
+     * @param currentPassword
+     */
+    public void changeUserName(String newUserName, String currentPassword) {
+        setPassword(currentPassword);
+        changeUserName(newUserName);
     }
 
     /**

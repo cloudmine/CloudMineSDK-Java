@@ -160,6 +160,10 @@ public class JsonUtilities {
         return jsonCollection(jsonEntities.toArray(new Transportable[jsonEntities.size()]));
     }
 
+    public static Transportable jsonCollection(List<String> jsonEntities) {
+        return jsonCollection(jsonEntities.toArray(new String[jsonEntities.size()]));
+    }
+
     /**
      * Enclose all the passed in strings in a JSON collection
      * @param jsonEntities JSON strings to put in the collection
