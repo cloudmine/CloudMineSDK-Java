@@ -48,8 +48,8 @@ public class CMSessionToken implements Transportable {
             expires = EXPIRED_DATE;
         } else {
             Map<String, Object> objectMap = JsonUtilities.jsonToMap(transportString);
-            boolean isMissingKey = !objectMap.containsKey(SESSION_KEY) ||
-                    !objectMap.containsKey(EXPIRES_KEY);
+            boolean isMissingKey = objectMap.get(SESSION_KEY) == null ||
+                    objectMap.get(EXPIRES_KEY) == null;
             if(isMissingKey) {
                 sessionToken = INVALID_TOKEN;
                 expires = EXPIRED_DATE;
@@ -70,7 +70,7 @@ public class CMSessionToken implements Transportable {
             try {
                 tempDate = LOGIN_EXPIRES_FORMAT.parse(dateString);
             } catch (ParseException e) {
-                throw new ConversionException(e);
+                tempDate = EXPIRED_DATE;
             }
         } else {
             tempDate = EXPIRED_DATE;
@@ -115,7 +115,11 @@ public class CMSessionToken implements Transportable {
     /**
      * Whether this token has expired or not.
      * @return false if it has expired, true otherwise
+     * @deprecated when a request is made with a token, the expired date will be updated on the server side but not locally, so
+     * this can return false when the token is still valid. It can also return true after a user's email, name, or password
+     * has been changed, when in fact it will be invalid after that operation
      */
+    @Deprecated
     public boolean isValid() {
         return FAILED != this &&
                 expires.after(new Date());

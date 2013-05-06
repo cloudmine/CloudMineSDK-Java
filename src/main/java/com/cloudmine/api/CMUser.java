@@ -203,10 +203,22 @@ public class CMUser extends CMObject {
     /**
      * Check whether this user is logged in
      * @return true if the user is logged in successfully; false otherwise
+     * @deprecated relies on {@link com.cloudmine.api.CMSessionToken#isValid()} and is deprecated for the same reason
      */
     @JsonIgnore
+    @Deprecated
     public boolean isLoggedIn() {
         return sessionToken != null && sessionToken.isValid();
+    }
+
+    /**
+     * Whether there is enough information set on this user to attempt a login. Required information is a password and
+     * either a username or e-mail
+     * @return true if a log in attempt could be made
+     */
+    public boolean isLoginAttemptPossible() {
+        return Strings.isNotEmpty(password) &&
+                (Strings.isNotEmpty(email));
     }
 
     private boolean isCreated() {
@@ -569,7 +581,8 @@ public class CMUser extends CMObject {
                 try {
                     clearPassword();
                     if(response.wasSuccess() &&
-                            response.getSessionToken().isValid()) {
+                            response.getSessionToken() != null &&
+                            response.getSessionToken().isValid()) { //this call is still valid since non of the reasons for deprecating this method can apply at this point
                         sessionToken = response.getSessionToken();
                         mergeProfilesUpdates(response.getProfileTransportRepresentation());
                     }

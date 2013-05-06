@@ -11,6 +11,10 @@ public class Strings {
         return string == null || string.length() == 0;
     }
 
+    public static boolean isNotEmpty(String string) {
+        return !isEmpty(string);
+    }
+
     public static String asString(Object obj) {
         return obj == null ?
                 "" :
