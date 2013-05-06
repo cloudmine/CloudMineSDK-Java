@@ -15,9 +15,19 @@ import java.net.URL;
  */
 public abstract class BaseURLBuilder<T> implements BaseURL {
     private static final Logger LOG = LoggerFactory.getLogger(BaseURLBuilder.class);
+    public static final String FIRST_QUERY_SEPARATOR = "?";
+    public static final String SUBSEQUENT_QUERY_SEPARATOR = "&";
+    public static final String QUERY_CONNECTOR = "=";
     protected final String baseUrl;
     protected final String actions;
     protected final String queryParams;
+
+    @Deprecated
+    protected BaseURLBuilder() {
+        baseUrl = null;
+        actions = null;
+        queryParams = null;
+    }
 
     /**
      * Instantiate a new BaseURLBuilder
@@ -30,7 +40,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     protected BaseURLBuilder(String baseUrl, String actions, String queryParams) {
         if(baseUrl == null)
             throw new NullPointerException("URLBuilder cannot build on null baseUrl");
-        baseUrl = removeEndSeperator(baseUrl);
+        baseUrl = removeEndSeparator(baseUrl);
         this.baseUrl = baseUrl;
         this.actions = actions;
         this.queryParams = queryParams;
@@ -39,21 +49,21 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     protected abstract T newBuilder(String baseUrl, String actions, String queryParams);
 
     protected String toQueryParam(String key, String value) {
-        return key + "=" + value;
+        return key + QUERY_CONNECTOR + value;
     }
 
     protected String querySeparator() {
         return Strings.isEmpty(queryParams) ?
-                "?" :
-                "&";
+                FIRST_QUERY_SEPARATOR :
+                SUBSEQUENT_QUERY_SEPARATOR;
     }
 
     protected static String formatUrlPart(String url) {
-        return removeEndSeperator(
-                startWithSeperator(url));
+        return removeEndSeparator(
+                startWithSeparator(url));
     }
 
-    protected static String removeEndSeperator(String url) {
+    protected static String removeEndSeparator(String url) {
         if(url.endsWith(SEPARATOR)) {
             int endOfString = url.length() - SEPARATOR.length();
             url = url.substring(0, endOfString);
@@ -61,7 +71,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
         return url;
     }
 
-    protected static String startWithSeperator(String url) {
+    protected static String startWithSeparator(String url) {
         if(url.startsWith(SEPARATOR)) {
             return url;
         }
@@ -90,7 +100,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
     }
 
     /**
-     * Add the given query parameter to the URL, and returns the new builder. Query params are formated to
+     * Add the given query parameter to the URL, and returns the new builder. Query params are formatted to
      * look like "?key=value"
      * @param key the query param key
      * @param value the query param value
@@ -140,7 +150,7 @@ public abstract class BaseURLBuilder<T> implements BaseURL {
 
     @Override
     public boolean equals(Object other) {
-        if(other != null && other instanceof BaseURLBuilder) { //This will allow this to equal subclasses of the URL builder
+        if(other instanceof BaseURLBuilder) { //This will allow this to equal subclasses of the URL builder
             return ((BaseURLBuilder)other).asUrlString().equals(this.asUrlString());
         } else {
             return false;

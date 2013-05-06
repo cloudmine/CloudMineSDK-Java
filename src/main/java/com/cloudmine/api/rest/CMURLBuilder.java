@@ -16,7 +16,18 @@ import java.util.Map;
  * Helps with creating CloudMine service URLs. You probably have no reason to instantiate this class directly
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
+public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
+
+
+    protected static String extractAppId(String url) {
+        if(url == null)
+            return url;
+        String[] urlParts = url.split(APP, 2);
+        if(urlParts.length != 2) {
+            return null;
+        }
+        return urlParts[1];
+    }
 
     public static final String USER = "user";
 
@@ -34,7 +45,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
 
         @Override
         public String toString() {
-            return asUrlString();
+            return urlRepresentation;
         }
     }
     private static final Logger LOG = LoggerFactory.getLogger(CMURLBuilder.class);
@@ -78,14 +89,8 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
         return new CMURLBuilder(baseUrl, actions, queryParams);
     }
 
-    protected static String extractAppId(String url) {
-        if(url == null)
-            return url;
-        String[] urlParts = url.split(APP, 2);
-        if(urlParts.length != 2) {
-            return null;
-        }
-        return urlParts[1];
+    public CMURLBuilder copy() {
+        return new CMURLBuilder(baseUrl.toString(), actions.toString(), queryParams.toString());
     }
 
     /**
@@ -101,7 +106,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      * @return the query part of this url
      */
     public String getQueries() {
-        return queryParams;
+        return queryParams.toString();
     }
 
     /**
@@ -315,7 +320,7 @@ public class CMURLBuilder extends BaseURLBuilder<CMURLBuilder> {
      * @return
      */
     public CMURLBuilder addKey(String key) {
-        if(key != null) {
+        if(Strings.isNotEmpty(key)) {
             return this.addAction(key);
         }
         return this;

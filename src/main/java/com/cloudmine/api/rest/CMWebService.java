@@ -114,7 +114,7 @@ public class CMWebService {
         }
         UserCMWebService userService = loggedInUserServices.get(token);
         if(userService == null) {
-            userService = UserCMWebService.UserCMWebService(baseUrl.user(), token, asyncHttpClient);
+            userService = UserCMWebService.UserCMWebService(baseUrl.copy().user(), token, asyncHttpClient);
             loggedInUserServices.put(token, userService);
         }
         return userService;
@@ -1061,7 +1061,7 @@ public class CMWebService {
 
 
     private HttpGet createCompleteSocialGet(String challenge) {
-        String url = baseUrl.account().social().login().status().statusChallenge(challenge).asUrlString();
+        String url = baseUrl.copy().account().social().login().status().statusChallenge(challenge).asUrlString();
         HttpGet get = new HttpGet(url);
         addCloudMineHeader(get);
         return get;
@@ -1071,19 +1071,19 @@ public class CMWebService {
         return createSearch(search, CMRequestOptions.NONE);
     }
     private HttpGet createSearch(String search, CMRequestOptions options) {
-        HttpGet get = new HttpGet(baseUrl.search(search).options(options).asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().search(search).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpDelete createDeleteUser(String userId) {
-        HttpDelete delete = new HttpDelete(baseUrl.account().addKey(userId).asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().account().addKey(userId).asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpDelete createDeleteAll() {
-        HttpDelete delete = new HttpDelete(baseUrl.deleteAll().asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().deleteAll().asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
@@ -1093,7 +1093,7 @@ public class CMWebService {
     }
 
     private HttpDelete createDelete(String key, CMRequestOptions options) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(key).options(options).asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().delete(key).options(options).asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
@@ -1103,14 +1103,14 @@ public class CMWebService {
     }
 
     private HttpDelete createDelete(Collection<String> keys, CMRequestOptions options) {
-        HttpDelete delete = new HttpDelete(baseUrl.delete(keys).options(options).asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().delete(keys).options(options).asUrlString());
 
         addCloudMineHeader(delete);
         return delete;
     }
 
     private HttpDelete createDeleteToken() {
-        HttpDelete delete = new HttpDelete(baseUrl.device().asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().device().asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }
@@ -1119,21 +1119,21 @@ public class CMWebService {
         return createPut(json, CMRequestOptions.NONE);
     }
     private HttpPut createPut(String json, CMRequestOptions options) {
-        HttpPut put = new HttpPut(baseUrl.text().options(options).asUrlString());
+        HttpPut put = new HttpPut(baseUrl.copy().text().options(options).asUrlString());
         addCloudMineHeader(put);
         addJson(put, json);
         return put;
     }
 
     private HttpPut createPut(CMUser user) throws ConversionException {
-        HttpPut put = new HttpPut(baseUrl.account().create().asUrlString());
+        HttpPut put = new HttpPut(baseUrl.copy().account().create().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.transportableRepresentation());
         return put;
     }
 
     private HttpPut createPut(CMFile file) {
-        HttpPut put = new HttpPut(baseUrl.binary(file.getFileId()).asUrlString());
+        HttpPut put = new HttpPut(baseUrl.copy().binary(file.getFileId()).asUrlString());
         addCloudMineHeader(put);
         put.setEntity(new ByteArrayEntity(file.getFileContents()));
         put.addHeader("Content-Type", file.getMimeType());
@@ -1141,32 +1141,32 @@ public class CMWebService {
     }
 
     private HttpPost createJsonPost(String json) {
-        HttpPost post = createPost(baseUrl.text().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().text().asUrlString());
         addJson(post, json);
         return post;
     }
 
     private HttpPost createLoginPost(CMUser user) {
-        HttpPost post = createPost(baseUrl.account().login().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().account().login().asUrlString());
         addAuthorizationHeader(user, post);
         return post;
     }
 
     private HttpPost createLogoutPost(CMSessionToken sessionToken) {
-        HttpPost post = createPost(baseUrl.account().logout().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().account().logout().asUrlString());
         post.addHeader("X-CloudMine-SessionToken", sessionToken.getSessionToken());
         return post;
     }
 
     private HttpPost createUpdateEmail(CMUser user, String newEmail) {
-        HttpPost post = createPost(baseUrl.account().credentials().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
         addAuthorizationHeader(user, post);
         addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty("email", newEmail)));
         return post;
     }
 
     private HttpPost createRegisterGCMPost(String senderID) {
-        HttpPost post = createPost(baseUrl.device().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().device().asUrlString());
         Map<String, String> body = new HashMap<String, String>();
         body.put("registration_id", senderID);
         addJson(post, JsonUtilities.mapToJson(body));
@@ -1180,7 +1180,7 @@ public class CMWebService {
     }
 
     private HttpGet createGet() {
-        HttpGet get = new HttpGet(baseUrl.text().asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().text().asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -1196,13 +1196,13 @@ public class CMWebService {
     }
 
     private HttpGet createGetFile(String key, CMRequestOptions options) {
-        HttpGet get = new HttpGet(baseUrl.binary(key).options(options).asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().binary(key).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpGet createGetFileMetaData(String fileId, CMRequestOptions options) {
-        HttpGet get = new HttpGet(baseUrl.search(createFileMetaDataSearch(fileId)).options(options).asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().search(createFileMetaDataSearch(fileId)).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -1213,7 +1213,7 @@ public class CMWebService {
     }
 
     private HttpGet createGetAllUsers() {
-        HttpGet get = new HttpGet(baseUrl.account().asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().account().asUrlString());
         addCloudMineHeader(get);
         return get;
     }
@@ -1223,7 +1223,7 @@ public class CMWebService {
     }
 
     private HttpGet createProfileSearch(String searchString, CMRequestOptions options) {
-        return createGet(baseUrl.account().search(searchString, "p").options(options).asUrlString());
+        return createGet(baseUrl.copy().account().search(searchString, "p").options(options).asUrlString());
     }
 
     private HttpGet createGetObjects(Collection<String> keys) {
@@ -1231,13 +1231,13 @@ public class CMWebService {
     }
 
     private HttpGet createGetObjects(Collection<String> keys, CMRequestOptions options) {
-        HttpGet get = new HttpGet(baseUrl.text().objectIds(keys).options(options).asUrlString());
+        HttpGet get = new HttpGet(baseUrl.copy().text().objectIds(keys).options(options).asUrlString());
         addCloudMineHeader(get);
         return get;
     }
 
     private HttpPost createResetPasswordConfirmation(String token, String newPassword) {
-        HttpPost post = new HttpPost(baseUrl.account().password().reset().addAction(token).asUrlString());
+        HttpPost post = new HttpPost(baseUrl.copy().account().password().reset().addAction(token).asUrlString());
         addCloudMineHeader(post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
@@ -1250,7 +1250,7 @@ public class CMWebService {
     }
 
     private HttpPost createResetPassword(String email) {
-        HttpPost post = new HttpPost(baseUrl.account().password().reset().asUrlString());
+        HttpPost post = new HttpPost(baseUrl.copy().account().password().reset().asUrlString());
         addCloudMineHeader(post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
@@ -1267,7 +1267,7 @@ public class CMWebService {
     }
 
     private HttpPost createChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options) {
-        HttpPost post = new HttpPost(baseUrl.account().password().change().options(options).asUrlString());
+        HttpPost post = new HttpPost(baseUrl.copy().account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);
         addAuthorizationHeader(email, oldPassword, post);
         try {
@@ -1351,7 +1351,7 @@ public class CMWebService {
         CMWebService that = (CMWebService) o;
 
         if (!asyncHttpClient.equals(that.asyncHttpClient)) return false;
-        if (!baseUrl.equals(that.baseUrl)) return false;
+        if (!baseUrl.copy().equals(that.baseUrl)) return false;
         if (!httpClient.equals(that.httpClient)) return false;
         if (loggedInSessionToken != null ? !loggedInSessionToken.equals(that.loggedInSessionToken) : that.loggedInSessionToken != null)
             return false;
@@ -1363,7 +1363,7 @@ public class CMWebService {
 
     @Override
     public int hashCode() {
-        int result = baseUrl.hashCode();
+        int result = baseUrl.copy().hashCode();
         result = 31 * result + httpClient.hashCode();
         result = 31 * result + asyncHttpClient.hashCode();
         result = 31 * result + (loggedInSessionToken != null ? loggedInSessionToken.hashCode() : 0);

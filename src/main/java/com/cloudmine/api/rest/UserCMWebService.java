@@ -85,7 +85,7 @@ public class UserCMWebService extends CMWebService {
      * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, recommended that {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used
      */
     public void asyncLoadLoggedInUserProfile(Callback<CMObjectResponse> callback) {
-        HttpGet get = createGet(baseUrl.account().mine().asUrlString());
+        HttpGet get = createGet(baseUrl.copy().account().mine().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
@@ -104,7 +104,7 @@ public class UserCMWebService extends CMWebService {
      * @param callback expects a {@link com.cloudmine.api.rest.response.CMObjectResponse}, it is recommended that a {@link com.cloudmine.api.rest.callbacks.CMObjectResponseCallback} is used here
      */
     public void asyncLoadAccessLists(Callback<CMObjectResponse> callback) {
-        HttpGet get = createGet(baseUrl.access().asUrlString());
+        HttpGet get = createGet(baseUrl.copy().access().asUrlString());
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
@@ -279,7 +279,7 @@ public class UserCMWebService extends CMWebService {
                                                ByteArrayEntity data,
                                                Callback<SocialGraphResponse> callback) throws InvalidRequestException {
 
-        CMURLBuilder url = baseUrl.social().addKey(service.asUrlString()).addKey(baseQuery == null ? "" : baseQuery);
+        CMURLBuilder url = baseUrl.copy().social().addKey(service.asUrlString()).addKey(baseQuery == null ? "" : baseQuery);
 
         if (parameters != null)
             url = url.addQuery("params", CMURLBuilder.encode(JsonUtilities.mapToJson(parameters)));
@@ -325,14 +325,14 @@ public class UserCMWebService extends CMWebService {
     }
 
     private HttpPost createAccessListPost(CMAccessList list) {
-        HttpPost post = new HttpPost(baseUrl.access().asUrlString());
+        HttpPost post = new HttpPost(baseUrl.copy().access().asUrlString());
         addCloudMineHeader(post);
         addJson(post, list.transportableRepresentation());
         return post;
     }
 
     private HttpPut createProfilePut(CMUser user) {
-        HttpPut put = new HttpPut(baseUrl.account().asUrlString());
+        HttpPut put = new HttpPut(baseUrl.copy().account().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.profileTransportRepresentation());
         return put;

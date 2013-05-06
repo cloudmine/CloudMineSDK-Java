@@ -1,5 +1,13 @@
 HEAD
 =====
+Release 0.5.3
+====
+* Add username support
+* Add changing of usernames and e-mail addresses
+* Reduce the number of objects created during calls by making URLBuilder mutable
+* Deprecate CMSessionToken.isValid as it can occassionally give incorrect responses
+* Removed some Java 1.6 only operations that broke the library when running on 2.2 (which runs Java 1.5
+* Made CMApiCredentials not immutable
 
 Release 0.5.1
 =====
