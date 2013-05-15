@@ -6,6 +6,7 @@ import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
+import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.*;
@@ -905,6 +906,14 @@ public class CMWebService {
         executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
     }
 
+    public void asyncSendNotification(CMPushNotification notification) {
+        asyncSendNotification(notification, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    public void asyncSendNotification(CMPushNotification notification, Callback<CMResponse> callback) {
+        HttpPost postRequest = createNotificationPost(notification);
+        executeAsyncCommand(postRequest, callback);
+    }
 
     /**
      * Make a blocking call to load the object associated with the given objectId
@@ -1157,6 +1166,12 @@ public class CMWebService {
         return put;
     }
 
+    private HttpPost createNotificationPost(CMPushNotification pushNotification) {
+        HttpPost post = createPost(baseUrl.copy().push().asUrlString());
+        addJson(post, pushNotification.transportableRepresentation());
+        return post;
+    }
+
     private HttpPost createJsonPost(String json) {
         HttpPost post = createPost(baseUrl.copy().text().asUrlString());
         addJson(post, json);
@@ -1289,6 +1304,7 @@ public class CMWebService {
     private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
         return createChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options);
     }
+
     private HttpPost createChangePassword(String email, String userName, String oldPassword, String newPassword, CMRequestOptions options) {
         HttpPost post = new HttpPost(baseUrl.copy().account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);
