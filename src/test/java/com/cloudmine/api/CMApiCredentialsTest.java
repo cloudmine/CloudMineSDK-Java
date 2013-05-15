@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
-import org.junit.Ignore;
+import com.cloudmine.test.ServiceTestBase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,16 +12,17 @@ import static org.junit.Assert.fail;
  * User: johnmccarthy
  * Date: 6/12/12, 3:26 PM
  */
-public class CMApiCredentialsTest {
+public class CMApiCredentialsTest extends ServiceTestBase {
 
     @Test
-    @Ignore //so it doesn't break the other tests
     public void testInitialize() {
         try {
             CMApiCredentials.initialize(null, "someApiKey");
+            fail();
         } catch(CreationException ce) { /* expected */ }
         try {
             CMApiCredentials.initialize("someId", null);
+            fail();
         } catch(CreationException ce) { /* expected */ }
 
         CMApiCredentials.initialize("someId", "someApiKey");
@@ -32,9 +33,14 @@ public class CMApiCredentialsTest {
 
         try {
             CMApiCredentials.initialize("anotherId", "anotherApiKey");
+            assertEquals("anotherId", CMApiCredentials.getApplicationIdentifier());
+            assertEquals("anotherApiKey", CMApiCredentials.getApplicationApiKey());
+        } catch(CreationException ce) {
             fail();
-        } catch(CreationException ce) { /* expected */}
+        }
 
-        CMApiCredentials.initialize("someId", "someApiKey"); // should be okay same values
+        CMApiCredentials.initialize("someId", "someApiKey");
+        assertEquals("someId", CMApiCredentials.getApplicationIdentifier());
+        assertEquals("someApiKey", CMApiCredentials.getApplicationApiKey());
     }
 }

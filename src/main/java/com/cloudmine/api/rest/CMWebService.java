@@ -1,10 +1,9 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.*;
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NetworkException;
-import com.cloudmine.api.CMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
@@ -22,6 +21,7 @@ import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -744,13 +744,26 @@ public class CMWebService {
 
     /**
      * Change the user's e-mail address
-     * @param user
+     * @param oldEmail
+     * @param currentPassword
      * @param newEmail
      * @param callback
      */
-    public void asyncChangeEmail(CMUser user, String newEmail, Callback<CMResponse> callback) {
-        HttpPost updateEmail = createUpdateEmail(user, newEmail);
+    public void asyncChangeEmail(String oldEmail, String currentPassword, String newEmail, Callback<CMResponse> callback) {
+        HttpPost updateEmail = createUpdateEmail(oldEmail, currentPassword, newEmail);
         executeAsyncCommand(updateEmail, callback);
+    }
+
+    /**
+     * Change the user's name
+     * @param oldEmail
+     * @param currentPassword
+     * @param newEmail
+     * @param responseCallback
+     */
+    public void asyncChangeUserName(String oldEmail, String currentPassword, String newEmail, Callback<CMResponse> responseCallback) {
+        HttpPost updateUserName = createUpdateUserName(oldEmail, currentPassword, newEmail);
+        executeAsyncCommand(updateUserName, responseCallback);
     }
 
     /**
@@ -779,11 +792,15 @@ public class CMWebService {
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
      */
     public void asyncChangePassword(CMUser user, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
-        asyncChangePassword(user.getEmail(), user.getPassword(), newPassword, options, callback);
+        asyncChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options, callback);
     }
 
     public void asyncChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
-        executeAsyncCommand(createChangePassword(email, oldPassword, newPassword, options), callback);
+        asyncChangePassword(email, null, oldPassword, newPassword, options, callback);
+    }
+
+    public void asyncChangePassword(String email, String userName, String oldPassword, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
+        executeAsyncCommand(createChangePassword(email, userName, oldPassword, newPassword, options), callback);
     }
 
     /**
@@ -1158,10 +1175,17 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createUpdateEmail(CMUser user, String newEmail) {
+    private HttpPost createUpdateEmail(String oldEmail, String currentPassword, String newEmail) {
         HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
-        addAuthorizationHeader(user, post);
-        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty("email", newEmail)));
+        addAuthorizationHeader(oldEmail, null, currentPassword, post);
+        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.EMAIL_KEY, newEmail)));
+        return post;
+    }
+
+    private HttpPost createUpdateUserName(String oldUserName, String currentPassword, String newUserName) {
+        HttpPost post = createPost(baseUrl.account().credentials().asUrlString());
+        addAuthorizationHeader(null, oldUserName, currentPassword, post);
+        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.USERNAME_KEY, newUserName)));
         return post;
     }
 
@@ -1263,13 +1287,12 @@ public class CMWebService {
     }
 
     private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
-        return createChangePassword(user.getEmail(), user.getPassword(), newPassword, options);
+        return createChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options);
     }
-
-    private HttpPost createChangePassword(String email, String oldPassword, String newPassword, CMRequestOptions options) {
+    private HttpPost createChangePassword(String email, String userName, String oldPassword, String newPassword, CMRequestOptions options) {
         HttpPost post = new HttpPost(baseUrl.copy().account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);
-        addAuthorizationHeader(email, oldPassword, post);
+        addAuthorizationHeader(email, userName, oldPassword, post);
         try {
             addJson(post, JsonUtilities.jsonCollection(
                     JsonUtilities.createJsonProperty(PASSWORD_KEY, newPassword)));
@@ -1297,11 +1320,12 @@ public class CMWebService {
     }
 
     protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
-        addAuthorizationHeader(user.getEmail(), user.getPassword(), post);
+        addAuthorizationHeader(user.getEmail(), user.getUserName(), user.getPassword(), post);
     }
 
-    protected void addAuthorizationHeader(String email, String password, HttpEntityEnclosingRequestBase post) {
-        post.addHeader(AUTHORIZATION_KEY, "Basic " + CMUser.encode(email, password));
+    protected void addAuthorizationHeader(String email, String userName, String password, HttpEntityEnclosingRequestBase post) {
+        String authName = Strings.isNotEmpty(email) ? email : userName;
+        post.addHeader(AUTHORIZATION_KEY, "Basic " + CMUser.encode(authName, password));
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {

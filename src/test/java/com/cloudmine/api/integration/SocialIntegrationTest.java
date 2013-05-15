@@ -13,6 +13,7 @@ import org.junit.*;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -89,7 +90,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
     public void testTweet() {
 
         String tweet = "status=Android Testing! " + UUID.randomUUID().toString();
-        ByteArrayEntity tweetEntity = new ByteArrayEntity(tweet.getBytes(Charset.forName("UTF-8")));
+        ByteArrayEntity tweetEntity = getByteArrayEntity(tweet);
 
         socialService.asyncSocialGraphQueryOnNetwork(
                 CMSocial.Service.TWITTER,
@@ -110,6 +111,16 @@ public class SocialIntegrationTest extends ServiceTestBase {
         waitForTestResults();
     }
 
+    private ByteArrayEntity getByteArrayEntity(String entity) {
+        ByteArrayEntity tweetEntity = null;
+        try {
+            tweetEntity = new ByteArrayEntity(entity.getBytes(Charset.forName("UTF-8").toString()));
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedCharsetException("UTF-8");
+        }
+        return tweetEntity;
+    }
+
     @Test
     public void testCreateGist() {
         gistIdentifier = UUID.randomUUID().toString();
@@ -122,7 +133,7 @@ public class SocialIntegrationTest extends ServiceTestBase {
                 "gists",
                 null,
                 new HashMap<String, Object>() {{ put("Content-Type", "application/json"); }},
-                new ByteArrayEntity(gist.getBytes(Charset.forName("UTF-8"))),
+                getByteArrayEntity(gist),
                 testCallback(new SocialGraphCallback() {
                     public void onCompletion(SocialGraphResponse response) {
                         assertTrue(response.wasSuccess());
