@@ -20,7 +20,6 @@ public class BaseDeviceIdentifier {
     private String uniqueId;
     public static final String PROPERTIES_FILE = "cmPropertiesUUID";
 
-
     /**
      * Get the unique identifier for this Device and application
      * @return the unique identifier

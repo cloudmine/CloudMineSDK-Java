@@ -21,6 +21,74 @@ public class CMPushNotification implements Transportable {
     public interface Target {
     }
 
+    public static class UserIdTarget implements Target {
+        private String userId;
+        public UserIdTarget() {}
+        public UserIdTarget(String userId) {
+            this.userId = userId;
+        }
+
+        public String getUserId() {
+
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UserIdTarget that = (UserIdTarget) o;
+
+            if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return userId != null ? userId.hashCode() : 0;
+        }
+    }
+
+    public static class DeviceTarget implements Target {
+        private String deviceId;
+
+        public DeviceTarget() {}
+        public DeviceTarget(String deviceId) {
+            this.deviceId = deviceId;
+        }
+
+        public String getDeviceId() {
+            return deviceId;
+        }
+
+        public void setDeviceId(String deviceId) {
+            this.deviceId = deviceId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DeviceTarget that = (DeviceTarget) o;
+
+            if (deviceId != null ? !deviceId.equals(that.deviceId) : that.deviceId != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return deviceId != null ? deviceId.hashCode() : 0;
+        }
+    }
+
     public static class UserNameTarget implements Target {
         private String username;
 
@@ -132,16 +200,41 @@ public class CMPushNotification implements Transportable {
 
     @JsonProperty("users")
     private List<Target> messageRecipients;
+    @JsonProperty("device_ids")
+    private List<String> deviceTargets;
+    @JsonProperty("channel")
+    private String channel;
+
     @JsonProperty("text")
     private String message;
 
     public CMPushNotification() {
-        this("", new ArrayList<Target>());
+        this("", new ArrayList<Target>(), null);
     }
 
-    public CMPushNotification(String message, List<Target> messageRecipients) {
+    public CMPushNotification(String message, List<Target> messageRecipients, ChannelTarget channelTarget) {
         this.message = message;
-        this.messageRecipients = messageRecipients;
+        extractTargetValues(messageRecipients);
+        if(channelTarget != null) channel = channelTarget.getChannel();
+    }
+
+    private void extractTargetValues(List<Target> newMessageRecipients) {
+        for(Target target : newMessageRecipients) {
+            addTarget(target);
+        }
+    }
+
+    private void addTarget(Target target) {
+        if(target instanceof DeviceTarget) {
+            if(deviceTargets == null) deviceTargets = new ArrayList<String>();
+            deviceTargets.add(((CMPushNotification.DeviceTarget) target).getDeviceId());
+        } else if(target instanceof ChannelTarget) {
+            channel = ((ChannelTarget) target).getChannel();
+            System.out.println("Adding channel: " + channel);
+        } else {
+            if(messageRecipients == null) messageRecipients = new ArrayList<Target>();
+            messageRecipients.add(target);
+        }
     }
 
     public List<? extends Target> getMessageRecipients() {
@@ -149,12 +242,11 @@ public class CMPushNotification implements Transportable {
     }
 
     public void setMessageRecipients(List<Target> messageRecipients) {
-        this.messageRecipients = messageRecipients;
+        extractTargetValues(messageRecipients);
     }
 
     public void addMessageRecipient(Target recipient) {
-        if(messageRecipients == null) messageRecipients = new ArrayList<Target>();
-        messageRecipients.add(recipient);
+        addTarget(recipient);
     }
 
     public String getMessage() {
@@ -163,6 +255,22 @@ public class CMPushNotification implements Transportable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<String> getDeviceTargets() {
+        return deviceTargets;
+    }
+
+    public void setDeviceTargets(List<String> deviceTargets) {
+        this.deviceTargets = deviceTargets;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     public void send() {

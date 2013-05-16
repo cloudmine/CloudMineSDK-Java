@@ -306,6 +306,14 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return this.addAction("push");
     }
 
+    public CMURLBuilder subscribe() {
+        return this.addAction("subscribe");
+    }
+
+    public CMURLBuilder channel() {
+        return this.addAction("channel");
+    }
+
     public CMURLBuilder binary() {
         return this.addAction("binary");
     }

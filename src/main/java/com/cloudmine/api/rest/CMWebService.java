@@ -906,6 +906,28 @@ public class CMWebService {
         executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
     }
 
+    public void asyncCreateChannel(CMChannel channel) {
+        asyncCreateChannel(channel, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    public void asyncCreateChannel(CMChannel channel, Callback<CMResponse> callback) {
+        HttpPost post = createNotificationChannel(channel);
+        executeAsyncCommand(post, callback);
+    }
+
+    public void asyncSubscribeThisDeviceToChannel(String channelName) {
+        asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<CMResponse> responseCallback) {
+        asyncSubscribeSelf(channelName, true, false, responseCallback);
+    }
+
+    public void asyncSubscribeSelf(String channelName, boolean isDevice, boolean isUser, Callback<CMResponse> responseCallback) {
+        HttpPost post = createSubscribeSelf(channelName, isDevice, isUser);
+        executeAsyncCommand(post, responseCallback);
+    }
+
     public void asyncSendNotification(CMPushNotification notification) {
         asyncSendNotification(notification, CMResponseCallback.<CMResponse>doNothing());
     }
@@ -1059,6 +1081,7 @@ public class CMWebService {
     }
 
     <T> void executeAsyncCommand(HttpUriRequest message, final Callback callback, ResponseConstructor<T> constructor) {
+        System.out.println("CloudMine url: " + message.getURI());
         final long startTime = System.currentTimeMillis();
         callback.setStartTime(startTime);
         asyncHttpClient.executeCommand(message, callback, constructor);
@@ -1171,6 +1194,24 @@ public class CMWebService {
         addJson(post, pushNotification.transportableRepresentation());
         return post;
     }
+
+    private HttpPost createNotificationChannel(CMChannel channel) {
+        HttpPost post = createPost(baseUrl.copy().push().channel().asUrlString());
+        addJson(post, channel);
+        return post;
+    }
+
+    private HttpPost createSubscribeSelf(String channel, boolean isDevice, boolean isUser) {
+        HttpPost post = createPost(baseUrl.copy().push().channel().addAction(channel).subscribe().asUrlString());
+        addJson(post,
+                JsonUtilities.wrap(
+                        JsonUtilities.createJsonProperty("user", isUser) + ", " +
+                        JsonUtilities.createJsonProperty("device", isDevice)
+                )
+        );
+        return post;
+    }
+
 
     private HttpPost createJsonPost(String json) {
         HttpPost post = createPost(baseUrl.copy().text().asUrlString());
@@ -1325,6 +1366,7 @@ public class CMWebService {
             message.addHeader(JSON_HEADER);
         }
         try {
+            System.out.println("CloudMine Adding Json: " + json);
             message.setEntity(new StringEntity(json, JSON_ENCODING));
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error encoding json", e);
