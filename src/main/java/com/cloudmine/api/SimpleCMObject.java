@@ -1,14 +1,21 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.rest.*;
-import com.cloudmine.api.rest.TransportableString;
+import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.CMStore;
+import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Transportable;
+import com.cloudmine.api.rest.TransportableString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An object that can be inserted, updated, deleted, and retrieved from CloudMine. Has a non optional
@@ -361,24 +368,24 @@ public class SimpleCMObject extends CMObject {
 
 
     /**
-     * Returns the CMGeoPoint value associated with the given key, or null if it doesn't exist
+     * Returns the CMGeoPointInterface value associated with the given key, or null if it doesn't exist
      * @param objectId the transportable string representation key
-     * @return the CMGeoPoint value associated with the given key, or null if it doesn't exist
-     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
+     * @return the CMGeoPointInterface value associated with the given key, or null if it doesn't exist
+     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPointInterface
      */
-    public CMGeoPoint getGeoPoint(String objectId) throws ConversionException {
+    public CMGeoPointInterface getGeoPoint(String objectId) throws ConversionException {
         return getValue(objectId, CMGeoPoint.class);
     }
 
     /**
-     * Returns the CMGeoPoint value associated with the given key, or the alternative if it doesn't exist
+     * Returns the CMGeoPointInterface value associated with the given key, or the alternative if it doesn't exist
      * @param objectId the transportable string representation key
-     * @param alternative an alternative CMGeoPoint value to use if the given key does not exist
+     * @param alternative an alternative CMGeoPointInterface value to use if the given key does not exist
      * @return the Date value associated with the given key, or the alternative if it doesn't exist
-     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPoint
+     * @throws if there is a value associated with the objectId, but it cannot be parsed into a CMGeoPointInterface
      */
-    public CMGeoPoint getGeoPoint(String objectId, CMGeoPoint alternative) throws ConversionException {
-        CMGeoPoint point = getGeoPoint(objectId);
+    public CMGeoPointInterface getGeoPoint(String objectId, CMGeoPointInterface alternative) throws ConversionException {
+        CMGeoPointInterface point = getGeoPoint(objectId);
         return point == null ?
                 alternative :
                     point;
@@ -502,6 +509,14 @@ public class SimpleCMObject extends CMObject {
      * @throws NullPointerException if given a null or empty objectId
      */
     public SimpleCMObject add(CMObject value) throws NullPointerException{
+        if(Strings.isEmpty(value.getObjectId())) {
+            throw new NullPointerException("Cannot use a null or empty objectId as the key");
+        }
+        add(value.getObjectId(), value);
+        return this;
+    }
+
+    public SimpleCMObject add(CMGeoPointInterface value) throws NullPointerException{
         if(Strings.isEmpty(value.getObjectId())) {
             throw new NullPointerException("Cannot use a null or empty objectId as the key");
         }

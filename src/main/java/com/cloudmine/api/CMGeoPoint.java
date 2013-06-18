@@ -10,14 +10,11 @@ import org.slf4j.LoggerFactory;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class CMGeoPoint extends CMObject{
+public class CMGeoPoint extends CMObject implements CMGeoPointInterface {
+
     private static final Logger LOG = LoggerFactory.getLogger(CMGeoPoint.class);
     private static final String[] LATITUDE_KEYS = {"latitude", "lat", "y"};
     private static final String[] LONGITUDE_KEYS = {"longitude", "lon", "lng", "x"};
-    public static final String GEOPOINT_CLASS = "CMGeoPoint";
-    public static final String LONGITUDE_KEY = "longitude";
-    public static final String LATITUDE_KEY = "latitude";
-    public static final String CLASS_NAME = "geopoint";
 
     private double latitude;
     private double longitude;
@@ -77,26 +74,26 @@ public class CMGeoPoint extends CMObject{
 
     @Override
     public String getClassName() {
-        return CMGeoPoint.GEOPOINT_CLASS;
+        return GEOPOINT_CLASS;
     }
 
     public String get__type__() {
         return __type__;
     }
 
-    public double getLatitude() {
+    @Override public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    @Override public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    @Override public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    @Override public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

@@ -1,6 +1,8 @@
 package com.cloudmine.api.integration;
 
+
 import com.cloudmine.api.CMGeoPoint;
+import com.cloudmine.api.CMGeoPointInterface;
 import com.cloudmine.api.CMType;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.rest.CMStore;
@@ -13,7 +15,8 @@ import org.junit.Test;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
-import static org.junit.Assert.assertEquals;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <br>
@@ -27,7 +30,7 @@ public class CMGeoPointIntegrationTest extends ServiceTestBase {
     @Test
     public void testGeoPoint() {
         final GeoCMObject geoObject = new GeoCMObject();
-        final CMGeoPoint geoPoint = new CMGeoPoint(55, 55);
+        final CMGeoPointInterface geoPoint = new CMGeoPoint(55, 55);
 
         geoObject.setGeoPoint(geoPoint);
 
@@ -37,7 +40,7 @@ public class CMGeoPointIntegrationTest extends ServiceTestBase {
         CMStore.getStore().loadApplicationObjectWithObjectId(geoObject.getObjectId(), testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
                 GeoCMObject loadedGeoObject = (GeoCMObject)response.getCMObject(geoObject.getObjectId());
-                assertEquals(geoPoint, loadedGeoObject.getGeoPoint());
+                assertTrue(geoPoint.equals(loadedGeoObject.getGeoPoint()));
             }
 
         }));
@@ -55,7 +58,7 @@ public class CMGeoPointIntegrationTest extends ServiceTestBase {
 
         service.asyncLoadObject(otherGeo.getObjectId(), testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {
-                CMGeoPoint point = response.getCMObject(otherGeo.getObjectId(), CMGeoPoint.class);
+                CMGeoPointInterface point = response.getCMObject(otherGeo.getObjectId(), CMGeoPoint.class);
                 assertEquals(30.0, point.getLongitude(), .1);
                 assertEquals(40, point.getLatitude(), .1);
             }

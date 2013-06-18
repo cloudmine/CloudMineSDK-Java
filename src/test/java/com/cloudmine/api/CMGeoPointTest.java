@@ -6,8 +6,9 @@ import com.cloudmine.api.rest.TransportableString;
 import com.cloudmine.test.GeoCMObject;
 import org.junit.Test;
 
+
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
@@ -18,7 +19,7 @@ public class CMGeoPointTest {
 
     @Test
     public void testConstructor() {
-        CMGeoPoint point = new CMGeoPoint(23.5, 100.1);
+        CMGeoPointInterface point = new CMGeoPoint(23.5, 100.1);
 
         assertEquals(100.1, point.getLatitude());
 
@@ -30,13 +31,13 @@ public class CMGeoPointTest {
         assertEquals(-70.2, point.getLatitude());
         assertEquals(45.5, point.getLongitude());
 
-        CMGeoPoint duplicatePoint = new CMGeoPoint(45.5, -70.2);
+        CMGeoPointInterface duplicatePoint = new CMGeoPoint(45.5, -70.2);
         assertEquals(point, duplicatePoint);
     }
 
     @Test
     public void testLngKey() {
-        CMGeoPoint point = new CMGeoPoint(new TransportableString("{\"location\": {\n" +
+        CMGeoPointInterface point = new CMGeoPoint(new TransportableString("{\"location\": {\n" +
                 "            \"__type__\": \"geopoint\",\n" +
                 "            \"lng\": 45.5,\n" +
                 "            \"lat\": -70.2\n" +
@@ -46,8 +47,8 @@ public class CMGeoPointTest {
 
     @Test
     public void testSubObject() {
-        ClassNameRegistry.register("CMGeoPoint", CMGeoPoint.class);
-        GeoCMObject object = JsonUtilities.jsonToClass("{\"geoPoint\":{\"__type__\":\"geopoint\",\"longitude\":55.0,\"latitude\":55.0,\"__class__\":\"CMGeoPoint\"},\"__id__\":\"4bac92ba-6f40-4b9f-8785-c0cf1adc152e\",\"__access__\":[],\"__class__\":\"com.cloudmine.test.GeoCMObject\"}", GeoCMObject.class);
+        ClassNameRegistry.register(CMGeoPoint.GEOPOINT_CLASS, CMGeoPoint.class);
+        GeoCMObject object = JsonUtilities.jsonToClass("{\"geoPoint\":{\"__type__\":\"geopoint\",\"longitude\":55.0,\"latitude\":55.0,\"__class__\":\"CMGeoPointInterface\"},\"__id__\":\"4bac92ba-6f40-4b9f-8785-c0cf1adc152e\",\"__access__\":[],\"__class__\":\"com.cloudmine.test.GeoCMObject\"}", GeoCMObject.class);
         assertNotNull(object.getGeoPoint());
         assertEquals(55.0, object.getGeoPoint().getLatitude());
     }

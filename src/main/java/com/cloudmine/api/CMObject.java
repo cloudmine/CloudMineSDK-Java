@@ -23,8 +23,8 @@ import java.util.*;
 /**
  * Can be subclassed to allow for persisting POJOs to CloudMine. If you would like to specify a custom class name
  * (for example, for interoperability with existing iOS CMObjects), you may override getClassName(). If you do this,
- * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} before any loads
- * or persistance occurs.
+ * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} in the same place
+ * that you call {@link CMApiCredentials.initialize(String, String, Object)}
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
