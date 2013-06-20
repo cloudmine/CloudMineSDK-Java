@@ -1,5 +1,10 @@
 HEAD
 =====
+
+Release 0.5.4
+====
+* Add save locally support and save eventually support
+
 Release 0.5.3
 ====
 * Add username support
