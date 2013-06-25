@@ -159,41 +159,6 @@ public class CMPushNotification implements Transportable {
         }
     }
 
-    public static class ChannelTarget implements Target {
-        private String channel;
-
-        public ChannelTarget(){}
-
-        public ChannelTarget(String channel) {
-            this.channel = channel;
-        }
-
-        public String getChannel() {
-            return channel;
-        }
-
-        public void setChannel(String channel) {
-            this.channel = channel;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ChannelTarget that = (ChannelTarget) o;
-
-            if (channel != null ? !channel.equals(that.channel) : that.channel != null) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return channel != null ? channel.hashCode() : 0;
-        }
-    }
-
     public static final String MESSAGE_KEY = "text";
     public static final String USERS_KEY = "users";
 
@@ -212,10 +177,10 @@ public class CMPushNotification implements Transportable {
         this("", new ArrayList<Target>(), null);
     }
 
-    public CMPushNotification(String message, List<Target> messageRecipients, ChannelTarget channelTarget) {
+    public CMPushNotification(String message, List<Target> messageRecipients, String channelName) {
         this.message = message;
         extractTargetValues(messageRecipients);
-        if(channelTarget != null) channel = channelTarget.getChannel();
+        if(Strings.isNotEmpty(channelName)) channel = channelName;
     }
 
     private void extractTargetValues(List<Target> newMessageRecipients) {
@@ -228,9 +193,6 @@ public class CMPushNotification implements Transportable {
         if(target instanceof DeviceTarget) {
             if(deviceTargets == null) deviceTargets = new ArrayList<String>();
             deviceTargets.add(((CMPushNotification.DeviceTarget) target).getDeviceId());
-        } else if(target instanceof ChannelTarget) {
-            channel = ((ChannelTarget) target).getChannel();
-            System.out.println("Adding channel: " + channel);
         } else {
             if(messageRecipients == null) messageRecipients = new ArrayList<Target>();
             messageRecipients.add(target);

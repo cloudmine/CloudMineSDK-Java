@@ -910,6 +910,11 @@ public class CMWebService {
         asyncCreateChannel(channel, CMResponseCallback.<CMResponse>doNothing());
     }
 
+    /**
+     * Creates a channel and calls into a {@link CMResponseCallback}
+     * @param channel
+     * @param callback
+     */
     public void asyncCreateChannel(CMChannel channel, Callback<CMResponse> callback) {
         HttpPost post = createNotificationChannel(channel);
         executeAsyncCommand(post, callback);

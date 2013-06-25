@@ -8,11 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: johnmccarthy
- * Date: 5/15/13
- * Time: 3:53 PM
- * To change this template use File | Settings | File Templates.
+ * A channel for sending push notifications too. Defines specific useres or devices to receive pushes
+ * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMChannel implements Transportable {
 
@@ -24,6 +21,12 @@ public class CMChannel implements Transportable {
 
     }
 
+    /**
+     *
+     * @param name The name of the channel
+     * @param users the userids to be added to the channel.
+     * @param deviceIds the device ids to be added to the channel.
+     */
     public CMChannel(String name, List<String> users, List<String> deviceIds) {
         this.name = name;
         this.users = users;
