@@ -1,7 +1,7 @@
 package com.cloudmine.api;
 
-import com.cloudmine.api.rest.JsonUtilities;
-import org.junit.Test;
+    import com.cloudmine.api.rest.JsonUtilities;
+    import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;

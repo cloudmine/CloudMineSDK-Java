@@ -7,18 +7,28 @@ import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.UserCMWebService;
-import com.cloudmine.api.rest.callbacks.*;
+import com.cloudmine.api.rest.callbacks.CMCallback;
+import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
+import com.cloudmine.api.rest.callbacks.CMResponseCallback;
+import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
+import com.cloudmine.api.rest.callbacks.ExceptionPassthroughCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A CMUser consists of an email and a password. When logged in, objects can be specified to be saved
@@ -315,9 +325,64 @@ public class CMUser extends CMObject {
         }
     }
 
+    /**
+     * See {@link #loadAccessLists(com.cloudmine.api.rest.callbacks.Callback)}
+     */
     public void loadAccessLists() {
         loadAccessLists(CMCallback.<CMObjectResponse>doNothing());
     }
+
+    public void subscribeToChannel(String channelName) {
+        subscribeToChannel(channelName, CMCallback.<CMResponse>doNothing());
+    }
+
+    public void subscribeToChannel(final String channelName, final Callback<CMResponse> callback) {
+        if(isLoginAttemptPossible()) {
+            login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+                public void onCompletion(LoginResponse response) {
+                    subscribeOrCallOnFailure(response.getSessionToken(), channelName, callback);
+                }
+            });
+        } else {
+            subscribeOrCallOnFailure(sessionToken, channelName, callback);
+        }
+    }
+
+    public void loadSubscribedChannels(final Callback<ListOfValuesResponse<String>> callback) {
+
+        final Function<CMSessionToken> postLoginCode = new Function<CMSessionToken>() {
+            @Override
+            public void run(CMSessionToken token) {
+                CMWebService.getService().getUserWebService(token).asyncLoadSubscribedChannels(callback);
+            }
+        };
+        if(isLoginAttemptPossible()) {
+            login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
+                public void onCompletion(LoginResponse response) {
+                    runOrCallOnFailure(postLoginCode, response.getSessionToken(), callback);
+                }
+            });
+        } else {
+            runOrCallOnFailure(postLoginCode, sessionToken, callback);
+        }
+    }
+
+    private void subscribeOrCallOnFailure(CMSessionToken token, String channelName, Callback<CMResponse> callback) {
+        try {
+            CMWebService.getService().getUserWebService(token).asyncSubscribeSelf(channelName, callback);
+        }catch (Throwable t) {
+            callback.onFailure(t, "Failed after trying to log in");
+        }
+    }
+
+    private <ARG> void runOrCallOnFailure(Function code, ARG arg, Callback callback) {
+        try {
+            code.run(arg);
+        } catch (Throwable t) {
+            callback.onFailure(t, "");
+        }
+    }
+
 
     /**
      * Change this user's email address. Note that the password must be set; if the user has been logged in, the password

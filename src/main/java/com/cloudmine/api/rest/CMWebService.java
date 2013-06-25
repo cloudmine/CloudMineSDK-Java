@@ -920,16 +920,20 @@ public class CMWebService {
         executeAsyncCommand(post, callback);
     }
 
+    public void asyncDeleteChannel(String channelName) {
+        asyncDeleteChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    public void asyncDeleteChannel(String channelName, Callback<CMResponse> callback) {
+        executeAsyncCommand(createDeleteChannel(channelName), callback);
+    }
+
     public void asyncSubscribeThisDeviceToChannel(String channelName) {
         asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
     }
 
     public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<CMResponse> responseCallback) {
-        asyncSubscribeSelf(channelName, true, false, responseCallback);
-    }
-
-    public void asyncSubscribeSelf(String channelName, boolean isDevice, boolean isUser, Callback<CMResponse> responseCallback) {
-        HttpPost post = createSubscribeSelf(channelName, isDevice, isUser);
+        HttpPost post = createSubscribeSelf(channelName, true, false);
         executeAsyncCommand(post, responseCallback);
     }
 
@@ -1086,7 +1090,6 @@ public class CMWebService {
     }
 
     <T> void executeAsyncCommand(HttpUriRequest message, final Callback callback, ResponseConstructor<T> constructor) {
-        System.out.println("CloudMine url: " + message.getURI());
         final long startTime = System.currentTimeMillis();
         callback.setStartTime(startTime);
         asyncHttpClient.executeCommand(message, callback, constructor);
@@ -1156,6 +1159,12 @@ public class CMWebService {
         return createDelete(keys, CMRequestOptions.NONE);
     }
 
+    private HttpDelete createDeleteChannel(String channelName) {
+        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
     private HttpDelete createDelete(Collection<String> keys, CMRequestOptions options) {
         HttpDelete delete = new HttpDelete(baseUrl.copy().delete(keys).options(options).asUrlString());
 
@@ -1206,8 +1215,16 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createSubscribeSelf(String channel, boolean isDevice, boolean isUser) {
-        HttpPost post = createPost(baseUrl.copy().push().channel().addAction(channel).subscribe().asUrlString());
+    HttpGet createListChannels(String userid) {
+        CMURLBuilder partialUrl = baseUrl.copy().account().channels();
+        if(Strings.isNotEmpty(userid)) partialUrl.addQuery("userid", userid);
+        HttpGet get = new HttpGet(partialUrl.asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    HttpPost createSubscribeSelf(String channel, boolean isDevice, boolean isUser) {
+        HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).subscribe().asUrlString());
         addJson(post,
                 JsonUtilities.wrap(
                         JsonUtilities.createJsonProperty("user", isUser) + ", " +
@@ -1371,7 +1388,6 @@ public class CMWebService {
             message.addHeader(JSON_HEADER);
         }
         try {
-            System.out.println("CloudMine Adding Json: " + json);
             message.setEntity(new StringEntity(json, JSON_ENCODING));
         } catch (UnsupportedEncodingException e) {
             LOG.error("Error encoding json", e);

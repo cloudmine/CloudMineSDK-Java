@@ -1,17 +1,27 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMAccessList;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.exceptions.InvalidRequestException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
 import com.cloudmine.api.rest.response.SocialGraphResponse;
 import org.apache.http.Header;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.AbstractHttpMessage;
+
 import java.util.Map;
 
 /**
@@ -108,6 +118,23 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
+    public void asyncSubscribeSelf(String channelName) {
+        asyncSubscribeSelf(channelName, CMCallback.<CMResponse>doNothing());
+    }
+
+    public void asyncSubscribeSelf(String channelName, Callback<CMResponse> responseCallback) {
+        asyncSubscribeSelf(channelName, false, responseCallback);
+    }
+
+    public void asyncSubscribeSelf(String channelName, boolean isDevice, Callback<CMResponse> responseCallback) {
+        HttpPost post = createSubscribeSelf(channelName, isDevice, true);
+        executeAsyncCommand(post, responseCallback);
+    }
+
+    public void asyncLoadSubscribedChannels(Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannels(null);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.<String>CONSTRUCTOR());
+    }
 
     /**
      * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}

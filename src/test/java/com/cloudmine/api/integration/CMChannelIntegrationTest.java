@@ -2,14 +2,16 @@ package com.cloudmine.api.integration;
 
 import com.cloudmine.api.CMChannel;
 import com.cloudmine.api.CMPushNotification;
+import com.cloudmine.api.CMUser;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
+import com.cloudmine.api.rest.callbacks.ListOfStringsCallback;
 import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
 import com.cloudmine.test.ServiceTestBase;
+import org.junit.Test;
 
 import java.util.Collections;
-
-import org.junit.Test;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
@@ -52,5 +54,53 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testDeleteChannel() {
+        CMChannel channel = new CMChannel();
+        String channelName = randomString();
+        channel.setName(channelName);
+        channel.create(hasSuccess);
+        waitThenAssertTestResults();
+        channel.delete(testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse cmResponse) {
+                assertTrue(cmResponse.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+
+    @Test
+    public void testSubscribers() {
+        CMChannel channel = new CMChannel();
+        final String channelName = randomString();
+        channel.setName(channelName);
+        channel.create(hasSuccess);
+        waitThenAssertTestResults();
+
+        CMUser user = user();
+        user.subscribeToChannel(channelName, testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse response){
+                assertTrue(response.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+
+        user.loadSubscribedChannels(testCallback(new ListOfStringsCallback() {
+            public void onCompletion(ListOfValuesResponse <String> response){
+                assertTrue(response.getValues().contains(channelName));
+            }
+        }));
+        waitThenAssertTestResults();
+
+        channel.delete(testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse cmResponse) {
+                assertTrue(cmResponse.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+
     }
 }

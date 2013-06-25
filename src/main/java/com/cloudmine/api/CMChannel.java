@@ -1,8 +1,11 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Transportable;
+import com.cloudmine.api.rest.callbacks.CMCallback;
+import com.cloudmine.api.rest.response.CMResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,10 @@ import java.util.List;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMChannel implements Transportable {
+
+    public static void delete(String channelName, CMCallback<CMResponse> callback) {
+        CMWebService.getService().asyncDeleteChannel(channelName, callback);
+    }
 
     private String name;
     private List<String> users;
@@ -69,6 +76,14 @@ public class CMChannel implements Transportable {
     public void addDeviceId(String deviceId) {
         if(deviceIds == null) deviceIds = new ArrayList<String>();
         deviceIds.add(deviceId);
+    }
+
+    public void create(CMCallback<CMResponse> callback) {
+        CMWebService.getService().asyncCreateChannel(this, callback);
+    }
+
+    public void delete(CMCallback<CMResponse> callback) {
+        CMChannel.delete(name, callback);
     }
 
     @Override
