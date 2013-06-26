@@ -1,10 +1,12 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.exceptions.CloudMineException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
 import org.apache.http.HttpResponse;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,7 +29,11 @@ public class ListOfValuesResponse<VALUE> extends ResponseBase<CMResponseCode> {
 
     public ListOfValuesResponse(HttpResponse response) {
         super(response, true, false);
-        values = JsonUtilities.jsonToClass(getMessageBody(), List.class);
+        try {
+            values = JsonUtilities.jsonToClass(getMessageBody(), List.class);
+        }catch (CloudMineException cme) {
+            values = Collections.EMPTY_LIST;
+        }
     }
 
     public List<VALUE> getValues() {

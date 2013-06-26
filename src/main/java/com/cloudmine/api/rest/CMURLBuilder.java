@@ -294,6 +294,10 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return this.addAction(USER);
     }
 
+    public CMURLBuilder users() {
+        return this.addAction("users");
+    }
+
     public CMURLBuilder create() {
         return this.addAction("create");
     }

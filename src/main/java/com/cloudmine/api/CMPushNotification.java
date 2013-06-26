@@ -21,7 +21,11 @@ public class CMPushNotification implements Transportable {
     public interface Target {
     }
 
-    public static class UserIdTarget implements Target {
+    public interface UserTarget extends Target {
+
+    }
+
+    public static class UserIdTarget implements UserTarget {
         private String userId;
         public UserIdTarget() {}
         public UserIdTarget(String userId) {
@@ -89,7 +93,7 @@ public class CMPushNotification implements Transportable {
         }
     }
 
-    public static class UserNameTarget implements Target {
+    public static class UserNameTarget implements UserTarget{
         private String username;
 
         public UserNameTarget() {}
@@ -124,7 +128,7 @@ public class CMPushNotification implements Transportable {
         }
     }
 
-    public static class EmailTarget implements Target {
+    public static class EmailTarget implements UserTarget {
         private String email;
 
         public EmailTarget() {}

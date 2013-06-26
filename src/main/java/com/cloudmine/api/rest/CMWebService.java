@@ -1,6 +1,14 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMChannel;
+import com.cloudmine.api.CMFile;
+import com.cloudmine.api.CMObject;
+import com.cloudmine.api.CMPushNotification;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NetworkException;
@@ -9,12 +17,28 @@ import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
-import com.cloudmine.api.rest.response.*;
+import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.CMSocialLoginResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.FileCreationResponse;
+import com.cloudmine.api.rest.response.FileLoadResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.ResponseBase;
+import com.cloudmine.api.rest.response.ResponseConstructor;
+import com.cloudmine.api.rest.response.TokenUpdateResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -26,7 +50,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Provides direct access to the CloudMine API. Useful if you don't need all the bookkeeping of a {@link CMStore}. Also
@@ -937,6 +967,21 @@ public class CMWebService {
         executeAsyncCommand(post, responseCallback);
     }
 
+    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets, Callback<CMResponse> responseCallback) {
+        HttpPost post = createSubscribeUsers(channelName, targets);
+        executeAsyncCommand(post, responseCallback, CMResponse.CONSTRUCTOR);
+    }
+
+    public void asyncLoadSubscribedChannelsForUser(String userId, Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannels(userId);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
+    }
+
+    public void asyncLoadSubscribedChannelsForDevice(String deviceId, Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannelsForDevice(deviceId);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
+    }
+
     public void asyncSendNotification(CMPushNotification notification) {
         asyncSendNotification(notification, CMResponseCallback.<CMResponse>doNothing());
     }
@@ -1223,6 +1268,12 @@ public class CMWebService {
         return get;
     }
 
+    HttpGet createListChannelsForDevice(String deviceId) {
+        HttpGet get = new HttpGet(baseUrl.copy().device().addAction(deviceId).channels().asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
     HttpPost createSubscribeSelf(String channel, boolean isDevice, boolean isUser) {
         HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).subscribe().asUrlString());
         addJson(post,
@@ -1234,6 +1285,12 @@ public class CMWebService {
         return post;
     }
 
+    private HttpPost createSubscribeUsers(String channel, Collection<CMPushNotification.UserTarget> targets) {
+        HttpPost post = createPost(baseUrl.copy().push().channel().addAction(channel).users().asUrlString());
+        String json = JsonUtilities.objectToJson(targets);
+        addJson(post, json);
+        return post;
+    }
 
     private HttpPost createJsonPost(String json) {
         HttpPost post = createPost(baseUrl.copy().text().asUrlString());
