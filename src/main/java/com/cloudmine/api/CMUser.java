@@ -348,6 +348,12 @@ public class CMUser extends CMObject {
         }
     }
 
+    public void unsubscribeToChannel(final String channelName, final Callback<CMResponse> callback) {
+        if(isLoginAttemptPossible()) {
+            //login();new ExceptionPassthroughCallback<>()
+        }
+    }
+
     public void loadSubscribedChannels(final Callback<ListOfValuesResponse<String>> callback) {
 
         final Function<CMSessionToken> postLoginCode = new Function<CMSessionToken>() {
@@ -366,6 +372,7 @@ public class CMUser extends CMObject {
             runOrCallOnFailure(postLoginCode, sessionToken, callback);
         }
     }
+
 
     private void subscribeOrCallOnFailure(CMSessionToken token, String channelName, Callback<CMResponse> callback) {
         try {

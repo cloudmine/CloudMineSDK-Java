@@ -20,4 +20,9 @@ public class Strings {
                 "" :
                 obj.toString();
     }
+
+    public static String neverNull(String string) {
+        if(string == null) return "";
+        else               return string;
+    }
 }

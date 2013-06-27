@@ -26,6 +26,7 @@ import com.cloudmine.api.rest.response.FileLoadResponse;
 import com.cloudmine.api.rest.response.ListOfValuesResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.PushChannelResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
 import com.cloudmine.api.rest.response.ResponseConstructor;
 import com.cloudmine.api.rest.response.TokenUpdateResponse;
@@ -959,17 +960,17 @@ public class CMWebService {
     }
 
     public void asyncSubscribeThisDeviceToChannel(String channelName) {
-        asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
+        asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<PushChannelResponse>doNothing());
     }
 
-    public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<CMResponse> responseCallback) {
+    public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<PushChannelResponse> responseCallback) {
         HttpPost post = createSubscribeSelf(channelName, true, false);
-        executeAsyncCommand(post, responseCallback);
+        executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
     }
 
-    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets, Callback<CMResponse> responseCallback) {
+    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets, Callback<PushChannelResponse> responseCallback) {
         HttpPost post = createSubscribeUsers(channelName, targets);
-        executeAsyncCommand(post, responseCallback, CMResponse.CONSTRUCTOR);
+        executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
     }
 
     public void asyncLoadSubscribedChannelsForUser(String userId, Callback<ListOfValuesResponse<String>> callback) {

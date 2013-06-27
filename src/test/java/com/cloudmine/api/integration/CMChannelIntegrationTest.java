@@ -7,11 +7,14 @@ import com.cloudmine.api.DeviceIdentifier;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.ListOfStringsCallback;
+import com.cloudmine.api.rest.callbacks.PushChannelResponseCallback;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.ListOfValuesResponse;
+import com.cloudmine.api.rest.response.PushChannelResponse;
 import com.cloudmine.test.ServiceTestBase;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -116,8 +119,8 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         channel.create(hasSuccess);
         waitThenAssertTestResults();
 
-        CMWebService.getService().asyncSubscribeThisDeviceToChannel(channelName, testCallback(new CMResponseCallback() {
-            public void onCompletion(CMResponse response) {
+        CMWebService.getService().asyncSubscribeThisDeviceToChannel(channelName, testCallback(new PushChannelResponseCallback() {
+            public void onCompletion(PushChannelResponse response) {
                 assertTrue(response.wasSuccess());
             }
         }));
@@ -147,11 +150,11 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         reset(3);
-        CMUser randomUser = randomUser();
+        final CMUser randomUser = randomUser();
         randomUser.createUser(hasSuccess);
-        CMUser randomEmailUser = randomUser();
+        final CMUser randomEmailUser = randomUser();
         randomEmailUser.createUser(hasSuccess);
-        CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
@@ -159,9 +162,13 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
                 new CMPushNotification.UserIdTarget(randomUser.getObjectId()),
                 new CMPushNotification.EmailTarget(randomEmailUser.getEmail()),
                 new CMPushNotification.UserNameTarget(randomUsernameUser.getUserName())),
-                testCallback(new CMResponseCallback() {
-                    public void onCompletion(CMResponse response) {
+                testCallback(new PushChannelResponseCallback() {
+                    public void onCompletion(PushChannelResponse response) {
                         assertTrue(response.wasSuccess());
+                        List<String> subscribedIds = response.getUserIds();
+                        assertTrue(subscribedIds.contains(randomUser.getObjectId()));
+                        assertTrue(subscribedIds.contains(randomEmailUser.getObjectId()));
+                        assertTrue(subscribedIds.contains(randomUsernameUser.getObjectId()));
                     }
                 })
                 );
@@ -177,6 +184,16 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testUnsubscribeSelf() {
+        CMUser user = user();
+
+        user.subscribeToChannel(CHANNEL_NAME, hasSuccess);
+        waitThenAssertTestResults();
+
+        user.unsubscribeToChannel(CHANNEL_NAME, hasSuccess);
     }
 
     private void assertUserHasChannel(final String channelName, CMUser randomUser) {

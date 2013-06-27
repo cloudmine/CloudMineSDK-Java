@@ -26,6 +26,7 @@ public class CMPushNotification implements Transportable {
     }
 
     public static class UserIdTarget implements UserTarget {
+        @JsonProperty("userid")
         private String userId;
         public UserIdTarget() {}
         public UserIdTarget(String userId) {
