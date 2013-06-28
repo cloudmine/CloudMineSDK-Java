@@ -871,6 +871,11 @@ public class CMWebService {
         executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
+    /**
+     * Internal method used for completing the social log in process after a redirect
+     * @param challenge
+     * @param callback
+     */
     public void asyncCompleteSocialLogin(String challenge, Callback<CMSocialLoginResponse> callback) {
         HttpGet get = createCompleteSocialGet(challenge);
         executeAsyncCommand(get, callback, CMSocialLoginResponse.CONSTRUCTOR);
@@ -937,6 +942,10 @@ public class CMWebService {
         executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
     }
 
+    /**
+     * See {@link #asyncCreateChannel(com.cloudmine.api.CMChannel, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channel
+     */
     public void asyncCreateChannel(CMChannel channel) {
         asyncCreateChannel(channel, CMResponseCallback.<CMResponse>doNothing());
     }
@@ -951,42 +960,98 @@ public class CMWebService {
         executeAsyncCommand(post, callback);
     }
 
+    /**
+     * See {@link #asyncDeleteChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
     public void asyncDeleteChannel(String channelName) {
         asyncDeleteChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
     }
 
+    /**
+     * Delete the specified channel then call into the given CMResponseCallback. Will return a success response even
+     * if the channel doesn't exist
+     * @param channelName
+     * @param callback
+     */
     public void asyncDeleteChannel(String channelName, Callback<CMResponse> callback) {
         executeAsyncCommand(createDeleteChannel(channelName), callback);
     }
 
+    /**
+     * See {@link #asyncSubscribeThisDeviceToChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
     public void asyncSubscribeThisDeviceToChannel(String channelName) {
         asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<PushChannelResponse>doNothing());
     }
 
+    /**
+     * Subscribe this device to receive pushes on the given channel. Only works on Android devices; is based on the value
+     * returned by {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     * @param channelName the channel to subscribe to
+     * @param responseCallback a PushChannelResponse callback
+     */
     public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<PushChannelResponse> responseCallback) {
         HttpPost post = createSubscribeSelf(channelName, true, false);
         executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
     }
 
+    /**
+     * See {@link #asyncSubscribeUsersToChannel(String, java.util.Collection, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     * @param targets
+     */
+    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets) {
+        asyncSubscribeUsersToChannel(channelName, targets, CMCallback.<PushChannelResponse>doNothing());
+    }
+
+    /**
+     * Subscribe the specified users to the given channel, and then call into the given PushChannelResponseCallback
+     * @param channelName the name of the channel to subscribe the users to
+     * @param targets the user's to subscribe
+     * @param responseCallback
+     */
     public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets, Callback<PushChannelResponse> responseCallback) {
         HttpPost post = createSubscribeUsers(channelName, targets);
         executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
     }
 
+    /**
+     * Get the channel names that the user identified by the given id is subscribed to. Channel names come back as a
+     * list of strings
+     * @param userId user object id
+     * @param callback a ListOfValuesResponseCallback of Strings
+     */
     public void asyncLoadSubscribedChannelsForUser(String userId, Callback<ListOfValuesResponse<String>> callback) {
         HttpGet get = createListChannels(userId);
         executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
     }
 
+    /**
+     * Get the channel names that the device identified by the given id is subscribed to. Channel names come back as a
+     * list of strings. Device id can be obtained through {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     * @param deviceId
+     * @param callback a ListOfValuesResponseCallback of Strings
+     */
     public void asyncLoadSubscribedChannelsForDevice(String deviceId, Callback<ListOfValuesResponse<String>> callback) {
         HttpGet get = createListChannelsForDevice(deviceId);
         executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
     }
 
+    /**
+     * See {@link #asyncSendNotification(com.cloudmine.api.CMPushNotification, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param notification
+     */
     public void asyncSendNotification(CMPushNotification notification) {
         asyncSendNotification(notification, CMResponseCallback.<CMResponse>doNothing());
     }
 
+    /**
+     * Send a notification then call into the given CMResponse. A success response has no body
+     * @param notification
+     * @param callback
+     */
     public void asyncSendNotification(CMPushNotification notification, Callback<CMResponse> callback) {
         HttpPost postRequest = createNotificationPost(notification);
         executeAsyncCommand(postRequest, callback);

@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Model of a push notification. Notifications can be sent to a user's email, username, or to an entire channel
+ * Model of a push notification. Notifications can be sent to a user's email, username, object id, or to an entire channel.
+ * If a channel and user identifiers are specified, the push is sent to all user's subscribed to the channel and the
+ * user identifiers are ignored
  */
 public class CMPushNotification implements Transportable {
 
@@ -22,9 +24,11 @@ public class CMPushNotification implements Transportable {
     }
 
     public interface UserTarget extends Target {
-
     }
 
+    /**
+     * A UserId specifier
+     */
     public static class UserIdTarget implements UserTarget {
         @JsonProperty("userid")
         private String userId;
@@ -60,6 +64,9 @@ public class CMPushNotification implements Transportable {
         }
     }
 
+    /**
+     * A Device specifier. DeviceId comes from {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     */
     public static class DeviceTarget implements Target {
         private String deviceId;
 
@@ -94,6 +101,9 @@ public class CMPushNotification implements Transportable {
         }
     }
 
+    /**
+     * A username specifier
+     */
     public static class UserNameTarget implements UserTarget{
         private String username;
 
@@ -129,6 +139,9 @@ public class CMPushNotification implements Transportable {
         }
     }
 
+    /**
+     * A user's email specifier
+     */
     public static class EmailTarget implements UserTarget {
         private String email;
 
@@ -182,7 +195,32 @@ public class CMPushNotification implements Transportable {
         this("", new ArrayList<Target>(), null);
     }
 
-    public CMPushNotification(String message, List<Target> messageRecipients, String channelName) {
+    /**
+     * Create a CMPushNotification to be sent to a list of users or devices
+     * @param message the push message
+     * @param messageRecipients a List of Targets that identify users and/or devices
+     */
+    public CMPushNotification(String message, List<Target> messageRecipients) {
+        this(message, messageRecipients, null);
+    }
+
+    /**
+     * Create a CMPushNotification to be sent to a channel
+     * @param message the push message
+     * @param channelName the name of the channel to send the push to
+     */
+    public CMPushNotification(String message, String channelName) {
+        this(message, null, channelName);
+    }
+
+    /**
+     * This constructor should probably be avoided, as if both the channel name and messageRecipients are specified
+     * the message recipients are ignored
+     * @param message
+     * @param messageRecipients
+     * @param channelName
+     */
+    public CMPushNotification(String message, List <Target> messageRecipients, String channelName) {
         this.message = message;
         extractTargetValues(messageRecipients);
         if(Strings.isNotEmpty(channelName)) channel = channelName;
@@ -212,6 +250,10 @@ public class CMPushNotification implements Transportable {
         extractTargetValues(messageRecipients);
     }
 
+    /**
+     * Add a user or device to receive this push
+     * @param recipient
+     */
     public void addMessageRecipient(Target recipient) {
         addTarget(recipient);
     }
@@ -240,10 +282,17 @@ public class CMPushNotification implements Transportable {
         this.channel = channel;
     }
 
+    /**
+     * See {@link CMWebService#asyncSendNotification(CMPushNotification, com.cloudmine.api.rest.callbacks.Callback)}
+     */
     public void send() {
         send(CMResponseCallback.<CMResponse>doNothing());
     }
 
+    /**
+     * See {@link CMWebService#asyncSendNotification(CMPushNotification, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param callback
+     */
     public void send(Callback<CMResponse> callback) {
         CMWebService.getService().asyncSendNotification(this, callback);
     }

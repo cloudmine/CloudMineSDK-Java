@@ -11,11 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A channel for sending push notifications too. Defines specific useres or devices to receive pushes
+ * A channel for sending push notifications too. Defines specific users or devices to receive pushes. Instances are only used for creating
+ * channels; modifications to a channel are done through static methods
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMChannel implements Transportable {
 
+    /**
+     * Delete the channel with the specified name. Note that a success response will be returned even if the channel name
+     * given doesn't match any existing channels.
+     * @param channelName
+     * @param callback a CMResponseCallback
+     */
     public static void delete(String channelName, CMCallback<CMResponse> callback) {
         CMWebService.getService().asyncDeleteChannel(channelName, callback);
     }
@@ -24,8 +31,14 @@ public class CMChannel implements Transportable {
     private List<String> users;
     private List<String> deviceIds;
 
-    public CMChannel() {
+    public CMChannel() {}
 
+    /**
+     * A channel with no users or devices associated with it
+     * @param name the name of the channel
+     */
+    public CMChannel(String name) {
+        this(name, new ArrayList<String>(), new ArrayList<String>());
     }
 
     /**
@@ -40,6 +53,10 @@ public class CMChannel implements Transportable {
         this.deviceIds = deviceIds;
     }
 
+    /**
+     * Get the unique identifier for this channel
+     * @return
+     */
     public String getName() {
         return name;
     }
@@ -48,6 +65,10 @@ public class CMChannel implements Transportable {
         this.name = name;
     }
 
+    /**
+     * The user ids of the users who will receive pushes on this channel
+     * @return
+     */
     public List<String> getUsers() {
         return users;
     }
@@ -56,6 +77,10 @@ public class CMChannel implements Transportable {
         this.users = users;
     }
 
+    /**
+     * Add a user by userid to this Channel. Does not make any modifications server side
+     * @param userId
+     */
     public void addUser(String userId) {
         if(users == null) users = new ArrayList<String>();
         users.add(userId);
@@ -65,6 +90,11 @@ public class CMChannel implements Transportable {
         addUser(user.getObjectId());
     }
 
+    /**
+     * The device ids that a push on this channel will go to. The device id of an Android device can be acquired by calling
+     * {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     * @return
+     */
     public List<String> getDeviceIds() {
         return deviceIds;
     }
@@ -78,10 +108,18 @@ public class CMChannel implements Transportable {
         deviceIds.add(deviceId);
     }
 
+    /**
+     * Create this channel. Note that this will fail if there is already an existing channel with this channelName
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback}
+     */
     public void create(CMCallback<CMResponse> callback) {
         CMWebService.getService().asyncCreateChannel(this, callback);
     }
 
+    /**
+     * Delete this channel. Equivalent to calling the static delete method and passing in channel.getName()
+     * @param callback
+     */
     public void delete(CMCallback<CMResponse> callback) {
         CMChannel.delete(name, callback);
     }
