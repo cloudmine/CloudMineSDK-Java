@@ -118,19 +118,44 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
+    /**
+     * See {@link #asyncSubscribeSelf(String, boolean, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
     public void asyncSubscribeSelf(String channelName) {
         asyncSubscribeSelf(channelName, CMCallback.<CMResponse>doNothing());
     }
 
+    /**
+     * See {@link #asyncSubscribeSelf(String, boolean, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     * @param responseCallback
+     */
     public void asyncSubscribeSelf(String channelName, Callback<CMResponse> responseCallback) {
         asyncSubscribeSelf(channelName, false, responseCallback);
     }
 
+    /**
+     * Subscribe the user associated with this UserCMWebService to the given channel. If isDevice is true, also subscribe
+     * this device. Note that if you just want to subscribe the device, you may use {@link CMWebService#asyncSubscribeThisDeviceToChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName the name of the channel to subscribe to
+     * @param isDevice whether this device should be subscribed to the channel in addition to the user
+     * @param responseCallback a {@link CMResponse} callback
+     */
     public void asyncSubscribeSelf(String channelName, boolean isDevice, Callback<CMResponse> responseCallback) {
         HttpPost post = createSubscribeSelf(channelName, isDevice, true);
         executeAsyncCommand(post, responseCallback);
     }
 
+    public void asyncUnsubscribeSelfFromChannel(String channelName, Callback<CMResponse> responseCallback) {
+        HttpPost post = createUnsubscribeSelf(channelName);
+        executeAsyncCommand(post, responseCallback);
+    }
+
+    /**
+     * Load the channels the user associated with this UserCMWebService is subscribed to
+     * @param callback a ListOfValuesResponse containing a list of Strings
+     */
     public void asyncLoadSubscribedChannels(Callback<ListOfValuesResponse<String>> callback) {
         HttpGet get = createListChannels(null);
         executeAsyncCommand(get, callback, ListOfValuesResponse.<String>CONSTRUCTOR());

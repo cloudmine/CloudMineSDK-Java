@@ -348,10 +348,14 @@ public class CMUser extends CMObject {
         }
     }
 
-    public void unsubscribeToChannel(final String channelName, final Callback<CMResponse> callback) {
-        if(isLoginAttemptPossible()) {
-            //login();new ExceptionPassthroughCallback<>()
-        }
+    public void unsubscribeFromChannel(final String channelName, final Callback<CMResponse> callback) {
+        final Function<CMSessionToken> postLoginCode = new Function<CMSessionToken>() {
+            @Override
+            public void run(CMSessionToken token) {
+                CMWebService.getService().getUserWebService(token).asyncUnsubscribeSelfFromChannel(channelName, callback);
+            }
+        };
+        loginThenRunFunction(callback, postLoginCode);
     }
 
     public void loadSubscribedChannels(final Callback<ListOfValuesResponse<String>> callback) {
@@ -362,6 +366,10 @@ public class CMUser extends CMObject {
                 CMWebService.getService().getUserWebService(token).asyncLoadSubscribedChannels(callback);
             }
         };
+        loginThenRunFunction(callback, postLoginCode);
+    }
+
+    private <CALLBACK_RESPONSE> void loginThenRunFunction(final Callback<CALLBACK_RESPONSE> callback, final Function<CMSessionToken> postLoginCode) {
         if(isLoginAttemptPossible()) {
             login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {

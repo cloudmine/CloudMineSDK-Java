@@ -14,7 +14,6 @@ import com.cloudmine.api.rest.response.PushChannelResponse;
 import com.cloudmine.test.ServiceTestBase;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +22,7 @@ import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -37,11 +37,21 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testCreateChannel() {
-        String channelName = randomString();
-        CMChannel channel = new CMChannel(channelName, Collections.<String>emptyList(), Collections.<String>emptyList());
-        CMWebService.getService().asyncCreateChannel(channel, testCallback(new CMResponseCallback() {
-            public void onCompletion(CMResponse response) {
+        final String channelName = randomString();
+        CMChannel channel = new CMChannel(channelName,
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList());
+        channel.create(new PushChannelResponseCallback() {
+            public void onCompletion(PushChannelResponse response) {
+                String createdChannelName = response.getChannelName();
+                List<String> deviceIds = response.getDeviceIds();
+                List<String> userIds = response.getUserIds();
+            }
+        });
+        CMWebService.getService().asyncCreateChannel(channel, testCallback(new PushChannelResponseCallback() {
+            public void onCompletion(PushChannelResponse response) {
                 assertTrue(response.wasSuccess());
+                assertEquals(channelName, response.getChannelName());
             }
         }));
         waitThenAssertTestResults();
@@ -193,7 +203,18 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         user.subscribeToChannel(CHANNEL_NAME, hasSuccess);
         waitThenAssertTestResults();
 
-        user.unsubscribeToChannel(CHANNEL_NAME, hasSuccess);
+        user.unsubscribeFromChannel(CHANNEL_NAME, hasSuccess);
+        waitThenAssertTestResults();
+
+        service.asyncLoadSubscribedChannelsForUser(user.getObjectId(), testCallback(new ListOfStringsCallback() {
+            public void onCompletion(ListOfValuesResponse<String> response) {
+                assertTrue(response.wasSuccess());
+                List<String> responseStrings = response.getValues();
+
+                assertFalse(responseStrings.contains(CHANNEL_NAME));
+            }
+        }));
+        waitThenAssertTestResults();
     }
 
     private void assertUserHasChannel(final String channelName, CMUser randomUser) {

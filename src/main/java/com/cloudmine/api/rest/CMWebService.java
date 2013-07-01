@@ -947,15 +947,15 @@ public class CMWebService {
      * @param channel
      */
     public void asyncCreateChannel(CMChannel channel) {
-        asyncCreateChannel(channel, CMResponseCallback.<CMResponse>doNothing());
+        asyncCreateChannel(channel, CMResponseCallback.<PushChannelResponse>doNothing());
     }
 
     /**
-     * Creates a channel and calls into a {@link CMResponseCallback}
+     * Creates a channel and calls into a {@link com.cloudmine.api.rest.callbacks.PushChannelResponseCallback}
      * @param channel
      * @param callback
      */
-    public void asyncCreateChannel(CMChannel channel, Callback<CMResponse> callback) {
+    public void asyncCreateChannel(CMChannel channel, Callback<PushChannelResponse> callback) {
         HttpPost post = createNotificationChannel(channel);
         executeAsyncCommand(post, callback);
     }
@@ -1348,6 +1348,15 @@ public class CMWebService {
                         JsonUtilities.createJsonProperty("device", isDevice)
                 )
         );
+        return post;
+    }
+
+    private static final String IS_USER_JSON = JsonUtilities.wrap(
+            JsonUtilities.createJsonProperty("user", true)
+    );
+    HttpPost createUnsubscribeSelf(String channel) {
+        HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).unsubscribe().asUrlString());
+        addJson(post, IS_USER_JSON);
         return post;
     }
 

@@ -6,6 +6,7 @@ import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.PushChannelResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,9 +111,9 @@ public class CMChannel implements Transportable {
 
     /**
      * Create this channel. Note that this will fail if there is already an existing channel with this channelName
-     * @param callback a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback}
+     * @param callback a {@link com.cloudmine.api.rest.callbacks.PushChannelResponseCallback}
      */
-    public void create(CMCallback<CMResponse> callback) {
+    public void create(CMCallback<PushChannelResponse> callback) {
         CMWebService.getService().asyncCreateChannel(this, callback);
     }
 
