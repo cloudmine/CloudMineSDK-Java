@@ -1,5 +1,6 @@
 package com.cloudmine.api.integration;
 
+import android.util.Log;
 import com.cloudmine.api.CMChannel;
 import com.cloudmine.api.CMPushNotification;
 import com.cloudmine.api.CMUser;
@@ -187,6 +188,50 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         assertUserHasChannel(channelName, randomUser);
         assertUserHasChannel(channelName, randomEmailUser);
         assertUserHasChannel(channelName, randomUsernameUser);
+
+        channel.delete(testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse cmResponse) {
+                assertTrue(cmResponse.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
+    public void testBulkUnsubscribe() {
+
+        CMChannel channel = new CMChannel();
+        final String channelName = randomString();
+        channel.setName(channelName);
+        channel.create(hasSuccess);
+        waitThenAssertTestResults();
+
+        reset(3);
+        final CMUser randomUser = randomUser();
+        randomUser.createUser(hasSuccess);
+        final CMUser randomEmailUser = randomUser();
+        randomEmailUser.createUser(hasSuccess);
+        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        randomUsernameUser.createUser(hasSuccess);
+        waitThenAssertTestResults();
+
+        CMWebService.getService().asyncSubscribeUsersToChannel(channelName, Arrays.asList(
+                new CMPushNotification.UserIdTarget(randomUser.getObjectId()),
+                new CMPushNotification.EmailTarget(randomEmailUser.getEmail()),
+                new CMPushNotification.UserNameTarget(randomUsernameUser.getUserName())),
+                hasSuccess);
+        waitThenAssertTestResults();
+
+        CMWebService.getService().asyncUnsubscribeUsersFromChannel(channelName, Arrays.asList(randomUser.getObjectId(), randomEmailUser.getObjectId(), randomUsernameUser.getObjectId()),
+                testCallback(new PushChannelResponseCallback() {
+                    public void onCompletion(PushChannelResponse response) {
+                        assertTrue(response.wasSuccess());
+                        List<String> subscribedUserIds = response.getUserIds();
+                        assertEquals(0, subscribedUserIds.size());
+                    }
+                }));
+        waitThenAssertTestResults();
+
 
         channel.delete(testCallback(new CMResponseCallback() {
             public void onCompletion(CMResponse cmResponse) {

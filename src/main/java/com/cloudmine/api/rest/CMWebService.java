@@ -1017,6 +1017,11 @@ public class CMWebService {
         executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
     }
 
+    public void asyncUnsubscribeUsersFromChannel(String channelName, Collection<String> userIds, Callback<PushChannelResponse> responseCallback) {
+        HttpDelete delete = createUnsubscribeUsers(channelName, userIds);
+        executeAsyncCommand(delete, responseCallback, PushChannelResponse.CONSTRUCTOR);
+    }
+
     /**
      * Get the channel names that the user identified by the given id is subscribed to. Channel names come back as a
      * list of strings
@@ -1358,6 +1363,12 @@ public class CMWebService {
         HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).unsubscribe().asUrlString());
         addJson(post, IS_USER_JSON);
         return post;
+    }
+
+    private HttpDelete createUnsubscribeUsers(String channelName, Collection<String> objectIds) {
+        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).userIds(objectIds).asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
     }
 
     private HttpPost createSubscribeUsers(String channel, Collection<CMPushNotification.UserTarget> targets) {

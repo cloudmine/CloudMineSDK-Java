@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -195,6 +196,11 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         if(objectIds == null || objectIds.size() == 0)
             return this;
         return addQuery("keys", keysToString(objectIds));
+    }
+
+    public CMURLBuilder userIds(Collection<String> userIds) {
+        if(userIds == null) userIds = Collections.EMPTY_LIST;
+        return addQuery("user_ids", keysToString(userIds));
     }
 
     private String keysToString(Collection<String> keys) {
