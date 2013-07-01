@@ -1366,7 +1366,7 @@ public class CMWebService {
     }
 
     private HttpDelete createUnsubscribeUsers(String channelName, Collection<String> objectIds) {
-        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).userIds(objectIds).asUrlString());
+        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).userIds().ids(objectIds).asUrlString());
         addCloudMineHeader(delete);
         return delete;
     }

@@ -198,9 +198,13 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return addQuery("keys", keysToString(objectIds));
     }
 
-    public CMURLBuilder userIds(Collection<String> userIds) {
+    public CMURLBuilder userIds() {
+        return addAction("user_ids");
+    }
+
+    public CMURLBuilder ids(Collection<String> userIds) {
         if(userIds == null) userIds = Collections.EMPTY_LIST;
-        return addQuery("user_ids", keysToString(userIds));
+        return addQuery("ids", keysToString(userIds));
     }
 
     private String keysToString(Collection<String> keys) {

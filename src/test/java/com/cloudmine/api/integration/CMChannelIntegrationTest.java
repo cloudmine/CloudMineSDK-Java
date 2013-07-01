@@ -231,7 +231,12 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
                     }
                 }));
         waitThenAssertTestResults();
-
+        CMWebService.getService().asyncLoadSubscribedChannelsForUser(randomUser.getObjectId(), testCallback(new ListOfStringsCallback() {
+            public void onCompletion(ListOfValuesResponse<String> response) {
+                assertEquals(0, response.getValues().size());
+            }
+        }));
+        waitThenAssertTestResults();
 
         channel.delete(testCallback(new CMResponseCallback() {
             public void onCompletion(CMResponse cmResponse) {
