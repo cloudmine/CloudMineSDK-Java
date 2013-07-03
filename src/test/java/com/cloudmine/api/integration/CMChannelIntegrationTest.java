@@ -153,6 +153,41 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
     }
 
     @Test
+    public void testLoadChannelInformation() {
+        CMChannel channel = new CMChannel();
+        final String channelName = randomString();
+        channel.setName(channelName);
+        channel.create(hasSuccess);
+        waitThenAssertTestResults();
+
+        reset(3);
+        final CMUser randomUser = randomUser();
+        randomUser.createUser(hasSuccess);
+        final CMUser randomEmailUser = randomUser();
+        randomEmailUser.createUser(hasSuccess);
+        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        randomUsernameUser.createUser(hasSuccess);
+        waitThenAssertTestResults();
+
+        CMWebService.getService().asyncLoadChannelInformation(channelName, testCallback(new PushChannelResponseCallback() {
+            public void onCompletion(PushChannelResponse response) {
+                List<String> objectIds = response.getUserIds();
+                assertTrue(objectIds.contains(randomUser.getObjectId()));
+                assertTrue(objectIds.contains(randomEmailUser.getObjectId()));
+                assertTrue(objectIds.contains(randomUsernameUser.getObjectId()));
+            }
+        }));
+        waitThenAssertTestResults();
+
+        channel.delete(testCallback(new CMResponseCallback() {
+            public void onCompletion(CMResponse cmResponse) {
+                assertTrue(cmResponse.wasSuccess());
+            }
+        }));
+        waitThenAssertTestResults();
+    }
+
+    @Test
     public void testNonLoggedInSubscription() {
         CMChannel channel = new CMChannel();
         final String channelName = randomString();
