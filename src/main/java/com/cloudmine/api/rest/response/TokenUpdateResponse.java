@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.response.code.TokenUpdateCode;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
@@ -19,10 +20,19 @@ public class TokenUpdateResponse extends ResponseBase<TokenUpdateCode> {
         public TokenUpdateResponse construct(HttpResponse response) {
             return new TokenUpdateResponse(response);
         }
+
+        @Override
+        public TokenUpdateResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new TokenUpdateResponse(messageBody, responseCode);
+        }
     };
 
     public TokenUpdateResponse(HttpResponse response) {
         super(response, false);
+    }
+
+    public TokenUpdateResponse(String msg, int responseCode) {
+        super(msg, responseCode); //TODO this may not work needs testing
     }
 
     @Override

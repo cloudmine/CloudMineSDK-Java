@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.cloudmine.api.rest.HeaderFactory;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ import java.lang.reflect.Method;
  */
 public class CMApiCredentials {
     private static final Logger LOG = LoggerFactory.getLogger(CMApiCredentials.class);
-    private static final String HEADER_KEY = "X-CloudMine-ApiKey";
+
 
     private static CMApiCredentials credentials;
 
@@ -117,7 +118,7 @@ public class CMApiCredentials {
      * @return a Header that contains the CloudMine authentication information for a request
      */
     public static Header getCloudMineHeader() {
-        return new BasicHeader(HEADER_KEY, getApplicationApiKey());
+        return new BasicHeader(HeaderFactory.API_HEADER_KEY, getApplicationApiKey());
     }
 
 }

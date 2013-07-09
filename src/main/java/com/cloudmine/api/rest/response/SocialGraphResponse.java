@@ -1,15 +1,10 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.SimpleCMObject;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.response.code.SocialGraphCode;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 
 /**
  * Holds the response to a social graph query.
@@ -26,11 +21,20 @@ public class SocialGraphResponse extends ResponseBase<SocialGraphCode> {
         public SocialGraphResponse construct(HttpResponse response) {
             return new SocialGraphResponse(response);
         }
+
+        @Override
+        public SocialGraphResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new SocialGraphResponse(messageBody, responseCode);
+        }
     };
 
 
     public SocialGraphResponse(HttpResponse response) {
         super(response);
+    }
+
+    public SocialGraphResponse(String message, int responseCode) {
+        super(message, responseCode);
     }
 
     /**

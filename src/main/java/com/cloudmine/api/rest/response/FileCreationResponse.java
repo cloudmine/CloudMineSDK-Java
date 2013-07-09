@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.response.code.FileCreationCode;
 import org.apache.http.HttpResponse;
 
@@ -15,6 +16,11 @@ public class FileCreationResponse extends ResponseBase<FileCreationCode> {
         public FileCreationResponse construct(HttpResponse response) {
             return new FileCreationResponse(response);
         }
+
+        @Override
+        public FileCreationResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new FileCreationResponse(messageBody, responseCode);
+        }
     };
 
     /**
@@ -23,6 +29,10 @@ public class FileCreationResponse extends ResponseBase<FileCreationCode> {
      */
     public FileCreationResponse(HttpResponse response) {
         super(response);
+    }
+
+    public FileCreationResponse(String message, int responseCode) {
+        super(message, responseCode);
     }
 
     @Override

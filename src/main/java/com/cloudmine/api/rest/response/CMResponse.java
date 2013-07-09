@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.response.code.CMResponseCode;
 import org.apache.http.HttpResponse;
@@ -17,6 +18,11 @@ public class CMResponse extends ResponseBase<CMResponseCode> implements Transpor
     public static final ResponseConstructor<CMResponse> CONSTRUCTOR = new ResponseConstructor<CMResponse>() {
         public CMResponse construct(HttpResponse response) {
             return new CMResponse(response);
+        }
+
+        @Override
+        public CMResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new CMResponse(messageBody, responseCode);
         }
     };
 

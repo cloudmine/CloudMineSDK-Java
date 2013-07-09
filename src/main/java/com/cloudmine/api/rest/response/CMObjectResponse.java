@@ -30,6 +30,11 @@ public class CMObjectResponse extends SuccessErrorResponse<ObjectLoadCode> {
         public CMObjectResponse construct(HttpResponse response) throws CreationException {
             return new CMObjectResponse(response);
         }
+
+        @Override
+        public CMObjectResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new CMObjectResponse(messageBody, responseCode);
+        }
     };
     private final Map<String, ? extends CMObject> objectMap;
 

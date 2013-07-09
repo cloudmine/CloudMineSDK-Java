@@ -17,4 +17,5 @@ public interface ResponseConstructor<T> extends Constructor<HttpResponse, T> {
      * @throws CreationException if unable to populate all the required fields from the given HttpResponse
      */
     public T construct(HttpResponse response) throws CreationException;
+    public T construct(String messageBody, int responseCode) throws CreationException;
 }

@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest.response;
 
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.response.code.ObjectModificationCode;
 import org.apache.http.HttpResponse;
 
@@ -16,6 +17,11 @@ public class ObjectModificationResponse extends SuccessErrorResponse<ObjectModif
         @Override
         public ObjectModificationResponse construct(HttpResponse response) {
             return new ObjectModificationResponse(response);
+        }
+
+        @Override
+        public ObjectModificationResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new ObjectModificationResponse(messageBody, responseCode);
         }
     };
 
