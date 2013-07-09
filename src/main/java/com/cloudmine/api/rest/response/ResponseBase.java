@@ -67,11 +67,16 @@ public abstract class ResponseBase<CODE> implements Transportable {
         this(response, true);
     }
     protected ResponseBase(HttpResponse response, boolean readMessageBody)  {
+        this(response, readMessageBody, true);
+    }
+    protected ResponseBase(HttpResponse response, boolean readMessageBody, boolean extractResponseMap)  {
+
         statusCode = readStatusCode(response);
         extractHeaders(response);
         if(readMessageBody) {
             messageBody = readMessageBody(response);
-            baseMap = extractResponseMap(response, messageBody);
+            if(extractResponseMap)baseMap = extractResponseMap(response, messageBody);
+            else baseMap = new HashMap<String, Object>();
         } else {
             messageBody = "";
             baseMap = new HashMap<String, Object>();

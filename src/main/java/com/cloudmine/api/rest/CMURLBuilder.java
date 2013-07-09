@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -197,6 +198,15 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return addQuery("keys", keysToString(objectIds));
     }
 
+    public CMURLBuilder userIds() {
+        return addAction("user_ids");
+    }
+
+    public CMURLBuilder ids(Collection<String> userIds) {
+        if(userIds == null) userIds = Collections.EMPTY_LIST;
+        return addQuery("ids", keysToString(userIds));
+    }
+
     private String keysToString(Collection<String> keys) {
         String keyString = "";
         String comma = "";
@@ -294,12 +304,36 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return this.addAction(USER);
     }
 
+    public CMURLBuilder users() {
+        return this.addAction("users");
+    }
+
     public CMURLBuilder create() {
         return this.addAction("create");
     }
 
     public CMURLBuilder text() {
         return this.addAction("text");
+    }
+
+    public CMURLBuilder push() {
+        return this.addAction("push");
+    }
+
+    public CMURLBuilder subscribe() {
+        return this.addAction("subscribe");
+    }
+
+    public CMURLBuilder unsubscribe() {
+        return this.addAction("unsubscribe");
+    }
+
+    public CMURLBuilder channel() {
+        return this.addAction("channel");
+    }
+
+    public CMURLBuilder channels() {
+        return this.addAction("channels");
     }
 
     public CMURLBuilder binary() {
