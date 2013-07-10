@@ -1,10 +1,8 @@
 package com.cloudmine.api.integration;
 
-import android.util.Log;
 import com.cloudmine.api.CMChannel;
 import com.cloudmine.api.CMPushNotification;
 import com.cloudmine.api.CMUser;
-import com.cloudmine.api.DeviceIdentifier;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.ListOfStringsCallback;
@@ -22,9 +20,7 @@ import java.util.List;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 
 /**
@@ -109,36 +105,6 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
 
         user.loadSubscribedChannels(testCallback(new ListOfStringsCallback() {
             public void onCompletion(ListOfValuesResponse <String> response){
-                assertTrue(response.getValues().contains(channelName));
-            }
-        }));
-        waitThenAssertTestResults();
-
-        channel.delete(testCallback(new CMResponseCallback() {
-            public void onCompletion(CMResponse cmResponse) {
-                assertTrue(cmResponse.wasSuccess());
-            }
-        }));
-        waitThenAssertTestResults();
-    }
-
-    @Test
-    public void testDeviceSubscribers() {
-        CMChannel channel = new CMChannel();
-        final String channelName = randomString();
-        channel.setName(channelName);
-        channel.create(hasSuccess);
-        waitThenAssertTestResults();
-
-        CMWebService.getService().asyncSubscribeThisDeviceToChannel(channelName, testCallback(new PushChannelResponseCallback() {
-            public void onCompletion(PushChannelResponse response) {
-                assertTrue(response.wasSuccess());
-            }
-        }));
-        waitThenAssertTestResults();
-
-        CMWebService.getService().asyncLoadSubscribedChannelsForDevice(DeviceIdentifier.getUniqueId(), testCallback(new ListOfStringsCallback() {
-            public void onCompletion(ListOfValuesResponse<String> response) {
                 assertTrue(response.getValues().contains(channelName));
             }
         }));

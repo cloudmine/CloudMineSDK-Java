@@ -20,10 +20,19 @@ public class PushChannelResponse extends ResponseBase<CMResponseCode> {
         public PushChannelResponse construct(HttpResponse response) throws CreationException {
             return new PushChannelResponse(response);
         }
+
+        @Override
+        public PushChannelResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new PushChannelResponse(messageBody, responseCode);
+        }
     };
 
     protected PushChannelResponse(HttpResponse response) {
         super(response, true);
+    }
+
+    protected PushChannelResponse(String msg, int responseCode) {
+        super(msg, responseCode);
     }
 
     public String getChannelName() {

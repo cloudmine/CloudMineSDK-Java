@@ -23,6 +23,11 @@ public class ListOfValuesResponse<VALUE> extends ResponseBase<CMResponseCode> {
             public ListOfValuesResponse construct(HttpResponse response) throws CreationException {
                 return new ListOfValuesResponse(response);
             }
+
+            @Override
+            public ListOfValuesResponse<VALUE> construct(String messageBody, int responseCode) throws CreationException {
+                return new ListOfValuesResponse<VALUE>(messageBody, responseCode);
+            }
         };
     }
 
@@ -32,6 +37,15 @@ public class ListOfValuesResponse<VALUE> extends ResponseBase<CMResponseCode> {
         super(response, true, false);
         try {
             values = JsonUtilities.jsonToClass(getMessageBody(), List.class);
+        }catch (CloudMineException cme) {
+            values = Collections.EMPTY_LIST;
+        }
+    }
+
+    public ListOfValuesResponse(String msg, int responseCode) {
+        super(msg, responseCode);
+        try {
+            values = JsonUtilities.jsonToClass(msg, List.class);
         }catch (CloudMineException cme) {
             values = Collections.EMPTY_LIST;
         }

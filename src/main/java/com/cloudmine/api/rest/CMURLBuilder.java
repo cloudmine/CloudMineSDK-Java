@@ -73,13 +73,21 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         this(CLOUD_MINE_URL, appId);
     }
 
+    public CMURLBuilder(String action, boolean blankBase) {
+        super(blankBase ? "" : getBaseUrl(CLOUD_MINE_URL, CMApiCredentials.getApplicationIdentifier()), action, "");
+    }
+
     /**
      * Creates a base url builder for a non standard base CloudMine url, eg https://api.beta.cloudmine.me
      * @param cloudMineUrl the base part of the url
      * @param appId the application identifier, found in the CloudMine developer dashboard
      */
     protected CMURLBuilder(String cloudMineUrl, String appId) {
-        this(cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId), "", "");
+        this(getBaseUrl(cloudMineUrl, appId), "", "");
+    }
+
+    private static String getBaseUrl(String cloudMineUrl, String appId) {
+        return cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId);
     }
 
     protected CMURLBuilder(String baseUrl, String actions, String queryParams) {
