@@ -1,6 +1,10 @@
 package com.cloudmine.test;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMObject;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.Savable;
@@ -8,8 +12,11 @@ import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.ResponseBaseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
+import org.junit.Assert;
 import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
@@ -125,6 +132,25 @@ public class ServiceTestBase {
 
     public CMUser user() {
         return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
+    }
+
+    public CMUser loggedInUser() {
+        return loggedInUser(user);
+    }
+
+    public CMUser randomLoggedInUser() {
+        CMUser randomUser = randomUser();
+        CMResponse response = service.insert(user);
+        assertTrue(response.wasSuccess());
+        return loggedInUser(randomUser);
+    }
+
+    public CMUser loggedInUser(CMUser user) {
+        LoginResponse response = CMWebService.getService().login(user);
+        Assert.assertTrue(response.wasSuccess());
+        Assert.assertTrue(response.getSessionToken().isValid());
+        user.setSessionToken(response.getSessionToken());
+        return user;
     }
 
     public SimpleCMObject simpleUserObject() {

@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
@@ -30,7 +31,7 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return urlParts[1];
     }
 
-    public static final String USER = "user";
+    public static final String USER = "/user";
 
     enum VERSION implements BaseURL {
         V1("/v1");
@@ -309,7 +310,14 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
     }
 
     public CMURLBuilder user() {
-        return this.addAction(USER);
+        actions.insert(0, USER);
+        return this;
+    }
+
+    public CMURLBuilder user(CMSessionToken sessionToken) {
+        if(sessionToken == null || CMSessionToken.FAILED.equals(sessionToken))
+            return this;
+        return user();
     }
 
     public CMURLBuilder users() {
