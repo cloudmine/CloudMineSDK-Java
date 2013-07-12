@@ -7,6 +7,8 @@ package com.cloudmine.api;
  */
 public class Strings {
 
+    public static final String QUOTE = "\"";
+
     public static boolean isEmpty(String string) {
         return string == null || string.length() == 0;
     }
