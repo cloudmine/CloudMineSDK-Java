@@ -41,6 +41,11 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
         file = new CMFile(response, fileId);
     }
 
+    public FileLoadResponse(CMFile file, int statusCode) {
+        super("{}", statusCode);
+        this.file = file;
+    }
+
     @Override
     public FileLoadCode getResponseCode() {
         return FileLoadCode.codeForStatus(getStatusCode());
