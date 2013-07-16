@@ -510,17 +510,7 @@ public class CMUser extends CMObject {
                 @Override
                 public void onCompletion(CMObjectResponse response) {
                     try {
-                        List<CMObject> loadedObjects = response.getObjects();
-                        if (loadedObjects.size() == 1) {
-                            CMObject thisUser = loadedObjects.get(0);
-                            if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
-                                mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
-                            } else {
-                                LOG.error("Loaded user profile that isn't a CMUser");
-                            }
-                        } else {
-                            LOG.error("Loaded multiple user profiles for a single user");
-                        }
+                        mergeInUserProfile(response);
                     } finally {
                         callback.onCompletion(response);
                     }
@@ -528,6 +518,20 @@ public class CMUser extends CMObject {
             });
         }else {
             callback.onFailure(new NotLoggedInException("Was unable to log in"), "Unable to log in");
+        }
+    }
+
+    protected void mergeInUserProfile(CMObjectResponse response) {
+        List<CMObject> loadedObjects = response.getObjects();
+        if (loadedObjects.size() == 1) {
+            CMObject thisUser = loadedObjects.get(0);
+            if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
+                mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
+            } else {
+                LOG.error("Loaded user profile that isn't a CMUser");
+            }
+        } else {
+            LOG.error("Loaded multiple user profiles for a single user");
         }
     }
 
@@ -731,18 +735,22 @@ public class CMUser extends CMObject {
             @Override
             public void onCompletion(LoginResponse response) {
                 try {
-                    clearPassword();
-                    if(response.wasSuccess() &&
-                            response.getSessionToken() != null &&
-                            response.getSessionToken().isValid()) { //this call is still valid since non of the reasons for deprecating this method can apply at this point
-                        sessionToken = response.getSessionToken();
-                        mergeProfilesUpdates(response.getProfileTransportRepresentation());
-                    }
+                    setLoggedInUser(response);
                 }finally {
                     callback.onCompletion(response);
                 }
             }
         };
+    }
+
+    protected void setLoggedInUser(LoginResponse response) {
+        clearPassword();
+        if(response.wasSuccess() &&
+                response.getSessionToken() != null &&
+                response.getSessionToken().isValid()) { //this call is still valid since non of the reasons for deprecating this method can apply at this point
+            sessionToken = response.getSessionToken();
+            mergeProfilesUpdates(response.getProfileTransportRepresentation());
+        }
     }
 
     private void clearPassword() {
@@ -763,9 +771,18 @@ public class CMUser extends CMObject {
         };
     }
 
+    /**
+     * Returns whatever user identifier is in use for this object - either the email if it is not empty, or the userName
+     * @return
+     */
+    public String getUserIdentifier() {
+        if(Strings.isNotEmpty(email)) return email;
+        return userName;
+    }
+
     @Override
     public String toString() {
-        return getEmail() + ":" + getPassword() + ":" + getAuthenticatedServices();
+        return getUserIdentifier() + ":" + getPassword() + ":" + getAuthenticatedServices();
     }
 
     @Override
