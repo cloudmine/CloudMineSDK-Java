@@ -24,7 +24,6 @@ public class CMSearchOptions implements BaseURL {
         urlString.setValue(url);
     }
 
-
     @Override
     public String asUrlString() {
         boolean isNotSet = !urlString.isSet();

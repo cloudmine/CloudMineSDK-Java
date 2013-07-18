@@ -7,6 +7,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.Transportable;
+import com.cloudmine.api.rest.TransportableString;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
@@ -38,6 +39,17 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
     private Set<String> accessListIds = new HashSet<String>();
+
+    public static Transportable massTransportable(Collection<CMObject> objects) {
+        StringBuilder bodyBuilder = new StringBuilder("{");
+        String separator = "";
+        for(CMObject object : objects) {
+            bodyBuilder.append(separator).append(object.asKeyedObject());
+            separator = ", ";
+        }
+        bodyBuilder.append("}");
+        return new TransportableString(bodyBuilder.toString());
+    }
 
     /**
      * Converts the given TransportableRepresentation to an object of the given class
