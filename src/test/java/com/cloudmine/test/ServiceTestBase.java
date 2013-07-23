@@ -12,7 +12,6 @@ import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.ResponseBaseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
-import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
@@ -28,6 +27,7 @@ import java.util.UUID;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
+import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -80,7 +80,7 @@ public class ServiceTestBase {
     }
 
     public static CMUser randomUser() {
-        return new CMUser(randomEmail(), randomString());
+        return new CMUser(randomEmail(), "test");
     }
 
     protected CMWebService service;
@@ -93,7 +93,7 @@ public class ServiceTestBase {
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
         reset();
 
-        user().setPassword(USER_PASSWORD);
+        CMUser user = user();
         deleteAll();
 //        deleteAllUsers();
     }
@@ -120,6 +120,9 @@ public class ServiceTestBase {
                     }
                 }
                 waitForTestResults(500000);
+                CMUser user = user();
+                user.createUser(hasSuccess);
+                waitForTestResults();
             }
         });
     }
@@ -135,13 +138,14 @@ public class ServiceTestBase {
     }
 
     public CMUser loggedInUser() {
+        CMWebService.getService().insert(user);
         return loggedInUser(user);
     }
 
     public CMUser randomLoggedInUser() {
         CMUser randomUser = randomUser();
-        CMResponse response = service.insert(user);
-        assertTrue(response.wasSuccess());
+        randomUser.createUser(hasSuccess);
+        waitThenAssertTestResults();
         return loggedInUser(randomUser);
     }
 

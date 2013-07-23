@@ -957,7 +957,7 @@ public class CMWebService {
      */
     public void asyncCreateChannel(CMChannel channel, Callback<PushChannelResponse> callback) {
         HttpPost post = createNotificationChannel(channel);
-        executeAsyncCommand(post, callback);
+        executeAsyncCommand(post, callback, PushChannelResponse.CONSTRUCTOR);
     }
 
     /**
@@ -1408,7 +1408,7 @@ public class CMWebService {
     }
 
     private HttpPost createUpdateUserName(String oldUserName, String currentPassword, String newUserName) {
-        HttpPost post = createPost(baseUrl.account().credentials().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
         addAuthorizationHeader(null, oldUserName, currentPassword, post);
         addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.USERNAME_KEY, newUserName)));
         return post;
