@@ -6,6 +6,7 @@ import com.cloudmine.api.StoreIdentifier;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A common interface that can be shared between different objects that can be saved to cloudmine
@@ -20,6 +21,7 @@ public interface Savable<SAVE_CALLBACK, DELETE_CALLBACK> extends Transportable {
      *                   is the same as not calling setSaveWith, and false will be returned
      * @return true if the value was set; false if it has already been set OR null was passed in
      */
+    @JsonIgnore
     public boolean setSaveWith(StoreIdentifier identifier);
 
     /**
@@ -28,6 +30,7 @@ public interface Savable<SAVE_CALLBACK, DELETE_CALLBACK> extends Transportable {
      * @return true if the value was set; false if it has already been set OR null was passed in
      * @throws com.cloudmine.api.exceptions.CreationException if user is null
      */
+    @JsonIgnore
     public boolean setSaveWith(CMUser user);
 
     /**
