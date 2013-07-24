@@ -38,13 +38,6 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         CMChannel channel = new CMChannel(channelName,
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList());
-        channel.create(new PushChannelResponseCallback() {
-            public void onCompletion(PushChannelResponse response) {
-                String createdChannelName = response.getChannelName();
-                List<String> deviceIds = response.getDeviceIds();
-                List<String> userIds = response.getUserIds();
-            }
-        });
         CMWebService.getService().asyncCreateChannel(channel, testCallback(new PushChannelResponseCallback() {
             public void onCompletion(PushChannelResponse response) {
                 assertTrue(response.wasSuccess());

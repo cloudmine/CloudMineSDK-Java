@@ -30,6 +30,7 @@ public class CMServerFunction implements BaseURL{
      * Instantiate a new CMServerFunction as a raw string that will be appended to the URL. No leading & or ? necessary.
      * You probably don't want to be calling this
      * @param asString the raw URL string that will be appended to the request URL
+     * @param randomParam ignored, just need another constructor
      */
     private CMServerFunction(String asString, Class randomParam) {
         urlString.setValue(asString);

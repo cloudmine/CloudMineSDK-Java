@@ -5,6 +5,7 @@ import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.options.CMServerFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,6 +225,11 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
             comma = ",";
         }
         return keyString;
+    }
+
+    public CMURLBuilder serverFunction(CMServerFunction serverFunction) {
+        if(serverFunction == null) return this;
+        return addQuery(serverFunction.asUrlString());
     }
 
     public CMURLBuilder mapToQuery(Map<String, Object> map) {
