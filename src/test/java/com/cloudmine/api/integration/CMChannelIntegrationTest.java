@@ -127,7 +127,7 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
-
+        //This test fails right here because this code isn't written yet
         CMWebService.getService().asyncLoadChannelInformation(channelName, testCallback(new PushChannelResponseCallback() {
             public void onCompletion(PushChannelResponse response) {
                 List<String> objectIds = response.getUserIds();
