@@ -17,6 +17,16 @@ public class SimpleCMObjectTest {
     public static final String EMPTY_ACCESS_JSON = "\"__access__\":[],";
 
     @Test
+    public void testSetObjectId() {
+        SimpleCMObject object = new SimpleCMObject();
+
+        SimpleCMObject copyObject = new SimpleCMObject();
+        copyObject.setObjectId(object.getObjectId());
+
+        assertTrue(JsonUtilities.isJsonEquivalent(object.transportableRepresentation(), copyObject.transportableRepresentation()));
+    }
+
+    @Test
     public void testKeyedMapConstructor() {
         SimpleCMObject object = createComplexObject();
         String expectedJson = "{\"topLevelKey\":{\n" +

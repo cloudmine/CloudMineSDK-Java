@@ -179,6 +179,13 @@ public class SimpleCMObject extends CMObject {
         return false;
     }
 
+    public void setObjectId(String objectId) {
+        super.setObjectId(objectId);
+        contents.put(JsonUtilities.OBJECT_ID_KEY, objectId);
+        topLevelMap.clear();
+        topLevelMap.put(objectId, contents);
+    }
+
     /**
      * Returns the value associated with the top level key; This will probably be a Map of Strings to
      * Objects, but may just be a single value
@@ -552,11 +559,15 @@ public class SimpleCMObject extends CMObject {
     }
 
     public String transportableRepresentation() throws ConversionException {
-        boolean hasTopLevelKey = !topLevelMap.isEmpty();
+        boolean hasTopLevelKey = hasTopLevelKey();
         if(hasTopLevelKey)
             return JsonUtilities.mapToJson(topLevelMap);
         else
             return JsonUtilities.mapToJson(contents);
+    }
+
+    private boolean hasTopLevelKey() {
+        return !topLevelMap.isEmpty();
     }
 
     public String toString() {
@@ -577,6 +588,7 @@ public class SimpleCMObject extends CMObject {
         return this.topLevelMap.equals(topLevelMap);
     }
 
+    //TODO these are broken for SimpleCMObjects without object ids
     @Override
     public final boolean equals(Object another) {
         //This will make it work with subclasses of SimpleCMObject, but must make equals final so child classes
