@@ -86,6 +86,30 @@ public class SearchQuery {
             return FilterValue();
         }
 
+        public CombinableFilterValue greaterThan(String value) {
+            greaterThan();
+            quote(value);
+            return FilterValue();
+        }
+
+        public CombinableFilterValue greaterThanOrEqual(String value) {
+            greaterThanOrEqual();
+            quote(value);
+            return FilterValue();
+        }
+
+        public CombinableFilterValue lessThan(String value) {
+            lessThan();
+            quote(value);
+            return FilterValue();
+        }
+
+        public CombinableFilterValue lessThanOrEqual(String value) {
+            lessThanOrEqual();;
+            quote(value);
+            return FilterValue();
+        }
+
         //Integer filter values
         public CombinableFilterValue equal(int value) {
             equal();
@@ -100,24 +124,42 @@ public class SearchQuery {
         }
 
         public CombinableFilterValue lessThan(int value) {
-            queryBuilder.append(" < ");
+            lessThan();
             queryBuilder.append(value);
             return FilterValue();
         }
 
+        private void lessThan() {
+            queryBuilder.append(" < ");
+        }
+
         public CombinableFilterValue lessThanOrEqual(int value) {
-            queryBuilder.append(" <= ").append(value);
+            lessThanOrEqual();
+            queryBuilder.append(value);
             return FilterValue();
         }
-        
+
+        private void lessThanOrEqual() {
+            queryBuilder.append(" <= ");
+        }
+
         public CombinableFilterValue greaterThan(int value) {
             queryBuilder.append(" > ").append(value);
             return FilterValue();
         }
 
         public CombinableFilterValue greaterThanOrEqual(int value) {
-            queryBuilder.append(" >= ").append(value);
+            greaterThanOrEqual();
+            queryBuilder.append(value);
             return FilterValue();
+        }
+
+        private void greaterThan() {
+            queryBuilder.append(" > ");
+        }
+
+        private void greaterThanOrEqual() {
+            queryBuilder.append(" >= ");
         }
 
         private void equal() {
