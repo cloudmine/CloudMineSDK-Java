@@ -115,7 +115,7 @@
                     <version>4.0-beta2</version>
                 </dependency>
                 <dependency>
-                    <groupId>com.android.cloudmine</groupId>
+                    <groupId>com.android</groupId>
                     <artifactId>volley</artifactId>
                     <version>1.0-SNAPSHOT</version>
                 </dependency>
