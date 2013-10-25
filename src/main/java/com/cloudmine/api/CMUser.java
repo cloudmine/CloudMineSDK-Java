@@ -1,11 +1,17 @@
 package com.cloudmine.api;
 
+import android.content.Context;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NotLoggedInException;
+import com.cloudmine.api.rest.BaseLoadUserProfilesRequest;
 import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.CloudMineRequest;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.SharedRequestQueueHolders;
 import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
@@ -74,6 +80,18 @@ public class CMUser extends CMObject {
      */
     public static void loadAllUserProfiles(Callback<CMObjectResponse> callback) {
         CMWebService.getService().asyncLoadAllUserProfiles(callback);
+    }
+
+    public static CloudMineRequest loadAllUserProfiles(Context context, Response.Listener<CMObjectResponse> successListener, Response.ErrorListener errorListener) {
+        BaseLoadUserProfilesRequest loadUserProfilesRequest = new BaseLoadUserProfilesRequest(null, successListener, errorListener);
+        SharedRequestQueueHolders.getRequestQueue(context).add(loadUserProfilesRequest);
+        return loadUserProfilesRequest;
+    }
+
+    public static CloudMineRequest searchUserProfiles(Context context, String searchString, Response.Listener<CMObjectResponse> successListener, Response.ErrorListener errorListener) {
+        BaseLoadUserProfilesRequest loadUserProfilesRequest = new BaseLoadUserProfilesRequest(searchString, null, successListener, errorListener);
+        SharedRequestQueueHolders.getRequestQueue(context).add(loadUserProfilesRequest);
+        return loadUserProfilesRequest;
     }
 
     /**
