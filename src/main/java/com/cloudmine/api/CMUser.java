@@ -82,18 +82,6 @@ public class CMUser extends CMObject {
         CMWebService.getService().asyncLoadAllUserProfiles(callback);
     }
 
-    public static CloudMineRequest loadAllUserProfiles(Context context, Response.Listener<CMObjectResponse> successListener, Response.ErrorListener errorListener) {
-        BaseLoadUserProfilesRequest loadUserProfilesRequest = new BaseLoadUserProfilesRequest(null, successListener, errorListener);
-        SharedRequestQueueHolders.getRequestQueue(context).add(loadUserProfilesRequest);
-        return loadUserProfilesRequest;
-    }
-
-    public static CloudMineRequest searchUserProfiles(Context context, String searchString, Response.Listener<CMObjectResponse> successListener, Response.ErrorListener errorListener) {
-        BaseLoadUserProfilesRequest loadUserProfilesRequest = new BaseLoadUserProfilesRequest(searchString, null, successListener, errorListener);
-        SharedRequestQueueHolders.getRequestQueue(context).add(loadUserProfilesRequest);
-        return loadUserProfilesRequest;
-    }
-
     /**
      * Get the profile for the user given
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
