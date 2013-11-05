@@ -265,7 +265,7 @@ public class CMUser extends CMObject {
      */
     public boolean isLoginAttemptPossible() {
         return Strings.isNotEmpty(password) &&
-                (Strings.isNotEmpty(email));
+                (Strings.isNotEmpty(getUserIdentifier()));
     }
 
     private boolean isCreated() {
