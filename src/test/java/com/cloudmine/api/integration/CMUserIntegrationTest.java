@@ -5,6 +5,7 @@ import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
+import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
@@ -146,6 +147,7 @@ public class CMUserIntegrationTest extends ServiceTestBase {
         ExtendedCMUser user = new ExtendedCMUser("frexxd@francis.com", "pw");
         user.save(testCallback());
         waitThenAssertTestResults();
+
         user.login(hasSuccess);
         waitThenAssertTestResults();
         user.setAge(50);

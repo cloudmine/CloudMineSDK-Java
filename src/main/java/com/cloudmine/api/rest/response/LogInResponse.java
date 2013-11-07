@@ -69,6 +69,15 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         return JsonUtilities.EMPTY_JSON;
     }
 
+    
+    public <T extends CMUser> T getUserObject(Class<T> userClass) {
+        T user = JsonUtilities.jsonToClass(getProfileTransportRepresentation(), userClass);
+        if(user != null) {
+            user.setSessionToken(sessionToken);
+        }
+        return user;
+    }
+
     /**
      * the token used to authenticate this session with the server. If the request failed, it will be equal to {@link com.cloudmine.api.CMSessionToken#FAILED}
      * @return the token used to authenticate this session with the server

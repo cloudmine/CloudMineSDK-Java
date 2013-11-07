@@ -209,6 +209,7 @@ public class CMUser extends CMObject {
         this.userName = userName;
     }
 
+    @JsonIgnore
     public String getUserName() {
         return userName;
     }
@@ -781,6 +782,7 @@ public class CMUser extends CMObject {
      * Returns whatever user identifier is in use for this object - either the email if it is not empty, or the userName
      * @return
      */
+    @JsonIgnore
     public String getUserIdentifier() {
         if(Strings.isNotEmpty(email)) return email;
         return userName;
