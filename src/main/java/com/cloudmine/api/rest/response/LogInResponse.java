@@ -69,7 +69,7 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         return JsonUtilities.EMPTY_JSON;
     }
 
-    
+
     public <T extends CMUser> T getUserObject(Class<T> userClass) {
         T user = JsonUtilities.jsonToClass(getProfileTransportRepresentation(), userClass);
         if(user != null) {

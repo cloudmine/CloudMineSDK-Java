@@ -1,17 +1,11 @@
 package com.cloudmine.api;
 
-import android.content.Context;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NotLoggedInException;
-import com.cloudmine.api.rest.BaseLoadUserProfilesRequest;
 import com.cloudmine.api.rest.CMSocial;
 import com.cloudmine.api.rest.CMWebService;
-import com.cloudmine.api.rest.CloudMineRequest;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.SharedRequestQueueHolders;
 import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
