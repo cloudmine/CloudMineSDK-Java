@@ -7,7 +7,6 @@ import com.cloudmine.api.CMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
-import com.cloudmine.api.rest.CloudMineRequest;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
@@ -91,7 +90,6 @@ public class ServiceTestBase {
     public void setUp() {
         ClassNameRegistry.register("govna", ExtendedCMObject.class);
         CMApiCredentials.initialize(APP_ID, API_KEY);
-        CloudMineRequest.setCachingEnabled(false);
         service = CMWebService.getService();
 
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
