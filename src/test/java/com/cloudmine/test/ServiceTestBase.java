@@ -7,6 +7,7 @@ import com.cloudmine.api.CMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.CloudMineRequest;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
@@ -38,8 +39,10 @@ import static junit.framework.Assert.assertTrue;
  * Date: 6/14/12, 11:13 AM
  */
 public class ServiceTestBase {
-    public static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
-    public static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
+//    public static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
+//    public static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
+    public static final String APP_ID = "f8edcd61af8b434a843c4f08fcabe78e";
+    public static final String API_KEY = "373395dadf514f7da47708c4047edecb";
     protected static final String USER_PASSWORD = "test";
     private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
@@ -88,12 +91,12 @@ public class ServiceTestBase {
     public void setUp() {
         ClassNameRegistry.register("govna", ExtendedCMObject.class);
         CMApiCredentials.initialize(APP_ID, API_KEY);
+        CloudMineRequest.setCachingEnabled(false);
         service = CMWebService.getService();
 
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
         reset();
 
-        CMUser user = user();
         deleteAll();
 //        deleteAllUsers();
     }
@@ -101,6 +104,7 @@ public class ServiceTestBase {
     private void deleteAll() {
         service.deleteAll();
         CMUser user = user();
+
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
     }
