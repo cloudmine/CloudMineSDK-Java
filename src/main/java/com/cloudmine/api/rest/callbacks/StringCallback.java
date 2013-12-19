@@ -33,6 +33,11 @@ public class StringCallback extends CMCallback<String> {
             String messageBody = writer.toString();
             return messageBody;
         }
+
+        @Override
+        public String construct(String messageBody, int responseCode) throws CreationException {
+            return messageBody;
+        }
     };
     public StringCallback() {
         super(CONSTRUCTOR);

@@ -15,7 +15,7 @@ public class AsyncTestResultsCoordinator {
     private static final List<AssertionError> errors = new ArrayList<AssertionError>();
     private static final List<Throwable> onFailures = new ArrayList<Throwable>();
     private static CountDownLatch latch;
-    public static final int TIMEOUT = 10;
+    public static final int TIMEOUT = 20;
 
     public static void add(AssertionError error) {
         errors.add(error);

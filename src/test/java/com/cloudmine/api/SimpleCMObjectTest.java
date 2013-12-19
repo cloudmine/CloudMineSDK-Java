@@ -117,7 +117,7 @@ public class SimpleCMObjectTest {
         assertFalse(object.getBoolean("non existent boolean", Boolean.FALSE));
         assertTrue(object.getBoolean("boolean"));
 
-        CMGeoPoint geoPoint = new CMGeoPoint(3.3, 4);
+        CMGeoPointInterface geoPoint = new CMGeoPoint(3.3, 4);
         object.add("location", geoPoint);
         assertEquals(geoPoint, object.getGeoPoint("location"));
 
@@ -126,12 +126,12 @@ public class SimpleCMObjectTest {
     @Test
     public void testGeoAsJson() {
         SimpleCMObject object = new SimpleCMObject("topLevelKey");
-        CMGeoPoint geoObject = new CMGeoPoint(50, 50);
+        CMGeoPointInterface geoObject = new CMGeoPoint(50, 50);
         object.add("geo", geoObject);
-        //String expectedJson = "{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"},\"__id__\":\"topLevelKey\",\"__access__\":[]}";
+        //String expectedJson = "{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPointInterface\"},\"__id__\":\"topLevelKey\",\"__access__\":[]}";
 
         String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", " + EMPTY_ACCESS_JSON +
-               "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
+               "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPointInterface\"}}}";
 
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.transportableRepresentation(), JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
 

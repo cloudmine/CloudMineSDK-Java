@@ -1,6 +1,10 @@
 package com.cloudmine.test;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMObject;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.Savable;
@@ -8,8 +12,10 @@ import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.ResponseBaseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
+import org.junit.Assert;
 import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +27,7 @@ import java.util.UUID;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
+import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -31,8 +38,10 @@ import static junit.framework.Assert.assertTrue;
  * Date: 6/14/12, 11:13 AM
  */
 public class ServiceTestBase {
-    private static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
-    private static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
+//    public static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
+//    public static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
+    public static final String APP_ID = "f8edcd61af8b434a843c4f08fcabe78e";
+    public static final String API_KEY = "373395dadf514f7da47708c4047edecb";
     protected static final String USER_PASSWORD = "test";
     private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
@@ -73,7 +82,7 @@ public class ServiceTestBase {
     }
 
     public static CMUser randomUser() {
-        return new CMUser(randomEmail(), randomString());
+        return new CMUser(randomEmail(), "test");
     }
 
     protected CMWebService service;
@@ -86,7 +95,6 @@ public class ServiceTestBase {
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
         reset();
 
-        user().setPassword(USER_PASSWORD);
         deleteAll();
 //        deleteAllUsers();
     }
@@ -94,6 +102,7 @@ public class ServiceTestBase {
     private void deleteAll() {
         service.deleteAll();
         CMUser user = user();
+
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
     }
@@ -113,6 +122,9 @@ public class ServiceTestBase {
                     }
                 }
                 waitForTestResults(500000);
+                CMUser user = user();
+                user.createUser(hasSuccess);
+                waitForTestResults();
             }
         });
     }
@@ -125,6 +137,26 @@ public class ServiceTestBase {
 
     public CMUser user() {
         return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
+    }
+
+    public CMUser loggedInUser() {
+        CMWebService.getService().insert(user);
+        return loggedInUser(user);
+    }
+
+    public CMUser randomLoggedInUser() {
+        CMUser randomUser = randomUser();
+        randomUser.createUser(hasSuccess);
+        waitThenAssertTestResults();
+        return loggedInUser(randomUser);
+    }
+
+    public CMUser loggedInUser(CMUser user) {
+        LoginResponse response = CMWebService.getService().login(user);
+        Assert.assertTrue(response.wasSuccess());
+        Assert.assertTrue(response.getSessionToken().isValid());
+        user.setSessionToken(response.getSessionToken());
+        return user;
     }
 
     public SimpleCMObject simpleUserObject() {

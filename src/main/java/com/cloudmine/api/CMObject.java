@@ -7,6 +7,7 @@ import com.cloudmine.api.rest.CMStore;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.Savable;
 import com.cloudmine.api.rest.Transportable;
+import com.cloudmine.api.rest.TransportableString;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
@@ -23,8 +24,8 @@ import java.util.*;
 /**
  * Can be subclassed to allow for persisting POJOs to CloudMine. If you would like to specify a custom class name
  * (for example, for interoperability with existing iOS CMObjects), you may override getClassName(). If you do this,
- * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} before any loads
- * or persistance occurs.
+ * you must also call {@link com.cloudmine.api.persistance.ClassNameRegistry#register(String, Class)} in the same place
+ * that you call {@link CMApiCredentials.initialize(String, String, Object)}
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
@@ -38,6 +39,17 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     private String objectId;
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
     private Set<String> accessListIds = new HashSet<String>();
+
+    public static Transportable massTransportable(Collection<CMObject> objects) {
+        StringBuilder bodyBuilder = new StringBuilder("{");
+        String separator = "";
+        for(CMObject object : objects) {
+            bodyBuilder.append(separator).append(object.asKeyedObject());
+            separator = ", ";
+        }
+        bodyBuilder.append("}");
+        return new TransportableString(bodyBuilder.toString());
+    }
 
     /**
      * Converts the given TransportableRepresentation to an object of the given class

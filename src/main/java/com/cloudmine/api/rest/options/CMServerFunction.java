@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.options;
 
 import com.cloudmine.api.Immutable;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.BaseURL;
 import com.cloudmine.api.rest.CMURLBuilder;
@@ -30,6 +31,7 @@ public class CMServerFunction implements BaseURL{
      * Instantiate a new CMServerFunction as a raw string that will be appended to the URL. No leading & or ? necessary.
      * You probably don't want to be calling this
      * @param asString the raw URL string that will be appended to the request URL
+     * @param randomParam ignored, just need another constructor
      */
     private CMServerFunction(String asString, Class randomParam) {
         urlString.setValue(asString);
@@ -66,8 +68,8 @@ public class CMServerFunction implements BaseURL{
      * @param extraParameters Allows you to pass in arbitrary parameters to the function. They will be available as data.params. If specified as valid JSON, they will already be parsed as a JSON object.
      */
     public CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
-        if(snippetName == null) {
-            throw new CreationException("Cannot call a null function!");
+        if(Strings.isEmpty(snippetName)) {
+            throw new CreationException("Cannot call a null or empty function!");
         }
         this.snippetName = snippetName;
         this.resultsOnly = resultsOnly;

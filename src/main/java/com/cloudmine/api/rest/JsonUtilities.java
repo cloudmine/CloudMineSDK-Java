@@ -88,6 +88,10 @@ public class JsonUtilities {
         return new StringBuilder(addQuotes(key)).append(":").append(addQuotes(value)).toString();
     }
 
+    public static String createJsonProperty(String key, boolean value) {
+        return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
+    }
+
     public static String createJsonPropertyToJson(String key, String value) {
         return new StringBuilder(addQuotes(key)).append(":").append(value).toString();
     }

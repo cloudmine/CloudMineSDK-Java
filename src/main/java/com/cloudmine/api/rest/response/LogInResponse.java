@@ -3,6 +3,7 @@ package com.cloudmine.api.rest.response;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.CMUser;
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.response.code.LoginCode;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,11 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         @Override
         public LoginResponse construct(HttpResponse response) {
             return new LoginResponse(response);
+        }
+
+        @Override
+        public LoginResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new LoginResponse(messageBody, responseCode);
         }
     };
 
@@ -61,6 +67,15 @@ public class LoginResponse extends ResponseBase<LoginCode> {
             return JsonUtilities.mapToJson((Map<String, ? extends Object>) profile);
         }
         return JsonUtilities.EMPTY_JSON;
+    }
+
+
+    public <T extends CMUser> T getUserObject(Class<T> userClass) {
+        T user = JsonUtilities.jsonToClass(getProfileTransportRepresentation(), userClass);
+        if(user != null) {
+            user.setSessionToken(sessionToken);
+        }
+        return user;
     }
 
     /**

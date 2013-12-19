@@ -1,7 +1,10 @@
 package com.cloudmine.test;
 
 import com.cloudmine.api.CMGeoPoint;
+import com.cloudmine.api.CMGeoPointInterface;
 import com.cloudmine.api.CMObject;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 
 /**
  * <br>
@@ -10,21 +13,22 @@ import com.cloudmine.api.CMObject;
  */
 public class GeoCMObject extends CMObject {
 
-    private CMGeoPoint geoPoint;
+    @JsonDeserialize(as = CMGeoPoint.class)
+    private CMGeoPointInterface geoPoint;
 
     public GeoCMObject() {
 
     }
 
-    public GeoCMObject(CMGeoPoint point) {
+    public GeoCMObject(CMGeoPointInterface point) {
         this.geoPoint = point;
     }
 
-    public CMGeoPoint getGeoPoint() {
+    public CMGeoPointInterface getGeoPoint() {
         return geoPoint;
     }
 
-    public void setGeoPoint(CMGeoPoint geoPoint) {
+    public void setGeoPoint(CMGeoPointInterface geoPoint) {
         this.geoPoint = geoPoint;
     }
 }

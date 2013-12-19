@@ -1,17 +1,27 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMAccessList;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.exceptions.InvalidRequestException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
 import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
 import com.cloudmine.api.rest.response.SocialGraphResponse;
 import org.apache.http.Header;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.AbstractHttpMessage;
+
 import java.util.Map;
 
 /**
@@ -108,6 +118,48 @@ public class UserCMWebService extends CMWebService {
         executeAsyncCommand(get, callback, cmObjectResponseConstructor());
     }
 
+    /**
+     * See {@link #asyncSubscribeSelf(String, boolean, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
+    public void asyncSubscribeSelf(String channelName) {
+        asyncSubscribeSelf(channelName, CMCallback.<CMResponse>doNothing());
+    }
+
+    /**
+     * See {@link #asyncSubscribeSelf(String, boolean, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     * @param responseCallback
+     */
+    public void asyncSubscribeSelf(String channelName, Callback<CMResponse> responseCallback) {
+        asyncSubscribeSelf(channelName, false, responseCallback);
+    }
+
+    /**
+     * Subscribe the user associated with this UserCMWebService to the given channel. If isDevice is true, also subscribe
+     * this device. Note that if you just want to subscribe the device, you may use {@link CMWebService#asyncSubscribeThisDeviceToChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName the name of the channel to subscribe to
+     * @param isDevice whether this device should be subscribed to the channel in addition to the user
+     * @param responseCallback a {@link CMResponse} callback
+     */
+    public void asyncSubscribeSelf(String channelName, boolean isDevice, Callback<CMResponse> responseCallback) {
+        HttpPost post = createSubscribeSelf(channelName, isDevice, true);
+        executeAsyncCommand(post, responseCallback);
+    }
+
+    public void asyncUnsubscribeSelfFromChannel(String channelName, Callback<CMResponse> responseCallback) {
+        HttpPost post = createUnsubscribeSelf(channelName);
+        executeAsyncCommand(post, responseCallback);
+    }
+
+    /**
+     * Load the channels the user associated with this UserCMWebService is subscribed to
+     * @param callback a ListOfValuesResponse containing a list of Strings
+     */
+    public void asyncLoadSubscribedChannels(Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannels(null);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.<String>CONSTRUCTOR());
+    }
 
     /**
      * See {@link #asyncSocialGraphQueryOnNetwork(com.cloudmine.api.rest.CMSocial.Service, com.cloudmine.api.rest.HttpVerb, String, Map<String, Object>, Map<String, Object>, com.cloudmine.api.rest.callbacks.SocialGraphCallback)}

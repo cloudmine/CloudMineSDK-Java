@@ -1,8 +1,6 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.*;
-import com.cloudmine.api.rest.CMSocial;
-import com.cloudmine.api.rest.HttpVerb;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.*;
 import com.cloudmine.api.rest.response.*;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.*;
@@ -328,7 +325,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
                 List<SimpleCMObject> objects = response.getObjects(SimpleCMObject.class);
                 Assert.assertEquals(1, objects.size());
 
-                CMGeoPoint geoPoint = objects.get(0).getGeoPoint("geoPoint");
+                CMGeoPointInterface geoPoint = objects.get(0).getGeoPoint("geoPoint");
                 Assert.assertEquals(50, geoPoint.getLatitude(), 2);
                 Assert.assertEquals(50, geoPoint.getLongitude(), 2);
 

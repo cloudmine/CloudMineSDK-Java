@@ -21,7 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link com.cloudmine.api.BaseDeviceIdentifier#initialize(android.content.Context)} has been called with the activity context<br>
  * {@link CMApiCredentials#initialize(String, String)} has been called with the application identifier and API key<br>
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
+ * @deprecated not the best model for Android specific development. Volley requests should be used instead
  */
+@Deprecated
 public class CMStore {
 
     private static final Map<StoreIdentifier, CMStore> storeMap = new HashMap<StoreIdentifier, CMStore>();

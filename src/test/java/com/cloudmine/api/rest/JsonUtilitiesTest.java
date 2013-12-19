@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+
 import com.cloudmine.api.CMGeoPoint;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
@@ -10,7 +11,10 @@ import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.SimpleExtendedCMObject;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.*;
 

@@ -1,19 +1,45 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.*;
+import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMChannel;
+import com.cloudmine.api.CMFile;
+import com.cloudmine.api.CMObject;
+import com.cloudmine.api.CMPushNotification;
+import com.cloudmine.api.CMSessionToken;
+import com.cloudmine.api.CMUser;
+import com.cloudmine.api.LibrarySpecificClassCreator;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.exceptions.NetworkException;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
+import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
-import com.cloudmine.api.rest.response.*;
+import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CMResponse;
+import com.cloudmine.api.rest.response.CMSocialLoginResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
+import com.cloudmine.api.rest.response.FileCreationResponse;
+import com.cloudmine.api.rest.response.FileLoadResponse;
+import com.cloudmine.api.rest.response.ListOfValuesResponse;
+import com.cloudmine.api.rest.response.LoginResponse;
+import com.cloudmine.api.rest.response.ObjectModificationResponse;
+import com.cloudmine.api.rest.response.PushChannelResponse;
+import com.cloudmine.api.rest.response.ResponseBase;
+import com.cloudmine.api.rest.response.ResponseConstructor;
+import com.cloudmine.api.rest.response.TokenUpdateResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -25,7 +51,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Provides direct access to the CloudMine API. Useful if you don't need all the bookkeeping of a {@link CMStore}. Also
@@ -839,6 +871,11 @@ public class CMWebService {
         executeAsyncCommand(createResetPasswordConfirmation(token, newPassword), callback);
     }
 
+    /**
+     * Internal method used for completing the social log in process after a redirect
+     * @param challenge
+     * @param callback
+     */
     public void asyncCompleteSocialLogin(String challenge, Callback<CMSocialLoginResponse> callback) {
         HttpGet get = createCompleteSocialGet(challenge);
         executeAsyncCommand(get, callback, CMSocialLoginResponse.CONSTRUCTOR);
@@ -905,6 +942,129 @@ public class CMWebService {
         executeAsyncCommand(deleteRequest, callback, tokenUpdateConstructor());
     }
 
+    /**
+     * See {@link #asyncCreateChannel(com.cloudmine.api.CMChannel, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channel
+     */
+    public void asyncCreateChannel(CMChannel channel) {
+        asyncCreateChannel(channel, CMResponseCallback.<PushChannelResponse>doNothing());
+    }
+
+    /**
+     * Creates a channel and calls into a {@link com.cloudmine.api.rest.callbacks.PushChannelResponseCallback}
+     * @param channel
+     * @param callback
+     */
+    public void asyncCreateChannel(CMChannel channel, Callback<PushChannelResponse> callback) {
+        HttpPost post = createNotificationChannel(channel);
+        executeAsyncCommand(post, callback, PushChannelResponse.CONSTRUCTOR);
+    }
+
+    /**
+     * See {@link #asyncDeleteChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
+    public void asyncDeleteChannel(String channelName) {
+        asyncDeleteChannel(channelName, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    /**
+     * Delete the specified channel then call into the given CMResponseCallback. Will return a success response even
+     * if the channel doesn't exist
+     * @param channelName
+     * @param callback
+     */
+    public void asyncDeleteChannel(String channelName, Callback<CMResponse> callback) {
+        executeAsyncCommand(createDeleteChannel(channelName), callback);
+    }
+
+    /**
+     * See {@link #asyncSubscribeThisDeviceToChannel(String, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     */
+    public void asyncSubscribeThisDeviceToChannel(String channelName) {
+        asyncSubscribeThisDeviceToChannel(channelName, CMResponseCallback.<PushChannelResponse>doNothing());
+    }
+
+    /**
+     * Subscribe this device to receive pushes on the given channel. Only works on Android devices; is based on the value
+     * returned by {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     * @param channelName the channel to subscribe to
+     * @param responseCallback a PushChannelResponse callback
+     */
+    public void asyncSubscribeThisDeviceToChannel(String channelName, Callback<PushChannelResponse> responseCallback) {
+        HttpPost post = createSubscribeSelf(channelName, true, false);
+        executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
+    }
+
+    /**
+     * See {@link #asyncSubscribeUsersToChannel(String, java.util.Collection, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param channelName
+     * @param targets
+     */
+    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets) {
+        asyncSubscribeUsersToChannel(channelName, targets, CMCallback.<PushChannelResponse>doNothing());
+    }
+
+    /**
+     * Subscribe the specified users to the given channel, and then call into the given PushChannelResponseCallback
+     * @param channelName the name of the channel to subscribe the users to
+     * @param targets the user's to subscribe
+     * @param responseCallback
+     */
+    public void asyncSubscribeUsersToChannel(String channelName, Collection<CMPushNotification.UserTarget> targets, Callback<PushChannelResponse> responseCallback) {
+        HttpPost post = createSubscribeUsers(channelName, targets);
+        executeAsyncCommand(post, responseCallback, PushChannelResponse.CONSTRUCTOR);
+    }
+
+    public void asyncUnsubscribeUsersFromChannel(String channelName, Collection<String> userIds, Callback<PushChannelResponse> responseCallback) {
+        HttpDelete delete = createUnsubscribeUsers(channelName, userIds);
+        executeAsyncCommand(delete, responseCallback, PushChannelResponse.CONSTRUCTOR);
+    }
+
+    /**
+     * Get the channel names that the user identified by the given id is subscribed to. Channel names come back as a
+     * list of strings
+     * @param userId user object id
+     * @param callback a ListOfValuesResponseCallback of Strings
+     */
+    public void asyncLoadSubscribedChannelsForUser(String userId, Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannels(userId);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
+    }
+
+    /**
+     * Get the channel names that the device identified by the given id is subscribed to. Channel names come back as a
+     * list of strings. Device id can be obtained through {@link com.cloudmine.api.DeviceIdentifier#getUniqueId()}
+     * @param deviceId
+     * @param callback a ListOfValuesResponseCallback of Strings
+     */
+    public void asyncLoadSubscribedChannelsForDevice(String deviceId, Callback<ListOfValuesResponse<String>> callback) {
+        HttpGet get = createListChannelsForDevice(deviceId);
+        executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
+    }
+
+    public void asyncLoadChannelInformation(String channelName, Callback<PushChannelResponse> callback) {
+
+    }
+
+    /**
+     * See {@link #asyncSendNotification(com.cloudmine.api.CMPushNotification, com.cloudmine.api.rest.callbacks.Callback)}
+     * @param notification
+     */
+    public void asyncSendNotification(CMPushNotification notification) {
+        asyncSendNotification(notification, CMResponseCallback.<CMResponse>doNothing());
+    }
+
+    /**
+     * Send a notification then call into the given CMResponse. A success response has no body
+     * @param notification
+     * @param callback
+     */
+    public void asyncSendNotification(CMPushNotification notification, Callback<CMResponse> callback) {
+        HttpPost postRequest = createNotificationPost(notification);
+        executeAsyncCommand(postRequest, callback);
+    }
 
     /**
      * Make a blocking call to load the object associated with the given objectId
@@ -1119,6 +1279,12 @@ public class CMWebService {
         return createDelete(keys, CMRequestOptions.NONE);
     }
 
+    private HttpDelete createDeleteChannel(String channelName) {
+        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
     private HttpDelete createDelete(Collection<String> keys, CMRequestOptions options) {
         HttpDelete delete = new HttpDelete(baseUrl.copy().delete(keys).options(options).asUrlString());
 
@@ -1157,6 +1323,65 @@ public class CMWebService {
         return put;
     }
 
+    private HttpPost createNotificationPost(CMPushNotification pushNotification) {
+        HttpPost post = createPost(baseUrl.copy().push().asUrlString());
+        addJson(post, pushNotification.transportableRepresentation());
+        return post;
+    }
+
+    private HttpPost createNotificationChannel(CMChannel channel) {
+        HttpPost post = createPost(baseUrl.copy().push().channel().asUrlString());
+        addJson(post, channel);
+        return post;
+    }
+
+    HttpGet createListChannels(String userid) {
+        CMURLBuilder partialUrl = baseUrl.copy().account().channels();
+        if(Strings.isNotEmpty(userid)) partialUrl.addQuery("userid", userid);
+        HttpGet get = new HttpGet(partialUrl.asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    HttpGet createListChannelsForDevice(String deviceId) {
+        HttpGet get = new HttpGet(baseUrl.copy().device().addAction(deviceId).channels().asUrlString());
+        addCloudMineHeader(get);
+        return get;
+    }
+
+    HttpPost createSubscribeSelf(String channel, boolean isDevice, boolean isUser) {
+        HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).subscribe().asUrlString());
+        addJson(post,
+                JsonUtilities.wrap(
+                        JsonUtilities.createJsonProperty("user", isUser) + ", " +
+                        JsonUtilities.createJsonProperty("device", isDevice)
+                )
+        );
+        return post;
+    }
+
+    private static final String IS_USER_JSON = JsonUtilities.wrap(
+            JsonUtilities.createJsonProperty("user", true)
+    );
+    HttpPost createUnsubscribeSelf(String channel) {
+        HttpPost post = createPost(baseUrl.copy().notUser().push().channel().addAction(channel).unsubscribe().asUrlString());
+        addJson(post, IS_USER_JSON);
+        return post;
+    }
+
+    private HttpDelete createUnsubscribeUsers(String channelName, Collection<String> objectIds) {
+        HttpDelete delete = new HttpDelete(baseUrl.copy().push().channel().addAction(channelName).userIds().ids(objectIds).asUrlString());
+        addCloudMineHeader(delete);
+        return delete;
+    }
+
+    private HttpPost createSubscribeUsers(String channel, Collection<CMPushNotification.UserTarget> targets) {
+        HttpPost post = createPost(baseUrl.copy().push().channel().addAction(channel).users().asUrlString());
+        String json = JsonUtilities.objectToJson(targets);
+        addJson(post, json);
+        return post;
+    }
+
     private HttpPost createJsonPost(String json) {
         HttpPost post = createPost(baseUrl.copy().text().asUrlString());
         addJson(post, json);
@@ -1183,7 +1408,7 @@ public class CMWebService {
     }
 
     private HttpPost createUpdateUserName(String oldUserName, String currentPassword, String newUserName) {
-        HttpPost post = createPost(baseUrl.account().credentials().asUrlString());
+        HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
         addAuthorizationHeader(null, oldUserName, currentPassword, post);
         addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.USERNAME_KEY, newUserName)));
         return post;
@@ -1289,6 +1514,7 @@ public class CMWebService {
     private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
         return createChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options);
     }
+
     private HttpPost createChangePassword(String email, String userName, String oldPassword, String newPassword, CMRequestOptions options) {
         HttpPost post = new HttpPost(baseUrl.copy().account().password().change().options(options).asUrlString());
         addCloudMineHeader(post);

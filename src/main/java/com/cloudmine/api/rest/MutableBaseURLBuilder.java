@@ -55,6 +55,11 @@ public abstract class MutableBaseURLBuilder<T> extends BaseURLBuilder<T> {
     }
 
 
+    public T addQuery(String key, int value) {
+        addQuery(key, String.valueOf(value));
+        return (T) this;
+    }
+
     public T addQuery(String key, String value) {
         queryParams.append(querySeparator()).append(key).append(QUERY_CONNECTOR).append(value);
         return (T) this;

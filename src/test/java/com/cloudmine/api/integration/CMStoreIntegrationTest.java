@@ -124,7 +124,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         final SimpleCMObject object = new SimpleCMObject();
         object.add("name", "John");
         object.add("age", 25);
-        CMGeoPoint location = new CMGeoPoint(55, 50);
+        CMGeoPointInterface location = new CMGeoPoint(55, 50);
         object.add("location", location);
         ObjectModificationResponse response = CMWebService.getService().insert(object.transportableRepresentation());
         assertTrue(response.wasSuccess());

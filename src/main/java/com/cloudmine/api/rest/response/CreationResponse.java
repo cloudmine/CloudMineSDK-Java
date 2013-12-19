@@ -18,6 +18,11 @@ public class CreationResponse extends ResponseBase<CMResponseCode> {
         public CreationResponse construct(HttpResponse response) throws CreationException {
             return new CreationResponse(response);
         }
+
+        @Override
+        public CreationResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new CreationResponse(messageBody, responseCode);
+        }
     };
 
     protected CreationResponse(HttpResponse response) {

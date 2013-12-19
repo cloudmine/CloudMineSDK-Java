@@ -20,6 +20,11 @@ public class CMSocialLoginResponse extends ResponseBase<CMSocialCode>{
         public CMSocialLoginResponse construct(HttpResponse response) throws CreationException {
             return new CMSocialLoginResponse(response);
         }
+
+        @Override
+        public CMSocialLoginResponse construct(String messageBody, int responseCode) throws CreationException {
+            return new CMSocialLoginResponse(messageBody, responseCode);
+        }
     };
 
     private final CMSessionToken token;

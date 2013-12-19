@@ -1,6 +1,7 @@
 package com.cloudmine.test;
 
 import com.cloudmine.api.CMObject;
+import com.cloudmine.api.persistance.ClassNameRegistry;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +13,11 @@ import java.util.Map;
  * See LICENSE file included with SDK for details.
  */
 public class ExtendedCMObject extends CMObject {
+
     public static final String CLASS_NAME = "govna";
+    static {
+        ClassNameRegistry.register(ExtendedCMObject.CLASS_NAME, ExtendedCMObject.class);
+    }
     private Map<String, ExtendedCMObject> otherExtendedObjects = new HashMap<String, ExtendedCMObject>();
     private String name;
     private Date date;

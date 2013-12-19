@@ -1,15 +1,18 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMApiCredentials;
+import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.Strings;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.exceptions.CreationException;
+import com.cloudmine.api.rest.options.CMServerFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -29,7 +32,7 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return urlParts[1];
     }
 
-    public static final String USER = "user";
+    public static final String USER = "/user";
 
     enum VERSION implements BaseURL {
         V1("/v1");
@@ -72,13 +75,21 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         this(CLOUD_MINE_URL, appId);
     }
 
+    public CMURLBuilder(String action, boolean blankBase) {
+        super(blankBase ? "" : getBaseUrl(CLOUD_MINE_URL, CMApiCredentials.getApplicationIdentifier()), action, "");
+    }
+
     /**
      * Creates a base url builder for a non standard base CloudMine url, eg https://api.beta.cloudmine.me
      * @param cloudMineUrl the base part of the url
      * @param appId the application identifier, found in the CloudMine developer dashboard
      */
     protected CMURLBuilder(String cloudMineUrl, String appId) {
-        this(cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId), "", "");
+        this(getBaseUrl(cloudMineUrl, appId), "", "");
+    }
+
+    private static String getBaseUrl(String cloudMineUrl, String appId) {
+        return cloudMineUrl + DEFAULT_VERSION + APP + formatUrlPart(appId);
     }
 
     protected CMURLBuilder(String baseUrl, String actions, String queryParams) {
@@ -197,6 +208,15 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
         return addQuery("keys", keysToString(objectIds));
     }
 
+    public CMURLBuilder userIds() {
+        return addAction("user_ids");
+    }
+
+    public CMURLBuilder ids(Collection<String> userIds) {
+        if(userIds == null) userIds = Collections.EMPTY_LIST;
+        return addQuery("ids", keysToString(userIds));
+    }
+
     private String keysToString(Collection<String> keys) {
         String keyString = "";
         String comma = "";
@@ -205,6 +225,11 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
             comma = ",";
         }
         return keyString;
+    }
+
+    public CMURLBuilder serverFunction(CMServerFunction serverFunction) {
+        if(serverFunction == null) return this;
+        return addQuery(serverFunction.asUrlString());
     }
 
     public CMURLBuilder mapToQuery(Map<String, Object> map) {
@@ -291,7 +316,18 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
     }
 
     public CMURLBuilder user() {
-        return this.addAction(USER);
+        actions.insert(0, USER);
+        return this;
+    }
+
+    public CMURLBuilder user(CMSessionToken sessionToken) {
+        if(sessionToken == null || CMSessionToken.FAILED.equals(sessionToken))
+            return this;
+        return user();
+    }
+
+    public CMURLBuilder users() {
+        return this.addAction("users");
     }
 
     public CMURLBuilder create() {
@@ -300,6 +336,26 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
 
     public CMURLBuilder text() {
         return this.addAction("text");
+    }
+
+    public CMURLBuilder push() {
+        return this.addAction("push");
+    }
+
+    public CMURLBuilder subscribe() {
+        return this.addAction("subscribe");
+    }
+
+    public CMURLBuilder unsubscribe() {
+        return this.addAction("unsubscribe");
+    }
+
+    public CMURLBuilder channel() {
+        return this.addAction("channel");
+    }
+
+    public CMURLBuilder channels() {
+        return this.addAction("channels");
     }
 
     public CMURLBuilder binary() {

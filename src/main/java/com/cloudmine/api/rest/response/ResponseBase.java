@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.exceptions.ConversionException;
+import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
 import org.apache.commons.io.IOUtils;
@@ -55,17 +56,27 @@ public abstract class ResponseBase<CODE> implements Transportable {
         public ResponseBase construct(HttpResponse response) {
             return new CMResponse(response);
         }
+
+        @Override
+        public ResponseBase construct(String messageBody, int responseCode) throws CreationException {
+            return new CMResponse(messageBody, responseCode);
+        }
     };
 
     protected ResponseBase(HttpResponse response)  {
         this(response, true);
     }
     protected ResponseBase(HttpResponse response, boolean readMessageBody)  {
+        this(response, readMessageBody, true);
+    }
+    protected ResponseBase(HttpResponse response, boolean readMessageBody, boolean extractResponseMap)  {
+
         statusCode = readStatusCode(response);
         extractHeaders(response);
         if(readMessageBody) {
             messageBody = readMessageBody(response);
-            baseMap = extractResponseMap(response, messageBody);
+            if(extractResponseMap)baseMap = extractResponseMap(response, messageBody);
+            else baseMap = new HashMap<String, Object>();
         } else {
             messageBody = "";
             baseMap = new HashMap<String, Object>();

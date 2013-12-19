@@ -23,6 +23,11 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
         public FileLoadResponse construct(HttpResponse response) throws CreationException {
             return new FileLoadResponse(response, key);
         }
+
+        @Override
+        public FileLoadResponse construct(String messageBody, int responseCode) throws CreationException {
+            return null;  //TODO can't handle this like the rest
+        }
     };
 
     public static ResponseConstructor<FileLoadResponse> constructor(String fileId) {
@@ -34,6 +39,11 @@ public class FileLoadResponse extends ResponseBase<FileLoadCode> {
     public FileLoadResponse(HttpResponse response, String fileId) {
         super(response, false);
         file = new CMFile(response, fileId);
+    }
+
+    public FileLoadResponse(CMFile file, int statusCode) {
+        super("{}", statusCode);
+        this.file = file;
     }
 
     @Override
