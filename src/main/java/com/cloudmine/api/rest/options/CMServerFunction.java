@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest.options;
 
 import com.cloudmine.api.Immutable;
+import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.BaseURL;
 import com.cloudmine.api.rest.CMURLBuilder;
@@ -67,8 +68,8 @@ public class CMServerFunction implements BaseURL{
      * @param extraParameters Allows you to pass in arbitrary parameters to the function. They will be available as data.params. If specified as valid JSON, they will already be parsed as a JSON object.
      */
     public CMServerFunction(String snippetName, boolean resultsOnly, boolean isAsynchronous, Map<String, String> extraParameters) {
-        if(snippetName == null) {
-            throw new CreationException("Cannot call a null function!");
+        if(Strings.isEmpty(snippetName)) {
+            throw new CreationException("Cannot call a null or empty function!");
         }
         this.snippetName = snippetName;
         this.resultsOnly = resultsOnly;
