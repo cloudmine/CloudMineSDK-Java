@@ -3,7 +3,6 @@ package com.cloudmine.api;
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
-import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,6 +20,31 @@ import java.util.Set;
  * See LICENSE file included with SDK for details.
  */
 public class CMAccessList extends CMObject {
+
+    public static class Segments {
+        private boolean isLoggedIn;
+        private boolean isPublic;
+
+        @JsonProperty("logged_in")
+        public boolean isLoggedIn() {
+            return isLoggedIn;
+        }
+
+        @JsonProperty("logged_in")
+        public void setLoggedIn(boolean isLoggedIn) {
+            this.isLoggedIn = isLoggedIn;
+        }
+
+        @JsonProperty("public")
+        public boolean isPublic() {
+            return isPublic;
+        }
+
+        @JsonProperty("public")
+        public void setPublic(boolean isPublic) {
+            this.isPublic = isPublic;
+        }
+    }
 
     public static final String CLASS_NAME = "acl";
     private Set<String> userObjectIds = new HashSet<String>();
