@@ -71,7 +71,7 @@ import java.util.WeakHashMap;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class CMWebService {
-    private static final CMWebService service = new CMWebService(CMApiCredentials.getApplicationIdentifier(), LibrarySpecificClassCreator.getCreator().getAsynchronousHttpClient());
+    private static CMWebService service = new CMWebService(CMApiCredentials.getApplicationIdentifier(), LibrarySpecificClassCreator.getCreator().getAsynchronousHttpClient());
     private static final Logger LOG = LoggerFactory.getLogger(CMWebService.class);
     public static final Header JSON_HEADER = new BasicHeader("Content-Type", "application/json");
 
@@ -96,6 +96,12 @@ public class CMWebService {
      * @throws CreationException if CMApiCredentials.initialize has not yet been called
      */
     public static CMWebService getService() throws CreationException {
+        return service;
+    }
+
+    public static CMWebService getService(String appId, String apiKey) {
+        CMApiCredentials.initialize(appId, apiKey);
+        service = new CMWebService(CMApiCredentials.getApplicationIdentifier(), LibrarySpecificClassCreator.getCreator().getAsynchronousHttpClient());
         return service;
     }
 
