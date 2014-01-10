@@ -65,8 +65,13 @@ public class SearchQuery {
     public class PropertyName {
         //Geopoint filters
         public CMGeoPointFilterValue near(CMGeoPointInterface geoPoint) {
-            queryBuilder.append(" near (").append(geoPoint.getLongitude()).append(", ").append(geoPoint.getLatitude()).append(")");
+            return near(geoPoint.getLongitude(), geoPoint.getLatitude());
+        }
+
+        public CMGeoPointFilterValue near(double longitude, double latitude) {
+            queryBuilder.append(" near (").append(longitude).append(", ").append(latitude).append(")");
             return new CMGeoPointFilterValue();
+
         }
 
         //String filter values

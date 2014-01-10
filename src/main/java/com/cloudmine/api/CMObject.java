@@ -199,7 +199,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
         addAccessListId(list.getObjectId());
     }
 
-    protected void addAccessListId(String listId) {
+    public void addAccessListId(String listId) {
         accessListIds.add(listId);
     }
 
