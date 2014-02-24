@@ -153,6 +153,22 @@ public class SimpleCMObject extends CMObject {
         this(objectMap, true);
     }
 
+    public void setObjectId(String objectId) {
+        if(topLevelMap.isEmpty()) topLevelMap.put(objectId, contents);
+        else {
+            Object contents = topLevelMap.remove(getObjectId());
+            topLevelMap.put(objectId, contents);
+        }
+    }
+
+    public String getObjectId() {
+        if(topLevelMap.isEmpty()) {
+            return super.getObjectId();
+        } else {
+            return topLevelMap.keySet().iterator().next();
+        }
+    }
+
     private static String extractObjectId(Map<String, Object> objectMap) {
         String objectId;
         if(objectMap.containsKey(JsonUtilities.OBJECT_ID_KEY)) {

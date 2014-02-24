@@ -4,7 +4,10 @@ import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.JsonUtilitiesTest;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -124,14 +127,31 @@ public class SimpleCMObjectTest {
     }
 
     @Test
+    public void setObjectId() {
+        SimpleCMObject simpleCMObject = new SimpleCMObject();
+        String objectId = simpleCMObject.getObjectId();
+        assertEquals(objectId, simpleCMObject.getObjectId());
+
+        simpleCMObject.setObjectId("test");
+        assertEquals("test", simpleCMObject.getObjectId());
+
+        simpleCMObject = new SimpleCMObject(false);
+        assertNotNull(simpleCMObject.getObjectId());
+
+        simpleCMObject.setObjectId("second");
+        assertEquals("second", simpleCMObject.getObjectId());
+    }
+
+    @Test
     public void testGeoAsJson() {
+
         SimpleCMObject object = new SimpleCMObject("topLevelKey");
         CMGeoPointInterface geoObject = new CMGeoPoint(50, 50);
         object.add("geo", geoObject);
         //String expectedJson = "{\"geo\":{\"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPointInterface\"},\"__id__\":\"topLevelKey\",\"__access__\":[]}";
 
         String expectedJson = "{\"topLevelKey\":{\"__id__\":\"topLevelKey\", " + EMPTY_ACCESS_JSON +
-               "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPointInterface\"}}}";
+               "\"geo\":{" + " \"__type__\":\"geopoint\",\"longitude\":50.0,\"latitude\":50.0,\"__class__\":\"CMGeoPoint\"}}}";
 
         assertTrue("Expected: \n" + expectedJson + "\nbut got: \n" + object.transportableRepresentation(), JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
 
