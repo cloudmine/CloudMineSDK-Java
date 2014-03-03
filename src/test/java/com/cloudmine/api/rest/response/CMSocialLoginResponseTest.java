@@ -1,7 +1,8 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.rest.CMSocial;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class CMSocialLoginResponseTest {
         CMSessionToken token = response.getSessionToken();
         assertTrue(token.isValid());
 
-        CMUser user = response.getUser();
+        JavaCMUser user = response.getUser();
         assertNotNull(user);
         assertTrue(user.isLoggedIn());
 

@@ -63,7 +63,7 @@ public class JsonUtilities {
     }
 
     public static void addCMUserMixinsTo(Class klass) {
-        if(CMUser.class.isAssignableFrom(klass)) {
+        if(JavaCMUser.class.isAssignableFrom(klass)) {
             jsonMapper.addMixInAnnotations(klass, CMUserConstructorMixIn.class);
         }
     }

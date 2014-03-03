@@ -6,7 +6,8 @@ import com.cloudmine.api.CMFile;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMPushNotification;
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.Strings;
 import com.cloudmine.api.exceptions.ConversionException;
@@ -765,9 +766,9 @@ public class CMWebService {
     }
 
     /**
-     * See {@link #asyncCreateUser(com.cloudmine.api.CMUser, com.cloudmine.api.rest.callbacks.Callback)}
+     * See {@link #asyncCreateUser(com.cloudmine.api.JavaCMUser, com.cloudmine.api.rest.callbacks.Callback)}
      */
-    public void asyncCreateUser(CMUser user)  {
+    public void asyncCreateUser(JavaCMUser user)  {
         executeAsyncCommand(createPut(user));
     }
 
@@ -776,7 +777,7 @@ public class CMWebService {
      * @param user the user to create
      * @param callback a Callback that expects a {@link CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback} is given here
      */
-    public void asyncCreateUser(CMUser user, Callback<CreationResponse> callback) {
+    public void asyncCreateUser(JavaCMUser user, Callback<CreationResponse> callback) {
         executeAsyncCommand(createPut(user), user.setObjectIdOnCreation(callback), creationResponseConstructor());
     }
 
@@ -809,7 +810,7 @@ public class CMWebService {
      * @param user the user whose password is to be changed
      * @param newPassword the new password
      */
-    public void asyncChangePassword(CMUser user, String newPassword) {
+    public void asyncChangePassword(JavaCMUser user, String newPassword) {
         asyncChangePassword(user, newPassword, CMCallback.<CMResponse>doNothing());
     }
 
@@ -819,7 +820,7 @@ public class CMWebService {
      * @param newPassword the new password
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
      */
-    public void asyncChangePassword(CMUser user, String newPassword, Callback<CMResponse> callback) {
+    public void asyncChangePassword(JavaCMUser user, String newPassword, Callback<CMResponse> callback) {
         asyncChangePassword(user, newPassword, CMRequestOptions.NONE, callback);
     }
 
@@ -829,7 +830,7 @@ public class CMWebService {
      * @param newPassword the new password
      * @param callback a Callback that expects a CMResponse. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CMResponseCallback} is given here
      */
-    public void asyncChangePassword(CMUser user, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
+    public void asyncChangePassword(JavaCMUser user, String newPassword, CMRequestOptions options, Callback<CMResponse> callback) {
         asyncChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options, callback);
     }
 
@@ -891,18 +892,18 @@ public class CMWebService {
      * Asynchronously log in this user
      * @param user the user to log in
      */
-    public void asyncLogin(CMUser user) {
+    public void asyncLogin(JavaCMUser user) {
         asyncLogin(user, CMCallback.<LoginResponse>doNothing());
     }
 
     /**
      * Asynchronously log in this user
-     * NOTE: It is recommended that {@link CMUser#login(com.cloudmine.api.rest.callbacks.Callback)} is used instead of this method,
+     * NOTE: It is recommended that {@link com.cloudmine.api.JavaCMUser#login(com.cloudmine.api.rest.callbacks.Callback)} is used instead of this method,
      * as it will set the user's CMSessionToken properly
      * @param user the user to log in
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      */
-    public void asyncLogin(CMUser user, Callback<LoginResponse> callback) {
+    public void asyncLogin(JavaCMUser user, Callback<LoginResponse> callback) {
         if(user.isLoggedIn()) {
             callback.onCompletion(user.createFakeLoginResponse());
         } else {
@@ -1169,7 +1170,7 @@ public class CMWebService {
      * @return a CMResponse that indicates success or failure
      * @throws NetworkException if unable to perform the network call
      */
-    public CMResponse changePassword(CMUser user, String newPassword) throws NetworkException {
+    public CMResponse changePassword(JavaCMUser user, String newPassword) throws NetworkException {
         return executeCommand(createChangePassword(user, newPassword, CMRequestOptions.NONE));
     }
 
@@ -1180,7 +1181,7 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      * @throws ConversionException if unable to convert this user to a transportable representation. This should never happen unless you have subclassed CMUser and overridden transportableRepresentation
      */
-    public CMResponse insert(CMUser user) throws NetworkException, ConversionException {
+    public CMResponse insert(JavaCMUser user) throws NetworkException, ConversionException {
         return executeCommand(createPut(user));
     }
 
@@ -1190,7 +1191,7 @@ public class CMWebService {
      * @return a LoginResponse that will contain the CMSessionToken used to validate user requests
      * @throws NetworkException if unable to perform the network call
      */
-    public LoginResponse login(CMUser user) throws NetworkException {
+    public LoginResponse login(JavaCMUser user) throws NetworkException {
         if(user.isLoggedIn()) {
             return user.createFakeLoginResponse();
         }
@@ -1314,7 +1315,7 @@ public class CMWebService {
         return put;
     }
 
-    private HttpPut createPut(CMUser user) throws ConversionException {
+    private HttpPut createPut(JavaCMUser user) throws ConversionException {
         HttpPut put = new HttpPut(baseUrl.copy().account().create().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.transportableRepresentation());
@@ -1394,7 +1395,7 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createLoginPost(CMUser user) {
+    private HttpPost createLoginPost(JavaCMUser user) {
         HttpPost post = createPost(baseUrl.copy().account().login().asUrlString());
         addAuthorizationHeader(user, post);
         return post;
@@ -1409,14 +1410,14 @@ public class CMWebService {
     private HttpPost createUpdateEmail(String oldEmail, String currentPassword, String newEmail) {
         HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
         addAuthorizationHeader(oldEmail, null, currentPassword, post);
-        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.EMAIL_KEY, newEmail)));
+        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(JavaCMUser.EMAIL_KEY, newEmail)));
         return post;
     }
 
     private HttpPost createUpdateUserName(String oldUserName, String currentPassword, String newUserName) {
         HttpPost post = createPost(baseUrl.copy().account().credentials().asUrlString());
         addAuthorizationHeader(null, oldUserName, currentPassword, post);
-        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(CMUser.USERNAME_KEY, newUserName)));
+        addJson(post, JsonUtilities.wrap(JsonUtilities.createJsonProperty(JavaCMUser.USERNAME_KEY, newUserName)));
         return post;
     }
 
@@ -1517,7 +1518,7 @@ public class CMWebService {
         return post;
     }
 
-    private HttpPost createChangePassword(CMUser user, String newPassword, CMRequestOptions options) {
+    private HttpPost createChangePassword(JavaCMUser user, String newPassword, CMRequestOptions options) {
         return createChangePassword(user.getEmail(), user.getUserName(), user.getPassword(), newPassword, options);
     }
 
@@ -1551,13 +1552,13 @@ public class CMWebService {
         addJson(message, transportable.transportableRepresentation());
     }
 
-    protected void addAuthorizationHeader(CMUser user, HttpEntityEnclosingRequestBase post) {
+    protected void addAuthorizationHeader(JavaCMUser user, HttpEntityEnclosingRequestBase post) {
         addAuthorizationHeader(user.getEmail(), user.getUserName(), user.getPassword(), post);
     }
 
     protected void addAuthorizationHeader(String email, String userName, String password, HttpEntityEnclosingRequestBase post) {
         String authName = Strings.isNotEmpty(email) ? email : userName;
-        post.addHeader(AUTHORIZATION_KEY, "Basic " + CMUser.encode(authName, password));
+        post.addHeader(AUTHORIZATION_KEY, "Basic " + JavaCMUser.encode(authName, password));
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {

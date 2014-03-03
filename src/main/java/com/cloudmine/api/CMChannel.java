@@ -87,7 +87,7 @@ public class CMChannel implements Transportable {
         users.add(userId);
     }
 
-    public void addUser(CMUser user) {
+    public void addUser(JavaCMUser user) {
         addUser(user.getObjectId());
     }
 

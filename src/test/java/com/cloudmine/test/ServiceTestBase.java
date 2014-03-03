@@ -3,7 +3,7 @@ package com.cloudmine.test;
 import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.CMWebService;
@@ -42,7 +42,7 @@ public class ServiceTestBase {
     public static final String APP_ID = "f8edcd61af8b434a843c4f08fcabe78e";
     public static final String API_KEY = "373395dadf514f7da47708c4047edecb";
     protected static final String USER_PASSWORD = "test";
-    private static final CMUser user = new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
+    private static final JavaCMUser user = new JavaCMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
 
     public static final TestServiceCallback hasSuccess = testCallback(new ResponseBaseCallback() {
         public void onCompletion(ResponseBase response) {
@@ -80,8 +80,8 @@ public class ServiceTestBase {
         return UUID.randomUUID().toString();
     }
 
-    public static CMUser randomUser() {
-        return new CMUser(randomEmail(), "test");
+    public static JavaCMUser randomUser() {
+        return new JavaCMUser(randomEmail(), "test");
     }
 
     protected CMWebService service;
@@ -100,7 +100,7 @@ public class ServiceTestBase {
 
     private void deleteAll() {
         service.deleteAll();
-        CMUser user = user();
+        JavaCMUser user = user();
 
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
@@ -121,7 +121,7 @@ public class ServiceTestBase {
                     }
                 }
                 waitForTestResults(500000);
-                CMUser user = user();
+                JavaCMUser user = user();
                 user.createUser(hasSuccess);
                 waitForTestResults();
             }
@@ -134,22 +134,22 @@ public class ServiceTestBase {
         serviceTestBase.deleteAllUsers();
     }
 
-    public CMUser user() {
-        return new CMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
+    public JavaCMUser user() {
+        return new JavaCMUser("tfjghkdfgjkdf@gmail.com", USER_PASSWORD);
     }
 
-    public CMUser loggedInUser() {
+    public JavaCMUser loggedInUser() {
         CMWebService.getService().insert(user);
         return loggedInUser(user);
     }
 
-    public CMUser randomLoggedInUser() {
-        CMUser randomUser = randomUser();
+    public JavaCMUser randomLoggedInUser() {
+        JavaCMUser randomUser = randomUser();
         assertTrue(service.insert(randomUser).wasSuccess());
         return loggedInUser(randomUser);
     }
 
-    public CMUser loggedInUser(CMUser user) {
+    public JavaCMUser loggedInUser(JavaCMUser user) {
         LoginResponse response = CMWebService.getService().login(user);
         Assert.assertTrue(response.wasSuccess());
         Assert.assertTrue(response.getSessionToken().isValid());

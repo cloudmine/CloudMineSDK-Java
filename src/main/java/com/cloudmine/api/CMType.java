@@ -10,7 +10,7 @@ import com.cloudmine.api.rest.JsonUtilities;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public enum CMType implements Transportable {
-    GEO_POINT("geopoint", CMGeoPoint.class), FILE("file", CMFileMetaData.class), USER("user", CMUser.class), NONE("", Void.class);
+    GEO_POINT("geopoint", CMGeoPoint.class), FILE("file", CMFileMetaData.class), USER("user", JavaCMUser.class), NONE("", Void.class);
 
     private final String typeId;
     private final Class<? extends CMObject> klass;

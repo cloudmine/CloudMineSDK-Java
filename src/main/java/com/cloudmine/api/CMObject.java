@@ -149,7 +149,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * @return true if the value was set; false if it has already been set OR null was passed in
      */
     @JsonIgnore
-    public boolean setSaveWith(CMUser user) {
+    public boolean setSaveWith(JavaCMUser user) {
         try {
             return setSaveWith(StoreIdentifier.StoreIdentifier(user));
         } catch(CreationException e) {
@@ -234,7 +234,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
         store().saveObject(this, callback);
     }
 
-    public void saveWithUser(CMUser user) throws CreationException, ConversionException {
+    public void saveWithUser(JavaCMUser user) throws CreationException, ConversionException {
         saveWithUser(user, CMCallback.<ObjectModificationResponse>doNothing());
     }
     /**
@@ -247,7 +247,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * @throws CreationException if CMApiCredentials has not been initialized properly
      * @throws com.cloudmine.api.exceptions.AccessException if setSaveWith has already been set
      */
-    public void saveWithUser(CMUser user, Callback<ObjectModificationResponse> callback) throws CreationException, AccessException, ConversionException{
+    public void saveWithUser(JavaCMUser user, Callback<ObjectModificationResponse> callback) throws CreationException, AccessException, ConversionException{
         boolean wasAlreadySet = !setSaveWith(user);
         boolean notSameUser = wasAlreadySet && //skip the check if it wasn't already set; still check below in if statement for clarity
                 !user.equals(getUser());
@@ -296,7 +296,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
 
     @Override
     @JsonIgnore
-    public CMUser getUser() {
+    public JavaCMUser getUser() {
         return getSavedWith().getUser();
     }
 

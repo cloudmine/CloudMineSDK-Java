@@ -2,7 +2,7 @@ package com.cloudmine.api.integration;
 
 import com.cloudmine.api.CMChannel;
 import com.cloudmine.api.CMPushNotification;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.rest.CMWebService;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.ListOfStringsCallback;
@@ -88,7 +88,7 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         channel.create(hasSuccess);
         waitThenAssertTestResults();
 
-        CMUser user = user();
+        JavaCMUser user = user();
         user.subscribeToChannel(channelName, testCallback(new CMResponseCallback() {
             public void onCompletion(CMResponse response){
                 assertTrue(response.wasSuccess());
@@ -120,11 +120,11 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         reset(3);
-        final CMUser randomUser = randomUser();
+        final JavaCMUser randomUser = randomUser();
         randomUser.createUser(hasSuccess);
-        final CMUser randomEmailUser = randomUser();
+        final JavaCMUser randomEmailUser = randomUser();
         randomEmailUser.createUser(hasSuccess);
-        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        final JavaCMUser randomUsernameUser = JavaCMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
         //This test fails right here because this code isn't written yet
@@ -155,11 +155,11 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         reset(3);
-        final CMUser randomUser = randomUser();
+        final JavaCMUser randomUser = randomUser();
         randomUser.createUser(hasSuccess);
-        final CMUser randomEmailUser = randomUser();
+        final JavaCMUser randomEmailUser = randomUser();
         randomEmailUser.createUser(hasSuccess);
-        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        final JavaCMUser randomUsernameUser = JavaCMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
@@ -201,11 +201,11 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
         reset(3);
-        final CMUser randomUser = randomUser();
+        final JavaCMUser randomUser = randomUser();
         randomUser.createUser(hasSuccess);
-        final CMUser randomEmailUser = randomUser();
+        final JavaCMUser randomEmailUser = randomUser();
         randomEmailUser.createUser(hasSuccess);
-        final CMUser randomUsernameUser = CMUser.CMUserWithUserName(randomString(), "test");
+        final JavaCMUser randomUsernameUser = JavaCMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
@@ -242,7 +242,7 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testUnsubscribeSelf() {
-        CMUser user = user();
+        JavaCMUser user = user();
 
         user.subscribeToChannel(CHANNEL_NAME, hasSuccess);
         waitThenAssertTestResults();
@@ -261,7 +261,7 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
     }
 
-    private void assertUserHasChannel(final String channelName, CMUser randomUser) {
+    private void assertUserHasChannel(final String channelName, JavaCMUser randomUser) {
         service.asyncLoadSubscribedChannelsForUser(randomUser.getObjectId(), testCallback(new ListOfStringsCallback() {
             public void onCompletion(ListOfValuesResponse<String> response) {
                 assertTrue(response.wasSuccess());

@@ -33,13 +33,13 @@ import java.util.Set;
 /**
  * A CMUser consists of an email and a password. When logged in, objects can be specified to be saved
  * at the {@link ObjectLevel.USER}, in which case they must be loaded and saved using the {@link CMSessionToken}
- * obtained by logging in as their associated CMUser. CMUser objects should be instantiated through the static {@link #CMUser(String, String)}
+ * obtained by logging in as their associated CMUser. CMUser objects should be instantiated through the static {@link #JavaCMUser(String, String)}
  * function, as platform specific implementations may be necessary.<BR>
  * If you extend CMUser (to allow for profile information), you must provide a no args constructor.
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
-public class CMUser extends CMObject {
-    private static final Logger LOG = LoggerFactory.getLogger(CMUser.class);
+public class JavaCMUser extends CMObject {
+    private static final Logger LOG = LoggerFactory.getLogger(JavaCMUser.class);
 
     public static final String USERNAME_KEY = "username";
     public static final String EMAIL_KEY = "email";
@@ -80,7 +80,7 @@ public class CMUser extends CMObject {
      * Get the profile for the user given
      * @param callback A callback that expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is used here
      */
-    public static void loadLoggedInUserProfile(final CMUser user, final Callback<CMObjectResponse> callback) throws CreationException{
+    public static void loadLoggedInUserProfile(final JavaCMUser user, final Callback<CMObjectResponse> callback) throws CreationException{
         if(user.isLoggedIn()) {
             CMWebService.getService().getUserWebService(user.getSessionToken()).asyncLoadLoggedInUserProfile(callback);
         } else {
@@ -101,16 +101,16 @@ public class CMUser extends CMObject {
     private CMSessionToken sessionToken;
     private Set<CMSocial.Service> authenticatedServices = EnumSet.noneOf(CMSocial.Service.class);
 
-    protected CMUser() {
+    protected JavaCMUser() {
         this("", "");
     }
 
-    public static CMUser CMUserWithUserName(String userName, String password) {
-        return new CMUser(null, userName, password);
+    public static JavaCMUser CMUserWithUserName(String userName, String password) {
+        return new JavaCMUser(null, userName, password);
     }
 
-    public static CMUser CMUserWithUserName(String userName) {
-        return new CMUser(null, userName, "");
+    public static JavaCMUser CMUserWithUserName(String userName) {
+        return new JavaCMUser(null, userName, "");
     }
 
     /**
@@ -119,7 +119,7 @@ public class CMUser extends CMObject {
      * @param userName the username of the user
      * @param password password for the user
      */
-    public CMUser(String email, String userName, String password) {
+    public JavaCMUser(String email, String userName, String password) {
         this(email, password);
         this.userName = userName;
     }
@@ -129,7 +129,7 @@ public class CMUser extends CMObject {
      * @param email email of the user
      * @param password password for the user
      */
-    public CMUser(String email, String password) {
+    public JavaCMUser(String email, String password) {
         super(false);
         this.email = email;
         this.password = password;
@@ -139,7 +139,7 @@ public class CMUser extends CMObject {
      * Instantiate a new CMUser instance with the given email. Password will be blank and should be set before logging in
      * @param email email of the user
      */
-    public CMUser(String email) {
+    public JavaCMUser(String email) {
         this(email, "");
     }
 
@@ -160,7 +160,7 @@ public class CMUser extends CMObject {
 
     @Override
     public String getClassName() {
-        if(getClass() == CMUser.class) //this way if someone extends this, it will not say this is a CMUser, but whatever their subclass is
+        if(getClass() == JavaCMUser.class) //this way if someone extends this, it will not say this is a CMUser, but whatever their subclass is
             return CLASS_NAME;
         return super.getClassName();
     }
@@ -526,8 +526,8 @@ public class CMUser extends CMObject {
         List<CMObject> loadedObjects = response.getObjects();
         if (loadedObjects.size() == 1) {
             CMObject thisUser = loadedObjects.get(0);
-            if (thisUser instanceof CMUser) { //this should always be true but nothin wrong with a little safety
-                mergeProfilesUpdates(((CMUser) thisUser).profileTransportRepresentation());
+            if (thisUser instanceof JavaCMUser) { //this should always be true but nothin wrong with a little safety
+                mergeProfilesUpdates(((JavaCMUser) thisUser).profileTransportRepresentation());
             } else {
                 LOG.error("Loaded user profile that isn't a CMUser");
             }
@@ -597,7 +597,7 @@ public class CMUser extends CMObject {
             login(new ExceptionPassthroughCallback<LoginResponse>(callback) {
                 public void onCompletion(LoginResponse response) {
                     if(isLoggedIn()) {
-                        getUserService().asyncInsertUserProfile(CMUser.this, callback);
+                        getUserService().asyncInsertUserProfile(JavaCMUser.this, callback);
                     } else {
                         callback.onFailure(new NotLoggedInException("Unable to log in"), "Unable to log in");
                     }
@@ -611,7 +611,7 @@ public class CMUser extends CMObject {
      */
     @Override
     @Deprecated
-    public void saveWithUser(CMUser ignored) throws CreationException, ConversionException{
+    public void saveWithUser(JavaCMUser ignored) throws CreationException, ConversionException{
         saveWithUser(ignored, CMCallback.doNothing());
     }
 
@@ -620,7 +620,7 @@ public class CMUser extends CMObject {
      */
     @Override
     @Deprecated
-    public void saveWithUser(CMUser ignored, Callback callback) throws CreationException, ConversionException {
+    public void saveWithUser(JavaCMUser ignored, Callback callback) throws CreationException, ConversionException {
         save(callback);
     }
 
@@ -792,7 +792,7 @@ public class CMUser extends CMObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CMUser cmUser = (CMUser) o;
+        JavaCMUser cmUser = (JavaCMUser) o;
 
         if (authenticatedServices != null ? !authenticatedServices.equals(cmUser.authenticatedServices) : cmUser.authenticatedServices != null)
             return false;

@@ -17,12 +17,12 @@ public class CMAccessListTest {
 
     @Test
     public void testAddUser() {
-        CMUser owner = new CMUser("name@w.com", "t");
+        JavaCMUser owner = new JavaCMUser("name@w.com", "t");
         owner.setObjectId(CMObject.generateUniqueObjectId());
         CMAccessList list = new CMAccessList(owner);
-        CMUser userToAddDirectly = new CMUser("user@u.com", "pw");
+        JavaCMUser userToAddDirectly = new JavaCMUser("user@u.com", "pw");
         userToAddDirectly.setObjectId(CMObject.generateUniqueObjectId());
-        CMUser userToAddById = new CMUser("another@u.com", "pw");
+        JavaCMUser userToAddById = new JavaCMUser("another@u.com", "pw");
         userToAddById.setObjectId(CMObject.generateUniqueObjectId());
 
         list.grantAccessTo(userToAddDirectly);
@@ -32,21 +32,21 @@ public class CMAccessListTest {
         assertTrue(list.doesAllowAccessTo(userToAddById));
 
         assertTrue(list.doesAllowAccessTo(userToAddDirectly.getObjectId()));
-        assertFalse(list.doesAllowAccessTo(new CMUser("nope@not.com", "f")));
+        assertFalse(list.doesAllowAccessTo(new JavaCMUser("nope@not.com", "f")));
     }
 
     @Test
     public void testIsOwner() {
-        CMUser owner = new CMUser("wat@wat.com", "ff");
+        JavaCMUser owner = new JavaCMUser("wat@wat.com", "ff");
         CMAccessList list = new CMAccessList(owner);
         assertTrue(list.isOwnedBy(owner));
-        CMUser notOwner = new CMUser("wat@wat.com", "f");
+        JavaCMUser notOwner = new JavaCMUser("wat@wat.com", "f");
         assertFalse(list.isOwnedBy(notOwner));
     }
 
     @Test
     public void testPermissions() {
-        CMUser owner = new CMUser("whatever@gmail.com", "t");
+        JavaCMUser owner = new JavaCMUser("whatever@gmail.com", "t");
         CMAccessList list = new CMAccessList(owner, CMAccessPermission.UPDATE, CMAccessPermission.READ);
 
         assertTrue(list.doesGrantPermissions(CMAccessPermission.UPDATE, CMAccessPermission.READ));
@@ -57,7 +57,7 @@ public class CMAccessListTest {
     @Test
     public void testAsJson() {
 
-        CMUser owner = new CMUser("bobdole@bobdole.com", "imbobdole");
+        JavaCMUser owner = new JavaCMUser("bobdole@bobdole.com", "imbobdole");
         CMAccessList list = new CMAccessList(owner);
         list.grantPermissions(CMAccessPermission.CREATE);
 

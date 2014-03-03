@@ -66,7 +66,7 @@ public class CMStore {
      * @return a CMStore whose user level methods will interact with the user associated with the passed in CMSessionToken
      * @throws CreationException if user was null or if the preconditions for use are not satisfied
      */
-    public static CMStore getStore(CMUser user) throws CreationException {
+    public static CMStore getStore(JavaCMUser user) throws CreationException {
         return getStore(StoreIdentifier.StoreIdentifier(user));
     }
 
@@ -93,7 +93,7 @@ public class CMStore {
     }
 
     private final CMWebService applicationService;
-    private final Immutable<CMUser> user = new Immutable<CMUser>();
+    private final Immutable<JavaCMUser> user = new Immutable<JavaCMUser>();
     private final Map<String, CMObject> objects = new ConcurrentHashMap<String, CMObject>();
 
     private CMStore(StoreIdentifier identifier) throws CreationException {
@@ -106,7 +106,7 @@ public class CMStore {
         applicationService = CMWebService.getService();
     }
 
-    private CMUser user() {
+    private JavaCMUser user() {
         return user.valueOrThrow();
     }
 
@@ -140,7 +140,7 @@ public class CMStore {
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
     public void saveAccessList(final CMAccessList list, final Callback<CreationResponse> callback) {
-        final CMUser listUser = list.getUser();
+        final JavaCMUser listUser = list.getUser();
         if(listUser.isLoggedIn()) {
             CMWebService.getService().getUserWebService(listUser.getSessionToken()).asyncInsert(list, callback);
         } else {
@@ -1098,23 +1098,23 @@ public class CMStore {
     }
 
     /**
-     * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store.
+     * Log in the specified user and set the {@link com.cloudmine.api.JavaCMUser} for this store.
      * @param user the user to log in
      * @return whether the user was set for this store; if false, the user has already been set
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public boolean login(CMUser user) throws CreationException {
+    public boolean login(JavaCMUser user) throws CreationException {
         return login(user, CMCallback.<LoginResponse>doNothing());
     }
 
     /**
-     * Log in the specified user and set the {@link com.cloudmine.api.CMUser} for this store
+     * Log in the specified user and set the {@link com.cloudmine.api.JavaCMUser} for this store
      * @param user the user to log in
      * @param callback a {@link com.cloudmine.api.rest.callbacks.Callback} that expects an {@link LoginResponse} or a parent class. It is recommended an {@link com.cloudmine.api.rest.callbacks.LoginResponseCallback} is passed in
      * @return whether the user was set for this store; if false, the user has already been set
      * @throws CreationException if login is called before {@link CMApiCredentials#initialize(String, String)} has been called
      */
-    public boolean login(CMUser user, Callback<LoginResponse> callback) throws CreationException {
+    public boolean login(JavaCMUser user, Callback<LoginResponse> callback) throws CreationException {
         boolean userSet = setUser(user);
         user.login(callback);
         return userSet;
@@ -1126,7 +1126,7 @@ public class CMStore {
      * @param user a user; if the user is not logged in, they will be before any
      * @return true if the user value was set; false if it has already been set or a null user was given
      */
-    public boolean setUser(CMUser user) {
+    public boolean setUser(JavaCMUser user) {
         return this.user.setValue(user);
     }
 

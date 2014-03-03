@@ -55,7 +55,7 @@ public class CMAccessList extends CMObject {
      * Create a new CMAccessList that grants no privileges and contains no users. It grants permissions to
      * objects owned by the given user
      */
-    public CMAccessList(CMUser owner) {
+    public CMAccessList(JavaCMUser owner) {
         super();
         if(owner == null)
             throw new NullPointerException("Cannot instantiate a new CMAccessList from a null CMUser");
@@ -67,7 +67,7 @@ public class CMAccessList extends CMObject {
      * @param owner
      * @param permissions permissions
      */
-    public CMAccessList(CMUser owner, CMAccessPermission... permissions) {
+    public CMAccessList(JavaCMUser owner, CMAccessPermission... permissions) {
         this(owner);
         for(CMAccessPermission permission : permissions) {
             this.accessPermissions.add(permission);
@@ -83,7 +83,7 @@ public class CMAccessList extends CMObject {
      * be set
      * @param user
      */
-    public void grantAccessTo(CMUser user) {
+    public void grantAccessTo(JavaCMUser user) {
         grantAccessTo(user.getObjectId());
     }
 
@@ -164,7 +164,7 @@ public class CMAccessList extends CMObject {
      * @param user the user to check
      * @return true if the specified user has access, false otherwise
      */
-    public boolean doesAllowAccessTo(CMUser user) {
+    public boolean doesAllowAccessTo(JavaCMUser user) {
         if(user == null)
             return false;
         return doesAllowAccessTo(user.getObjectId());
@@ -198,7 +198,7 @@ public class CMAccessList extends CMObject {
      * @param user
      * @return true if this access list was created attached to the given user
      */
-    public boolean isOwnedBy(CMUser user) {
+    public boolean isOwnedBy(JavaCMUser user) {
         if(user == null)
             return false;
         return user.equals(getUser());
@@ -218,7 +218,7 @@ public class CMAccessList extends CMObject {
      * Is equivalent to calling {@link #save()}, since the user associated with the list is set at instantiation
      */
     @Override
-    public void saveWithUser(CMUser ignored) {
+    public void saveWithUser(JavaCMUser ignored) {
         save();
     }
 
@@ -226,7 +226,7 @@ public class CMAccessList extends CMObject {
      * Is equivalent to calling {@link #save(Callback)}, since the user associated with the list is set at instantiation
      */
     @Override
-    public void saveWithUser(CMUser ignored, Callback<ObjectModificationResponse> callback) {
+    public void saveWithUser(JavaCMUser ignored, Callback<ObjectModificationResponse> callback) {
         save(callback);
     }
 

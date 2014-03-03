@@ -2,7 +2,7 @@ package com.cloudmine.api.rest;
 
 import com.cloudmine.api.CMAccessList;
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.LibrarySpecificClassCreator;
 import com.cloudmine.api.exceptions.InvalidRequestException;
 import com.cloudmine.api.rest.callbacks.CMCallback;
@@ -104,7 +104,7 @@ public class UserCMWebService extends CMWebService {
      * @param user the users profile to update; note that the user associated with this UserCMWebService will always be the one updated, even if the passed in user is different
      * @param callback callback that expects a {@link com.cloudmine.api.rest.response.CreationResponse}. It is recommended that a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void asyncInsertUserProfile(CMUser user, Callback<CreationResponse> callback) {
+    public void asyncInsertUserProfile(JavaCMUser user, Callback<CreationResponse> callback) {
         HttpPut put = createProfilePut(user);
         executeAsyncCommand(put, callback, creationResponseConstructor());
     }
@@ -383,7 +383,7 @@ public class UserCMWebService extends CMWebService {
         return post;
     }
 
-    private HttpPut createProfilePut(CMUser user) {
+    private HttpPut createProfilePut(JavaCMUser user) {
         HttpPut put = new HttpPut(baseUrl.copy().account().asUrlString());
         addCloudMineHeader(put);
         addJson(put, user.profileTransportRepresentation());
