@@ -1,5 +1,6 @@
 package com.cloudmine.api.integration;
 
+import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.CMChannel;
 import com.cloudmine.api.CMPushNotification;
 import com.cloudmine.api.JavaCMUser;
@@ -30,7 +31,15 @@ import static junit.framework.Assert.*;
  */
 public class CMChannelIntegrationTest extends ServiceTestBase {
 
+    public static final String APP_ID = "c1a562ee1e6f4a478803e7b51babe287";
+    public static final String API_KEY = "27D924936D2C7D422D58B919B9F23653";
     private static final String CHANNEL_NAME = "cloudmine";
+
+    public void setUp() {
+        super.setUp();
+        CMApiCredentials.initialize(APP_ID, API_KEY);
+        service = CMWebService.getService(APP_ID, API_KEY);
+    }
 
     @Test
     public void testCreateChannel() {
@@ -127,7 +136,7 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
         final JavaCMUser randomUsernameUser = JavaCMUser.CMUserWithUserName(randomString(), "test");
         randomUsernameUser.createUser(hasSuccess);
         waitThenAssertTestResults();
-        //This test fails right here because this code isn't written yet
+
         CMWebService.getService().asyncLoadChannelInformation(channelName, testCallback(new PushChannelResponseCallback() {
             public void onCompletion(PushChannelResponse response) {
                 List<String> objectIds = response.getUserIds();

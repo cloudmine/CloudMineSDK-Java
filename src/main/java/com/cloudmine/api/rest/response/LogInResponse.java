@@ -2,7 +2,6 @@ package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.JavaCMUser;
-import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;

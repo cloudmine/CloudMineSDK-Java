@@ -89,7 +89,7 @@ public class ServiceTestBase {
     public void setUp() {
         ClassNameRegistry.register("govna", ExtendedCMObject.class);
         CMApiCredentials.initialize(APP_ID, API_KEY);
-        service = CMWebService.getService();
+        service = CMWebService.getService(APP_ID, API_KEY);
 
         System.setProperty("org.slf4j.simplelogger.defaultlog", "debug");
         reset();
@@ -101,7 +101,7 @@ public class ServiceTestBase {
     private void deleteAll() {
         service.deleteAll();
         JavaCMUser user = user();
-
+        
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
     }
