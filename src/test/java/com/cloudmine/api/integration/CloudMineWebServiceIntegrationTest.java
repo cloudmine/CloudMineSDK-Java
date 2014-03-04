@@ -180,7 +180,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
     @Test
     @Ignore // until we can delete users this test will fail every time but the first time its run
     public void testCreateUser() {
-        CMResponse response = service.insert(USER);
+        CreationResponse response = service.insert(USER);
         Assert.assertTrue(response.was(201));
     }
 

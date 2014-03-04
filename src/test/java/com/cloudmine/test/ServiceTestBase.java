@@ -12,6 +12,7 @@ import com.cloudmine.api.rest.callbacks.CMObjectResponseCallback;
 import com.cloudmine.api.rest.callbacks.ObjectModificationResponseCallback;
 import com.cloudmine.api.rest.callbacks.ResponseBaseCallback;
 import com.cloudmine.api.rest.response.CMObjectResponse;
+import com.cloudmine.api.rest.response.CreationResponse;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.ObjectModificationResponse;
 import com.cloudmine.api.rest.response.ResponseBase;
@@ -139,13 +140,16 @@ public class ServiceTestBase {
     }
 
     public JavaCMUser loggedInUser() {
-        CMWebService.getService().insert(user);
+        CreationResponse response = CMWebService.getService().insert(user);
+        user.setObjectId(response.getObjectId());
         return loggedInUser(user);
     }
 
     public JavaCMUser randomLoggedInUser() {
         JavaCMUser randomUser = randomUser();
-        assertTrue(service.insert(randomUser).wasSuccess());
+        CreationResponse insert = service.insert(randomUser);
+        randomUser.setObjectId(insert.getObjectId());
+        assertTrue(insert.wasSuccess());
         return loggedInUser(randomUser);
     }
 

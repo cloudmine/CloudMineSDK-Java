@@ -17,6 +17,7 @@ import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.api.rest.callbacks.CMCallback;
 import com.cloudmine.api.rest.callbacks.CMResponseCallback;
 import com.cloudmine.api.rest.callbacks.Callback;
+import com.cloudmine.api.rest.callbacks.CreationResponseCallback;
 import com.cloudmine.api.rest.options.CMRequestOptions;
 import com.cloudmine.api.rest.response.CMObjectResponse;
 import com.cloudmine.api.rest.response.CMResponse;
@@ -1177,8 +1178,8 @@ public class CMWebService {
      * @throws NetworkException if unable to perform the network call
      * @throws ConversionException if unable to convert this user to a transportable representation. This should never happen unless you have subclassed CMUser and overridden transportableRepresentation
      */
-    public CMResponse insert(JavaCMUser user) throws NetworkException, ConversionException {
-        return executeCommand(createPut(user));
+    public CreationResponse insert(JavaCMUser user) throws NetworkException, ConversionException {
+        return executeCommand(createPut(user), CreationResponse.CONSTRUCTOR);
     }
 
     /**
