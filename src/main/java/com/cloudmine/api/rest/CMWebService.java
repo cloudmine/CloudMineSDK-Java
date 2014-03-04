@@ -1051,10 +1051,6 @@ public class CMWebService {
         executeAsyncCommand(get, callback, ListOfValuesResponse.CONSTRUCTOR());
     }
 
-    public void asyncLoadChannelInformation(String channelName, Callback<PushChannelResponse> callback) {
-        //TODO
-    }
-
     /**
      * See {@link #asyncSendNotification(com.cloudmine.api.CMPushNotification, com.cloudmine.api.rest.callbacks.Callback)}
      * @param notification

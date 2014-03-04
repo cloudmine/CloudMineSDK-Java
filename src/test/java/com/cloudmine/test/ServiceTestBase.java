@@ -101,7 +101,7 @@ public class ServiceTestBase {
     private void deleteAll() {
         service.deleteAll();
         JavaCMUser user = user();
-        
+
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).deleteAll();
     }
