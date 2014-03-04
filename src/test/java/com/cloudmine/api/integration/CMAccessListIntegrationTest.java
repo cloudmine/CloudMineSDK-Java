@@ -28,21 +28,11 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testStoreAccessList() {
-        final JavaCMUser anotherUser = randomUser();
-        anotherUser.createUser(hasSuccess);
-        waitThenAssertTestResults();
+        final JavaCMUser anotherUser = createOtherUser();
 
-        final JavaCMUser user = user();
-        user.createUser(testCallback());
-        waitThenAssertTestResults();
-        user.login(hasSuccess);
-        waitThenAssertTestResults();
+        final JavaCMUser user = createMainUser();
 
-        List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
-        CMAccessList list = new CMAccessList(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
-        list.grantAccessTo(userObjectIds);
-        list.grantAccessTo(anotherUser);
-        list.grantPermissions(CMAccessPermission.READ);
+        CMAccessList list = getCmAccessList(anotherUser, user);
         list.save(testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {
@@ -53,12 +43,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
 
 
-        final SimpleCMObject anObject = new SimpleCMObject();
-        anObject.add("aSecret", true);
-        anObject.grantAccess(list);
-        System.out.println("AO: " + anObject.transportableRepresentation());
-        anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
-        waitThenAssertTestResults();
+        final SimpleCMObject anObject = insertAnObject(user, list);
 
         anotherUser.login(hasSuccess);
         waitThenAssertTestResults();
@@ -88,6 +73,40 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
 
         }), requestOptions);
         waitThenAssertTestResults();
+    }
+
+    protected SimpleCMObject insertAnObject(JavaCMUser user, CMAccessList list) {
+        final SimpleCMObject anObject = new SimpleCMObject();
+        anObject.add("aSecret", true);
+        anObject.grantAccess(list);
+        anObject.saveWithUser(user, hasSuccessAndHasModified(anObject));
+        waitThenAssertTestResults();
+        return anObject;
+    }
+
+    protected CMAccessList getCmAccessList(JavaCMUser anotherUser, JavaCMUser user) {
+        List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
+        CMAccessList list = new CMAccessList(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
+        list.grantAccessTo(userObjectIds);
+        list.grantAccessTo(anotherUser);
+        list.grantPermissions(CMAccessPermission.READ);
+        return list;
+    }
+
+    protected JavaCMUser createMainUser() {
+        final JavaCMUser user = user();
+        user.createUser(testCallback());
+        waitThenAssertTestResults();
+        user.login(hasSuccess);
+        waitThenAssertTestResults();
+        return user;
+    }
+
+    protected JavaCMUser createOtherUser() {
+        final JavaCMUser anotherUser = randomUser();
+        anotherUser.createUser(hasSuccess);
+        waitThenAssertTestResults();
+        return anotherUser;
     }
 
     @Test
