@@ -155,6 +155,17 @@ public class JsonUtilities {
         return "\"" + toQuote + "\"";
     }
 
+    public static Transportable keyedJsonCollection(Collection<CMObject> cmObjects) {
+        if(cmObjects == null || cmObjects.isEmpty()) return new TransportableString(EMPTY_JSON);
+        String[] unwrapped = new String[cmObjects.size()];
+        int i = 0;
+        for(CMObject object : cmObjects) {
+            unwrapped[i] = object.asKeyedObject();
+            i++;
+        }
+        return jsonCollection(unwrapped);
+    }
+
     /**
      * Enclose all the passed in jsonEntities in a JSON collection
      * @param jsonEntities to put into the collection
