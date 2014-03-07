@@ -5,6 +5,7 @@ import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.persistance.CMJacksonModule;
 import com.cloudmine.api.persistance.CMUserConstructorMixIn;
 import com.cloudmine.api.persistance.ClassNameRegistry;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -282,6 +283,14 @@ public class JsonUtilities {
             } catch (IOException e) {
                 //nope don't care
             }
+        }
+    }
+
+    public static String cmObjectToJson(Object object) {
+        try {
+            return wrap(jsonMapper.writeValueAsString(object));
+        } catch (JsonProcessingException e) {
+            throw new ConversionException(e);
         }
     }
 
