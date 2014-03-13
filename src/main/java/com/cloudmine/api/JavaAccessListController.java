@@ -75,7 +75,7 @@ public class JavaAccessListController extends CMObject {
     }
 
     protected JavaAccessListController() {
-        //for jackson
+        super();
     }
 
     /**

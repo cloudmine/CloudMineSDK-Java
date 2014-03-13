@@ -84,7 +84,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         return anObject;
     }
 
-    protected JavaAccessListController getCmAccessList(JavaCMUser anotherUser, JavaCMUser user) {
+    private JavaAccessListController getCmAccessList(JavaCMUser anotherUser, JavaCMUser user) {
         List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
         JavaAccessListController list = new JavaAccessListController(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
         list.grantAccessTo(userObjectIds);
