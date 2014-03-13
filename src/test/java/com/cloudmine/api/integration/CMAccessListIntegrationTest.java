@@ -32,7 +32,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
 
         final JavaCMUser user = createMainUser();
 
-        CMAccessList list = getCmAccessList(anotherUser, user);
+        JavaAccessListController list = getCmAccessList(anotherUser, user);
         list.save(testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {
@@ -75,7 +75,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
     }
 
-    protected SimpleCMObject insertAnObject(JavaCMUser user, CMAccessList list) {
+    protected SimpleCMObject insertAnObject(JavaCMUser user, JavaAccessListController list) {
         final SimpleCMObject anObject = new SimpleCMObject();
         anObject.add("aSecret", true);
         anObject.grantAccess(list);
@@ -84,9 +84,9 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         return anObject;
     }
 
-    protected CMAccessList getCmAccessList(JavaCMUser anotherUser, JavaCMUser user) {
+    protected JavaAccessListController getCmAccessList(JavaCMUser anotherUser, JavaCMUser user) {
         List<String> userObjectIds = Arrays.asList("freddy", "teddy", "george", "puddin");
-        CMAccessList list = new CMAccessList(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
+        JavaAccessListController list = new JavaAccessListController(user, CMAccessPermission.READ, CMAccessPermission.UPDATE);
         list.grantAccessTo(userObjectIds);
         list.grantAccessTo(anotherUser);
         list.grantPermissions(CMAccessPermission.READ);
@@ -112,7 +112,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
     @Test
     public void testGetAccessList() {
         JavaCMUser user = user();
-        final CMAccessList list = new CMAccessList(user, CMAccessPermission.CREATE);
+        final JavaAccessListController list = new JavaAccessListController(user, CMAccessPermission.CREATE);
         list.grantAccessTo("whatever");
         list.save(hasSuccess);
         waitThenAssertTestResults();

@@ -193,7 +193,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * permissions defined by the list. The given list must have an object id
      * @param list
      */
-    public void grantAccess(CMAccessList list) {
+    public void grantAccess(JavaAccessListController list) {
         if(list == null)
             return;
         addAccessListId(list.getObjectId());
