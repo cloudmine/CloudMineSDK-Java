@@ -320,7 +320,7 @@ public class UserCMWebService extends CMWebService {
      * @param parameters The Parameters which will be added to the request. Maps parameter name to value. Can be null.
      * @param headers The headers which will be added to the request. Maps header name to value. Can be null.
      * @param data The data which will put into the HTTP body of the request. Can be null.
-     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback} which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
      * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb.
      */
     public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
