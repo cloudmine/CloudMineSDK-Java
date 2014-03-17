@@ -195,13 +195,6 @@ public class SimpleCMObject extends CMObject {
         return false;
     }
 
-    public void setObjectId(String objectId) {
-        super.setObjectId(objectId);
-        contents.put(JsonUtilities.OBJECT_ID_KEY, objectId);
-        topLevelMap.clear();
-        topLevelMap.put(objectId, contents);
-    }
-
     /**
      * Returns the value associated with the top level key; This will probably be a Map of Strings to
      * Objects, but may just be a single value

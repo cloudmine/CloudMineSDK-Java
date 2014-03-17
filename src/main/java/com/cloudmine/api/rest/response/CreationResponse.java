@@ -7,7 +7,7 @@ import com.cloudmine.api.rest.response.code.CMResponseCode;
 import org.apache.http.HttpResponse;
 
 /**
- * Returned by requests that create an object id for insertions, such as {@link com.cloudmine.api.CMUser#createUser(com.cloudmine.api.rest.callbacks.Callback)}
+ * Returned by requests that create an object id for insertions, such as {@link com.cloudmine.api.JavaCMUser#createUser(com.cloudmine.api.rest.callbacks.Callback)}
  * <br>
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
