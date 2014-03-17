@@ -190,6 +190,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             userObjects.add(userObject);
             userService.insert(userObject.transportableRepresentation());
         }
+        CMStore store = CMStore.CMStore();
         store.setUser(user);
         store.loadAllUserObjects(testCallback(new CMObjectResponseCallback() {
             public void onCompletion(CMObjectResponse response) {

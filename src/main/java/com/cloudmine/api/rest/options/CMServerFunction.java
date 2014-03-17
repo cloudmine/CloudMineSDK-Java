@@ -89,7 +89,9 @@ public class CMServerFunction implements BaseURL{
             boolean haveExtraParameters = !extraParameters.isEmpty();
             if(haveExtraParameters) {
                 urlBuilder.append("&params=");
-                urlBuilder.append(JsonUtilities.mapToJson(extraParameters));
+                String jsonParams = JsonUtilities.mapToJson(extraParameters);
+                jsonParams = CMURLBuilder.encode(jsonParams);
+                urlBuilder.append(jsonParams);
             }
             urlString.setValue(urlBuilder.toString());
         }

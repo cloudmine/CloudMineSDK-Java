@@ -136,14 +136,14 @@ public class CMURLBuilder extends MutableBaseURLBuilder<CMURLBuilder> {
     }
 
     public static String encode(String url) {
-        String encodedSearch;
+        String encodedString;
         try {
-            encodedSearch = URLEncoder.encode(url, "UTF-8");
+            encodedString = URLEncoder.encode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            encodedSearch = url;
-            LOG.error("Error encoding search string: " + url, e);
+            encodedString = url;
+            LOG.error("Error encoding string: " + url, e);
         }
-        return encodedSearch;
+        return encodedString;
     }
 
     public CMURLBuilder options(CMRequestOptions options) {
