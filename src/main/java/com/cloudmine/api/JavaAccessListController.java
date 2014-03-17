@@ -19,7 +19,7 @@ import java.util.Set;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class CMAccessList extends CMObject {
+public class JavaAccessListController extends CMObject {
 
     public static class Segments {
         private boolean isLoggedIn;
@@ -52,30 +52,30 @@ public class CMAccessList extends CMObject {
 
 
     /**
-     * Create a new CMAccessList that grants no privileges and contains no users. It grants permissions to
+     * Create a new JavaAccessListController that grants no privileges and contains no users. It grants permissions to
      * objects owned by the given user
      */
-    public CMAccessList(JavaCMUser owner) {
+    public JavaAccessListController(JavaCMUser owner) {
         super();
         if(owner == null)
-            throw new NullPointerException("Cannot instantiate a new CMAccessList from a null CMUser");
+            throw new NullPointerException("Cannot instantiate a new JavaAccessListController from a null CMUser");
         setSaveWith(owner);
     }
 
     /**
-     * Instantiate a new CMAccessList owned by the specified user that grants the specified permissions
+     * Instantiate a new JavaAccessListController owned by the specified user that grants the specified permissions
      * @param owner
      * @param permissions permissions
      */
-    public CMAccessList(JavaCMUser owner, CMAccessPermission... permissions) {
+    public JavaAccessListController(JavaCMUser owner, CMAccessPermission... permissions) {
         this(owner);
         for(CMAccessPermission permission : permissions) {
             this.accessPermissions.add(permission);
         }
     }
 
-    protected CMAccessList() {
-        //for jackson
+    protected JavaAccessListController() {
+        super();
     }
 
     /**
@@ -232,7 +232,7 @@ public class CMAccessList extends CMObject {
 
     @Override
     public String getClassName() {
-        if(getClass() == CMAccessList.class) //this way if someone extends this, it will not say this is a CMAccessList, but whatever their subclass is
+        if(getClass() == JavaAccessListController.class) //this way if someone extends this, it will not say this is a JavaAccessListController, but whatever their subclass is
             return CLASS_NAME;
         return super.getClassName();
     }
@@ -247,7 +247,7 @@ public class CMAccessList extends CMObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CMAccessList that = (CMAccessList) o;
+        JavaAccessListController that = (JavaAccessListController) o;
 
         if (!accessPermissions.equals(that.accessPermissions)) return false;
         if (!userObjectIds.equals(that.userObjectIds)) return false;

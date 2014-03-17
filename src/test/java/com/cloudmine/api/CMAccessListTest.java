@@ -19,7 +19,7 @@ public class CMAccessListTest {
     public void testAddUser() {
         JavaCMUser owner = new JavaCMUser("name@w.com", "t");
         owner.setObjectId(CMObject.generateUniqueObjectId());
-        CMAccessList list = new CMAccessList(owner);
+        JavaAccessListController list = new JavaAccessListController(owner);
         JavaCMUser userToAddDirectly = new JavaCMUser("user@u.com", "pw");
         userToAddDirectly.setObjectId(CMObject.generateUniqueObjectId());
         JavaCMUser userToAddById = new JavaCMUser("another@u.com", "pw");
@@ -38,7 +38,7 @@ public class CMAccessListTest {
     @Test
     public void testIsOwner() {
         JavaCMUser owner = new JavaCMUser("wat@wat.com", "ff");
-        CMAccessList list = new CMAccessList(owner);
+        JavaAccessListController list = new JavaAccessListController(owner);
         assertTrue(list.isOwnedBy(owner));
         JavaCMUser notOwner = new JavaCMUser("wat@wat.com", "f");
         assertFalse(list.isOwnedBy(notOwner));
@@ -47,7 +47,7 @@ public class CMAccessListTest {
     @Test
     public void testPermissions() {
         JavaCMUser owner = new JavaCMUser("whatever@gmail.com", "t");
-        CMAccessList list = new CMAccessList(owner, CMAccessPermission.UPDATE, CMAccessPermission.READ);
+        JavaAccessListController list = new JavaAccessListController(owner, CMAccessPermission.UPDATE, CMAccessPermission.READ);
 
         assertTrue(list.doesGrantPermissions(CMAccessPermission.UPDATE, CMAccessPermission.READ));
         assertFalse(list.doesGrantPermissions(CMAccessPermission.DELETE));
@@ -58,12 +58,12 @@ public class CMAccessListTest {
     public void testAsJson() {
 
         JavaCMUser owner = new JavaCMUser("bobdole@bobdole.com", "imbobdole");
-        CMAccessList list = new CMAccessList(owner);
+        JavaAccessListController list = new JavaAccessListController(owner);
         list.grantPermissions(CMAccessPermission.CREATE);
 
         String json = list.transportableRepresentation();
 
-        CMAccessList convertedList = JsonUtilities.jsonToClass(json, CMAccessList.class);
+        JavaAccessListController convertedList = JsonUtilities.jsonToClass(json, JavaAccessListController.class);
         assertEquals(convertedList,  list);
 
         Map<String, Object> asMap = JsonUtilities.jsonToMap(json);

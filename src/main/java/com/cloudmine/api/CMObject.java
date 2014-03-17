@@ -40,7 +40,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     private Immutable<StoreIdentifier> storeId = new Immutable<StoreIdentifier>();
     private Set<String> accessListIds = new HashSet<String>();
 
-    public static Transportable massTransportable(Collection<CMObject> objects) {
+    public static <CMO extends CMObject> Transportable massTransportable(Collection<CMO> objects) {
         StringBuilder bodyBuilder = new StringBuilder("{");
         String separator = "";
         for(CMObject object : objects) {
@@ -193,7 +193,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * permissions defined by the list. The given list must have an object id
      * @param list
      */
-    public void grantAccess(CMAccessList list) {
+    public void grantAccess(JavaAccessListController list) {
         if(list == null)
             return;
         addAccessListId(list.getObjectId());

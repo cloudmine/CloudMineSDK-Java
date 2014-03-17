@@ -482,7 +482,7 @@ public class JavaCMUser extends CMObject {
     }
 
     /**
-     * Load the {@link CMAccessList} that  belong to this user. If this user is not logged in, they will be.
+     * Load the {@link JavaAccessListController} that  belong to this user. If this user is not logged in, they will be.
      * @param callback expects a {@link CMObjectResponse}. It is recommended that a {@link CMObjectResponseCallback} is passed in here
      */
     public void loadAccessLists(final Callback<CMObjectResponse> callback) {

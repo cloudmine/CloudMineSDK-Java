@@ -130,7 +130,7 @@ public class CMStore {
 
     /*****************************OBJECTS********************************/
 
-    public void saveAccessList(CMAccessList list) {
+    public void saveAccessList(JavaAccessListController list) {
         saveAccessList(list, CMCallback.<CreationResponse>doNothing());
     }
 
@@ -139,7 +139,7 @@ public class CMStore {
      * @param list the list to save
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void saveAccessList(final CMAccessList list, final Callback<CreationResponse> callback) {
+    public void saveAccessList(final JavaAccessListController list, final Callback<CreationResponse> callback) {
         final JavaCMUser listUser = list.getUser();
         if(listUser.isLoggedIn()) {
             CMWebService.getService().getUserWebService(listUser.getSessionToken()).asyncInsert(list, callback);

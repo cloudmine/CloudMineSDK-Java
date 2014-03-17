@@ -1,6 +1,6 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMAccessList;
+import com.cloudmine.api.JavaAccessListController;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.LibrarySpecificClassCreator;
@@ -82,11 +82,11 @@ public class UserCMWebService extends CMWebService {
     }
 
     /**
-     * Create or save the given CMAccessList
+     * Create or save the given JavaAccessListController
      * @param list
      * @param callback expects a {@link com.cloudmine.api.rest.response.CreationResponse}, recommended that you use a {@link com.cloudmine.api.rest.callbacks.CreationResponseCallback}
      */
-    public void asyncInsert(CMAccessList list, Callback<CreationResponse> callback) {
+    public void asyncInsert(JavaAccessListController list, Callback<CreationResponse> callback) {
         executeAsyncCommand(createAccessListPost(list), callback, creationResponseConstructor());
     }
 
@@ -320,7 +320,7 @@ public class UserCMWebService extends CMWebService {
      * @param parameters The Parameters which will be added to the request. Maps parameter name to value. Can be null.
      * @param headers The headers which will be added to the request. Maps header name to value. Can be null.
      * @param data The data which will put into the HTTP body of the request. Can be null.
-     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
+     * @param callback A {@link com.cloudmine.api.rest.callbacks.CMSocialLoginResponseCallback} which has a {@link com.cloudmine.api.rest.response.CMSocialLoginResponse}.
      * @throws InvalidRequestException A {@link com.cloudmine.api.exceptions.InvalidRequestException} is thrown if you do not use an appropriate HTTP verb.
      */
     public void asyncSocialGraphQueryOnNetwork(CMSocial.Service service,
@@ -376,7 +376,7 @@ public class UserCMWebService extends CMWebService {
         return this;
     }
 
-    private HttpPost createAccessListPost(CMAccessList list) {
+    private HttpPost createAccessListPost(JavaAccessListController list) {
         HttpPost post = new HttpPost(baseUrl.copy().access().asUrlString());
         addCloudMineHeader(post);
         addJson(post, list.transportableRepresentation());
