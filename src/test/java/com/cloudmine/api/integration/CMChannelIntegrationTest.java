@@ -145,7 +145,8 @@ public class CMChannelIntegrationTest extends ServiceTestBase {
 //                assertTrue(objectIds.contains(randomUsernameUser.getObjectId()));
 //            }
 //        }));
-        waitThenAssertTestResults();
+//
+//        waitThenAssertTestResults();
 
         channel.delete(testCallback(new CMResponseCallback() {
             public void onCompletion(CMResponse cmResponse) {
