@@ -1,6 +1,6 @@
 package com.cloudmine.test;
 
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.exceptions.CreationException;
 
 /**
@@ -8,7 +8,7 @@ import com.cloudmine.api.exceptions.CreationException;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class ExtendedCMUser extends CMUser {
+public class ExtendedCMUser extends JavaCMUser {
 
     private String address;
     private int age;

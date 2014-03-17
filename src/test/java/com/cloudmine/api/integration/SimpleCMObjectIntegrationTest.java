@@ -1,7 +1,7 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.SimpleCMObject;
 import com.cloudmine.api.StoreIdentifier;
 import com.cloudmine.api.exceptions.CreationException;
@@ -38,7 +38,7 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
-        CMUser user = user();
+        JavaCMUser user = user();
         service.insert(user);
         CMSessionToken token = service.login(user).getSessionToken();
         assertFalse(object.setSaveWith(user));
@@ -53,7 +53,7 @@ public class SimpleCMObjectIntegrationTest extends ServiceTestBase {
     public void testUserSave() {
         final SimpleCMObject object = new SimpleCMObject();
         object.add("bool", true);
-        final CMUser user = user();
+        final JavaCMUser user = user();
         object.setSaveWith(user);
         object.save(testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {

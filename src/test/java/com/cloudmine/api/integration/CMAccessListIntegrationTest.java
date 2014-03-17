@@ -28,11 +28,11 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testStoreAccessList() {
-        final CMUser anotherUser = randomUser();
+        final JavaCMUser anotherUser = randomUser();
         anotherUser.createUser(hasSuccess);
         waitThenAssertTestResults();
 
-        final CMUser user = user();
+        final JavaCMUser user = user();
         user.createUser(testCallback());
         waitThenAssertTestResults();
         user.login(hasSuccess);
@@ -92,7 +92,7 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testGetAccessList() {
-        CMUser user = user();
+        JavaCMUser user = user();
         final CMAccessList list = new CMAccessList(user, CMAccessPermission.CREATE);
         list.grantAccessTo("whatever");
         list.save(hasSuccess);

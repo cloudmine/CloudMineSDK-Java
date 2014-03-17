@@ -9,10 +9,10 @@ import java.util.WeakHashMap;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class StoreIdentifier {
-    private static final WeakHashMap<CMUser, StoreIdentifier> storeMap = new WeakHashMap<CMUser, StoreIdentifier>();
+    private static final WeakHashMap<JavaCMUser, StoreIdentifier> storeMap = new WeakHashMap<JavaCMUser, StoreIdentifier>();
     public static final StoreIdentifier DEFAULT = new StoreIdentifier(ObjectLevel.APPLICATION, null);
     private final ObjectLevel level; //never let this be null
-    private final CMUser user;
+    private final JavaCMUser user;
 
     public static StoreIdentifier applicationLevel() throws CreationException {
         return DEFAULT;
@@ -23,7 +23,7 @@ public class StoreIdentifier {
      * @param user the user that objects at the USER level are saved with
      * @throws CreationException if given a null session
      */
-    public static StoreIdentifier StoreIdentifier(CMUser user) throws CreationException{
+    public static StoreIdentifier StoreIdentifier(JavaCMUser user) throws CreationException{
         StoreIdentifier identifier = storeMap.get(user);
         if(identifier == null) {
             identifier = new StoreIdentifier(user);
@@ -34,7 +34,7 @@ public class StoreIdentifier {
 
 
 
-    protected StoreIdentifier(ObjectLevel level, CMUser user) throws CreationException {
+    protected StoreIdentifier(ObjectLevel level, JavaCMUser user) throws CreationException {
         if(user == null && ObjectLevel.APPLICATION != level) {
             throw new CreationException("User cannot be null unless we are saving to the application level");
         }
@@ -47,7 +47,7 @@ public class StoreIdentifier {
 
 
 
-    protected StoreIdentifier(CMUser user) throws CreationException {
+    protected StoreIdentifier(JavaCMUser user) throws CreationException {
         this(ObjectLevel.USER, user);
     }
 
@@ -75,7 +75,7 @@ public class StoreIdentifier {
         return level;
     }
 
-    public CMUser getUser() {
+    public JavaCMUser getUser() {
         return user;
     }
 

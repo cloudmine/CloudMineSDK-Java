@@ -1,7 +1,7 @@
 package com.cloudmine.api.rest.response;
 
 import com.cloudmine.api.CMSessionToken;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.exceptions.ConversionException;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
@@ -62,7 +62,7 @@ public class LoginResponse extends ResponseBase<LoginCode> {
     }
 
     public String getProfileTransportRepresentation() {
-        Object profile = getObject(CMUser.PROFILE_KEY);
+        Object profile = getObject(JavaCMUser.PROFILE_KEY);
         if(profile instanceof Map) {
             return JsonUtilities.mapToJson((Map<String, ? extends Object>) profile);
         }
@@ -70,7 +70,7 @@ public class LoginResponse extends ResponseBase<LoginCode> {
     }
 
 
-    public <T extends CMUser> T getUserObject(Class<T> userClass) {
+    public <T extends JavaCMUser> T getUserObject(Class<T> userClass) {
         T user = JsonUtilities.jsonToClass(getProfileTransportRepresentation(), userClass);
         if(user != null) {
             user.setSessionToken(sessionToken);

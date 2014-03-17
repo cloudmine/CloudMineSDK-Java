@@ -1,7 +1,8 @@
 package com.cloudmine.api.integration;
 
 import com.cloudmine.api.CMApiCredentials;
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.rest.*;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.callbacks.SocialGraphCallback;
@@ -35,7 +36,7 @@ import static org.apache.commons.io.FileUtils.readFileToByteArray;
  */
 public class SocialIntegrationTest extends ServiceTestBase {
 
-    private static final CMUser socialUser = new CMUser("ethan@cloudmine.me", "testing");
+    private static final JavaCMUser socialUser = new JavaCMUser("ethan@cloudmine.me", "testing");
     private static UserCMWebService socialService;
     private String gistIdentifier;
     private String gistTestingId;

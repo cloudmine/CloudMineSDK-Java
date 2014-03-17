@@ -39,7 +39,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
            SIMPLE_JSON + ",\n" +
             DEEP_KEYED_JSON +
             "}";
-    public static final CMUser USER = new CMUser("francis2@gmail.com", "GOD");
+    public static final JavaCMUser USER = new JavaCMUser("francis2@gmail.com", "GOD");
 
 
 
@@ -47,7 +47,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
     @Test
     @Ignore //Only works when we can delete users
     public void testAsyncCreateUser() throws Exception {
-        CMUser newUser = new CMUser("test2@test.com", "password");
+        JavaCMUser newUser = new JavaCMUser("test2@test.com", "password");
         service.asyncCreateUser(newUser, testCallback(new CreationResponseCallback() {
             @Override
             public void onCompletion(CreationResponse response) {
@@ -180,13 +180,13 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
     @Test
     @Ignore // until we can delete users this test will fail every time but the first time its run
     public void testCreateUser() {
-        CMResponse response = service.insert(USER);
+        CreationResponse response = service.insert(USER);
         Assert.assertTrue(response.was(201));
     }
 
     @Test
     public void testUserLogin() {
-        CMUser nonExistentUser = new CMUser("some@dude.com", "123");
+        JavaCMUser nonExistentUser = new JavaCMUser("some@dude.com", "123");
         LoginResponse response = service.login(nonExistentUser);
         Assert.assertTrue(response.was(401));
         service.insert(USER);
@@ -210,7 +210,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
 
     @Test
     public void testAsyncChangePassword() {
-        CMUser user = randomUser();
+        JavaCMUser user = randomUser();
         service.insert(user);
         service.asyncChangePassword(user, "newPassword", testCallback(new CMResponseCallback() {
             public void onCompletion(CMResponse response) {
@@ -218,14 +218,14 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
             }
         }));
         waitThenAssertTestResults();
-        CMUser newPasswordUser = new CMUser(user.getEmail(), "newPassword");
+        JavaCMUser newPasswordUser = new JavaCMUser(user.getEmail(), "newPassword");
         LoginResponse response = service.login(newPasswordUser);
         assertTrue(response.wasSuccess());
     }
 
     @Test
     public void testAsyncResetPassword() {
-        CMUser user = randomUser();
+        JavaCMUser user = randomUser();
         service.insert(user);
 
         service.asyncResetPasswordRequest(user.getEmail(), testCallback(new CMResponseCallback() {
@@ -247,7 +247,7 @@ public class CloudMineWebServiceIntegrationTest extends ServiceTestBase{
             }
         }));
         waitThenAssertTestResults();
-        service.asyncLogin(new CMUser("thisdoesntexist@dddd.com", "somepass"), testCallback(new LoginResponseCallback() {
+        service.asyncLogin(new JavaCMUser("thisdoesntexist@dddd.com", "somepass"), testCallback(new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
                 Assert.assertEquals(CMSessionToken.FAILED, response.getSessionToken());
             }

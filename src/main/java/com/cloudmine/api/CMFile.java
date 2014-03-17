@@ -128,7 +128,7 @@ public class CMFile implements Transportable, Savable<FileCreationResponse, Obje
     }
 
     @Override
-    public boolean setSaveWith(CMUser user) {
+    public boolean setSaveWith(JavaCMUser user) {
         return setSaveWith(StoreIdentifier.StoreIdentifier(user));
     }
 
@@ -188,7 +188,7 @@ public class CMFile implements Transportable, Savable<FileCreationResponse, Obje
     }
 
     @Override
-    public CMUser getUser() {
+    public JavaCMUser getUser() {
         return getSavedWith().getUser();
     }
 

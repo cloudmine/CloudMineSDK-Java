@@ -72,7 +72,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testSaveUserObject() throws ExecutionException, InterruptedException {
         final SimpleCMObject object = new SimpleCMObject();
         object.add("bool", true);
-        final CMUser user = randomUser();
+        final JavaCMUser user = randomUser();
         CMWebService.getService().insert(user);
 
 
@@ -144,7 +144,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testUserLogin() {
-        CMUser user = user();
+        JavaCMUser user = user();
         service.insert(user);
         CMSessionToken token = service.login(user).getSessionToken();
         service.getUserWebService(token).insert(new SimpleCMObject("key").add("k", "v").transportableRepresentation());
@@ -162,7 +162,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
             }
         }));
         waitThenAssertTestResults();
-        store.login(new CMUser("dontexist@nowhere.net", "sp"), testCallback(new LoginResponseCallback() {
+        store.login(new JavaCMUser("dontexist@nowhere.net", "sp"), testCallback(new LoginResponseCallback() {
             public void onCompletion(LoginResponse response) {
                 assertEquals(LoginCode.MISSING_OR_INVALID_AUTHORIZATION, response.getResponseCode());
             }
@@ -178,7 +178,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
         service.insert(appObject.transportableRepresentation());
 
-        final CMUser user = user();
+        final JavaCMUser user = user();
         service.insert(user);
         final CMSessionToken token = service.login(user).getSessionToken();
 
@@ -209,7 +209,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
     public void testLoadUserObjectsOfClass() {
         SimpleCMObject object = simpleObject();
         object.setClass("testObject");
-        CMUser user = user();
+        JavaCMUser user = user();
         object.setSaveWith(user);
         object.save(testCallback(new ObjectModificationResponseCallback() {
             public void onCompletion(ObjectModificationResponse response) {
@@ -358,7 +358,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
         final SimpleCMObject userObject = new SimpleCMObject();
         userObject.add("key", "value");
 
-        CMUser user = user();
+        JavaCMUser user = user();
 
         userObject.setSaveWith(user);
         store.setUser(user);
@@ -382,7 +382,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testInvalidCredentialsUserOperation() {
-        store.setUser(new CMUser("xnnxNOEXISTMANxnxnx@hotmail.com", "t"));
+        store.setUser(new JavaCMUser("xnnxNOEXISTMANxnxnx@hotmail.com", "t"));
         final Immutable<Boolean> wasEntered = new Immutable<Boolean>();
         AsyncTestResultsCoordinator.ignoreOnFailure(true);
         store.loadUserObjectsOfClass("whatever", testCallback(new CMObjectResponseCallback() {
@@ -402,7 +402,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testCreateAndLoadUserFile() throws IOException {
-        final CMUser user = user();
+        final JavaCMUser user = user();
         final CMFile file = new CMFile(getObjectInputStream());
         file.setSaveWith(user);
         store.setUser(user);
@@ -438,7 +438,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testDeleteUserFile() throws IOException {
-        final CMUser user = user();
+        final JavaCMUser user = user();
         final CMFile file = new CMFile(getObjectInputStream());
 
         file.setSaveWith(user);
@@ -529,9 +529,9 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testLoadAllUsers() {
-        final List<CMUser> users = new ArrayList<CMUser>();
+        final List<JavaCMUser> users = new ArrayList<JavaCMUser>();
         for(String userName : new String[]{"fred", "liz", "sarah"}) {
-            CMUser user = new CMUser(userName + "@gmail.com", "password");
+            JavaCMUser user = new JavaCMUser(userName + "@gmail.com", "password");
             users.add(user);
             CMWebService.getService().insert(user);
         }
@@ -547,7 +547,7 @@ public class CMStoreIntegrationTest extends ServiceTestBase {
 
     @Test
     public void testLoadLoggedInUser() {
-        final CMUser user = user();
+        final JavaCMUser user = user();
         service.insert(user);
         user.login(hasSuccess);
         waitThenAssertTestResults();

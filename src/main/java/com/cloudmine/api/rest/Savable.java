@@ -1,6 +1,7 @@
 package com.cloudmine.api.rest;
 
-import com.cloudmine.api.CMUser;
+import com.cloudmine.api.JavaCMUser;
+import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.ObjectLevel;
 import com.cloudmine.api.StoreIdentifier;
 import com.cloudmine.api.exceptions.CreationException;
@@ -31,7 +32,7 @@ public interface Savable<SAVE_CALLBACK, DELETE_CALLBACK> extends Transportable {
      * @throws com.cloudmine.api.exceptions.CreationException if user is null
      */
     @JsonIgnore
-    public boolean setSaveWith(CMUser user);
+    public boolean setSaveWith(JavaCMUser user);
 
     /**
      * Gets the StoreIdentifier which defines where this object will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
@@ -90,7 +91,7 @@ public interface Savable<SAVE_CALLBACK, DELETE_CALLBACK> extends Transportable {
      * Return the CMUser this object belongs to, if it exists. Careful - this can return null if no user has been set
      * @return if this object is saved to the USER level, and a user has been set, its user; otherwise null.
      */
-    public CMUser getUser();
+    public JavaCMUser getUser();
 
     /**
      * Get the objectId that uniquely identifies this object
