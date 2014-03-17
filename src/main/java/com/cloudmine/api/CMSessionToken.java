@@ -1,8 +1,8 @@
 package com.cloudmine.api;
 
 import com.cloudmine.api.exceptions.ConversionException;
-import com.cloudmine.api.rest.Transportable;
 import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.Transportable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -21,7 +22,7 @@ import java.util.Map;
  */
 public class CMSessionToken implements Transportable {
     private static final Logger LOG = LoggerFactory.getLogger(CMSessionToken.class);
-    private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+    private static final DateFormat LOGIN_EXPIRES_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
     private static final Date EXPIRED_DATE = new Date(0);
     public static final String INVALID_TOKEN = "invalidToken";
     /**

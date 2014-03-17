@@ -27,7 +27,6 @@ import java.util.UUID;
 
 import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
-import static com.cloudmine.test.AsyncTestResultsCoordinator.waitThenAssertTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -146,8 +145,7 @@ public class ServiceTestBase {
 
     public CMUser randomLoggedInUser() {
         CMUser randomUser = randomUser();
-        randomUser.createUser(hasSuccess);
-        waitThenAssertTestResults();
+        assertTrue(service.insert(randomUser).wasSuccess());
         return loggedInUser(randomUser);
     }
 

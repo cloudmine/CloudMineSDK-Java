@@ -196,7 +196,11 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     public void grantAccess(CMAccessList list) {
         if(list == null)
             return;
-        accessListIds.add(list.getObjectId());
+        addAccessListId(list.getObjectId());
+    }
+
+    public void addAccessListId(String listId) {
+        accessListIds.add(listId);
     }
 
     public void setAccessListIds(Set<String> accessListIds) {

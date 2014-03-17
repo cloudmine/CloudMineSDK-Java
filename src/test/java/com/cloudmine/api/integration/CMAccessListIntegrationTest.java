@@ -90,7 +90,6 @@ public class CMAccessListIntegrationTest extends ServiceTestBase {
         waitThenAssertTestResults();
     }
 
-
     @Test
     public void testGetAccessList() {
         CMUser user = user();

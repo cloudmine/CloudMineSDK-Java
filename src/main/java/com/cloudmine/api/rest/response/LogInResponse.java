@@ -100,5 +100,4 @@ public class LoginResponse extends ResponseBase<LoginCode> {
         }
         return tempToken;
     }
-
 }

@@ -234,6 +234,13 @@ public class JsonUtilities {
         }
     }
 
+    public static <CMOBJECT extends CMObject> String cmobjectsToJson(Collection<CMOBJECT> objects) throws ConversionException {
+        if(objects == null || objects.size() == 0) {
+            return EMPTY_JSON;
+        }
+        return cmobjectsToJson(objects.toArray(new CMObject[objects.size()]));
+    }
+
     /**
      * Convert a CMObject to its JSON representation
      * @param objects the objects to convert
