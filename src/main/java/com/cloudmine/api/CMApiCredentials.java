@@ -102,7 +102,13 @@ public class CMApiCredentials {
         return credentials;
     }
 
-    private CMApiCredentials(String id, String apiKey, String baseUrl) {
+    /**
+     * Create a new instance of CMApiCredentials.
+     * @param id
+     * @param apiKey
+     * @param baseUrl
+     */
+    public CMApiCredentials(String id, String apiKey, String baseUrl) {
         applicationIdentifier = id;
         applicationApiKey = apiKey;
         this.baseUrl = baseUrl;
