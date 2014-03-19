@@ -1,5 +1,6 @@
 package com.cloudmine.api.rest;
 
+import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.JavaAccessListController;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.JavaCMUser;
@@ -40,7 +41,7 @@ public class UserCMWebService extends CMWebService {
      * @param asynchronousHttpClient This should probably be the AndroidAsynchronousHttpClient, but you may provide your own implementation of the interface
      */
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
-        super(baseUrl, asynchronousHttpClient);
+        super(baseUrl, CMApiCredentials.getApplicationApiKey(), asynchronousHttpClient);
         this.sessionToken = token;
         userHeader = LibrarySpecificClassCreator.getCreator().getHeaderFactory().getUserCloudMineHeader(token);
     }

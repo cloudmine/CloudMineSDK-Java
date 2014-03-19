@@ -16,7 +16,7 @@ public interface HeaderFactory {
     public static final String DEVICE_HEADER_KEY = "X-CloudMine-UT";
     public static final String REQUEST_ID_KEY = "X-Request-Id";
     public static final String API_HEADER_KEY = "X-CloudMine-ApiKey";
-    Set<Header> getCloudMineHeaders();
+    Set<Header> getCloudMineHeaders(String apiKey);
     Header getUserCloudMineHeader(CMSessionToken token);
     String getCloudMineAgent();
 }

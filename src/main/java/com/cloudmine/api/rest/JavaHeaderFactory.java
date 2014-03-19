@@ -1,7 +1,6 @@
 package com.cloudmine.api.rest;
 
 import com.cloudmine.api.BaseDeviceIdentifier;
-import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.Strings;
 import org.apache.http.Header;
@@ -22,9 +21,9 @@ public class JavaHeaderFactory implements HeaderFactory {
     private final BaseDeviceIdentifier deviceIdentifier = new BaseDeviceIdentifier();
 
     @Override
-    public Set<Header> getCloudMineHeaders() {
+    public Set<Header> getCloudMineHeaders(String apiKey) {
         Set<Header> headerSet = new HashSet<Header>();
-        headerSet.add(CMApiCredentials.getCloudMineHeader());
+        headerSet.add(new BasicHeader(API_HEADER_KEY, apiKey));
         headerSet.add(new BasicHeader(AGENT_HEADER_KEY, getCloudMineAgent()));
         headerSet.add(getDeviceIdentifierHeader());
         return headerSet;

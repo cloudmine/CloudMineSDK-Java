@@ -89,6 +89,7 @@ public class CMWebService {
     protected final AsynchronousHttpClient asyncHttpClient; //TODO split this into an asynch and synch impl instead of both in one?
     private CMSessionToken loggedInSessionToken;
     private final Map<CMSessionToken, UserCMWebService> loggedInUserServices = new WeakHashMap<CMSessionToken, UserCMWebService>();
+    final String apiKey;
 
     /**
      * Get the instance of CMWebService. You should use this method instead of constructing your own,
@@ -102,18 +103,23 @@ public class CMWebService {
     }
 
     public static CMWebService getService(String appId, String apiKey) {
-        CMApiCredentials.initialize(appId, apiKey);
+        return getService(appId, apiKey, CMApiCredentials.getCredentials().getBaseUrl());
+    }
+
+    public static CMWebService getService(String appId, String apiKey, String baseUrl) {
+        CMApiCredentials.initialize(appId, apiKey, baseUrl);
         service = new CMWebService(CMApiCredentials.getApplicationIdentifier(), LibrarySpecificClassCreator.getCreator().getAsynchronousHttpClient());
         return service;
     }
 
-    protected CMWebService(CMURLBuilder baseUrl, AsynchronousHttpClient asyncClient) {
+    protected CMWebService(CMURLBuilder baseUrl, String apiKey, AsynchronousHttpClient asyncClient) {
         this.baseUrl = baseUrl;
         asyncHttpClient = asyncClient;
+        this.apiKey = apiKey;
     }
 
     protected CMWebService(String appId, AsynchronousHttpClient asyncClient) {
-        this(new CMURLBuilder(appId), asyncClient);
+        this(new CMURLBuilder(CMApiCredentials.getCredentials().getBaseUrl(), appId), CMApiCredentials.getApplicationApiKey(), asyncClient);
     }
 
     /**
@@ -1432,7 +1438,7 @@ public class CMWebService {
         return post;
     }
 
-    private HttpGet createGet() {
+    HttpGet createGet() {
         HttpGet get = new HttpGet(baseUrl.copy().text().asUrlString());
         addCloudMineHeader(get);
         return get;
@@ -1559,7 +1565,7 @@ public class CMWebService {
     }
 
     protected void addCloudMineHeader(AbstractHttpMessage message) {
-        for(Header header : LibrarySpecificClassCreator.getCreator().getHeaderFactory().getCloudMineHeaders()) {
+        for(Header header : LibrarySpecificClassCreator.getCreator().getHeaderFactory().getCloudMineHeaders(apiKey)) {
             message.addHeader(header);
         }
     }
