@@ -88,6 +88,17 @@
         </repository>
     </repositories>
 
+    <distributionManagement>
+        <repository>
+            <id>repo</id>
+            <url>https://github.com/cloudmine/maven/raw/master/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot-repo</id>
+            <url>https://github.com/cloudmine/maven/raw/master/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <profiles>
         <profile>
