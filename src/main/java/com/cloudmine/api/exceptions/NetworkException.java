@@ -5,7 +5,7 @@ package com.cloudmine.api.exceptions;
  * <br>Copyright CloudMine LLC. All rights reserved<br> See LICENSE file included with SDK for details.
  */
 public class NetworkException extends CloudMineException {
-    protected NetworkException(String msg) {
+    public NetworkException(String msg) {
         super(msg);
     }
 
