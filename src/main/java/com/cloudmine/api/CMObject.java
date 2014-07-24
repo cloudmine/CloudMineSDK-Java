@@ -138,6 +138,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
     }
 
     @JsonIgnore
+    @Deprecated
     public boolean setSaveWith(StoreIdentifier identifier) {
         LOG.debug("StoreId is current: " + storeId + " and if unset will be set to " + identifier);
         return storeId.setValue(identifier);
@@ -149,6 +150,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * @return true if the value was set; false if it has already been set OR null was passed in
      */
     @JsonIgnore
+    @Deprecated
     public boolean setSaveWith(JavaCMUser user) {
         try {
             return setSaveWith(StoreIdentifier.StoreIdentifier(user));
@@ -163,6 +165,7 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * @return the StoreIdentifier which defines where this CMObject will be saved. If it has not yet been set, {@link StoreIdentifier#DEFAULT} is returned
      */
     @JsonIgnore
+    @Deprecated
     public StoreIdentifier getSavedWith() {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
@@ -172,18 +175,21 @@ public class CMObject implements Transportable, Savable<ObjectModificationRespon
      * @param level the level to check
      * @return true if this saves with the given level
      */
+    @Deprecated
     public boolean isOnLevel(ObjectLevel level) {
         return getSavedWith().isLevel(level);
     }
 
     @Override
     @JsonIgnore
+    @Deprecated
     public boolean isUserLevel() {
         return isOnLevel(ObjectLevel.USER);
     }
 
     @Override
     @JsonIgnore
+    @Deprecated
     public boolean isApplicationLevel() {
         return isOnLevel(ObjectLevel.APPLICATION);
     }

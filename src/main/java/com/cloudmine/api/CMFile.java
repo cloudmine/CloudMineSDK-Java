@@ -123,35 +123,42 @@ public class CMFile implements Transportable, Savable<FileCreationResponse, Obje
 
 
     @Override
+    @Deprecated
     public boolean setSaveWith(StoreIdentifier identifier) {
         return storeId.setValue(identifier);
     }
 
     @Override
+    @Deprecated
     public boolean setSaveWith(JavaCMUser user) {
         return setSaveWith(StoreIdentifier.StoreIdentifier(user));
     }
 
     @Override
+    @Deprecated
     public StoreIdentifier getSavedWith() {
         return storeId.value(StoreIdentifier.DEFAULT);
     }
 
+    @Deprecated
     public ObjectLevel getSaveLevel() {
         return getSavedWith().getObjectLevel();
     }
 
     @Override
+    @Deprecated
     public boolean isOnLevel(ObjectLevel level) {
         return getSavedWith().isLevel(level);
     }
 
     @Override
+    @Deprecated
     public boolean isUserLevel() {
         return isOnLevel(ObjectLevel.USER);
     }
 
     @Override
+    @Deprecated
     public boolean isApplicationLevel() {
         return isOnLevel(ObjectLevel.APPLICATION);
     }
