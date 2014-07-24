@@ -94,7 +94,6 @@ public class JavaCMUser extends CMObject {
 
     }
 
-
     private String email;
     private String userName;
     private String password;

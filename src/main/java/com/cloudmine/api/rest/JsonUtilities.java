@@ -156,6 +156,20 @@ public class JsonUtilities {
         return "\"" + toQuote + "\"";
     }
 
+
+    public static String getIdentifierBody(String email, String userName) {
+        StringBuilder jsonBuilder = new StringBuilder("{");
+        String separator = "";
+        if(Strings.isNotEmpty(email)) {
+            jsonBuilder.append("\"email\": \"").append(email).append("\"");
+            separator = ", ";
+        }
+        if(Strings.isNotEmpty(userName)) {
+            jsonBuilder.append(separator).append("\"username\": \"").append(userName).append("\"");
+        }
+        return jsonBuilder.append("}").toString();
+    }
+
     public static Transportable keyedJsonCollection(Collection<CMObject> cmObjects) {
         if(cmObjects == null || cmObjects.isEmpty()) return new TransportableString(EMPTY_JSON);
         String[] unwrapped = new String[cmObjects.size()];
