@@ -6,7 +6,7 @@
 
     <groupId>com.cloudmine.api</groupId>
     <artifactId>cloudmine-javasdk</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.2</version>
     <packaging>jar</packaging>
 
     <build>
@@ -111,7 +111,7 @@
                 <dependency>
                     <groupId>com.cloudmine.api</groupId>
                     <artifactId>cloudmine-android</artifactId>
-                    <version>0.6.1</version>
+                    <version>0.6.2</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.httpcomponents</groupId>
