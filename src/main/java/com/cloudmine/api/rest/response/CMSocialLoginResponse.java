@@ -1,10 +1,8 @@
 package com.cloudmine.api.rest.response;
 
-import com.cloudmine.api.CMSessionToken;
 import com.cloudmine.api.JavaCMUser;
 import com.cloudmine.api.exceptions.CreationException;
 import com.cloudmine.api.rest.JsonUtilities;
-import com.cloudmine.api.rest.response.code.CMSocialCode;
 import org.apache.http.HttpResponse;
 
 import java.util.Map;
@@ -14,7 +12,7 @@ import java.util.Map;
  * Copyright CloudMine LLC. All rights reserved<br>
  * See LICENSE file included with SDK for details.
  */
-public class CMSocialLoginResponse extends ResponseBase<CMSocialCode>{
+public class CMSocialLoginResponse extends LoginResponse{
     public static final ResponseConstructor<CMSocialLoginResponse> CONSTRUCTOR = new ResponseConstructor<CMSocialLoginResponse>() {
         @Override
         public CMSocialLoginResponse construct(HttpResponse response) throws CreationException {
@@ -27,42 +25,30 @@ public class CMSocialLoginResponse extends ResponseBase<CMSocialCode>{
         }
     };
 
-    private final CMSessionToken token;
     private final JavaCMUser user;
 
     public CMSocialLoginResponse(HttpResponse response) {
         super(response);
-        token = new CMSessionToken(getMessageBody());
-        Object profileObject = JsonUtilities.jsonToMap(getMessageBody()).get(JavaCMUser.PROFILE_KEY);
-        if(!(profileObject instanceof Map)) {
-            user = null;
-            return;
-        }
-        String profile = JsonUtilities.mapToJson((Map<String, ? extends Object>) profileObject);
-        user = (JavaCMUser)JsonUtilities.jsonToClass(profile);
-        user.setSessionToken(token);
+
+        String messageBody = getMessageBody();
+        user = getUserFromMessageBody(messageBody);
     }
 
     public CMSocialLoginResponse(String msgBody, int responseCode) {
         super(msgBody, responseCode);
-        token = new CMSessionToken(msgBody);
-        Object profileObject = JsonUtilities.jsonToMap(msgBody).get(JavaCMUser.PROFILE_KEY);
+        user = getUserFromMessageBody(msgBody);
+    }
+
+
+    protected JavaCMUser getUserFromMessageBody(String messageBody) {
+        Object profileObject = JsonUtilities.jsonToMap(messageBody).get(JavaCMUser.PROFILE_KEY);
         if(!(profileObject instanceof Map)) {
-            user = null;
-            return;
+            return null;
         }
         String profile = JsonUtilities.mapToJson((Map<String, ? extends Object>) profileObject);
-        user = (JavaCMUser)JsonUtilities.jsonToClass(profile);
-        user.setSessionToken(token);
-    }
-
-    @Override
-    public CMSocialCode getResponseCode() {
-        return CMSocialCode.codeForStatus(getStatusCode());
-    }
-
-    public CMSessionToken getSessionToken() {
-        return token;
+        JavaCMUser user = (JavaCMUser)JsonUtilities.jsonToClass(profile);
+        user.setSessionToken(getSessionToken());
+        return user;
     }
 
     /**
