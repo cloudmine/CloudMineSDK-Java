@@ -4,11 +4,11 @@ package com.cloudmine.api.rest;
 import com.cloudmine.api.CMGeoPoint;
 import com.cloudmine.api.CMObject;
 import com.cloudmine.api.SimpleCMObject;
-import com.cloudmine.api.SimpleCMObjectTest;
 import com.cloudmine.api.persistance.ClassNameRegistry;
 import com.cloudmine.test.ExtendedCMObject;
 import com.cloudmine.test.ExtendedCMUser;
 import com.cloudmine.test.SimpleExtendedCMObject;
+import com.cloudmine.test.TestUtilities;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -185,7 +185,8 @@ public class JsonUtilitiesTest {
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
         simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.cmobjectsToJson(convertableObject);
-        assertTrue(JsonUtilities.isJsonEquivalent(json, simpleObject.transportableRepresentation()));
+        TestUtilities.compareJson(json, simpleObject.transportableRepresentation());
+
 
         Map<String, ExtendedCMObject> map = JsonUtilities.jsonToClassMap(json, ExtendedCMObject.class);
         assertEquals(convertableObject, map.get(convertableObject.getObjectId()));
@@ -222,12 +223,11 @@ public class JsonUtilitiesTest {
                 "\"otherExtendedObjects\":{}," +
                 "\"name\":\"fred\",\n" +
                 "\"date\":" + dateJson + ",\n" +
-                SimpleCMObjectTest.EMPTY_ACCESS_JSON +
                 "\"number\":5,\n" +
                 "\"__id__\":\"" + convertableObject.getObjectId() + "\",\n" +
                 JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, convertableObject.getClassName()) +
                 "}";
-        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, JsonUtilities.objectToJson(convertableObject)));
+        TestUtilities.compareJson(expectedJson, JsonUtilities.objectToJson(convertableObject));
     }
 
     @Test

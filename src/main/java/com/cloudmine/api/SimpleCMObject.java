@@ -138,7 +138,8 @@ public class SimpleCMObject extends CMObject {
             Object accessObject = get(ACCESS_KEY);
             setAccessListIds(new HashSet<String>((Collection<? extends String>) accessObject));
         }
-        add(CMObject.ACCESS_KEY, getAccessListIds());
+        Set<String> accessListIds = getAccessListIds();
+        if(!accessListIds.isEmpty()) add(CMObject.ACCESS_KEY, accessListIds);
     }
 
     /**

@@ -34,7 +34,7 @@ public class CloudMineUserTest {
                 "\"__services__\":[]," +
                  JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, ExtendedCMUser.class.getName()) +
                 "}";
-        assertTrue(user.profileTransportRepresentation()  + " \nshould equal\n" + expectedJson, JsonUtilities.isJsonEquivalent(expectedJson, user.profileTransportRepresentation()));
+        assertTrue("\n" + user.profileTransportRepresentation()  + " \nshould equal\n" + expectedJson, JsonUtilities.isJsonEquivalent(expectedJson, user.profileTransportRepresentation()));
     }
 
     @Test
