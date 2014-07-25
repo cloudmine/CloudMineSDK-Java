@@ -109,6 +109,9 @@ public class CMApiCredentials {
      * @param baseUrl
      */
     public CMApiCredentials(String id, String apiKey, String baseUrl) {
+        if(Strings.isEmpty(id)) throw new CreationException("Cannot have an empty API id");
+        if(Strings.isEmpty(apiKey)) throw new CreationException("Cannot have an empty API key");
+        
         applicationIdentifier = id;
         applicationApiKey = apiKey;
         this.baseUrl = baseUrl;
