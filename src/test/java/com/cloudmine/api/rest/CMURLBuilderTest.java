@@ -62,7 +62,7 @@ public class CMURLBuilderTest {
     public void testImmutable() {
         CMURLBuilder builder = new CMURLBuilder(APP_ID);
 
-        CMURLBuilder modifiedBuilder = builder.addQuery("all", "true");
+        CMURLBuilder modifiedBuilder = builder.copy().addQuery("all", "true");//have to copy because no longer immutable
         assertNotSame(builder, modifiedBuilder);
     }
 
@@ -81,7 +81,7 @@ public class CMURLBuilderTest {
                 CMPagingOptions.CMPagingOptions(5, 10, true),
                 new CMServerFunction("cool Snippet", false),
                 CMSortOptions.NONE);
-        String expectedUrl = expectedBaseUrl() + "/text?keys=one,two,three+and+four&limit=5&skip=10&count=true&f=cool+Snippet&result_only=false&async=false";
+        String expectedUrl = expectedBaseUrl() + "/text?keys=one,two,three+and+four&limit=5&skip=10&count=true&f=cool+Snippet&result_only=false";
         assertEquals(expectedUrl, builder.text().objectIds(Arrays.asList("one", "two", "three and four")).options(requestOptions).asUrlString());
     }
 
