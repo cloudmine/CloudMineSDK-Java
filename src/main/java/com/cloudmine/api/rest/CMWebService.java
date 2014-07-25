@@ -160,7 +160,7 @@ public class CMWebService {
         }
         UserCMWebService userService = loggedInUserServices.get(token);
         if(userService == null) {
-            userService = UserCMWebService.UserCMWebService(baseUrl.copy().user(), token, asyncHttpClient);
+            userService = UserCMWebService.UserCMWebService(baseUrl.copy().user(), apiKey, token, asyncHttpClient);
             loggedInUserServices.put(token, userService);
         }
         return userService;

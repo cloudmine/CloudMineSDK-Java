@@ -41,7 +41,11 @@ public class UserCMWebService extends CMWebService {
      * @param asynchronousHttpClient This should probably be the AndroidAsynchronousHttpClient, but you may provide your own implementation of the interface
      */
     UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
-        super(baseUrl, CMApiCredentials.getApplicationApiKey(), asynchronousHttpClient);
+        this(baseUrl, CMApiCredentials.getApplicationApiKey(),token, asynchronousHttpClient);
+    }
+
+    UserCMWebService(CMURLBuilder baseUrl, String apiKey, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
+        super(baseUrl, apiKey, asynchronousHttpClient);
         this.sessionToken = token;
         userHeader = LibrarySpecificClassCreator.getCreator().getHeaderFactory().getUserCloudMineHeader(token);
     }
@@ -56,6 +60,10 @@ public class UserCMWebService extends CMWebService {
      */
     public static UserCMWebService UserCMWebService(CMURLBuilder baseUrl, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
         return new UserCMWebService(baseUrl, token, asynchronousHttpClient);
+    }
+
+    public static UserCMWebService UserCMWebService(CMURLBuilder baseUrl, String apiKey, CMSessionToken token, AsynchronousHttpClient asynchronousHttpClient) {
+        return new UserCMWebService(baseUrl, apiKey, token, asynchronousHttpClient);
     }
 
 
