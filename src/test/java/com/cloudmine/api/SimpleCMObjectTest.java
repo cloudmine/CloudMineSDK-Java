@@ -2,6 +2,7 @@ package com.cloudmine.api;
 
 import com.cloudmine.api.rest.JsonUtilities;
 import com.cloudmine.api.rest.JsonUtilitiesTest;
+import com.cloudmine.test.TestUtilities;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -37,7 +38,6 @@ public class SimpleCMObjectTest {
                 "    \"name\":\"john\",\n" +
                 "    \"__id__\":\"topLevelKey\",\n" +
                 "    \"numbers\":[1, 2, 3, 4, 5],\n" +
-                EMPTY_ACCESS_JSON +
                 "    \"date\":{\n" +
                 "    " + JsonUtilities.createJsonProperty(JsonUtilities.CLASS_KEY, JsonUtilities.DATE_CLASS) + ",\n" +
                 "    " + JsonUtilities.createJsonProperty(JsonUtilities.TIME_KEY, (JsonUtilitiesTest.dateValue.getTime() / 1000)) + "\n" +
@@ -47,7 +47,8 @@ public class SimpleCMObjectTest {
                 "        \"friends\":[\"fred\", \"ted\", \"ben\"]\n" +
                 "    }\n" +
                 "}}";
-        assertTrue(JsonUtilities.isJsonEquivalent(expectedJson, object.transportableRepresentation()));
+        TestUtilities.compareJson(expectedJson, object.transportableRepresentation());
+
     }
 
     @Test
