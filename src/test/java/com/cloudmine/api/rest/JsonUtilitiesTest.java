@@ -177,12 +177,14 @@ public class JsonUtilitiesTest {
         Date date = new Date();
         int number = 5;
         CMObject convertableObject = new ExtendedCMObject(name, date, number);
+        convertableObject.addAccessListId("acl");
 
         SimpleCMObject simpleObject = new SimpleCMObject(convertableObject.getObjectId());
         simpleObject.add("name", name);
         simpleObject.add("date", date);
         simpleObject.add("number", number);
         simpleObject.add("otherExtendedObjects", new HashMap<String, ExtendedCMObject>());
+        simpleObject.addAccessListId("acl");
         simpleObject.setClass(convertableObject.getClassName());
         String json = JsonUtilities.cmobjectsToJson(convertableObject);
         TestUtilities.compareJson(json, simpleObject.transportableRepresentation());
