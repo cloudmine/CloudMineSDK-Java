@@ -159,6 +159,7 @@ public class SimpleCMObject extends CMObject {
             Object contents = topLevelMap.remove(getObjectId());
             topLevelMap.put(objectId, contents);
         }
+        contents.put(JsonUtilities.OBJECT_ID_KEY, objectId);
     }
 
     public String getObjectId() {
