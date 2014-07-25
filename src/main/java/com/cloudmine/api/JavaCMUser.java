@@ -257,6 +257,7 @@ public class JavaCMUser extends CMObject {
      * either a username or e-mail
      * @return true if a log in attempt could be made
      */
+    @JsonIgnore
     public boolean isLoginAttemptPossible() {
         return Strings.isNotEmpty(password) &&
                 (Strings.isNotEmpty(getUserIdentifier()));
