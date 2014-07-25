@@ -1,30 +1,32 @@
 package com.cloudmine.api.integration;
 
-import com.cloudmine.api.CMApiCredentials;
 import com.cloudmine.api.JavaCMUser;
-import com.cloudmine.api.JavaCMUser;
-import com.cloudmine.api.rest.*;
+import com.cloudmine.api.rest.CMSocial;
+import com.cloudmine.api.rest.CMWebService;
+import com.cloudmine.api.rest.HttpVerb;
+import com.cloudmine.api.rest.JsonUtilities;
+import com.cloudmine.api.rest.UserCMWebService;
 import com.cloudmine.api.rest.callbacks.LoginResponseCallback;
 import com.cloudmine.api.rest.callbacks.SocialGraphCallback;
 import com.cloudmine.api.rest.response.LoginResponse;
 import com.cloudmine.api.rest.response.SocialGraphResponse;
 import com.cloudmine.test.ServiceTestBase;
 import org.apache.http.entity.ByteArrayEntity;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.cloudmine.test.AsyncTestResultsCoordinator.reset;
 import static com.cloudmine.test.AsyncTestResultsCoordinator.waitForTestResults;
 import static com.cloudmine.test.TestServiceCallback.testCallback;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
 
 /**

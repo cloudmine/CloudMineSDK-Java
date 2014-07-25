@@ -110,6 +110,10 @@ public class CMWebService {
         return service;
     }
 
+    public static CMWebService getService(CMApiCredentials credentials) {
+        return getService(credentials.getIdentifier(), credentials.getApiKey(), credentials.getBaseUrl());
+    }
+
     public static CMWebService getService(String appId, String apiKey) {
         return getService(appId, apiKey, CMApiCredentials.getCredentials().getBaseUrl());
     }

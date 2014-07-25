@@ -20,9 +20,9 @@ public class CMWebServiceTest {
 
     @Test
     public void testConfigurableURL() {
-        CMApiCredentials.initialize("id", "key", "https://api.rs.cloudmine.me");
+        CMApiCredentials credentials = CMApiCredentials.initialize("id", "key", "https://api.rs.cloudmine.me");
 
-        HttpGet get = CMWebService.getService().createGet();
+        HttpGet get = CMWebService.getService(credentials).createGet();
         assertEquals("api.rs.cloudmine.me", get.getURI().getHost());
 
         CMWebService webService = CMWebService.getService("difId", "difKey", "https://verizon.api.cloudmine.me");
