@@ -121,7 +121,7 @@
                 <dependency>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient</artifactId>
-                    <version>4.0-beta2</version>
+                    <version>4.5.13</version>
                 </dependency>
                 <dependency>
                     <groupId>com.android</groupId>
@@ -149,7 +149,7 @@
                 <dependency>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient</artifactId>
-                    <version>4.2.1</version>
+                    <version>4.5.13</version>
                 </dependency>
             </dependencies>
         </profile>
